@@ -1,0 +1,1609 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Character Settings · Tsukimi</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --ink: #0a0a0a;
+        --mute: #8a8a8e;
+        --line: rgba(10, 10, 10, 0.07);
+        --paper: #fafaf7;
+        --paper-2: #f1f0ea;
+        --lime: #d4ff4d;
+        --coral: #ff6b6b;
+        --blue: #5b7cfa;
+        --purple: #a78bfa;
+        --amber: #f59e0b;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      body {
+        font-family: 'Geist', sans-serif;
+        background: var(--paper);
+        color: var(--ink);
+        height: 100vh;
+        overflow: hidden;
+      }
+
+      /* ── Nav ── */
+      .nav-strings {
+        height: 80px;
+        display: flex;
+        justify-content: center;
+        gap: 40px;
+        padding-top: 10px;
+        position: relative;
+        z-index: 100;
+      }
+      .nav-tag {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        cursor: pointer;
+        transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        transform-origin: top center;
+      }
+      .nav-tag:active {
+        transform: scale(0.9) rotate(5deg);
+      }
+      .nav-tag.active .tag-body {
+        background: var(--ink);
+        color: white;
+      }
+      .nav-thread {
+        width: 1px;
+        height: 20px;
+        background: var(--line);
+      }
+      .tag-body {
+        padding: 6px 15px;
+        background: white;
+        border: 1px solid var(--line);
+        border-radius: 4px;
+        font-family: 'Geist Mono', monospace;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        box-shadow: 0 4px 10px -4px rgba(0, 0, 0, 0.1);
+      }
+
+      /* ── Scroll container ── */
+      .main-container {
+        height: calc(100vh - 80px);
+        overflow-y: auto;
+        padding: 0 20px 100px;
+        scrollbar-width: none;
+      }
+      .main-container::-webkit-scrollbar {
+        display: none;
+      }
+
+      /* ── Top actions ── */
+      .top-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+      }
+      .btn-back {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border: 1px solid var(--line);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        background: white;
+      }
+      .action-group {
+        display: flex;
+        gap: 5px;
+      }
+      .mini-btn {
+        padding: 4px 9px;
+        border-radius: 100px;
+        font-family: 'Geist Mono', monospace;
+        font-size: 10px;
+        cursor: pointer;
+        border: 1px solid var(--line);
+        background: white;
+        white-space: nowrap;
+      }
+      .btn-del {
+        color: var(--coral);
+        border-color: rgba(255, 107, 107, 0.2);
+      }
+
+      /* ── Fields ── */
+      .field-label {
+        font-family: 'Geist Mono', monospace;
+        font-size: 9px;
+        color: var(--mute);
+        text-transform: uppercase;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .field-label::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: var(--line);
+      }
+
+      .input-plain {
+        width: 100%;
+        border: none;
+        background: transparent;
+        font-family: 'Fraunces', serif;
+        font-style: italic;
+        font-size: 24px;
+        margin-bottom: 20px;
+        outline: none;
+        color: var(--ink);
+      }
+      .input-area {
+        width: 100%;
+        min-height: 80px;
+        border: 1px dashed var(--line);
+        border-radius: 12px;
+        padding: 12px;
+        font-size: 13px;
+        line-height: 1.6;
+        margin-bottom: 25px;
+        outline: none;
+        background: rgba(255, 255, 255, 0.5);
+      }
+
+      /* ── Avatar ── */
+      .avatar-section {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 30px;
+        align-items: flex-start;
+      }
+      .photo-frame {
+        width: 110px;
+        height: 130px;
+        background: white;
+        padding: 8px 8px 25px 8px;
+        box-shadow: 0 10px 20px -10px rgba(0, 0, 0, 0.15);
+        position: relative;
+        transform: rotate(-2deg);
+        flex-shrink: 0;
+        cursor: pointer;
+      }
+      .photo-frame::before {
+        content: '';
+        position: absolute;
+        top: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 50px;
+        height: 18px;
+        background: rgba(212, 255, 77, 0.4);
+        backdrop-filter: blur(2px);
+        z-index: 2;
+      }
+      .photo-frame img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        background: var(--paper-2);
+      }
+      .avatar-inputs {
+        flex: 1;
+      }
+      .url-input {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        font-family: 'Geist Mono', monospace;
+        font-size: 10px;
+        margin-top: 10px;
+        outline: none;
+        background: white;
+      }
+
+      /* ── Select ── */
+      .select-custom {
+        width: 100%;
+        padding: 12px;
+        border-radius: 12px;
+        border: 1px solid var(--line);
+        background: white;
+        font-family: inherit;
+        appearance: none;
+        cursor: pointer;
+        margin-bottom: 30px;
+        outline: none;
+      }
+
+      /* ══════════════════════════════
+         LIST PAGE
+      ══════════════════════════════ */
+      .list-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        padding-top: 4px;
+        margin-bottom: 22px;
+      }
+      .list-title {
+        font-family: 'Fraunces', serif;
+        font-size: 30px;
+        font-style: italic;
+        line-height: 1;
+      }
+      .list-count {
+        font-family: 'Geist Mono', monospace;
+        font-size: 10px;
+        color: var(--mute);
+        margin-bottom: 4px;
+      }
+
+      /* ── Card variants ── */
+      .entity-card {
+        position: relative;
+        border-radius: 16px;
+        padding: 13px 18px;
+        margin-bottom: 12px;
+        cursor: pointer;
+        overflow: hidden;
+        transition:
+          transform 0.18s,
+          box-shadow 0.18s;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .entity-card:active {
+        transform: scale(0.97);
+      }
+
+      /* Variant A — white + lime left stripe */
+      .card-a {
+        background: white;
+        border: 1px solid var(--line);
+        border-left: 4px solid var(--lime);
+      }
+      /* Variant B — paper-2 bg, coral accent dot, slight raise */
+      .card-b {
+        background: var(--paper-2);
+        border: 1px solid transparent;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+      }
+      /* Variant C — white, blue top bar */
+      .card-c {
+        background: white;
+        border: 1px solid var(--line);
+        border-top: 3px solid var(--blue);
+      }
+      /* Variant D — white, ink hard shadow (editorial) */
+      .card-d {
+        background: white;
+        border: 1px solid var(--ink);
+        box-shadow: 3px 3px 0 var(--ink);
+        margin-right: 3px;
+        margin-bottom: 15px;
+      }
+      /* Variant E — tinted purple bg */
+      .card-e {
+        background: rgba(167, 139, 250, 0.08);
+        border: 1px solid rgba(167, 139, 250, 0.2);
+      }
+
+      .card-inner {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+      .card-avatar {
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        object-fit: cover;
+        background: var(--paper-2);
+        flex-shrink: 0;
+      }
+      .card-avatar.rect {
+        border-radius: 10px;
+      }
+      .card-meta {
+        flex: 1;
+        min-width: 0;
+      }
+      .card-name {
+        font-family: 'Fraunces', serif;
+        font-style: italic;
+        font-size: 18px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .card-sub {
+        font-family: 'Geist Mono', monospace;
+        font-size: 10px;
+        color: var(--mute);
+        margin-top: 3px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .card-chevron {
+        color: var(--mute);
+        font-size: 11px;
+        flex-shrink: 0;
+      }
+
+      /* Accent dots on certain cards */
+      .card-b .card-accent {
+        position: absolute;
+        top: 12px;
+        right: 14px;
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--coral);
+      }
+      .card-e .card-accent {
+        position: absolute;
+        top: 12px;
+        right: 14px;
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--purple);
+      }
+
+      /* Index badge on card-d */
+      .card-d .card-index {
+        position: absolute;
+        bottom: 10px;
+        right: 14px;
+        font-family: 'Geist Mono', monospace;
+        font-size: 9px;
+        color: var(--mute);
+        font-weight: 600;
+      }
+
+      /* Empty state */
+      .empty-state {
+        text-align: center;
+        padding: 60px 20px 30px;
+      }
+      .empty-icon {
+        font-size: 42px;
+        margin-bottom: 14px;
+        opacity: 0.18;
+      }
+      .empty-text {
+        font-family: 'Geist Mono', monospace;
+        font-size: 11px;
+        color: var(--mute);
+        line-height: 1.7;
+      }
+
+      /* ══════════════════════════════
+         WORLDBOOK
+      ══════════════════════════════ */
+      .worldbook-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+      .wb-title {
+        font-family: 'Fraunces', serif;
+        font-size: 18px;
+        font-style: italic;
+      }
+
+      /* Pre / Post tabs */
+      .wb-tabs {
+        display: flex;
+        gap: 3px;
+        background: var(--paper-2);
+        border-radius: 10px;
+        padding: 3px;
+        margin-bottom: 14px;
+      }
+      .wb-tab {
+        flex: 1;
+        text-align: center;
+        padding: 8px 6px;
+        border-radius: 8px;
+        font-family: 'Geist Mono', monospace;
+        font-size: 9px;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        cursor: pointer;
+        transition:
+          background 0.2s,
+          color 0.2s,
+          box-shadow 0.2s;
+        color: var(--mute);
+      }
+      .wb-tab.active {
+        background: white;
+        color: var(--ink);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+      }
+      .wb-tab-label {
+        display: block;
+      }
+      .wb-tab-sub {
+        display: block;
+        font-size: 8px;
+        color: var(--mute);
+        margin-top: 1px;
+        font-weight: 400;
+        letter-spacing: 0;
+      }
+      .wb-tab.active .wb-tab-sub {
+        color: var(--mute);
+      }
+
+      /* WB cards */
+      .wb-card {
+        background: white;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 14px;
+        margin-bottom: 10px;
+        position: relative;
+        transition:
+          opacity 0.3s,
+          filter 0.3s;
+      }
+      .wb-card.disabled {
+        opacity: 0.45;
+        filter: grayscale(1);
+      }
+      .wb-card-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+      .wb-card-name {
+        font-weight: 600;
+        font-size: 14px;
+      }
+
+      /* Keyword tags */
+      .wb-keys {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        margin-bottom: 7px;
+      }
+      .wb-key-tag {
+        background: rgba(91, 124, 250, 0.07);
+        border: 1px solid rgba(91, 124, 250, 0.18);
+        color: var(--blue);
+        border-radius: 20px;
+        padding: 2px 8px;
+        font-family: 'Geist Mono', monospace;
+        font-size: 9px;
+      }
+      .wb-key-tag.empty {
+        background: rgba(138, 138, 142, 0.07);
+        border-color: rgba(138, 138, 142, 0.18);
+        color: var(--mute);
+      }
+
+      .wb-preview {
+        font-size: 11px;
+        color: var(--mute);
+        line-height: 1.4;
+        max-height: 32px;
+        overflow: hidden;
+      }
+
+      .wb-card-actions {
+        display: flex;
+        gap: 14px;
+        margin-top: 10px;
+        padding-top: 8px;
+        border-top: 1px solid var(--line);
+      }
+      .wb-action-btn {
+        font-family: 'Geist Mono', monospace;
+        font-size: 10px;
+        color: var(--blue);
+        cursor: pointer;
+      }
+
+      /* ── WB empty ── */
+      .wb-empty {
+        text-align: center;
+        padding: 28px 20px;
+        font-family: 'Geist Mono', monospace;
+        font-size: 10px;
+        color: var(--mute);
+        line-height: 1.7;
+        border: 1px dashed var(--line);
+        border-radius: 14px;
+      }
+
+      /* ══════════════════════════════
+         FULL PANEL (WB editor)
+      ══════════════════════════════ */
+      .full-panel {
+        position: fixed;
+        inset: 0;
+        background: var(--paper);
+        z-index: 1000;
+        transform: translateY(100%);
+        transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+        display: flex;
+        flex-direction: column;
+        padding: 20px;
+      }
+      .full-panel.open {
+        transform: translateY(0);
+      }
+
+      /* ── Toggle ── */
+      .toggle-dot {
+        width: 34px;
+        height: 18px;
+        background: var(--paper-2);
+        border-radius: 20px;
+        position: relative;
+        cursor: pointer;
+        transition: background 0.3s;
+        flex-shrink: 0;
+      }
+      .toggle-dot::after {
+        content: '';
+        position: absolute;
+        top: 3px;
+        left: 3px;
+        width: 12px;
+        height: 12px;
+        background: white;
+        border-radius: 50%;
+        transition: left 0.3s;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .toggle-dot.on {
+        background: var(--lime);
+      }
+      .toggle-dot.on::after {
+        left: 19px;
+      }
+
+      /* ══════════════════════════════
+         SAVE BUTTON — small & refined
+      ══════════════════════════════ */
+      .floating-save {
+        position: fixed;
+        bottom: 24px;
+        right: 20px;
+        background: var(--ink);
+        color: white;
+        padding: 9px 16px;
+        border-radius: 100px;
+        font-family: 'Geist Mono', monospace;
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.22);
+        cursor: pointer;
+        z-index: 200;
+        transition:
+          transform 0.15s,
+          background 0.3s;
+        user-select: none;
+      }
+      .floating-save:active {
+        transform: scale(0.93);
+      }
+      .save-pulse {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--lime);
+        flex-shrink: 0;
+      }
+      .floating-save.saved {
+        background: #1a5c1a;
+      }
+
+      .hidden {
+        display: none !important;
+      }
+
+      /* 世界书优先级胶囊样式 */
+      .wb-priority-capsule {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2px 10px;
+        margin-right: 10px;
+        border-radius: 100px; /* 胶囊圆角 */
+        font-family: 'Geist Mono', monospace;
+        font-size: 10px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        /* 基础质感：微弱投影和浅色背景 */
+        background: white;
+        border: 1.5px solid var(--line);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        vertical-align: middle;
+        transition: all 0.2s ease;
+      }
+
+      /* 兼容 disabled 状态 */
+      .disabled .wb-priority-capsule {
+        filter: grayscale(1);
+        opacity: 0.6;
+      }
+    </style>
+    <style id="tsuki-dynamic-style"></style>
+  </head>
+  <body>
+    <!-- ════ NAV TAGS ════ -->
+    <div class="nav-strings">
+      <div class="nav-tag active" id="tagChar" onclick="switchTab('char')">
+        <div class="nav-thread"></div>
+        <div class="tag-body">CHARACTER</div>
+      </div>
+      <div class="nav-tag" id="tagUser" onclick="switchTab('user')">
+        <div class="nav-thread"></div>
+        <div class="tag-body">USER</div>
+      </div>
+    </div>
+
+    <!-- ════ CHAR LIST ════ -->
+    <div class="main-container" id="viewCharList">
+      <div class="list-header">
+        <div>
+          <div class="list-count" id="charListCount">0 characters</div>
+          <div class="list-title">Characters</div>
+        </div>
+        <div class="mini-btn" onclick="createNewChar()">+ NEW</div>
+      </div>
+      <div id="charCardGrid"></div>
+    </div>
+
+    <!-- ════ CHAR EDIT ════ -->
+    <div class="main-container hidden" id="viewCharEdit">
+      <div class="top-actions">
+        <div class="btn-back" onclick="backToList('char')"><i class="fa-solid fa-arrow-left"></i></div>
+        <div class="action-group">
+          <input
+            type="file"
+            id="charImportInput"
+            class="hidden"
+            accept=".json,.txt,.doc,.docx"
+            onchange="handleImport(this)"
+          />
+
+          <div class="mini-btn" onclick="document.getElementById('charImportInput').click()">
+            <i class="fa-solid fa-file-import"></i> IMPORT
+          </div>
+
+          <div class="mini-btn" onclick="exportCurrentChar()"><i class="fa-solid fa-file-export"></i> EXPORT</div>
+
+          <div class="mini-btn btn-del" onclick="deleteCurrentChar()"><i class="fa-solid fa-trash-can"></i> DELETE</div>
+        </div>
+      </div>
+
+      <div class="field-label">Char Name</div>
+      <input type="text" class="input-plain" id="charName" placeholder="Name this soul…" />
+
+      <div class="field-label">Remark</div>
+      <input
+        type="text"
+        class="input-plain"
+        id="charRemark"
+        placeholder="Your nickname for them"
+        style="font-size: 16px; margin-bottom: 25px"
+      />
+
+      <div class="avatar-section">
+        <div class="photo-frame" onclick="document.getElementById('charFile').click()">
+          <img id="charPreview" src="" alt="" />
+        </div>
+        <div class="avatar-inputs">
+          <div class="field-label">Portrait URL</div>
+          <input type="text" class="url-input" id="charAvatarUrl" placeholder="https://…" />
+          <input type="file" id="charFile" class="hidden" accept="image/*" />
+        </div>
+      </div>
+
+      <div class="field-label">Persona</div>
+      <div contenteditable="true" class="input-area" id="charPersona" placeholder="Describe their existence…"></div>
+
+      <div class="field-label">Bind User Preset</div>
+      <select class="select-custom" id="userBind">
+        <option value="">No binding</option>
+      </select>
+
+      <!-- Worldbook -->
+      <div class="worldbook-header">
+        <div class="wb-title">Memory Shards</div>
+        <div class="mini-btn" onclick="addWbItem()">+ NEW SHARD</div>
+      </div>
+
+      <div class="wb-tabs">
+        <div class="wb-tab active" id="wbTabPre" onclick="switchWbTab('pre')">
+          <span class="wb-tab-label">PRE-CONTEXT</span>
+          <span class="wb-tab-sub">World Info</span>
+        </div>
+        <div class="wb-tab" id="wbTabPost" onclick="switchWbTab('post')">
+          <span class="wb-tab-label">POST-CONTEXT</span>
+          <span class="wb-tab-sub">Author Notes</span>
+        </div>
+      </div>
+
+      <div id="wbList"></div>
+    </div>
+
+    <!-- ════ USER LIST ════ -->
+    <div class="main-container hidden" id="viewUserList">
+      <div class="list-header">
+        <div>
+          <div class="list-count" id="userListCount">0 users</div>
+          <div class="list-title">Users</div>
+        </div>
+        <div class="mini-btn" onclick="createNewUser()">+ NEW</div>
+      </div>
+      <div id="userCardGrid"></div>
+    </div>
+
+    <!-- ════ USER EDIT ════ -->
+    <div class="main-container hidden" id="viewUserEdit">
+      <div class="top-actions">
+        <div class="btn-back" onclick="backToList('user')"><i class="fa-solid fa-arrow-left"></i></div>
+        <div class="mini-btn btn-del" onclick="deleteCurrentUser()"><i class="fa-solid fa-trash-can"></i> DELETE</div>
+      </div>
+
+      <div class="field-label">User Name</div>
+      <input type="text" class="input-plain" id="userName" placeholder="Who are you?" />
+
+      <div class="avatar-section">
+        <div class="photo-frame" style="transform: rotate(2deg)" onclick="document.getElementById('userFile').click()">
+          <img id="userPreview" src="" alt="" />
+        </div>
+        <div class="avatar-inputs">
+          <div class="field-label">Avatar URL</div>
+          <input type="text" class="url-input" id="userAvatarUrl" placeholder="https://…" />
+          <input type="file" id="userFile" class="hidden" accept="image/*" />
+        </div>
+      </div>
+
+      <div class="field-label">Your Persona</div>
+      <div
+        contenteditable="true"
+        class="input-area"
+        id="userPersona"
+        placeholder="Tell the world about yourself…"
+      ></div>
+    </div>
+
+    <!-- ════ WORLDBOOK EDITOR (full-screen panel) ════ -->
+    <div class="full-panel" id="wbEditor">
+      <div class="top-actions">
+        <div class="wb-title">Shard Detail</div>
+        <div class="mini-btn" onclick="closeWbEditor()">DONE</div>
+      </div>
+
+      <div style="flex: 1; overflow-y: auto">
+        <div class="field-label">Shard Title</div>
+        <input type="text" class="input-plain" id="editWbTitle" style="font-size: 20px" />
+
+        <div style="display: flex; gap: 20px; margin-bottom: 20px">
+          <div style="flex: 1">
+            <div class="field-label">Priority (1–999)</div>
+            <input type="number" class="url-input" id="editWbPriority" value="100" style="margin-top: 0" />
+          </div>
+          <div>
+            <div class="field-label">Enabled</div>
+            <div
+              class="toggle-dot"
+              id="editWbToggle"
+              onclick="this.classList.toggle('on')"
+              style="margin-top: 4px"
+            ></div>
+          </div>
+        </div>
+
+        <div class="field-label">Keywords</div>
+        <input
+          type="text"
+          class="url-input"
+          id="editWbKeys"
+          placeholder="keyword1, keyword2, 关键词3"
+          style="margin-top: 0; margin-bottom: 20px"
+        />
+
+        <div class="field-label" style="margin-top: 4px">Content</div>
+        <div contenteditable="true" class="input-area" id="editWbContent" style="min-height: 200px"></div>
+      </div>
+    </div>
+
+    <!-- ════ FLOATING SAVE ════ -->
+    <div class="floating-save hidden" id="floatingSave" onclick="saveAll()">
+      <div class="save-pulse"></div>
+      SAVE
+    </div>
+
+    <script>
+      /* ═══════════════════════════════════════════════════════════
+         Storage: IndexedDB  "tsukiphonepromax"  v2
+         ─────────────────────────────────────────────────────────
+         objectStore "chars"  (keyPath:"id")
+           { id, name, remark, avatar, persona, worldbook[], bindId }
+         objectStore "users"  (keyPath:"id")
+           { id, name, avatar, persona }
+         objectStore "worldbook"  (out-of-line keys)  ← used by worldbook.html
+         ═══════════════════════════════════════════════════════════ */
+
+      /* ══ IDB 自动升级架构 ════════════════════════════════════════════════ */
+      const IDB_NAME = 'tsukiphonepromax';
+      const WB_STORE = 'worldbook';
+      // 保持和另外两个文件一样的结构定义
+      const SCHEMA = {
+        config: { keyPath: 'id' },
+        chars: { keyPath: 'id' },
+        users: { keyPath: 'id' },
+        worldbook: null,
+        chats: { keyPath: 'id' },
+        // 👉 核心修改：使用数组作为复合主键，[聊天ID, 楼层]
+        messages: { keyPath: ['chatId', 'floor'] },
+      };
+
+      let _idb = null; // cached IDBDatabase handle
+
+      // ── Open DB (shared schema with worldbook.html) ──────────
+      function openDb() {
+        if (_idb) return Promise.resolve(_idb);
+
+        return new Promise((resolve, reject) => {
+          const probeReq = indexedDB.open(IDB_NAME);
+
+          probeReq.onsuccess = e => {
+            const db = e.target.result;
+            const currentVersion = db.version;
+
+            const missingStores = Object.keys(SCHEMA).filter(store => !db.objectStoreNames.contains(store));
+
+            if (missingStores.length === 0) {
+              _idb = db;
+              _idb.onversionchange = () => {
+                _idb.close();
+                _idb = null;
+              };
+              console.log(
+                '[openDb] ✅ 连接成功 — DB版本:',
+                currentVersion,
+                '| 表:',
+                [..._idb.objectStoreNames].join(', '),
+              );
+              resolve(_idb);
+            } else {
+              console.warn(`[openDb] 缺表: ${missingStores.join(', ')}。准备升级至 v${currentVersion + 1}`);
+              db.close();
+
+              const upgradeReq = indexedDB.open(IDB_NAME, currentVersion + 1);
+
+              upgradeReq.onupgradeneeded = event => {
+                const upgradeDb = event.target.result;
+                for (const [storeName, options] of Object.entries(SCHEMA)) {
+                  if (!upgradeDb.objectStoreNames.contains(storeName)) {
+                    if (options) upgradeDb.createObjectStore(storeName, options);
+                    else upgradeDb.createObjectStore(storeName);
+                  }
+                }
+              };
+
+              upgradeReq.onsuccess = event => {
+                _idb = event.target.result;
+                _idb.onversionchange = () => {
+                  _idb.close();
+                  _idb = null;
+                };
+                resolve(_idb);
+              };
+              upgradeReq.onerror = event => reject(event.target.error);
+              upgradeReq.onblocked = () => alert('请关闭其他标签页以允许世界书同步数据库结构！');
+            }
+          };
+
+          probeReq.onerror = e => reject(e.target.error);
+        });
+      }
+
+      // ── Read all records from a store ───────────────────────
+      async function getAll(store) {
+        const db = await openDb();
+        return new Promise((resolve, reject) => {
+          const tx = db.transaction(store, 'readonly');
+          const req = tx.objectStore(store).getAll();
+          req.onsuccess = e => resolve(e.target.result || []);
+          req.onerror = e => reject(e.target.error);
+        });
+      }
+
+      // ── Read one record by key ───────────────────────────────
+      async function getOne(store, key) {
+        const db = await openDb();
+        return new Promise((resolve, reject) => {
+          const tx = db.transaction(store, 'readonly');
+          const req = tx.objectStore(store).get(key);
+          req.onsuccess = e => resolve(e.target.result || null);
+          req.onerror = e => reject(e.target.error);
+        });
+      }
+
+      // ── Put (insert or replace) one record ──────────────────
+      async function putOne(store, record) {
+        const db = await openDb();
+        return new Promise((resolve, reject) => {
+          const tx = db.transaction(store, 'readwrite');
+          const req = tx.objectStore(store).put(record);
+          req.onsuccess = () => resolve();
+          req.onerror = e => reject(e.target.error);
+        });
+      }
+
+      // ── Delete one record ────────────────────────────────────
+      async function deleteOne(store, key) {
+        const db = await openDb();
+        return new Promise((resolve, reject) => {
+          const tx = db.transaction(store, 'readwrite');
+          const req = tx.objectStore(store).delete(key);
+          req.onsuccess = () => resolve();
+          req.onerror = e => reject(e.target.error);
+        });
+      }
+
+      // ─────────────────────────────────────────────────────────
+
+      let currentTab = 'char';
+      let currentView = 'list';
+      let currentCharId = null;
+      let currentUserId = null;
+      let currentWbTab = 'pre';
+      let editingWbIndex = null;
+
+      // ── Boot ─────────────────────────────────────────────────
+      document.addEventListener('DOMContentLoaded', () => {
+        initImageUploads();
+        showView('char', 'list');
+      });
+
+      // ── Nav ──────────────────────────────────────────────────
+      function switchTab(tab) {
+        currentTab = tab;
+        document.getElementById('tagChar').classList.toggle('active', tab === 'char');
+        document.getElementById('tagUser').classList.toggle('active', tab === 'user');
+        showView(tab, 'list');
+      }
+
+      async function showView(type, mode, id = null) {
+        ['viewCharList', 'viewCharEdit', 'viewUserList', 'viewUserEdit'].forEach(v =>
+          document.getElementById(v).classList.add('hidden'),
+        );
+        currentView = mode;
+        const saveBtn = document.getElementById('floatingSave');
+
+        if (type === 'char') {
+          if (mode === 'list') {
+            document.getElementById('viewCharList').classList.remove('hidden');
+            saveBtn.classList.add('hidden');
+            await renderCharList();
+          } else {
+            currentCharId = id;
+            document.getElementById('viewCharEdit').classList.remove('hidden');
+            saveBtn.classList.remove('hidden');
+            await loadCharEdit(id);
+          }
+        } else {
+          if (mode === 'list') {
+            document.getElementById('viewUserList').classList.remove('hidden');
+            saveBtn.classList.add('hidden');
+            await renderUserList();
+          } else {
+            currentUserId = id;
+            document.getElementById('viewUserEdit').classList.remove('hidden');
+            saveBtn.classList.remove('hidden');
+            await loadUserEdit(id);
+          }
+        }
+      }
+
+      function backToList(type) {
+        showView(type, 'list');
+      }
+
+      // ── Card style picker ─────────────────────────────────────
+      const CARD_STYLES = [
+        { cls: 'card-a', avatarRect: false, hasAccent: false },
+        { cls: 'card-b', avatarRect: true, hasAccent: true },
+        { cls: 'card-c', avatarRect: false, hasAccent: false },
+        { cls: 'card-d', avatarRect: true, hasIndex: true },
+        { cls: 'card-e', avatarRect: false, hasAccent: true },
+      ];
+
+      function buildEntityCard(entity, i, onclick, subText, indexLabel) {
+        const s = CARD_STYLES[i % CARD_STYLES.length];
+        const accentEl = s.hasAccent ? '<div class="card-accent"></div>' : '';
+        const indexEl = s.hasIndex
+          ? `<div class="card-index">#${(indexLabel || i + 1).toString().padStart(2, '0')}</div>`
+          : '';
+        const avatarCls = s.avatarRect ? 'card-avatar rect' : 'card-avatar';
+        return `
+          <div class="entity-card ${s.cls}" onclick="${onclick}">
+            ${accentEl}
+            <div class="card-inner">
+              <img class="${avatarCls}" src="${entity.avatar || ''}" alt=""
+                   onerror="this.src='';this.style.background='var(--paper-2)'" />
+              <div class="card-meta">
+                <div class="card-name">${entity.name || '<em style="opacity:.4">Unnamed</em>'}</div>
+                <div class="card-sub">${subText || '—'}</div>
+              </div>
+              <div class="card-chevron"><i class="fa-solid fa-chevron-right"></i></div>
+            </div>
+            ${indexEl}
+          </div>
+        `;
+      }
+
+      // ── Char List ─────────────────────────────────────────────
+      async function renderCharList() {
+        const chars = await getAll('chars');
+        const grid = document.getElementById('charCardGrid');
+        const n = chars.length;
+        document.getElementById('charListCount').textContent = `${n} character${n !== 1 ? 's' : ''}`;
+
+        if (n === 0) {
+          grid.innerHTML = `<div class="empty-state">
+            <div class="empty-icon">👤</div>
+            <div class="empty-text">No characters yet.<br/>Tap + NEW to create one.</div>
+          </div>`;
+          return;
+        }
+        grid.innerHTML = chars
+          .map((c, i) => buildEntityCard(c, i, `editChar('${c.id}')`, c.remark || 'character', i + 1))
+          .join('');
+      }
+
+      async function createNewChar() {
+        const c = { id: 'c' + Date.now(), name: '', remark: '', avatar: '', persona: '', worldbook: [], bindId: '' };
+        await putOne('chars', c);
+        showView('char', 'edit', c.id);
+      }
+
+      function editChar(id) {
+        showView('char', 'edit', id);
+      }
+
+      async function loadCharEdit(id) {
+        const char = await getOne('chars', id);
+        if (!char) return;
+
+        document.getElementById('charName').value = char.name || '';
+        document.getElementById('charRemark').value = char.remark || '';
+        document.getElementById('charPreview').src = char.avatar || '';
+        document.getElementById('charAvatarUrl').value = char.avatar || '';
+        document.getElementById('charPersona').innerHTML = char.persona || '';
+
+        // populate user-bind dropdown
+        const users = await getAll('users');
+        const sel = document.getElementById('userBind');
+        sel.innerHTML = '<option value="">No binding</option>';
+        users.forEach(u => {
+          if (u.name)
+            sel.innerHTML += `<option value="${u.id}" ${char.bindId === u.id ? 'selected' : ''}>${u.name}</option>`;
+        });
+
+        currentWbTab = 'pre';
+        document.getElementById('wbTabPre').classList.add('active');
+        document.getElementById('wbTabPost').classList.remove('active');
+        renderWbList(char.worldbook || []);
+      }
+
+      async function deleteCurrentChar() {
+        if (!confirm('Delete this character? This cannot be undone.')) return;
+        await deleteOne('chars', currentCharId);
+        showView('char', 'list');
+      }
+
+      /**
+       * 导出当前角色卡为 JSON
+       */
+      async function exportCurrentChar() {
+        if (!currentCharId) return alert('请先选择一个角色');
+
+        const char = await getOne('chars', currentCharId);
+        if (!char) return;
+
+        // 创建下载
+        const dataStr = JSON.stringify(char, null, 2);
+        const blob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Char_${char.name || 'Unnamed'}_${Date.now()}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+
+      /**
+       * 处理导入逻辑
+       */
+      async function handleImport(input) {
+        const file = input.files[0];
+        if (!file) return;
+
+        const fileName = file.name;
+        const extension = fileName.split('.').pop().toLowerCase();
+        const reader = new FileReader();
+
+        reader.onload = async e => {
+          const content = e.target.result;
+
+          if (extension === 'json') {
+            try {
+              const data = JSON.parse(content);
+              // 填充表单
+              document.getElementById('charName').value = data.name || '';
+              document.getElementById('charRemark').value = data.remark || '';
+              document.getElementById('charAvatarUrl').value = data.avatar || '';
+              document.getElementById('charPreview').src = data.avatar || '';
+              document.getElementById('charPersona').innerHTML = data.persona || '';
+              if (data.bindId) document.getElementById('userBind').value = data.bindId;
+
+              alert('JSON 角色数据已加载，请点击 SAVE 保存');
+            } catch (err) {
+              alert('JSON 解析失败，请检查文件格式');
+            }
+          } else if (extension === 'txt' || extension === 'doc' || extension === 'docx') {
+            // 对于 txt 直接读取内容；对于 doc/docx 提取文件名，由于 JS 无法直接读 Word 二进制，
+            // 建议配合 mammoth.js 使用，这里先实现文件名作为名字，内容作为人设的逻辑
+            const charName = fileName.replace(/\.[^/.]+$/, ''); // 去掉后缀作为名字
+
+            document.getElementById('charName').value = charName;
+            // 如果是文本，内容填入人设；如果是二进制文档，提醒用户手动处理
+            document.getElementById('charPersona').innerHTML =
+              extension === 'txt' ? content : '检测到文档文件，请手动输入或粘贴人设内容。';
+
+            alert(`已识别文档：[${charName}]，已自动填充名称。`);
+          }
+
+          input.value = ''; // 清空选择器
+        };
+
+        // 根据类型选择读取方式
+        if (extension === 'json' || extension === 'txt') {
+          reader.readAsText(file);
+        } else {
+          // doc/docx 暂时只处理文件名逻辑，不读取二进制内部文本
+          reader.onload({ target: { result: '' } });
+        }
+      }
+
+      // ── User List ─────────────────────────────────────────────
+      async function renderUserList() {
+        const users = await getAll('users');
+        const grid = document.getElementById('userCardGrid');
+        const n = users.length;
+        document.getElementById('userListCount').textContent = `${n} user preset${n !== 1 ? 's' : ''}`;
+
+        if (n === 0) {
+          grid.innerHTML = `<div class="empty-state">
+            <div class="empty-icon">🙋</div>
+            <div class="empty-text">No user presets yet.<br/>Tap + NEW to add one.</div>
+          </div>`;
+          return;
+        }
+        grid.innerHTML = users
+          .map((u, i) => buildEntityCard(u, i + 2, `editUser('${u.id}')`, 'user preset', i + 1))
+          .join('');
+      }
+
+      async function createNewUser() {
+        const u = { id: 'u' + Date.now(), name: '', avatar: '', persona: '' };
+        await putOne('users', u);
+        showView('user', 'edit', u.id);
+      }
+
+      function editUser(id) {
+        showView('user', 'edit', id);
+      }
+
+      async function loadUserEdit(id) {
+        const user = await getOne('users', id);
+        if (!user) return;
+        document.getElementById('userName').value = user.name || '';
+        document.getElementById('userPreview').src = user.avatar || '';
+        document.getElementById('userAvatarUrl').value = user.avatar || '';
+        document.getElementById('userPersona').innerHTML = user.persona || '';
+      }
+
+      async function deleteCurrentUser() {
+        if (!confirm('Delete this user preset?')) return;
+        await deleteOne('users', currentUserId);
+        showView('user', 'list');
+      }
+
+      // ── Worldbook (stored inside the char record) ─────────────
+      async function switchWbTab(tab) {
+        currentWbTab = tab;
+        document.getElementById('wbTabPre').classList.toggle('active', tab === 'pre');
+        document.getElementById('wbTabPost').classList.toggle('active', tab === 'post');
+        const char = await getOne('chars', currentCharId);
+        renderWbList(char ? char.worldbook || [] : []);
+      }
+
+      function renderWbList(list) {
+        // 1. 定义颜色映射（确保和你的主题变量一致）
+        const tabColors = {
+          pre: 'var(--lime)',
+          mid: 'var(--blue)',
+          post: 'var(--coral)',
+          global: 'var(--purple)',
+          local: 'var(--amber)',
+        };
+        const currentAccent = tabColors[currentWbTab] || 'var(--blue)';
+
+        const filtered = list
+          .map((item, i) => ({ item, i }))
+          .filter(({ item }) => (item.type || 'pre') === currentWbTab)
+          .sort((a, b) => (b.item.priority || 100) - (a.item.priority || 100));
+
+        const container = document.getElementById('wbList');
+        container.innerHTML = '';
+
+        if (filtered.length === 0) {
+          container.innerHTML = `<div class="wb-empty">No shards in this section.</div>`;
+          return;
+        }
+
+        filtered.forEach(({ item, i }, visualIndex) => {
+          const card = document.createElement('div');
+          card.className = `wb-card ${item.enabled ? '' : 'disabled'}`;
+
+          const isFirst = visualIndex === 0;
+          const isLast = visualIndex === filtered.length - 1;
+
+          const keys = (item.keys || '')
+            .split(/[,，]/)
+            .map(k => k.trim())
+            .filter(Boolean);
+          let keysHtml = '';
+          if (keys.length > 0) {
+            keysHtml = `<div class="wb-keys">${keys.map(k => `<span class="wb-key-tag">${k}</span>`).join('')}</div>`;
+          } else {
+            keysHtml = `<div class="wb-keys"><span class="wb-key-tag empty">no keywords</span></div>`;
+          }
+
+          // --- 核心修改：胶囊 HTML 构造 ---
+          // 使用 border-color 来强调所属分区，文字颜色也随之变化
+          const priorityHtml = `
+            <span class="wb-priority-capsule" style="border-color: ${currentAccent}; color: var(--ink);">
+              <span style="font-size: 8px; opacity: 0.5; margin-right: 3px;">P.</span>${item.priority || 100}
+            </span>
+          `;
+
+          card.innerHTML = `
+            <div class="wb-card-top">
+              <div class="wb-card-name">
+                ${priorityHtml}
+                ${item.title || 'Untitled Shard'}
+              </div>
+              <div class="toggle-dot ${item.enabled ? 'on' : ''}"
+                   onclick="event.stopPropagation();toggleWbItem(${i})"></div>
+            </div>
+            ${keysHtml}
+            <div class="wb-preview">${item.content || '<em>Empty memory…</em>'}</div>
+            
+            <div class="wb-card-actions" style="flex-wrap: wrap;">
+              <div class="wb-action-btn" onclick="openWbEditor(${i})">EDIT</div>
+              <div class="wb-action-btn" style="color:var(--ink)"
+                   onclick="addWbItemBelow(${i},'${item.type || 'pre'}')">ADD BELOW</div>
+              
+              <div class="wb-action-btn" style="color:${isFirst ? 'var(--line)' : 'var(--blue)'}; cursor:${isFirst ? 'default' : 'pointer'}"
+                   onclick="${isFirst ? '' : `moveWbUp(${visualIndex})`}"><i class="fa-solid fa-arrow-up"></i> UP</div>
+              <div class="wb-action-btn" style="color:${isLast ? 'var(--line)' : 'var(--blue)'}; cursor:${isLast ? 'default' : 'pointer'}"
+                   onclick="${isLast ? '' : `moveWbDown(${visualIndex})`}"><i class="fa-solid fa-arrow-down"></i> DOWN</div>
+
+              <div class="wb-action-btn" style="color:var(--coral); margin-left: auto;"
+                   onclick="deleteWbItem(${i})">DELETE</div>
+            </div>
+          `;
+          container.appendChild(card);
+        });
+      }
+
+      // ── Worldbook 排序移动功能 (通过交换优先级实现视觉移位) ──────────
+      async function moveWbUp(visualIndex) {
+        const char = await getOne('chars', currentCharId);
+        if (!char) return;
+
+        // 重新构建排序列表以找出哪个元素在它“上面”
+        const filtered = char.worldbook
+          .map((item, i) => ({ item, i }))
+          .filter(({ item }) => (item.type || 'pre') === currentWbTab)
+          .sort((a, b) => (b.item.priority || 100) - (a.item.priority || 100));
+
+        if (visualIndex <= 0) return;
+
+        const current = filtered[visualIndex].item;
+        const above = filtered[visualIndex - 1].item;
+
+        let pCur = parseInt(current.priority) || 100;
+        let pAbv = parseInt(above.priority) || 100;
+
+        // 如果当前的优先级确实比上面的低，互换它们即可
+        if (pCur < pAbv) {
+          current.priority = pAbv;
+          above.priority = pCur;
+        } else {
+          // 如果它们原本优先级是一样的数字，就直接给当前条目 +1 实现反超上移
+          current.priority = pCur + 1;
+        }
+
+        await putOne('chars', char);
+        renderWbList(char.worldbook);
+      }
+
+      async function moveWbDown(visualIndex) {
+        const char = await getOne('chars', currentCharId);
+        if (!char) return;
+
+        const filtered = char.worldbook
+          .map((item, i) => ({ item, i }))
+          .filter(({ item }) => (item.type || 'pre') === currentWbTab)
+          .sort((a, b) => (b.item.priority || 100) - (a.item.priority || 100));
+
+        if (visualIndex >= filtered.length - 1) return;
+
+        const current = filtered[visualIndex].item;
+        const below = filtered[visualIndex + 1].item;
+
+        let pCur = parseInt(current.priority) || 100;
+        let pBel = parseInt(below.priority) || 100;
+
+        if (pCur > pBel) {
+          current.priority = pBel;
+          below.priority = pCur;
+        } else {
+          // 如果优先级相同，给当前条目 -1 实现跌落下移
+          current.priority = pCur - 1;
+        }
+
+        await putOne('chars', char);
+        renderWbList(char.worldbook);
+      }
+
+      async function addWbItem() {
+        const char = await getOne('chars', currentCharId);
+        if (!char) return;
+        if (!char.worldbook) char.worldbook = [];
+
+        const item = { title: 'New Shard', content: '', keys: '', priority: 100, enabled: true, type: currentWbTab };
+        char.worldbook.push(item);
+        editingWbIndex = char.worldbook.length - 1;
+        await putOne('chars', char);
+        renderWbList(char.worldbook);
+        openWbEditor(editingWbIndex);
+      }
+
+      async function addWbItemBelow(afterIndex, type) {
+        const char = await getOne('chars', currentCharId);
+        if (!char) return;
+
+        const item = { title: 'New Shard', content: '', keys: '', priority: 100, enabled: true, type };
+        char.worldbook.splice(afterIndex + 1, 0, item);
+        editingWbIndex = afterIndex + 1;
+        await putOne('chars', char);
+        renderWbList(char.worldbook);
+        openWbEditor(editingWbIndex);
+      }
+
+      async function openWbEditor(index) {
+        const char = await getOne('chars', currentCharId);
+        const item = char.worldbook[index];
+        editingWbIndex = index;
+
+        document.getElementById('editWbTitle').value = item.title || '';
+        document.getElementById('editWbPriority').value = item.priority || 100;
+        document.getElementById('editWbKeys').value = item.keys || '';
+        document.getElementById('editWbContent').innerHTML = item.content || '';
+        document.getElementById('editWbToggle').className = `toggle-dot ${item.enabled ? 'on' : ''}`;
+        document.getElementById('wbEditor').classList.add('open');
+      }
+
+      async function closeWbEditor() {
+        const char = await getOne('chars', currentCharId);
+        if (char && char.worldbook[editingWbIndex]) {
+          const item = char.worldbook[editingWbIndex];
+          item.title = document.getElementById('editWbTitle').value;
+          item.priority = document.getElementById('editWbPriority').value;
+          item.keys = document.getElementById('editWbKeys').value;
+          item.content = document.getElementById('editWbContent').innerHTML;
+          item.enabled = document.getElementById('editWbToggle').classList.contains('on');
+          await putOne('chars', char);
+          renderWbList(char.worldbook);
+        }
+        document.getElementById('wbEditor').classList.remove('open');
+      }
+
+      async function toggleWbItem(index) {
+        const char = await getOne('chars', currentCharId);
+        char.worldbook[index].enabled = !char.worldbook[index].enabled;
+        await putOne('chars', char);
+        renderWbList(char.worldbook);
+      }
+
+      async function deleteWbItem(index) {
+        if (!confirm('Erase this memory shard?')) return;
+        const char = await getOne('chars', currentCharId);
+        char.worldbook.splice(index, 1);
+        await putOne('chars', char);
+        renderWbList(char.worldbook);
+      }
+
+      // ── Image uploads ────────────────────────────────────────
+      function initImageUploads() {
+        [
+          { file: 'charFile', preview: 'charPreview', url: 'charAvatarUrl' },
+          { file: 'userFile', preview: 'userPreview', url: 'userAvatarUrl' },
+        ].forEach(s => {
+          document.getElementById(s.file).onchange = e => {
+            const reader = new FileReader();
+            reader.onload = ev => {
+              document.getElementById(s.preview).src = ev.target.result;
+              document.getElementById(s.url).value = '';
+            };
+            reader.readAsDataURL(e.target.files[0]);
+          };
+        });
+      }
+
+      // ── Save (write current edit form → IDB) ─────────────────
+      async function saveAll() {
+        const btn = document.getElementById('floatingSave');
+
+        if (currentTab === 'char' && currentCharId) {
+          const char = await getOne('chars', currentCharId);
+          if (char) {
+            char.name = document.getElementById('charName').value;
+            char.remark = document.getElementById('charRemark').value;
+            char.avatar = document.getElementById('charAvatarUrl').value || document.getElementById('charPreview').src;
+            char.persona = document.getElementById('charPersona').innerHTML;
+            char.bindId = document.getElementById('userBind').value;
+            await putOne('chars', char);
+          }
+        } else if (currentTab === 'user' && currentUserId) {
+          const user = await getOne('users', currentUserId);
+          if (user) {
+            user.name = document.getElementById('userName').value;
+            user.avatar = document.getElementById('userAvatarUrl').value || document.getElementById('userPreview').src;
+            user.persona = document.getElementById('userPersona').innerHTML;
+            await putOne('users', user);
+          }
+        }
+
+        btn.classList.add('saved');
+        btn.innerHTML = '<div class="save-pulse"></div> SAVED ✓';
+        setTimeout(() => {
+          btn.classList.remove('saved');
+          btn.innerHTML = '<div class="save-pulse"></div> SAVE';
+        }, 1600);
+      }
+
+      function goHome() {
+        window.location.href = 'index.html';
+      }
+    </script>
+    <script>
+      // ==========================================
+      // 1. 数据库兼容层 (必须保留，用于从数据库读数据)
+      // ==========================================
+
+      function initTsukiDB() {
+        return new Promise((resolve, reject) => {
+          const request = indexedDB.open(IDB_NAME);
+          request.onsuccess = e => resolve(e.target.result);
+          request.onerror = e => reject(e.target.error);
+        });
+      }
+
+      async function getDbAsync() {
+        const db = await initTsukiDB();
+        return new Promise((resolve, reject) => {
+          const tx = db.transaction('config', 'readonly');
+          const store = tx.objectStore('config');
+          const req = store.get('main_config');
+          req.onsuccess = () => resolve(req.result || { id: 'main_config' });
+          req.onerror = e => reject(e.target.error);
+        });
+      }
+
+      // ==========================================
+      // 2. 核心美化应用逻辑
+      // ==========================================
+      async function applyGlobalTheme() {
+        try {
+          // 【关键修改】：从 IndexedDB 异步获取数据，不再使用 localStorage
+          const db = await getDbAsync();
+          const globalTheme = db.theme?.global || { css: '', wallpaper: '' };
+
+          const homeScreen = document.querySelector('.screen-home');
+          const homesecondScreen = document.querySelector('.screen-music');
+          const styleTag = document.getElementById('tsuki-dynamic-style');
+
+          // 1. 应用壁纸
+          const wallpaperUrl = globalTheme.wallpaper;
+          [homeScreen, homesecondScreen].forEach(screen => {
+            if (screen) {
+              if (wallpaperUrl) {
+                screen.style.backgroundImage = `url(${wallpaperUrl})`;
+                screen.style.backgroundSize = 'cover';
+                screen.style.backgroundPosition = 'center';
+              } else {
+                screen.style.backgroundImage = 'none';
+              }
+            }
+          });
+
+          // 2. 注入全局自定义 CSS (包括字体、颜色等)
+          if (styleTag) {
+            styleTag.innerHTML = globalTheme.css || '';
+          }
+
+          console.log('TSUKIMI 视觉引擎：IndexedDB 样式注入成功');
+        } catch (e) {
+          console.error('TSUKIMI 视觉引擎：样式加载失败', e);
+        }
+      }
+
+      // ==========================================
+      // 3. 实时同步监听 (当在设置页修改时，这里会自动变)
+      // ==========================================
+      const tsukiChannel = new BroadcastChannel('tsuki_channel');
+      tsukiChannel.onmessage = e => {
+        if (e.data === 'update_theme') applyGlobalTheme();
+      };
+
+      // 初始化执行
+      document.addEventListener('DOMContentLoaded', applyGlobalTheme);
+
+      // 在代码最末尾，或者 DOMContentLoaded 事件中：
+
+      // 可选：监听 storage 事件，实现设置页保存时，主页不刷新也能实时变色
+      window.addEventListener('storage', e => {
+        if (e.key === 'tsukiphonepromax') {
+          applyGlobalTheme();
+        }
+      });
+    </script>
+    <script src="TsukiBridge.js"></script>
+  </body>
+</html>

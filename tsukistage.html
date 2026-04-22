@@ -1,0 +1,3995 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>线下剧场 · Stage</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      :root {
+        --ink: #0a0a0a;
+        --ink-2: #1f1f20;
+        --ink-3: #4a4a4d;
+        --mute: #8a8a8e;
+        --line: rgba(10, 10, 10, 0.06);
+        --paper: #fafaf7;
+        --paper-2: #f1f0ea;
+        --card: #ffffff;
+        --accent-lime: #d4ff4d;
+        --accent-blue: #5b7cfa;
+        --accent-pink: #fa5bd5;
+        --accent-coral: #ff6b6b;
+        --accent-amber: #ff9f43;
+        --accent-mint: #43d9a0;
+        /* stage dark theme */
+        --s-bg: #0d0d10;
+        --s-card: #17171b;
+        --s-card-2: #1e1e24;
+        --s-line: rgba(255, 255, 255, 0.065);
+        --s-mute: rgba(255, 255, 255, 0.32);
+        --s-text: rgba(255, 255, 255, 0.78);
+      }
+
+      html,
+      body {
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+        background: var(--paper);
+        font-family: 'Geist', sans-serif;
+        color: var(--ink);
+      }
+
+      /* ═══════════════════════════════
+         APP SHELL
+      ═══════════════════════════════ */
+      .app {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .panels {
+        flex: 1;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .panel {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        transition:
+          transform 0.42s cubic-bezier(0.22, 1, 0.36, 1),
+          opacity 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+        will-change: transform, opacity;
+      }
+      .panel.active {
+        transform: translateX(0);
+        opacity: 1;
+        pointer-events: all;
+      }
+      .panel.to-left {
+        transform: translateX(-100%);
+        opacity: 0;
+        pointer-events: none;
+      }
+      .panel.to-right {
+        transform: translateX(100%);
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      /* ═══════════════════════════════
+         BOTTOM NAV
+      ═══════════════════════════════ */
+      .nav {
+        flex-shrink: 0;
+        height: 58px;
+        background: var(--card);
+        border-top: 1px solid var(--line);
+        display: flex;
+        align-items: center;
+        padding: 0 6px;
+        z-index: 99;
+      }
+      .nav-btn {
+        flex: 1;
+        height: 46px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 3px;
+        border: none;
+        background: none;
+        cursor: pointer;
+        border-radius: 14px;
+        color: var(--mute);
+        transition: 0.2s;
+        position: relative;
+      }
+      .nav-btn.active {
+        color: var(--ink);
+        background: var(--paper-2);
+      }
+      .nav-btn i {
+        font-size: 15px;
+      }
+      .nav-btn span {
+        font-family: 'Geist Mono', monospace;
+        font-size: 7.5px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+      .nav-btn .nav-dot {
+        position: absolute;
+        top: 6px;
+        right: 20px;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--accent-lime);
+        display: none;
+      }
+      .nav-btn.has-content .nav-dot {
+        display: block;
+      }
+
+      /* ═══════════════════════════════
+         SHARED PANEL HEAD
+      ═══════════════════════════════ */
+      .p-head {
+        flex-shrink: 0;
+        padding: 16px 16px 10px;
+        background: var(--paper);
+      }
+      .p-head-label {
+        font-family: 'Geist Mono', monospace;
+        font-size: 9px;
+        color: var(--mute);
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        margin-bottom: 5px;
+      }
+      .p-head-label::before {
+        content: '';
+        width: 14px;
+        height: 1px;
+        background: var(--ink);
+      }
+      .p-head-title {
+        font-family: 'Fraunces', serif;
+        font-style: italic;
+        font-size: 30px;
+        color: var(--ink);
+        letter-spacing: -0.02em;
+        line-height: 1;
+      }
+      .p-head-title .dot {
+        display: inline-block;
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--accent-coral);
+        margin-left: 5px;
+        transform: translateY(-8px);
+      }
+
+      /* ═══════════════════════════════
+         PANEL 1 — CREATE
+      ═══════════════════════════════ */
+      #p-create {
+        background: var(--paper);
+      }
+
+      .char-grid {
+        flex: 1;
+        overflow-y: auto;
+        scrollbar-width: none;
+        padding: 6px 14px 14px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+      .char-grid::-webkit-scrollbar {
+        display: none;
+      }
+
+      .char-card {
+        background: var(--card);
+        border-radius: 22px;
+        padding: 15px 12px 12px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        user-select: none;
+        border: 2.5px solid transparent;
+        transition:
+          transform 0.18s,
+          border-color 0.18s,
+          background 0.18s;
+        box-shadow:
+          0 2px 10px -3px rgba(10, 10, 10, 0.07),
+          0 1px 0 rgba(255, 255, 255, 0.7) inset;
+        position: relative;
+        overflow: hidden;
+      }
+      .char-card::before {
+        content: '';
+        position: absolute;
+        top: -30px;
+        right: -20px;
+        width: 80px;
+        height: 80px;
+        background: radial-gradient(circle, var(--accent-lime) 0%, transparent 65%);
+        opacity: 0;
+        border-radius: 50%;
+        transition: opacity 0.25s;
+        pointer-events: none;
+      }
+      .char-card.selected::before {
+        opacity: 0.3;
+      }
+      .char-card:active {
+        transform: scale(0.96);
+      }
+      .char-card.selected {
+        border-color: var(--ink);
+        background: var(--ink);
+      }
+      .char-card.selected .char-card-name {
+        color: #f5f5f0;
+      }
+      .char-card.selected .char-card-sub {
+        color: rgba(255, 255, 255, 0.4);
+      }
+
+      .char-card-av {
+        width: 54px;
+        height: 54px;
+        border-radius: 18px;
+        background: linear-gradient(135deg, #1a1a1a, #3a3a3c);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 22px;
+        background-size: cover;
+        background-position: center;
+        position: relative;
+        box-shadow: -3px 3px 6px rgba(0, 0, 0, 0.15);
+        transform: rotate(-3deg);
+      }
+      .char-card.selected .char-card-av {
+        box-shadow:
+          0 0 0 2.5px var(--accent-lime),
+          -3px 3px 6px rgba(0, 0, 0, 0.2);
+      }
+      .char-check {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: var(--accent-lime);
+        color: var(--ink);
+        font-size: 7px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transform: scale(0);
+        transition: 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+        border: 2px solid var(--ink);
+      }
+      .char-card.selected .char-check {
+        opacity: 1;
+        transform: scale(1);
+      }
+      .char-card-name {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--ink);
+        text-align: center;
+        line-height: 1.2;
+        transition: color 0.18s;
+      }
+      .char-card-sub {
+        font-family: 'Geist Mono', monospace;
+        font-size: 8.5px;
+        color: var(--mute);
+        text-align: center;
+        transition: color 0.18s;
+      }
+
+      .create-footer {
+        flex-shrink: 0;
+        padding: 10px 14px 14px;
+        background: var(--paper);
+      }
+      .open-btn {
+        width: 100%;
+        height: 50px;
+        background: var(--ink);
+        color: var(--accent-lime);
+        border: none;
+        border-radius: 18px;
+        cursor: pointer;
+        font-family: 'Geist Mono', monospace;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        transition: 0.2s;
+        box-shadow: 0 4px 16px -4px rgba(10, 10, 10, 0.3);
+      }
+      .open-btn:active {
+        transform: scale(0.98);
+      }
+      .open-btn:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+        transform: none;
+      }
+      .open-btn-badge {
+        min-width: 20px;
+        height: 20px;
+        padding: 0 5px;
+        background: var(--accent-lime);
+        color: var(--ink);
+        border-radius: 10px;
+        font-size: 10px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      /* empty state */
+      .empty-state {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        color: var(--mute);
+      }
+      .empty-state i {
+        font-size: 30px;
+        opacity: 0.4;
+      }
+      .empty-state p {
+        font-family: 'Geist Mono', monospace;
+        font-size: 10px;
+        letter-spacing: 0.14em;
+        opacity: 0.7;
+      }
+
+      /* ═══════════════════════════════
+         MODAL (bottom sheet)
+      ═══════════════════════════════ */
+      .modal-bg {
+        position: fixed;
+        inset: 0;
+        z-index: 200;
+        background: rgba(10, 10, 10, 0.45);
+        backdrop-filter: blur(10px);
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s;
+      }
+      .modal-bg.open {
+        opacity: 1;
+        pointer-events: all;
+      }
+      .modal-sheet {
+        width: 100%;
+        max-width: 480px;
+        background: var(--card);
+        border-radius: 28px 28px 0 0;
+        padding: 18px 18px 28px;
+        transform: translateY(100%);
+        transition: transform 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      .modal-bg.open .modal-sheet {
+        transform: translateY(0);
+      }
+      .modal-handle {
+        width: 38px;
+        height: 4px;
+        border-radius: 2px;
+        background: var(--line);
+        margin: 0 auto 20px;
+      }
+      .modal-title {
+        font-family: 'Fraunces', serif;
+        font-style: italic;
+        font-size: 24px;
+        color: var(--ink);
+        margin-bottom: 3px;
+      }
+      .modal-sub {
+        font-family: 'Geist Mono', monospace;
+        font-size: 8.5px;
+        color: var(--mute);
+        letter-spacing: 0.15em;
+        margin-bottom: 18px;
+      }
+      .modal-field {
+        margin-bottom: 13px;
+      }
+      .modal-label {
+        font-family: 'Geist Mono', monospace;
+        font-size: 8.5px;
+        color: var(--mute);
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+      .modal-label i {
+        font-size: 8px;
+      }
+      .modal-textarea {
+        width: 100%;
+        min-height: 88px;
+        background: var(--paper-2);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 11px 14px;
+        font-family: 'Geist', sans-serif;
+        font-size: 13px;
+        color: var(--ink);
+        resize: none;
+        outline: none;
+        line-height: 1.6;
+        transition: border-color 0.2s;
+      }
+      .modal-textarea:focus {
+        border-color: rgba(10, 10, 10, 0.25);
+      }
+      .modal-select {
+        width: 100%;
+        height: 44px;
+        background: var(--paper-2);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 0 14px;
+        font-family: 'Geist', sans-serif;
+        font-size: 13px;
+        color: var(--ink);
+        outline: none;
+        appearance: none;
+        cursor: pointer;
+      }
+      .modal-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 18px;
+      }
+      .modal-cancel {
+        flex: 1;
+        height: 46px;
+        background: var(--paper-2);
+        border: none;
+        border-radius: 14px;
+        font-size: 13px;
+        color: var(--ink-3);
+        cursor: pointer;
+        font-family: 'Geist', sans-serif;
+        transition: 0.2s;
+      }
+      .modal-cancel:active {
+        background: var(--line);
+      }
+      .modal-confirm {
+        flex: 2;
+        height: 46px;
+        background: var(--ink);
+        border: none;
+        border-radius: 14px;
+        font-family: 'Geist Mono', monospace;
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--accent-lime);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: 0.2s;
+      }
+      .modal-confirm:active {
+        transform: scale(0.98);
+      }
+
+      /* ═══════════════════════════════
+         PANEL 2 — LIST
+      ═══════════════════════════════ */
+      #p-list {
+        background: var(--paper);
+      }
+
+      .theater-list {
+        flex: 1;
+        overflow-y: auto;
+        scrollbar-width: none;
+        padding: 6px 14px 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .theater-list::-webkit-scrollbar {
+        display: none;
+      }
+
+      .t-card {
+        background: var(--card);
+        border-radius: 22px;
+        padding: 14px 14px 12px;
+        cursor: pointer;
+        user-select: none;
+        transition: transform 0.18s;
+        position: relative;
+        overflow: hidden;
+        box-shadow:
+          0 2px 14px -4px rgba(10, 10, 10, 0.08),
+          0 1px 0 rgba(255, 255, 255, 0.8) inset;
+      }
+      .t-card:active {
+        transform: scale(0.984);
+      }
+      .t-card::before {
+        content: '';
+        position: absolute;
+        top: -50px;
+        right: -30px;
+        width: 130px;
+        height: 130px;
+        background: radial-gradient(circle, rgba(91, 124, 250, 0.12) 0%, transparent 65%);
+        border-radius: 50%;
+        pointer-events: none;
+      }
+
+      .t-starmap {
+        width: 100%;
+        height: 92px;
+        margin-bottom: 10px;
+        position: relative;
+      }
+      .t-starmap svg {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+
+      .t-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .t-meta {
+        font-family: 'Geist Mono', monospace;
+        font-size: 9px;
+        color: var(--mute);
+        letter-spacing: 0.07em;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+      }
+      .t-floor-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: var(--ink);
+        color: var(--accent-lime);
+        padding: 3px 9px;
+        border-radius: 8px;
+        font-family: 'Geist Mono', monospace;
+        font-size: 8.5px;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+      }
+
+      /* ═══════════════════════════════
+         PANEL 3 — STAGE
+      ═══════════════════════════════ */
+      #p-stage {
+        background: var(--s-bg);
+      }
+
+      /* ── stage top card ── */
+      .s-top {
+        flex-shrink: 0;
+        margin: 8px 10px 0;
+        background: var(--s-card);
+        border-radius: 28px 28px 32px 32px;
+        padding: 10px 14px 14px;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid var(--s-line);
+        box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset;
+      }
+      .s-top::before {
+        content: '';
+        position: absolute;
+        top: -55px;
+        right: -35px;
+        width: 160px;
+        height: 160px;
+        background: radial-gradient(circle, rgba(212, 255, 77, 0.12) 0%, transparent 60%);
+        border-radius: 50%;
+        pointer-events: none;
+      }
+      .s-top::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 28%;
+        width: 1px;
+        height: 14px;
+        background: var(--s-line);
+      }
+      /* top bar row */
+      .s-top-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        position: relative;
+        z-index: 2;
+      }
+      .s-back {
+        width: 32px;
+        height: 32px;
+        background: rgba(255, 255, 255, 0.06);
+        border: none;
+        border-radius: 11px;
+        color: var(--s-mute);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        transition: 0.2s;
+      }
+      .s-back:hover {
+        background: rgba(255, 255, 255, 0.12);
+        color: white;
+      }
+      /* 3-column content block */
+      .s-char-block {
+        display: flex;
+        align-items: flex-start;
+        gap: 6px;
+        position: relative;
+        z-index: 1;
+      }
+      .s-col-chars {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+        flex: 1;
+        min-width: 0;
+        max-width: 38%;
+      }
+      .s-col-title {
+        flex: 1.4;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-width: 0;
+        padding-top: 2px;
+      }
+      .s-col-user {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 5px;
+        flex: 1;
+        min-width: 0;
+        max-width: 38%;
+      }
+      /* avatar rows */
+      .s-av-row {
+        display: flex;
+        flex-wrap: nowrap;
+      }
+      .s-av {
+        width: 36px;
+        height: 36px;
+        border-radius: 13px;
+        background: linear-gradient(135deg, #2a2a2e, #3a3a40);
+        border: 2.5px solid var(--s-bg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 13px;
+        margin-left: -8px;
+        background-size: cover;
+        background-position: center;
+        transition: 0.2s;
+        position: relative;
+        z-index: 1;
+        flex-shrink: 0;
+      }
+      .s-av:first-child {
+        margin-left: 0;
+      }
+      .s-av:hover {
+        z-index: 2;
+        transform: scale(1.07);
+      }
+      .s-av.user-av {
+        background: conic-gradient(from 180deg, #ffb8d1, #ff9a5a, #c7b8ff, #ffb8d1);
+        border-radius: 50%;
+      }
+      /* col labels */
+      .s-char-names-label {
+        font-family: 'Geist Mono', monospace;
+        font-size: 7.5px;
+        color: var(--s-mute);
+        letter-spacing: 0.08em;
+        line-height: 1.45;
+        cursor: pointer;
+        transition: opacity 0.18s;
+        word-break: break-word;
+        overflow-wrap: anywhere;
+      }
+      .s-char-names-label:hover {
+        opacity: 0.6;
+      }
+      .s-user-name-label {
+        font-family: 'Geist Mono', monospace;
+        font-size: 7.5px;
+        color: var(--s-mute);
+        letter-spacing: 0.08em;
+        text-align: right;
+        line-height: 1.45;
+      }
+      /* theater title */
+      .s-theater-label {
+        font-family: 'Geist Mono', monospace;
+        font-size: 7px;
+        color: rgba(255, 255, 255, 0.2);
+        letter-spacing: 0.24em;
+        text-transform: uppercase;
+        margin-bottom: 3px;
+      }
+      .s-theater-title {
+        font-family: 'Fraunces', serif;
+        font-style: italic;
+        font-size: 17px;
+        color: white;
+        line-height: 1.2;
+        text-align: center;
+        cursor: pointer;
+        transition: opacity 0.18s;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        word-break: break-word;
+      }
+      .s-theater-title:hover {
+        opacity: 0.68;
+      }
+
+      /* ── stage chat area ── */
+      .s-area {
+        flex: 1;
+        overflow-y: auto;
+        scrollbar-width: none;
+        padding: 12px 13px 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .s-area::-webkit-scrollbar {
+        display: none;
+      }
+
+      /* prologue bubble */
+      .prologue {
+        margin: 2px 0 6px;
+        animation: fadeUp 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      .prologue-inner {
+        background: linear-gradient(
+          140deg,
+          rgba(212, 255, 77, 0.06) 0%,
+          rgba(91, 124, 250, 0.06) 50%,
+          rgba(250, 91, 213, 0.04) 100%
+        );
+        border: 1px solid rgba(212, 255, 77, 0.14);
+        /* irregular corners */
+        border-radius: 22px 14px 22px 8px;
+        padding: 16px 18px 14px;
+        position: relative;
+        overflow: hidden;
+      }
+      .prologue-inner::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 15%;
+        right: 15%;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(212, 255, 77, 0.5), rgba(91, 124, 250, 0.4), transparent);
+      }
+      .prologue-inner::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 80px;
+        height: 80px;
+        background: radial-gradient(circle, rgba(250, 91, 213, 0.08) 0%, transparent 65%);
+        border-radius: 50%;
+        pointer-events: none;
+      }
+      .prologue-tag {
+        font-family: 'Geist Mono', monospace;
+        font-size: 7.5px;
+        color: var(--accent-lime);
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 11px;
+      }
+      .prologue-tag::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: linear-gradient(90deg, rgba(212, 255, 77, 0.3), transparent);
+      }
+      .prologue-text {
+        font-family: 'Fraunces', serif;
+        font-style: italic;
+        font-size: 14.5px;
+        color: rgba(255, 255, 255, 0.82);
+        line-height: 1.75;
+        position: relative;
+        z-index: 1;
+      }
+      .prologue-text::before {
+        content: '\300C';
+        opacity: 0.5;
+        margin-right: 2px;
+      }
+      .prologue-text::after {
+        content: '\300D';
+        opacity: 0.5;
+        margin-left: 2px;
+      }
+      .prologue-foot {
+        margin-top: 12px;
+        font-family: 'Geist Mono', monospace;
+        font-size: 8px;
+        color: rgba(255, 255, 255, 0.2);
+        text-align: right;
+        letter-spacing: 0.15em;
+      }
+
+      /* stage message bubble */
+      .s-msg {
+        animation: fadeUp 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      .s-msg.user-msg {
+        align-self: flex-end;
+        width: 95%;
+      }
+      .s-msg.char-msg {
+        align-self: flex-start;
+        width: 95%;
+      }
+
+      .msg-wrap {
+        background: var(--s-card);
+        border: 1px solid var(--s-line);
+        border-radius: 18px;
+        overflow: hidden;
+        transition: 0.3s;
+      }
+      .s-msg.user-msg .msg-wrap {
+        background: var(--s-card-2);
+        border-color: rgba(255, 180, 210, 0.1);
+      }
+
+      .msg-head {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 9px 11px 8px;
+        cursor: pointer;
+        user-select: none;
+        border-bottom: 1px solid transparent;
+        transition:
+          background 0.15s,
+          border-color 0.3s;
+      }
+      .msg-head:hover {
+        background: rgba(255, 255, 255, 0.03);
+      }
+      .msg-wrap:not(.collapsed) .msg-head {
+        border-bottom-color: var(--s-line);
+      }
+
+      .msg-mini-av {
+        width: 24px;
+        height: 24px;
+        border-radius: 8px;
+        flex-shrink: 0;
+        background: linear-gradient(135deg, #2a2a2e, #3a3a40);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 8px;
+        background-size: cover;
+        background-position: center;
+      }
+      .msg-mini-av.user {
+        background: conic-gradient(from 180deg, #ffb8d1, #ff9a5a, #c7b8ff, #ffb8d1);
+      }
+
+      .msg-sender {
+        flex: 1;
+        font-size: 11.5px;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.65);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .s-msg.user-msg .msg-sender {
+        color: rgba(255, 180, 210, 0.85);
+      }
+
+      .msg-floor {
+        font-family: 'Geist Mono', monospace;
+        font-size: 8px;
+        color: rgba(255, 255, 255, 0.2);
+        letter-spacing: 0.08em;
+        flex-shrink: 0;
+      }
+
+      .msg-toggle {
+        width: 22px;
+        height: 22px;
+        background: rgba(255, 255, 255, 0.05);
+        border: none;
+        border-radius: 7px;
+        cursor: pointer;
+        color: rgba(255, 255, 255, 0.25);
+        font-size: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        transition: 0.2s;
+      }
+      .msg-toggle:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+      }
+      .msg-toggle i {
+        transition: transform 0.28s;
+      }
+      .msg-wrap.collapsed .msg-toggle i {
+        transform: rotate(180deg);
+      }
+
+      .msg-body {
+        padding: 10px 14px 13px;
+        font-size: 13px;
+        color: var(--s-text);
+        line-height: 1.65;
+        overflow: hidden;
+        /* max-height: 600px; */
+        transition:
+          max-height 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+          padding 0.3s;
+      }
+      .msg-wrap.collapsed .msg-body {
+        max-height: 0;
+        padding: 0 14px;
+      }
+
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* stage empty */
+      .s-empty {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        color: rgba(255, 255, 255, 0.18);
+      }
+      .s-empty i {
+        font-size: 30px;
+      }
+      .s-empty p {
+        font-family: 'Geist Mono', monospace;
+        font-size: 9.5px;
+        letter-spacing: 0.16em;
+      }
+
+      /* ── stage input area ── */
+      .s-input-wrap {
+        flex-shrink: 0;
+        padding: 9px 12px 14px;
+        background: rgba(13, 13, 16, 0.96);
+        backdrop-filter: blur(20px);
+        border-top: 1px solid var(--s-line);
+      }
+
+      .s-roles {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 8px;
+        overflow-x: auto;
+        scrollbar-width: none;
+      }
+      .s-roles::-webkit-scrollbar {
+        display: none;
+      }
+
+      .role-chip {
+        flex-shrink: 0;
+        padding: 4px 11px 4px 8px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--s-line);
+        border-radius: 9px;
+        font-family: 'Geist Mono', monospace;
+        font-size: 9px;
+        color: rgba(255, 255, 255, 0.36);
+        cursor: pointer;
+        transition: 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .role-chip.active {
+        background: rgba(212, 255, 77, 0.1);
+        border-color: rgba(212, 255, 77, 0.28);
+        color: var(--accent-lime);
+      }
+      .role-chip .chip-av {
+        width: 16px;
+        height: 16px;
+        border-radius: 5px;
+        flex-shrink: 0;
+        background: linear-gradient(135deg, #2a2a2e, #3a3a40);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 7px;
+        color: white;
+        background-size: cover;
+        background-position: center;
+      }
+      .role-chip.user-chip .chip-av {
+        background: conic-gradient(from 180deg, #ffb8d1, #ff9a5a, #c7b8ff, #ffb8d1);
+      }
+      .role-chip.narrator-chip {
+        background: rgba(255, 159, 67, 0.08);
+        border-color: rgba(255, 159, 67, 0.2);
+        color: var(--accent-amber);
+      }
+      .role-chip.narrator-chip.active {
+        background: rgba(255, 159, 67, 0.18);
+        border-color: rgba(255, 159, 67, 0.4);
+        color: #ffb865;
+      }
+      .role-chip.narrator-chip .chip-av {
+        background: rgba(255, 159, 67, 0.2);
+      }
+
+      .s-input-row {
+        display: flex;
+        gap: 8px;
+        align-items: flex-end;
+      }
+      .s-field {
+        flex: 1;
+        min-height: 40px;
+        max-height: 96px;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid var(--s-line);
+        border-radius: 14px;
+        padding: 9px 13px;
+        font-family: 'Geist', sans-serif;
+        font-size: 13px;
+        color: white;
+        resize: none;
+        outline: none;
+        line-height: 1.45;
+        scrollbar-width: none;
+        transition: border-color 0.2s;
+      }
+      .s-field::-webkit-scrollbar {
+        display: none;
+      }
+      .s-field::placeholder {
+        color: rgba(255, 255, 255, 0.2);
+      }
+      .s-field:focus {
+        border-color: rgba(212, 255, 77, 0.28);
+      }
+
+      .s-send {
+        width: 40px;
+        height: 40px;
+        flex-shrink: 0;
+        border-radius: 14px;
+        background: var(--accent-lime);
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--ink);
+        font-size: 13px;
+        transition: 0.2s;
+      }
+      .s-send:active {
+        transform: scale(0.9);
+      }
+      .s-send:disabled {
+        opacity: 0.25;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      /* ═══════════════════════════════
+         FLOOR-PILL — clickable toggle
+      ═══════════════════════════════ */
+      .s-floor-pill {
+        cursor: pointer;
+        font-family: 'Geist Mono', monospace;
+        font-size: 9px;
+        color: var(--accent-lime);
+        border: 1px solid rgba(212, 255, 77, 0.2);
+        background: rgba(212, 255, 77, 0.1);
+        padding: 3px 10px;
+        border-radius: 9px;
+        letter-spacing: 0.1em;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        transition: 0.25s;
+        user-select: none;
+      }
+      .s-floor-pill:hover {
+        background: rgba(212, 255, 77, 0.18);
+        border-color: rgba(212, 255, 77, 0.38);
+      }
+      .s-floor-pill:active {
+        transform: scale(0.94);
+      }
+      .s-floor-pill .pill-icon {
+        font-size: 8px;
+        opacity: 0.85;
+      }
+
+      /* ═══════════════════════════════
+         NARRATOR BUBBLE
+      ═══════════════════════════════ */
+      .s-msg.narrator-msg {
+        align-self: center;
+        width: 90%;
+      }
+      .narrator-wrap {
+        background: linear-gradient(140deg, rgba(255, 159, 67, 0.07), rgba(250, 91, 213, 0.05));
+        border: 1px solid rgba(255, 159, 67, 0.18);
+        border-radius: 10px 20px 10px 20px / 18px 8px 18px 8px;
+        padding: 12px 16px 10px;
+        position: relative;
+        overflow: hidden;
+        animation: fadeUp 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      .narrator-wrap::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 12%;
+        right: 12%;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(255, 159, 67, 0.4), transparent);
+      }
+      .narrator-head {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+      }
+      .narrator-tag {
+        font-family: 'Geist Mono', monospace;
+        font-size: 7.5px;
+        color: var(--accent-amber);
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .narrator-tag::after {
+        content: '';
+        flex: 1;
+        min-width: 20px;
+        height: 1px;
+        background: rgba(255, 159, 67, 0.25);
+      }
+      .narrator-floor {
+        font-family: 'Geist Mono', monospace;
+        font-size: 7.5px;
+        color: rgba(255, 255, 255, 0.2);
+        letter-spacing: 0.07em;
+        margin-left: auto;
+        flex-shrink: 0;
+      }
+      .narrator-body {
+        font-family: 'Fraunces', serif;
+        font-style: italic;
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.8);
+        line-height: 1.7;
+      }
+      .narrator-menu {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 5px 4px 2px;
+        gap: 6px;
+        margin-top: 6px;
+        border-top: 1px solid rgba(255, 159, 67, 0.1);
+        border-radius: 0 0 10px 6px;
+      }
+
+      /* ═══════════════════════════════
+         MESSAGE BOTTOM MENU — irregular
+      ═══════════════════════════════ */
+      .msg-menu {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 5px 8px 6px 10px;
+        background: rgba(255, 255, 255, 0.025);
+        border-top: 1px solid var(--s-line);
+        border-radius: 0 6px 18px 12px / 0 4px 14px 8px;
+        gap: 6px;
+      }
+      .s-msg.user-msg .msg-menu {
+        background: rgba(255, 255, 255, 0.035);
+        border-color: rgba(255, 180, 210, 0.08);
+      }
+      .msg-menu-left {
+        display: flex;
+        gap: 4px;
+        align-items: center;
+      }
+      .msg-menu-right {
+        display: flex;
+        gap: 3px;
+        align-items: center;
+      }
+      .msg-action-btn {
+        width: 26px;
+        height: 20px;
+        background: none;
+        border: 1px solid var(--s-line);
+        border-radius: 7px 3px 7px 3px;
+        cursor: pointer;
+        color: rgba(255, 255, 255, 0.28);
+        font-size: 9px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: 0.18s;
+        padding: 0;
+      }
+      .msg-action-btn:hover {
+        background: rgba(255, 255, 255, 0.08);
+        color: white;
+      }
+      .msg-action-btn.del-btn:hover {
+        background: rgba(255, 107, 107, 0.15);
+        color: #ff6b6b;
+        border-color: rgba(255, 107, 107, 0.3);
+      }
+      .msg-action-btn.edit-btn {
+        border-radius: 3px 7px 3px 9px;
+      }
+      .msg-nav-btn {
+        width: 22px;
+        height: 20px;
+        background: none;
+        border: 1px solid var(--s-line);
+        border-radius: 6px;
+        cursor: pointer;
+        color: rgba(255, 255, 255, 0.22);
+        font-size: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: 0.18s;
+        padding: 0;
+      }
+      .msg-nav-btn:hover {
+        background: rgba(255, 255, 255, 0.08);
+        color: white;
+      }
+      .msg-nav-btn:first-child {
+        border-radius: 8px 4px 4px 8px;
+      }
+      .msg-nav-btn:last-child {
+        border-radius: 4px 8px 8px 4px;
+      }
+      /* edit inline mode */
+      .msg-wrap.editing .msg-body {
+        outline: none;
+        border: 1px solid rgba(212, 255, 77, 0.3);
+        border-radius: 0 0 14px 14px;
+        background: rgba(212, 255, 77, 0.04);
+        padding: 10px 14px 13px;
+      }
+
+      /* ═══════════════════════════════
+         DAY THEME OVERRIDES
+      ═══════════════════════════════ */
+      #p-stage.day-mode {
+        background: var(--paper);
+      }
+      #p-stage.day-mode .s-top {
+        background: var(--card);
+        border-color: var(--line);
+        box-shadow:
+          0 2px 16px -6px rgba(10, 10, 10, 0.1),
+          0 1px 0 rgba(255, 255, 255, 0.7) inset;
+      }
+      #p-stage.day-mode .s-top::before {
+        background: radial-gradient(circle, rgba(212, 255, 77, 0.35) 0%, transparent 60%);
+        opacity: 1;
+      }
+      #p-stage.day-mode .s-back {
+        background: var(--paper-2);
+        color: var(--ink-3);
+      }
+      #p-stage.day-mode .s-back:hover {
+        background: var(--ink);
+        color: white;
+      }
+      #p-stage.day-mode .s-floor-pill {
+        color: var(--ink);
+        background: rgba(10, 10, 10, 0.06);
+        border-color: rgba(10, 10, 10, 0.12);
+      }
+      #p-stage.day-mode .s-floor-pill:hover {
+        background: var(--ink);
+        color: var(--accent-lime);
+        border-color: var(--ink);
+      }
+      #p-stage.day-mode .s-av {
+        border-color: var(--card);
+        background: linear-gradient(135deg, #e8e8ec, #d4d4d8);
+        color: var(--ink-3);
+      }
+      #p-stage.day-mode .s-av.user-av {
+        background: conic-gradient(from 180deg, #ffb8d1, #ff9a5a, #c7b8ff, #ffb8d1);
+      }
+      #p-stage.day-mode .s-theater-label {
+        color: rgba(10, 10, 10, 0.25);
+      }
+      #p-stage.day-mode .s-theater-title {
+        color: var(--ink);
+      }
+      #p-stage.day-mode .s-char-names-label,
+      #p-stage.day-mode .s-user-name-label {
+        color: var(--mute);
+      }
+      #p-stage.day-mode .s-area {
+        background: var(--paper);
+      }
+      #p-stage.day-mode .prologue-inner {
+        background: linear-gradient(140deg, rgba(212, 255, 77, 0.08), rgba(91, 124, 250, 0.06));
+        border-color: rgba(212, 255, 77, 0.25);
+      }
+      #p-stage.day-mode .prologue-text {
+        color: var(--ink);
+      }
+      #p-stage.day-mode .prologue-tag {
+        color: var(--ink-3);
+      }
+      #p-stage.day-mode .prologue-foot {
+        color: var(--mute);
+      }
+      #p-stage.day-mode .s-empty {
+        color: var(--mute);
+      }
+      #p-stage.day-mode .narrator-wrap {
+        background: linear-gradient(140deg, rgba(255, 159, 67, 0.06), rgba(250, 91, 213, 0.04));
+        border-color: rgba(255, 159, 67, 0.2);
+      }
+      #p-stage.day-mode .narrator-body {
+        color: var(--ink);
+      }
+      #p-stage.day-mode .narrator-tag {
+        color: var(--accent-amber);
+      }
+      #p-stage.day-mode .narrator-floor {
+        color: var(--mute);
+      }
+      #p-stage.day-mode .narrator-menu {
+        border-top-color: rgba(255, 159, 67, 0.1);
+      }
+      #p-stage.day-mode .msg-wrap {
+        background: var(--card);
+        border-color: var(--line);
+        box-shadow: 0 2px 10px -4px rgba(10, 10, 10, 0.07);
+      }
+      #p-stage.day-mode .s-msg.user-msg .msg-wrap {
+        background: var(--ink);
+        border-color: transparent;
+      }
+      #p-stage.day-mode .s-msg.user-msg .msg-wrap .msg-sender {
+        color: rgba(255, 180, 210, 0.9);
+      }
+      #p-stage.day-mode .s-msg.user-msg .msg-wrap .msg-floor {
+        color: rgba(255, 255, 255, 0.3);
+      }
+      #p-stage.day-mode .s-msg.user-msg .msg-wrap .msg-body {
+        color: rgba(255, 255, 255, 0.9);
+      }
+      #p-stage.day-mode .s-msg.user-msg .msg-wrap .msg-menu {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.08);
+      }
+      #p-stage.day-mode .msg-sender {
+        color: var(--ink-3);
+      }
+      #p-stage.day-mode .msg-floor {
+        color: var(--mute);
+      }
+      #p-stage.day-mode .msg-body {
+        color: var(--ink);
+      }
+      #p-stage.day-mode .msg-toggle {
+        background: var(--paper-2);
+        color: var(--ink-3);
+      }
+      #p-stage.day-mode .msg-toggle:hover {
+        background: var(--ink);
+        color: white;
+      }
+      #p-stage.day-mode .msg-head:hover {
+        background: rgba(10, 10, 10, 0.025);
+      }
+      #p-stage.day-mode .msg-wrap:not(.collapsed) .msg-head {
+        border-bottom-color: var(--line);
+      }
+      #p-stage.day-mode .msg-menu {
+        background: rgba(10, 10, 10, 0.02);
+        border-top-color: var(--line);
+      }
+      #p-stage.day-mode .msg-action-btn {
+        border-color: var(--line);
+        color: var(--mute);
+      }
+      #p-stage.day-mode .msg-action-btn:hover {
+        background: var(--ink);
+        color: white;
+      }
+      #p-stage.day-mode .msg-action-btn.del-btn:hover {
+        background: rgba(255, 107, 107, 0.1);
+        color: #ff6b6b;
+        border-color: rgba(255, 107, 107, 0.3);
+      }
+      #p-stage.day-mode .msg-nav-btn {
+        border-color: var(--line);
+        color: var(--mute);
+      }
+      #p-stage.day-mode .msg-nav-btn:hover {
+        background: var(--ink);
+        color: white;
+      }
+      #p-stage.day-mode .msg-mini-av {
+        background: linear-gradient(135deg, #e8e8ec, #d4d4d8);
+      }
+      #p-stage.day-mode .msg-mini-av.user {
+        background: conic-gradient(from 180deg, #ffb8d1, #ff9a5a, #c7b8ff, #ffb8d1);
+      }
+      #p-stage.day-mode .s-input-wrap {
+        background: rgba(250, 250, 247, 0.96);
+        border-top-color: var(--line);
+      }
+      #p-stage.day-mode .role-chip {
+        background: rgba(10, 10, 10, 0.05);
+        border-color: var(--line);
+        color: var(--ink-3);
+      }
+      #p-stage.day-mode .role-chip.active {
+        background: var(--ink);
+        border-color: var(--ink);
+        color: var(--accent-lime);
+      }
+      #p-stage.day-mode .role-chip.narrator-chip {
+        background: rgba(255, 159, 67, 0.07);
+        border-color: rgba(255, 159, 67, 0.2);
+        color: var(--accent-amber);
+      }
+      #p-stage.day-mode .role-chip.narrator-chip.active {
+        background: var(--accent-amber);
+        border-color: var(--accent-amber);
+        color: white;
+      }
+      #p-stage.day-mode .s-field {
+        background: var(--card);
+        border-color: var(--line);
+        color: var(--ink);
+      }
+      #p-stage.day-mode .s-field::placeholder {
+        color: var(--mute);
+      }
+      #p-stage.day-mode .s-field:focus {
+        border-color: var(--ink);
+      }
+      #p-stage.day-mode .chip-av {
+        background: linear-gradient(135deg, #e8e8ec, #d4d4d8);
+        color: var(--ink-3);
+      }
+      #p-stage.day-mode .history-bubble-inner {
+        background: linear-gradient(140deg, rgba(91, 124, 250, 0.06), rgba(250, 91, 213, 0.04));
+        border-color: rgba(91, 124, 250, 0.18);
+      }
+      #p-stage.day-mode .history-entry {
+        color: var(--ink-3);
+      }
+      #p-stage.day-mode .history-entry-name {
+        color: var(--mute);
+      }
+      #p-stage.day-mode .history-tag {
+        color: var(--accent-blue);
+      }
+      #p-stage.day-mode .history-foot {
+        color: var(--mute);
+      }
+
+      /* ═══════════════════════════════
+         SETTINGS PANEL
+      ═══════════════════════════════ */
+      .stage-settings-bg {
+        position: fixed;
+        inset: 0;
+        z-index: 300;
+        background: rgba(10, 10, 10, 0.55);
+        backdrop-filter: blur(14px);
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s;
+      }
+      .stage-settings-bg.open {
+        opacity: 1;
+        pointer-events: all;
+      }
+      .stage-settings-sheet {
+        width: 100%;
+        max-width: 520px;
+        height: 80vh;
+        background: var(--s-card);
+        border-radius: 26px 26px 0 0;
+        border: 1px solid var(--s-line);
+        border-bottom: none;
+        display: flex;
+        flex-direction: column;
+        transform: translateY(100%);
+        transition: transform 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+        overflow: hidden;
+        min-height: 0;
+      }
+      .stage-settings-bg.open .stage-settings-sheet {
+        transform: translateY(0);
+      }
+      /* day theme override */
+      #p-stage.day-mode ~ .stage-settings-bg .stage-settings-sheet,
+      .stage-settings-bg.day .stage-settings-sheet {
+        background: var(--card);
+        border-color: var(--line);
+      }
+      .ss-handle {
+        width: 36px;
+        height: 4px;
+        border-radius: 2px;
+        background: var(--s-line);
+        margin: 12px auto 0;
+        flex-shrink: 0;
+      }
+      .ss-head {
+        flex-shrink: 0;
+        padding: 14px 18px 10px;
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        border-bottom: 1px solid var(--s-line);
+      }
+      .ss-title {
+        font-family: 'Fraunces', serif;
+        font-style: italic;
+        font-size: 24px;
+        color: white;
+        line-height: 1;
+      }
+      .ss-subtitle {
+        font-family: 'Geist Mono', monospace;
+        font-size: 8.5px;
+        color: var(--s-mute);
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        margin-top: 4px;
+      }
+      .ss-close {
+        width: 30px;
+        height: 30px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.06);
+        border: none;
+        color: var(--s-mute);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        transition: 0.18s;
+        flex-shrink: 0;
+      }
+      .ss-close:hover {
+        background: rgba(255, 255, 255, 0.12);
+        color: white;
+      }
+      .ss-tabs {
+        flex-shrink: 0;
+        display: flex;
+        gap: 0;
+        padding: 10px 18px 0;
+        border-bottom: 1px solid var(--s-line);
+      }
+      .ss-tab {
+        padding: 7px 16px 10px;
+        font-family: 'Geist Mono', monospace;
+        font-size: 9px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--s-mute);
+        cursor: pointer;
+        border-bottom: 2px solid transparent;
+        transition: 0.18s;
+        margin-bottom: -1px;
+      }
+      .ss-tab.active {
+        color: var(--accent-lime);
+        border-bottom-color: var(--accent-lime);
+      }
+      .ss-body {
+        flex: 1;
+        overflow-y: auto;
+        scrollbar-width: none;
+        padding: 16px 18px 12px;
+        display: none;
+        min-height: 0; /* critical for flex children to scroll properly */
+      }
+      .ss-body::-webkit-scrollbar {
+        display: none;
+      }
+      .ss-body.active {
+        display: block;
+      }
+
+      /* summary bubble — distinct from history bubble */
+      .summary-bubble-inner {
+        background: linear-gradient(140deg, rgba(212, 255, 77, 0.05) 0%, rgba(67, 217, 160, 0.05) 100%) !important;
+        border-color: rgba(212, 255, 77, 0.15) !important;
+      }
+      .summary-bubble-inner .history-tag {
+        color: var(--accent-mint) !important;
+      }
+      .summary-bubble-inner .history-tag::after {
+        background: rgba(67, 217, 160, 0.25) !important;
+      }
+      #p-stage.day-mode .summary-bubble-inner {
+        background: linear-gradient(140deg, rgba(212, 255, 77, 0.06), rgba(67, 217, 160, 0.06)) !important;
+        border-color: rgba(67, 217, 160, 0.2) !important;
+      }
+
+      /* ── section labels ── */
+      .ss-sec {
+        font-family: 'Geist Mono', monospace;
+        font-size: 8.5px;
+        color: var(--s-mute);
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 10px;
+        margin-top: 14px;
+      }
+      .ss-sec:first-child {
+        margin-top: 0;
+      }
+      .ss-sec::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: var(--s-line);
+      }
+      /* ── summary row ── */
+      .ss-summary-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--s-line);
+        border-radius: 16px 10px 16px 10px;
+        padding: 10px 14px;
+        margin-bottom: 10px;
+      }
+      .ss-summary-btn {
+        flex: 1;
+        height: 36px;
+        background: var(--ink);
+        color: var(--accent-lime);
+        border: none;
+        border-radius: 11px 7px 11px 7px;
+        font-family: 'Geist Mono', monospace;
+        font-size: 9.5px;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        transition: 0.2s;
+      }
+      .ss-summary-btn:hover {
+        opacity: 0.85;
+      }
+      .ss-summary-btn:active {
+        transform: scale(0.97);
+      }
+      .ss-count-wrap {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-shrink: 0;
+      }
+      .ss-count-label {
+        font-family: 'Geist Mono', monospace;
+        font-size: 8px;
+        color: var(--s-mute);
+        letter-spacing: 0.1em;
+        white-space: nowrap;
+      }
+      .ss-count-stepper {
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid var(--s-line);
+        border-radius: 9px;
+        padding: 3px 5px;
+      }
+      .ss-stepper-btn {
+        width: 20px;
+        height: 20px;
+        background: rgba(255, 255, 255, 0.06);
+        border: none;
+        border-radius: 6px;
+        color: var(--s-mute);
+        font-size: 10px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: 0.15s;
+        padding: 0;
+      }
+      .ss-stepper-btn:hover {
+        background: rgba(255, 255, 255, 0.12);
+        color: white;
+      }
+      .ss-count-num {
+        font-family: 'Geist Mono', monospace;
+        font-size: 13px;
+        font-weight: 600;
+        color: white;
+        min-width: 24px;
+        text-align: center;
+      }
+      .ss-summary-result {
+        background: rgba(255, 255, 255, 0.025);
+        border: 1px solid var(--s-line);
+        border-radius: 14px 8px 14px 8px;
+        padding: 12px 14px;
+        font-size: 12.5px;
+        color: var(--s-text);
+        line-height: 1.65;
+        min-height: 60px;
+        display: none;
+        white-space: pre-wrap;
+      }
+      .ss-summary-result.show {
+        display: block;
+        animation: fadeUp 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+
+      /* ── chat link list ── */
+      .ss-chat-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 14px;
+      }
+      .ss-chat-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--s-line);
+        border-radius: 14px 8px 14px 8px;
+        padding: 10px 12px;
+        cursor: pointer;
+        transition: 0.18s;
+        user-select: none;
+      }
+      .ss-chat-item:hover {
+        background: rgba(255, 255, 255, 0.05);
+      }
+      .ss-chat-item.selected {
+        background: rgba(212, 255, 77, 0.06);
+        border-color: rgba(212, 255, 77, 0.22);
+      }
+      .ss-chat-check {
+        width: 18px;
+        height: 18px;
+        border: 1.5px solid var(--s-line);
+        border-radius: 6px 3px 6px 3px;
+        background: rgba(255, 255, 255, 0.04);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 8px;
+        color: transparent;
+        transition: 0.15s;
+        flex-shrink: 0;
+      }
+      .ss-chat-item.selected .ss-chat-check {
+        background: var(--accent-lime);
+        border-color: var(--accent-lime);
+        color: var(--ink);
+      }
+      .ss-chat-info {
+        flex: 1;
+        min-width: 0;
+      }
+      .ss-chat-name {
+        font-size: 12px;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.8);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .ss-chat-meta {
+        font-family: 'Geist Mono', monospace;
+        font-size: 8px;
+        color: var(--s-mute);
+        letter-spacing: 0.08em;
+        margin-top: 2px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .ss-chat-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        background: rgba(212, 255, 77, 0.1);
+        color: var(--accent-lime);
+        border-radius: 5px;
+        padding: 1px 6px;
+        font-size: 7.5px;
+        font-weight: 600;
+      }
+      .ss-chat-badge.new {
+        background: rgba(250, 91, 213, 0.12);
+        color: var(--accent-pink);
+      }
+      .ss-chat-av {
+        width: 36px;
+        height: 36px;
+        border-radius: 12px 6px 12px 6px;
+        background: linear-gradient(135deg, #2a2a2e, #3a3a40);
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 12px;
+        background-size: cover;
+        background-position: center;
+      }
+      .ss-insert-bar {
+        flex-shrink: 0;
+        display: none; /* hidden by default; shown only when tab1 active */
+        align-items: center;
+        gap: 8px;
+        padding: 10px 18px 16px;
+        border-top: 1px solid var(--s-line);
+        background: var(--s-card);
+      }
+      .ss-insert-bar.visible {
+        display: flex;
+      }
+      .ss-insert-btn {
+        flex: 1;
+        height: 42px;
+        background: var(--ink);
+        color: var(--accent-lime);
+        border: none;
+        border-radius: 14px 8px 14px 8px;
+        font-family: 'Geist Mono', monospace;
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: 0.2s;
+      }
+      .ss-insert-btn:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+      }
+      .ss-insert-btn:not(:disabled):active {
+        transform: scale(0.97);
+      }
+      .ss-sel-count {
+        font-family: 'Geist Mono', monospace;
+        font-size: 9px;
+        color: var(--s-mute);
+        align-self: center;
+        white-space: nowrap;
+      }
+      /* history-link bubble */
+      .history-bubble {
+        animation: fadeUp 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+        margin: 2px 0;
+      }
+      .history-bubble-inner {
+        background: linear-gradient(140deg, rgba(91, 124, 250, 0.07), rgba(250, 91, 213, 0.05));
+        border: 1px solid rgba(91, 124, 250, 0.18);
+        border-radius: 14px 22px 10px 22px;
+        padding: 14px 16px 12px;
+        position: relative;
+        overflow: hidden;
+      }
+      .history-bubble-inner::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 10%;
+        right: 10%;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(91, 124, 250, 0.4), transparent);
+      }
+      .history-tag {
+        font-family: 'Geist Mono', monospace;
+        font-size: 7.5px;
+        color: var(--accent-blue);
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 10px;
+      }
+      .history-tag::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: rgba(91, 124, 250, 0.25);
+      }
+      .history-entries {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .history-entry {
+        display: flex;
+        align-items: flex-start;
+        gap: 7px;
+        font-size: 11.5px;
+        color: rgba(255, 255, 255, 0.72);
+        line-height: 1.55;
+      }
+      .history-entry-name {
+        font-family: 'Geist Mono', monospace;
+        font-size: 8.5px;
+        color: var(--s-mute);
+        flex-shrink: 0;
+        padding-top: 2px;
+        min-width: 40px;
+      }
+      .history-foot {
+        margin-top: 10px;
+        font-family: 'Geist Mono', monospace;
+        font-size: 7.5px;
+        color: rgba(255, 255, 255, 0.18);
+        text-align: right;
+        letter-spacing: 0.12em;
+      }
+      /* summary bubble variant */
+      .summary-bubble-inner {
+        background: linear-gradient(140deg, rgba(255, 159, 67, 0.06), rgba(212, 255, 77, 0.04)) !important;
+        border-color: rgba(255, 159, 67, 0.16) !important;
+      }
+      .summary-bubble-inner .history-tag {
+        color: var(--accent-amber);
+      }
+      .summary-bubble-inner .history-tag::after {
+        background: rgba(255, 159, 67, 0.2);
+      }
+      .summary-bubble-inner::before {
+        background: linear-gradient(90deg, transparent, rgba(255, 159, 67, 0.35), transparent) !important;
+      }
+      #p-stage.day-mode .summary-bubble-inner {
+        background: linear-gradient(140deg, rgba(255, 159, 67, 0.07), rgba(212, 255, 77, 0.04)) !important;
+        border-color: rgba(255, 159, 67, 0.18) !important;
+      }
+
+      /* day overrides for settings panel */
+      .stage-settings-bg.day .ss-title {
+        color: var(--ink);
+      }
+      .stage-settings-bg.day .ss-subtitle,
+      .stage-settings-bg.day .ss-sec,
+      .stage-settings-bg.day .ss-count-label {
+        color: var(--mute);
+      }
+      .stage-settings-bg.day .ss-close {
+        background: var(--paper-2);
+        color: var(--ink-3);
+      }
+      .stage-settings-bg.day .ss-close:hover {
+        background: var(--ink);
+        color: white;
+      }
+      .stage-settings-bg.day .ss-head {
+        border-bottom-color: var(--line);
+      }
+      .stage-settings-bg.day .ss-tabs {
+        border-bottom-color: var(--line);
+      }
+      .stage-settings-bg.day .ss-tab {
+        color: var(--mute);
+      }
+      .stage-settings-bg.day .ss-tab.active {
+        color: var(--ink);
+        border-bottom-color: var(--ink);
+      }
+      .stage-settings-bg.day .ss-summary-row,
+      .stage-settings-bg.day .ss-chat-item,
+      .stage-settings-bg.day .ss-count-stepper {
+        background: var(--paper-2);
+        border-color: var(--line);
+      }
+      .stage-settings-bg.day .ss-chat-item:hover {
+        background: var(--paper);
+      }
+      .stage-settings-bg.day .ss-chat-item.selected {
+        background: rgba(10, 10, 10, 0.06);
+        border-color: rgba(10, 10, 10, 0.2);
+      }
+      .stage-settings-bg.day .ss-chat-check {
+        border-color: var(--line);
+        background: white;
+      }
+      .stage-settings-bg.day .ss-chat-name {
+        color: var(--ink);
+      }
+      .stage-settings-bg.day .ss-chat-meta {
+        color: var(--mute);
+      }
+      .stage-settings-bg.day .ss-chat-av {
+        background: linear-gradient(135deg, #d4d4d8, #e8e8ec);
+        color: var(--ink-3);
+      }
+      .stage-settings-bg.day .ss-stepper-btn {
+        background: rgba(10, 10, 10, 0.06);
+        color: var(--ink-3);
+      }
+      .stage-settings-bg.day .ss-stepper-btn:hover {
+        background: var(--ink);
+        color: white;
+      }
+      .stage-settings-bg.day .ss-count-num {
+        color: var(--ink);
+      }
+      .stage-settings-bg.day .ss-summary-result {
+        border-color: var(--line);
+        color: var(--ink);
+        background: var(--paper-2);
+      }
+      .stage-settings-bg.day .ss-insert-bar {
+        background: var(--card);
+        border-top-color: var(--line);
+      }
+      .stage-settings-bg.day .ss-sel-count {
+        color: var(--mute);
+      }
+      .stage-settings-bg.day .history-bubble-inner {
+        background: linear-gradient(140deg, rgba(91, 124, 250, 0.05), rgba(250, 91, 213, 0.04));
+        border-color: rgba(91, 124, 250, 0.16);
+      }
+      .stage-settings-bg.day .history-entry {
+        color: var(--ink-3);
+      }
+      .stage-settings-bg.day .history-entry-name {
+        color: var(--mute);
+      }
+      .stage-settings-bg.day .history-foot {
+        color: var(--mute);
+      }
+      .stage-settings-bg.day .history-tag {
+        color: var(--accent-blue);
+      }
+    </style>
+    <style id="tsuki-dynamic-style"></style>
+  </head>
+  <body>
+    <div class="app">
+      <div class="panels">
+        <!-- ════════ PANEL 1 — CREATE ════════ -->
+        <div id="p-create" class="panel active">
+          <div class="p-head">
+            <div class="p-head-label">Theater · Stage</div>
+            <div class="p-head-title">新建剧场<span class="dot"></span></div>
+          </div>
+          <div class="char-grid" id="charGrid">
+            <div class="empty-state" style="grid-column: 1/-1">
+              <i class="fa-solid fa-circle-notch fa-spin"></i>
+              <p>读取角色中</p>
+            </div>
+          </div>
+          <div class="create-footer">
+            <button class="open-btn" id="openBtn" disabled>
+              <i class="fa-solid fa-masks-theater"></i>
+              开启剧场
+              <span class="open-btn-badge" id="selCount">0</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- ════════ PANEL 2 — LIST ════════ -->
+        <div id="p-list" class="panel to-right">
+          <div class="p-head">
+            <div class="p-head-label">Stage · Archive</div>
+            <div class="p-head-title">剧场列表</div>
+          </div>
+          <div class="theater-list" id="theaterList">
+            <div class="empty-state">
+              <i class="fa-solid fa-circle-notch fa-spin"></i>
+              <p>读取剧场中</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ════════ PANEL 3 — STAGE ════════ -->
+        <!-- <div id="p-stage" class="panel to-right"> -->
+        <div id="p-stage" class="panel to-right day-mode">
+          <div class="s-top" id="sTop">
+            <!-- Top control bar -->
+            <div class="s-top-bar">
+              <button class="s-back" id="sBack">
+                <i class="fa-solid fa-chevron-left"></i>
+              </button>
+              <!-- <button class="s-floor-pill" id="sFloor" onclick="toggleStageTheme()" title="切换日/夜间模式">
+                <i class="fa-solid fa-moon pill-icon" id="sThemeIcon"></i>
+                <span id="sFloorNum">F·0</span>
+              </button> -->
+              <button class="s-floor-pill" id="sFloor" onclick="toggleStageTheme()" title="切换日/夜间模式">
+                <i class="fa-solid fa-sun pill-icon" id="sThemeIcon"></i>
+                <span id="sFloorNum">F·0</span>
+              </button>
+            </div>
+            <!-- 3-column content block -->
+            <div class="s-char-block">
+              <!-- left: char avatars + names -->
+              <div class="s-col-chars">
+                <div class="s-av-row" id="sCharAvRow"></div>
+                <div class="s-char-names-label" id="sCharNames" title="点击舞台设置">—</div>
+              </div>
+              <!-- center: theater title (editable) -->
+              <div class="s-col-title">
+                <div class="s-theater-label">Stage</div>
+                <div class="s-theater-title" id="sTheaterTitle" title="点击编辑标题">—</div>
+              </div>
+              <!-- right: user avatar + name -->
+              <div class="s-col-user">
+                <div class="s-av-row" id="sUserAvRow"></div>
+                <div class="s-user-name-label" id="sUserNameLabel"></div>
+              </div>
+            </div>
+          </div>
+          <div class="s-area" id="sArea">
+            <div class="s-empty" id="sEmpty">
+              <i class="fa-solid fa-masks-theater"></i>
+              <p>选择剧场或新建剧场</p>
+            </div>
+          </div>
+          <div class="s-input-wrap">
+            <div class="s-roles" id="sRoles"></div>
+            <div class="s-input-row">
+              <textarea class="s-field" id="sField" rows="1" placeholder="输入台词..."></textarea>
+              <button class="s-send" id="sSend">
+                <i class="fa-solid fa-paper-plane"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- /panels -->
+
+      <!-- Bottom nav -->
+      <nav class="nav">
+        <button class="nav-btn active" id="nav0" data-pid="p-create">
+          <div class="nav-dot"></div>
+          <i class="fa-solid fa-plus"></i>
+          <span>新建</span>
+        </button>
+        <button class="nav-btn" id="nav1" data-pid="p-list">
+          <div class="nav-dot"></div>
+          <i class="fa-solid fa-film"></i>
+          <span>剧场</span>
+        </button>
+        <button class="nav-btn" id="nav2" data-pid="p-stage">
+          <div class="nav-dot"></div>
+          <i class="fa-solid fa-masks-theater"></i>
+          <span>舞台</span>
+        </button>
+      </nav>
+    </div>
+    <!-- /app -->
+
+    <!-- Stage Settings Panel -->
+    <!-- <div class="stage-settings-bg" id="settingsBg"> -->
+    <div class="stage-settings-bg day" id="settingsBg">
+      <div class="stage-settings-sheet" id="settingsSheet">
+        <div class="ss-handle"></div>
+        <div class="ss-head">
+          <div>
+            <div class="ss-title">舞台设置</div>
+            <div class="ss-subtitle">Stage · Config · Prologue Link</div>
+          </div>
+          <button class="ss-close" id="ssClose"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="ss-tabs">
+          <div class="ss-tab active" data-tab="0">
+            <i class="fa-solid fa-wand-magic-sparkles" style="font-size: 9px; margin-right: 5px"></i>自动总结
+          </div>
+          <div class="ss-tab" data-tab="1">
+            <i class="fa-solid fa-link" style="font-size: 9px; margin-right: 5px"></i>聊天记录联动
+          </div>
+          <div class="ss-tab" data-tab="2">
+            <i class="fa-solid fa-clapperboard" style="font-size: 9px; margin-right: 5px"></i>剧场配置
+          </div>
+        </div>
+
+        <!-- Tab 0: Auto Summary -->
+        <div class="ss-body active" id="ssTab0">
+          <div class="ss-sec">摘要设置</div>
+          <div class="ss-summary-row">
+            <button class="ss-summary-btn" id="ssSummarize">
+              <i class="fa-solid fa-wand-magic-sparkles"></i>
+              自动总结
+            </button>
+            <div class="ss-count-wrap">
+              <div class="ss-count-label">条数</div>
+              <div class="ss-count-stepper">
+                <button class="ss-stepper-btn" id="ssCountDec">−</button>
+                <div class="ss-count-num" id="ssCountNum">15</div>
+                <button class="ss-stepper-btn" id="ssCountInc">+</button>
+              </div>
+            </div>
+          </div>
+          <div class="ss-sec">总结结果</div>
+          <div class="ss-summary-result" id="ssSummaryResult"></div>
+        </div>
+
+        <!-- Tab 1: Chat Link -->
+        <div class="ss-body" id="ssTab1">
+          <div class="ss-sec">关联聊天记录</div>
+          <div class="ss-chat-list" id="ssChatList">
+            <div
+              style="
+                text-align: center;
+                padding: 20px;
+                font-family: 'Geist Mono', monospace;
+                font-size: 9.5px;
+                color: var(--s-mute);
+              "
+            >
+              <i
+                class="fa-solid fa-circle-notch fa-spin"
+                style="margin-bottom: 6px; display: block; font-size: 16px"
+              ></i>
+              加载聊天记录中…
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2: Chat Link -->
+        <div class="ss-body" id="ssTab2">
+          <div class="ss-sec">渲染模式</div>
+          <div class="ss-summary-row" style="justify-content: space-between">
+            <div class="ss-count-label" style="font-size: 11px; color: var(--s-text)">沉浸式分段渲染</div>
+            <div
+              class="ss-count-stepper"
+              id="renderModeToggle"
+              style="
+                cursor: pointer;
+                padding: 4px 10px;
+                background: var(--ink);
+                color: var(--accent-lime);
+                border-radius: 12px;
+                font-size: 10px;
+                font-family: 'Geist Mono';
+              "
+            >
+              ON
+            </div>
+          </div>
+          <div style="font-size: 9px; color: var(--s-mute); margin-top: -5px; padding: 0 4px; line-height: 1.4">
+            ON: 旁白与对话自动分离成不同样式的气泡。<br />
+            OFF: 强制合并所有内容到一个气泡（纯剧本模式）。
+          </div>
+        </div>
+        <!-- Insert bar fixed at sheet bottom — outside scrolling ss-body -->
+        <div class="ss-insert-bar" id="ssInsertBar">
+          <div class="ss-sel-count" id="ssSelCount">已选 0 条</div>
+          <button class="ss-insert-btn" id="ssInsertBtn" disabled>
+            <i class="fa-solid fa-layer-plus"></i>
+            置入前置剧情
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal-bg" id="modalBg">
+      <div class="modal-sheet">
+        <div class="modal-handle"></div>
+        <div class="modal-title">剧场设定</div>
+        <div class="modal-sub">PROLOGUE · USER BINDING · STAGE CONFIG</div>
+        <div class="modal-field">
+          <div class="modal-label">
+            <i class="fa-solid fa-scroll"></i>
+            开场白 <span style="opacity: 0.5">(可留空，将自动注入占位提示词)</span>
+          </div>
+          <textarea
+            class="modal-textarea"
+            id="mPrologue"
+            placeholder="在此写下幕启前的开场白，为整个剧场的基调起笔……&#10;&#10;留空则随机注入占位提示词。"
+          ></textarea>
+        </div>
+        <div class="modal-field">
+          <div class="modal-label">
+            <i class="fa-solid fa-user-tie"></i>
+            绑定 User 身份 <span style="opacity: 0.5">(可选，留空则各 Char 沿用其自身绑定的 User)</span>
+          </div>
+          <select class="modal-select" id="mUserSel">
+            <option value="">— 各角色使用自身绑定的 User</option>
+          </select>
+        </div>
+        <div class="modal-actions">
+          <button class="modal-cancel" id="mCancel">取消</button>
+          <button class="modal-confirm" id="mConfirm"><i class="fa-solid fa-wand-magic-sparkles"></i> 幕启</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      /* ══════════════════════════════════════════════════════════
+       1. DB (同 tsukiphonepromax，追加 theaters / theater_messages)
+    ══════════════════════════════════════════════════════════ */
+      let _db = null;
+
+      async function openDb() {
+        if (_db) return _db;
+        return new Promise((resolve, reject) => {
+          const probe = indexedDB.open('tsukiphonepromax');
+          probe.onupgradeneeded = e => {
+            // 数据库首次创建（全新环境），一次性建好所有商店
+            const db = e.target.result;
+            ['chats', 'chars', 'users', 'config'].forEach(name => {
+              if (!db.objectStoreNames.contains(name)) db.createObjectStore(name, { keyPath: 'id' });
+            });
+            if (!db.objectStoreNames.contains('messages')) {
+              const ms = db.createObjectStore('messages', { keyPath: ['chatId', 'floor'] });
+              ms.createIndex('by_chat', 'chatId');
+            }
+            addStageStores(db);
+          };
+          probe.onsuccess = () => {
+            const cur = probe.result;
+            const ver = cur.version;
+            const ok = cur.objectStoreNames.contains('theaters') && cur.objectStoreNames.contains('theater_messages');
+            if (ok) {
+              _db = cur;
+              resolve(_db);
+              return;
+            }
+            cur.close();
+            const req = indexedDB.open('tsukiphonepromax', ver + 1);
+            req.onupgradeneeded = e => addStageStores(e.target.result);
+            req.onsuccess = () => {
+              _db = req.result;
+              resolve(_db);
+            };
+            req.onerror = () => reject(req.error);
+          };
+          probe.onerror = () => reject(probe.error);
+        });
+      }
+
+      function addStageStores(db) {
+        if (!db.objectStoreNames.contains('theaters')) {
+          const ts = db.createObjectStore('theaters', { keyPath: 'id' });
+          ts.createIndex('by_created', 'createdAt');
+        }
+        if (!db.objectStoreNames.contains('theater_messages')) {
+          const tm = db.createObjectStore('theater_messages', { keyPath: ['theaterId', 'floor'] });
+          tm.createIndex('by_theater', 'theaterId');
+        }
+      }
+
+      const dbGetAll = async store => {
+        const db = await openDb();
+        return new Promise((res, rej) => {
+          const req = db.transaction(store, 'readonly').objectStore(store).getAll();
+          req.onsuccess = () => res(req.result || []);
+          req.onerror = () => rej(req.error);
+        });
+      };
+      const dbGet = async (store, key) => {
+        const db = await openDb();
+        return new Promise((res, rej) => {
+          const req = db.transaction(store, 'readonly').objectStore(store).get(key);
+          req.onsuccess = () => res(req.result);
+          req.onerror = () => rej(req.error);
+        });
+      };
+      const dbPut = async (store, data) => {
+        const db = await openDb();
+        return new Promise((res, rej) => {
+          const req = db.transaction(store, 'readwrite').objectStore(store).put(data);
+          req.onsuccess = () => res(req.result);
+          req.onerror = () => rej(req.error);
+        });
+      };
+      const dbGetByIndex = async (store, idx, val) => {
+        const db = await openDb();
+        return new Promise((res, rej) => {
+          const req = db.transaction(store, 'readonly').objectStore(store).index(idx).getAll(val);
+          req.onsuccess = () => res(req.result || []);
+          req.onerror = () => rej(req.error);
+        });
+      };
+
+      async function getNextFloor(theaterId) {
+        const db = await openDb();
+        return new Promise(resolve => {
+          const tx = db.transaction('theater_messages', 'readonly');
+          const store = tx.objectStore('theater_messages');
+          const range = IDBKeyRange.bound([theaterId, 0], [theaterId, Infinity]);
+          const req = store.openCursor(range, 'prev');
+          req.onsuccess = e => {
+            const cursor = e.target.result;
+            resolve(cursor ? cursor.value.floor + 1 : 1);
+          };
+          req.onerror = () => resolve(1);
+        });
+      }
+
+      /* ══════════════════════════════════════════════════════════
+       2. STATE
+    ══════════════════════════════════════════════════════════ */
+      const S = {
+        selectedCharIds: new Set(),
+        theater: null,
+        chars: [],
+        users: [], // parallel to chars (or repeated shared user)
+        roles: [], // [{ type, id, name, avatar }, ...]
+        activeRoleIdx: 0,
+      };
+
+      /* ══════════════════════════════════════════════════════════
+       3. PANEL NAVIGATION
+    ══════════════════════════════════════════════════════════ */
+      const PANELS = ['p-create', 'p-list', 'p-stage'];
+      const pEls = PANELS.map(id => document.getElementById(id));
+      const navBtns = document.querySelectorAll('.nav-btn');
+      let curPanel = 0;
+
+      function goPanel(idx, animate = true) {
+        if (idx === 2 && !S.theater) return; // stage locked
+        const dir = idx > curPanel ? 1 : -1;
+        pEls[curPanel].className = `panel ${dir > 0 ? 'to-left' : 'to-right'}`;
+        pEls[idx].className = 'panel active';
+        curPanel = idx;
+        navBtns.forEach((b, i) => b.classList.toggle('active', i === idx));
+        // --- 新增代码：进入舞台面板时强制设为日间模式 ---
+        if (idx === 2) {
+          const stage = document.getElementById('p-stage');
+          // 如果当前没有 day-mode 类名，说明是黑夜，那就点一下切换函数
+          if (!stage.classList.contains('day-mode')) {
+            toggleStageTheme();
+          }
+        }
+      }
+
+      navBtns.forEach((btn, i) => btn.addEventListener('click', () => goPanel(i)));
+      document.getElementById('sBack').addEventListener('click', () => goPanel(1));
+
+      /* ══════════════════════════════════════════════════════════
+       4. PANEL 1 — CHAR SELECTION
+    ══════════════════════════════════════════════════════════ */
+      async function loadChars() {
+        const grid = document.getElementById('charGrid');
+        let chars;
+        try {
+          chars = await dbGetAll('chars');
+        } catch (e) {
+          grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+          <i class="fa-solid fa-triangle-exclamation"></i><p>DB 读取失败</p></div>`;
+          return;
+        }
+        if (!chars.length) {
+          grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+          <i class="fa-solid fa-user-slash"></i>
+          <p>暂无角色 — 请先在主应用中创建</p></div>`;
+          return;
+        }
+        grid.innerHTML = '';
+        chars.forEach(c => {
+          const card = document.createElement('div');
+          card.className = 'char-card';
+          card.dataset.cid = c.id;
+          const avStyle = c.avatar
+            ? `background-image:url('${c.avatar}');background-size:cover;background-position:center;`
+            : '';
+          const avIcon = c.avatar ? '' : '<i class="fa-solid fa-user-astronaut"></i>';
+          card.innerHTML = `
+          <div class="char-card-av" style="${avStyle}">${avIcon}
+            <div class="char-check"><i class="fa-solid fa-check"></i></div>
+          </div>
+          <div class="char-card-name">${c.name || '未命名'}</div>
+          <div class="char-card-sub">${c.status || '— —'}</div>`;
+          card.addEventListener('click', () => {
+            S.selectedCharIds.has(c.id)
+              ? (S.selectedCharIds.delete(c.id), card.classList.remove('selected'))
+              : (S.selectedCharIds.add(c.id), card.classList.add('selected'));
+            syncCreateFooter();
+          });
+          grid.appendChild(card);
+        });
+      }
+
+      function syncCreateFooter() {
+        const n = S.selectedCharIds.size;
+        document.getElementById('selCount').textContent = n;
+        document.getElementById('openBtn').disabled = n === 0;
+      }
+
+      document.getElementById('openBtn').addEventListener('click', async () => {
+        if (!S.selectedCharIds.size) return;
+        await loadUsersIntoModal();
+        document.getElementById('modalBg').classList.add('open');
+      });
+
+      /* ══════════════════════════════════════════════════════════
+       5. MODAL — 剧场设定
+    ══════════════════════════════════════════════════════════ */
+      const PROLOGUES = [
+        '灯光渐渐亮起，台上空无一人，只有风在幕布间穿行。故事在此刻将要展开……',
+        '这是一个没有预言也没有结局的夜晚。两个人，一段未竟的对话。',
+        '时间静止在某个下午三点。窗外下着小雨，室内是过于安静的空气。',
+        '幕启时分，所有事情还未发生。也许，所有事情都已经发生了。',
+        '这里没有观众，只有两个在彼此之间寻找什么的人。',
+        '某天，某地。灯光明灭之间，所有台词都只是借口，真正想说的话还没说出口。',
+        '一切从沉默开始。那沉默比任何台词都沉重。',
+      ];
+
+      async function loadUsersIntoModal() {
+        const sel = document.getElementById('mUserSel');
+        sel.innerHTML = '<option value="">— 各角色使用自身绑定的 User</option>';
+        try {
+          const users = await dbGetAll('users');
+          users.forEach(u => {
+            const opt = document.createElement('option');
+            opt.value = u.id;
+            opt.textContent = u.name || u.id;
+            sel.appendChild(opt);
+          });
+        } catch (e) {}
+      }
+
+      document.getElementById('mCancel').addEventListener('click', () => {
+        document.getElementById('modalBg').classList.remove('open');
+      });
+      document.getElementById('modalBg').addEventListener('click', e => {
+        if (e.target === e.currentTarget) document.getElementById('modalBg').classList.remove('open');
+      });
+
+      document.getElementById('mConfirm').addEventListener('click', async () => {
+        const prologue =
+          document.getElementById('mPrologue').value.trim() || PROLOGUES[Math.floor(Math.random() * PROLOGUES.length)];
+        const userId = document.getElementById('mUserSel').value || null;
+        document.getElementById('modalBg').classList.remove('open');
+        await createTheater([...S.selectedCharIds], userId, prologue);
+        // 重置选择
+        S.selectedCharIds.clear();
+        document.querySelectorAll('.char-card.selected').forEach(c => c.classList.remove('selected'));
+        syncCreateFooter();
+      });
+
+      /* ══════════════════════════════════════════════════════════
+       6. THEATER CREATION
+    ══════════════════════════════════════════════════════════ */
+      async function createTheater(charIds, userId, prologue) {
+        const theater = {
+          id: 'theater_' + Date.now(),
+          charIds,
+          userId,
+          prologue,
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+          lastFloor: 0,
+        };
+        await dbPut('theaters', theater);
+        await dbPut('theater_messages', {
+          theaterId: theater.id,
+          floor: 0,
+          type: 'prologue',
+          sender: 'system',
+          charId: null,
+          content: prologue,
+          timestamp: Date.now(),
+        });
+        console.log('[Stage] 剧场已创建:', theater.id);
+        await loadTheaterList();
+        await openTheater(theater);
+      }
+
+      /* ══════════════════════════════════════════════════════════
+       7. PANEL 2 — LIST
+    ══════════════════════════════════════════════════════════ */
+      async function loadTheaterList() {
+        const el = document.getElementById('theaterList');
+        el.innerHTML = '';
+        let theaters;
+        try {
+          theaters = await dbGetAll('theaters');
+        } catch (e) {
+          el.innerHTML = `<div class="empty-state"><i class="fa-solid fa-triangle-exclamation"></i><p>加载失败</p></div>`;
+          return;
+        }
+        if (!theaters.length) {
+          el.innerHTML = `<div class="empty-state">
+          <i class="fa-solid fa-masks-theater"></i>
+          <p>暂无剧场 — 前往新建</p></div>`;
+          document.getElementById('nav1').classList.remove('has-content');
+          return;
+        }
+        theaters.sort((a, b) => b.updatedAt - a.updatedAt);
+        document.getElementById('nav1').classList.add('has-content');
+        for (const t of theaters) {
+          const card = await buildTheaterCard(t);
+          el.appendChild(card);
+        }
+      }
+
+      async function buildTheaterCard(theater) {
+        const chars = [];
+        for (const cid of theater.charIds || []) {
+          try {
+            const c = await dbGet('chars', cid);
+            if (c) chars.push(c);
+          } catch (e) {}
+        }
+        // Resolve users
+        const users = await resolveUsers(theater, chars);
+
+        const card = document.createElement('div');
+        card.className = 't-card';
+        const age = Date.now() - (theater.updatedAt || theater.createdAt);
+        const ageStr =
+          age < 3600000
+            ? '刚刚'
+            : age < 86400000
+              ? Math.floor(age / 3600000) + 'h前'
+              : Math.floor(age / 86400000) + '天前';
+
+        card.innerHTML = `
+        <div class="t-starmap">${buildStarMapSVG(chars, users)}</div>
+        <div class="t-footer">
+          <div class="t-meta">
+            <span>${chars.map(c => c.name).join(' · ') || '?'}</span>
+            <span>·</span>
+            <span>${ageStr}</span>
+          </div>
+          <div class="t-floor-badge">
+            <i class="fa-solid fa-layer-group" style="font-size:7px"></i>
+            F·${theater.lastFloor || 0}
+          </div>
+        </div>`;
+        card.addEventListener('click', () => openTheater(theater));
+        return card;
+      }
+
+      async function resolveUsers(theater, chars) {
+        const users = [];
+
+        // ① theater-level global user binding
+        if (theater.userId) {
+          let u = null;
+          try {
+            u = await dbGet('users', theater.userId);
+          } catch (e) {}
+          chars.forEach(() => users.push(u));
+          return users;
+        }
+
+        // ② per-char: check c.linkedUserId / c.userId field
+        let foundAny = false;
+        for (const c of chars) {
+          const uid = c.linkedUserId || c.userId || null;
+          let u = null;
+          if (uid) {
+            try {
+              u = await dbGet('users', uid);
+            } catch (e) {}
+          }
+          if (u) foundAny = true;
+          users.push(u);
+        }
+        if (foundAny) return users;
+
+        // ③ fallback: scan chats store — find a chat containing this char, grab its userId
+        let allChats = [];
+        try {
+          allChats = await dbGetAll('chats');
+        } catch (e) {}
+        for (let i = 0; i < chars.length; i++) {
+          const c = chars[i];
+          const chat = allChats.find(
+            ch => (Array.isArray(ch.charIds) && ch.charIds.includes(c.id)) || ch.charId === c.id,
+          );
+          let u = null;
+          if (chat?.userId) {
+            try {
+              u = await dbGet('users', chat.userId);
+            } catch (e) {}
+          }
+          if (u) foundAny = true;
+          users[i] = u;
+        }
+        if (foundAny) return users;
+
+        // ④ last resort: just load first available user and apply to all chars
+        let allUsers = [];
+        try {
+          allUsers = await dbGetAll('users');
+        } catch (e) {}
+        const fallbackUser = allUsers[0] || null;
+        return chars.map(() => fallbackUser);
+      }
+
+      /* ── Star Map SVG ── */
+      function buildStarMapSVG(chars, users) {
+        const W = 300,
+          H = 90;
+        const CHAR_X = 42,
+          USER_X = W - 42,
+          NODE_R = 16;
+
+        // unique users
+        const userMap = new Map(),
+          uList = [];
+        users.forEach(u => {
+          if (!u || userMap.has(u.id)) return;
+          userMap.set(u.id, uList.length);
+          uList.push(u);
+        });
+
+        const getYs = (n, pad = 18) => {
+          if (n === 1) return [H / 2];
+          const step = (H - pad * 2) / (n - 1);
+          return Array.from({ length: n }, (_, i) => pad + i * step);
+        };
+        const cYs = getYs(chars.length);
+        const uYs = getYs(Math.max(uList.length, 1));
+
+        let s = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <filter id="glow"><feGaussianBlur stdDeviation="1.5" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>`;
+        uList.forEach(
+          (_, i) =>
+            (s += `<linearGradient id="ug${i}" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#ffb8d1"/>
+                <stop offset="100%" stop-color="#c7b8ff"/>
+              </linearGradient>`),
+        );
+        s += `</defs>`;
+
+        // background star dots
+        [55, 95, 130, 165, 200, 235, 70, 110, 150, 190, 220, 250].forEach((x, i) => {
+          const y = 10 + ((i * 13) % (H - 20));
+          s += `<circle cx="${x}" cy="${y}" r="${i % 3 === 0 ? 1.2 : 0.8}" fill="rgba(10,10,10,0.1)"/>`;
+        });
+
+        // connection paths + animated dots
+        chars.forEach((c, i) => {
+          const uid = users[i]?.id;
+          const ui = uid != null ? (userMap.get(uid) ?? 0) : uList.length ? 0 : -1;
+          if (ui < 0) return;
+          const x1 = CHAR_X + NODE_R,
+            y1 = cYs[i];
+          const x2 = USER_X - NODE_R,
+            y2 = uYs[ui];
+          const mx = (x1 + x2) / 2;
+          const pid = `p${i}`;
+          const dur = 2.2 + i * 0.35;
+          s += `<path id="${pid}" d="M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}"
+                stroke="rgba(10,10,10,0.18)" stroke-width="1.2" fill="none"
+                stroke-dasharray="3.5 3"/>
+              <circle r="2.2" fill="rgba(10,10,10,0.35)" filter="url(#glow)">
+                <animateMotion dur="${dur}s" repeatCount="indefinite">
+                  <mpath href="#${pid}"/>
+                </animateMotion>
+              </circle>`;
+        });
+
+        // char nodes
+        chars.forEach((c, i) => {
+          const cx = CHAR_X,
+            cy = cYs[i];
+          const initials = (c.name || '?').slice(0, 2);
+          const fill = '#1a1a1a';
+          s += `<rect x="${cx - NODE_R}" y="${cy - NODE_R}" width="${NODE_R * 2}" height="${NODE_R * 2}"
+                rx="8" fill="${fill}"/>`;
+          if (c.avatar) {
+            const cid = `cavclip${i}`;
+            s += `<clipPath id="${cid}"><rect x="${cx - NODE_R}" y="${cy - NODE_R}"
+                  width="${NODE_R * 2}" height="${NODE_R * 2}" rx="8"/></clipPath>
+                <image href="${c.avatar}" x="${cx - NODE_R}" y="${cy - NODE_R}"
+                  width="${NODE_R * 2}" height="${NODE_R * 2}" clip-path="url(#${cid})"/>`;
+          } else {
+            s += `<text x="${cx}" y="${cy + 4}" fill="rgba(255,255,255,0.75)"
+                  font-size="10" font-family="Geist,sans-serif" font-weight="600"
+                  text-anchor="middle">${initials}</text>`;
+          }
+          s += `<text x="${cx}" y="${cy + NODE_R + 13}" fill="rgba(10,10,10,0.45)"
+                font-size="7.5" font-family="Geist Mono,monospace"
+                text-anchor="middle">${(c.name || '').slice(0, 5)}</text>`;
+        });
+
+        // user nodes
+        if (uList.length) {
+          uList.forEach((u, i) => {
+            const cx = USER_X,
+              cy = uYs[i];
+            const initials = (u.name || '?').slice(0, 2);
+            s += `<rect x="${cx - NODE_R}" y="${cy - NODE_R}" width="${NODE_R * 2}" height="${NODE_R * 2}"
+                  rx="8" fill="url(#ug${i})"/>`;
+            if (u.avatar) {
+              const uid2 = `uavclip${i}`;
+              s += `<clipPath id="${uid2}"><rect x="${cx - NODE_R}" y="${cy - NODE_R}"
+                    width="${NODE_R * 2}" height="${NODE_R * 2}" rx="8"/></clipPath>
+                  <image href="${u.avatar}" x="${cx - NODE_R}" y="${cy - NODE_R}"
+                    width="${NODE_R * 2}" height="${NODE_R * 2}" clip-path="url(#${uid2})"/>`;
+            } else {
+              s += `<text x="${cx}" y="${cy + 4}" fill="rgba(10,10,10,0.7)"
+                    font-size="10" font-family="Geist,sans-serif" font-weight="600"
+                    text-anchor="middle">${initials}</text>`;
+            }
+            s += `<text x="${cx}" y="${cy + NODE_R + 13}" fill="rgba(10,10,10,0.45)"
+                  font-size="7.5" font-family="Geist Mono,monospace"
+                  text-anchor="middle">${(u.name || '').slice(0, 5)}</text>`;
+          });
+        } else {
+          // No user placeholder
+          const cx = USER_X,
+            cy = H / 2;
+          s += `<rect x="${cx - NODE_R}" y="${cy - NODE_R}" width="${NODE_R * 2}" height="${NODE_R * 2}"
+                rx="8" fill="rgba(10,10,10,0.07)"
+                stroke="rgba(10,10,10,0.18)" stroke-width="1" stroke-dasharray="3 2"/>
+              <text x="${cx}" y="${cy + 4}" fill="rgba(10,10,10,0.3)"
+                font-size="10" font-family="Geist Mono,monospace"
+                text-anchor="middle">?</text>`;
+        }
+
+        return s + '</svg>';
+      }
+
+      /* ══════════════════════════════════════════════════════════
+       8. PANEL 3 — OPEN & RENDER THEATER
+    ══════════════════════════════════════════════════════════ */
+      async function openTheater(theater) {
+        S.theater = theater;
+
+        // load chars
+        S.chars = [];
+        for (const cid of theater.charIds || []) {
+          try {
+            const c = await dbGet('chars', cid);
+            if (c) S.chars.push(c);
+          } catch (e) {}
+        }
+        S.users = await resolveUsers(theater, S.chars);
+
+        renderStageTopCard();
+        buildRoleChips();
+        await renderMessages();
+        goPanel(2);
+
+        // --- 新增代码：确保进入时是日间模式 ---
+        const stage = document.getElementById('p-stage');
+        if (!stage.classList.contains('day-mode')) {
+          toggleStageTheme();
+        }
+
+        // mark nav3 active
+        document.getElementById('nav2').classList.add('has-content');
+      }
+
+      function renderStageTopCard() {
+        const t = S.theater,
+          chars = S.chars,
+          users = S.users;
+
+        // ── left col: char avatars ──
+        const charAvRow = document.getElementById('sCharAvRow');
+        charAvRow.innerHTML = '';
+        chars.forEach(c => {
+          const av = document.createElement('div');
+          av.className = 's-av';
+          if (c.avatar) {
+            av.style.backgroundImage = `url('${c.avatar}')`;
+            av.style.backgroundSize = 'cover';
+            av.style.backgroundPosition = 'center';
+          } else av.innerHTML = '<i class="fa-solid fa-user-astronaut" style="font-size:11px"></i>';
+          charAvRow.appendChild(av);
+        });
+
+        // char names label (clickable → settings)
+        const namesEl = document.getElementById('sCharNames');
+        namesEl.textContent = chars.map(c => c.name).join(' · ') || '—';
+
+        // ── center: theater title ──
+        const titleEl = document.getElementById('sTheaterTitle');
+        // use stored custom title or auto-generate
+        if (!t.title) {
+          t.title =
+            chars.length <= 2 ? chars.map(c => c.name).join(' × ') : `${chars[0]?.name || '?'} 等 ${chars.length} 人`;
+        }
+        titleEl.textContent = t.title;
+        // click to rename
+        titleEl.onclick = () => {
+          const newTitle = prompt('剧场标题', t.title || '');
+          if (newTitle !== null && newTitle.trim()) {
+            t.title = newTitle.trim();
+            titleEl.textContent = t.title;
+            dbPut('theaters', t).catch(e => console.error('标题保存失败', e));
+          }
+        };
+
+        // ── right col: user avatars ──
+        const seen = new Set(),
+          uUniq = [];
+        users.forEach(u => {
+          if (u && !seen.has(u.id)) {
+            seen.add(u.id);
+            uUniq.push(u);
+          }
+        });
+
+        const userAvRow = document.getElementById('sUserAvRow');
+        userAvRow.innerHTML = '';
+        uUniq.forEach(u => {
+          const av = document.createElement('div');
+          av.className = 's-av user-av';
+          if (u.avatar) {
+            av.style.backgroundImage = `url('${u.avatar}')`;
+            av.style.backgroundSize = 'cover';
+            av.style.backgroundPosition = 'center';
+          } else av.innerHTML = '<i class="fa-solid fa-feather" style="font-size:11px"></i>';
+          userAvRow.appendChild(av);
+        });
+
+        const userLabel = document.getElementById('sUserNameLabel');
+        if (uUniq.length) {
+          userLabel.textContent = uUniq.map(u => u.name).join(' · ');
+        } else {
+          userLabel.textContent = '未绑定';
+        }
+
+        updateFloor(t.lastFloor || 0);
+      }
+
+      function updateFloor(n) {
+        document.getElementById('sFloorNum').textContent = `F·${n}`;
+        S.theater.lastFloor = n;
+      }
+
+      function buildRoleChips() {
+        const wrap = document.getElementById('sRoles');
+        wrap.innerHTML = '';
+        S.roles = [];
+
+        // chars first
+        S.chars.forEach(c => S.roles.push({ type: 'char', id: c.id, name: c.name, avatar: c.avatar || null }));
+        // unique users
+        const seen = new Set();
+        S.users.forEach(u => {
+          if (u && !seen.has(u.id)) {
+            seen.add(u.id);
+            S.roles.push({ type: 'user', id: u.id, name: u.name, avatar: u.avatar || null });
+          }
+        });
+        // narrator (always last)
+        S.roles.push({ type: 'narrator', id: 'narrator', name: '旁白', avatar: null });
+
+        if (!S.roles.length) {
+          S.activeRoleIdx = -1;
+          return;
+        }
+
+        // default to first USER role; fallback to 0
+        const firstUserIdx = S.roles.findIndex(r => r.type === 'user');
+        S.activeRoleIdx = firstUserIdx >= 0 ? firstUserIdx : 0;
+
+        S.roles.forEach((r, i) => {
+          const chip = document.createElement('div');
+          const isActive = i === S.activeRoleIdx;
+          let chipClass = 'role-chip';
+          if (r.type === 'user') chipClass += ' user-chip';
+          if (r.type === 'narrator') chipClass += ' narrator-chip';
+          if (isActive) chipClass += ' active';
+          chip.className = chipClass;
+
+          const avStyle = r.avatar
+            ? `background-image:url('${r.avatar}');background-size:cover;background-position:center;`
+            : '';
+          let avIcon = '';
+          if (!r.avatar) {
+            if (r.type === 'user') avIcon = '<i class="fa-solid fa-feather" style="font-size:7px"></i>';
+            else if (r.type === 'narrator') avIcon = '<i class="fa-solid fa-pen-nib" style="font-size:7px"></i>';
+            else avIcon = '<i class="fa-solid fa-user-astronaut" style="font-size:7px"></i>';
+          }
+          chip.innerHTML = `<div class="chip-av" style="${avStyle}">${avIcon}</div>${r.name}`;
+
+          chip.addEventListener('click', () => {
+            S.activeRoleIdx = i;
+            wrap.querySelectorAll('.role-chip').forEach(c => c.classList.remove('active'));
+            chip.classList.add('active');
+            const fld = document.getElementById('sField');
+            if (r.type === 'narrator') fld.placeholder = '旁白视角…（居中展示）';
+            else if (r.type === 'user') fld.placeholder = `作为 ${r.name} 输入台词…`;
+            else fld.placeholder = `${r.name} 说…`;
+          });
+          wrap.appendChild(chip);
+        });
+
+        // set initial placeholder from active role
+        const activeRole = S.roles[S.activeRoleIdx];
+        if (activeRole) {
+          const fld = document.getElementById('sField');
+          if (activeRole.type === 'narrator') fld.placeholder = '旁白视角…（居中展示）';
+          else if (activeRole.type === 'user') fld.placeholder = `作为 ${activeRole.name} 输入台词…`;
+          else fld.placeholder = `${activeRole.name} 说…`;
+        }
+      }
+
+      async function renderMessages() {
+        const area = document.getElementById('sArea');
+        area.innerHTML = '';
+
+        let msgs;
+        try {
+          msgs = await dbGetByIndex('theater_messages', 'by_theater', S.theater.id);
+        } catch (e) {
+          area.innerHTML = `<div class="s-empty"><i class="fa-solid fa-circle-exclamation"></i><p>消息加载失败</p></div>`;
+          return;
+        }
+
+        msgs.sort((a, b) => a.floor - b.floor);
+
+        if (!msgs.length) {
+          area.innerHTML = `<div class="s-empty"><i class="fa-solid fa-masks-theater"></i><p>幕布尚未拉开</p></div>`;
+          return;
+        }
+
+        msgs.forEach(m => {
+          const el = buildMsgEl(m);
+          if (el) area.appendChild(el);
+        });
+        area.scrollTop = area.scrollHeight;
+      }
+
+      function buildMsgEl(msg) {
+        if (msg.type === 'prologue') return buildPrologueEl(msg.content);
+        if (msg.type === 'history') return buildHistoryBubble(msg);
+        if (msg.type === 'summary' || msg.isSummary) return buildSummaryBubble(msg);
+        if (msg.isNarrator || msg.sender === 'narrator') return buildNarratorBubble(msg);
+
+        const isUser = msg.isUser ?? msg.sender === 'user' ?? msg.senderRole === 'user';
+        let name = '—',
+          avatar = null;
+        if (isUser) {
+          // charId may be a user id or a char id — try users first, then chars
+          const uid = msg.charId || null;
+          const u = (uid ? S.users.find(u => u && u.id === uid) : null) || S.users.find(Boolean);
+          if (u) {
+            name = u.name;
+            avatar = u.avatar;
+          }
+        } else {
+          const cid = msg.charId || (Array.isArray(msg.charIds) ? msg.charIds[0] : null);
+          const c = (cid ? S.chars.find(c => c.id === cid) : null) || S.chars[0];
+          if (c) {
+            name = c.name;
+            avatar = c.avatar;
+          }
+        }
+        return buildBubble(msg, name, avatar, isUser);
+      }
+
+      function buildNarratorBubble(msg) {
+        const wrap = document.createElement('div');
+        wrap.className = 's-msg narrator-msg';
+        wrap.dataset.floor = msg.floor;
+
+        const inner = document.createElement('div');
+        inner.className = 'narrator-wrap';
+        inner.innerHTML = `
+          <div class="narrator-head">
+            <div class="narrator-tag">
+              <i class="fa-solid fa-pen-nib" style="font-size:7px"></i>
+              旁白 · Narrator
+            </div>
+            <div class="narrator-floor">F·${msg.floor}</div>
+          </div>
+          <div class="narrator-body">${msg.content}</div>`;
+
+        // menu
+        const menu = document.createElement('div');
+        menu.className = 'narrator-menu msg-menu';
+        menu.innerHTML = `
+          <div class="msg-menu-left">
+            <button class="msg-action-btn edit-btn" title="编辑"><i class="fa-solid fa-feather"></i></button>
+            <button class="msg-action-btn del-btn" title="删除"><i class="fa-solid fa-trash-can"></i></button>
+          </div>
+          <div class="msg-menu-right">
+            <button class="msg-nav-btn prev-btn" title="上一条"><i class="fa-solid fa-chevron-left"></i></button>
+            <button class="msg-nav-btn next-btn" title="下一条"><i class="fa-solid fa-chevron-right"></i></button>
+          </div>`;
+        menu.querySelector('.del-btn').addEventListener('click', e => {
+          e.stopPropagation();
+          deleteMsgEl(wrap, msg);
+        });
+        menu.querySelector('.edit-btn').addEventListener('click', e => {
+          e.stopPropagation();
+          const body = inner.querySelector('.narrator-body');
+          const btn = menu.querySelector('.edit-btn');
+          if (inner.classList.contains('editing')) {
+            msg.content = body.innerText.trim();
+            body.contentEditable = 'false';
+            inner.classList.remove('editing');
+            btn.innerHTML = '<i class="fa-solid fa-pen-line"></i>';
+            dbPut('theater_messages', msg).catch(e => console.error('保存失败', e));
+          } else {
+            body.contentEditable = 'true';
+            body.focus();
+            inner.classList.add('editing');
+            btn.innerHTML = '<i class="fa-solid fa-check" style="color:var(--accent-lime)"></i>';
+          }
+        });
+        menu.querySelector('.prev-btn').addEventListener('click', e => {
+          e.stopPropagation();
+          navMsg(-1, msg.floor);
+        });
+        menu.querySelector('.next-btn').addEventListener('click', e => {
+          e.stopPropagation();
+          navMsg(1, msg.floor);
+        });
+
+        inner.appendChild(menu);
+        wrap.appendChild(inner);
+        return wrap;
+      }
+
+      function buildPrologueEl(content) {
+        const el = document.createElement('div');
+        el.className = 'prologue';
+        el.innerHTML = `
+        <div class="prologue-inner">
+          <div class="prologue-tag">
+            <i class="fa-solid fa-sparkles" style="font-size:9px"></i>
+            序幕 · Prologue
+          </div>
+          <div class="prologue-text">${content}</div>
+          <div class="prologue-foot">— 幕启</div>
+        </div>`;
+        return el;
+      }
+
+      function buildBubble(msg, name, avatar, isUser) {
+        const wrap = document.createElement('div');
+        wrap.className = 's-msg ' + (isUser ? 'user-msg' : 'char-msg');
+        wrap.dataset.floor = msg.floor;
+
+        const avStyle = avatar
+          ? `background-image:url('${avatar}');background-size:cover;background-position:center;`
+          : '';
+        const avIcon = avatar
+          ? ''
+          : `<i class="fa-solid ${isUser ? 'fa-feather' : 'fa-user-astronaut'}" style="font-size:8px"></i>`;
+
+        const msgWrap = document.createElement('div');
+        msgWrap.className = 'msg-wrap';
+        msgWrap.innerHTML = `
+        <div class="msg-head">
+          <div class="msg-mini-av ${isUser ? 'user' : ''}" style="${avStyle}">${avIcon}</div>
+          <div class="msg-sender">${name}</div>
+          <div class="msg-floor">F·${msg.floor}</div>
+          <button class="msg-toggle" title="折叠">
+            <i class="fa-solid fa-chevron-up"></i>
+          </button>
+        </div>
+        <div class="msg-body">${msg.content}</div>`;
+
+        // click head or toggle btn → collapse
+        const head = msgWrap.querySelector('.msg-head');
+        const togBtn = msgWrap.querySelector('.msg-toggle');
+        const toggle = () => msgWrap.classList.toggle('collapsed');
+        togBtn.addEventListener('click', e => {
+          e.stopPropagation();
+          toggle();
+        });
+        head.addEventListener('click', toggle);
+
+        // ── irregular bottom menu bar ──
+        const menu = document.createElement('div');
+        menu.className = 'msg-menu';
+        menu.innerHTML = `
+          <div class="msg-menu-left">
+            <button class="msg-action-btn edit-btn" title="编辑"><i class="fa-solid fa-feather"></i></button>
+            <button class="msg-action-btn del-btn" title="删除"><i class="fa-solid fa-trash-can"></i></button>
+          </div>
+          <div class="msg-menu-right">
+            <button class="msg-nav-btn prev-btn" title="上一条"><i class="fa-solid fa-chevron-left"></i></button>
+            <button class="msg-nav-btn next-btn" title="下一条"><i class="fa-solid fa-chevron-right"></i></button>
+          </div>`;
+
+        menu.querySelector('.del-btn').addEventListener('click', e => {
+          e.stopPropagation();
+          deleteMsgEl(wrap, msg);
+        });
+        menu.querySelector('.edit-btn').addEventListener('click', e => {
+          e.stopPropagation();
+          editMsgEl(msgWrap, msg);
+        });
+        menu.querySelector('.prev-btn').addEventListener('click', e => {
+          e.stopPropagation();
+          navMsg(-1, msg.floor);
+        });
+        menu.querySelector('.next-btn').addEventListener('click', e => {
+          e.stopPropagation();
+          navMsg(1, msg.floor);
+        });
+
+        msgWrap.appendChild(menu);
+        wrap.appendChild(msgWrap);
+        return wrap;
+      }
+
+      // ── msg menu helpers ──
+      async function deleteMsgEl(wrapEl, msg) {
+        if (!confirm(`确认删除 F·${msg.floor} 的消息？`)) return;
+        try {
+          const db = await openDb();
+          await new Promise((res, rej) => {
+            const tx = db.transaction('theater_messages', 'readwrite');
+            tx.objectStore('theater_messages').delete([msg.theaterId, msg.floor]);
+            tx.oncomplete = res;
+            tx.onerror = rej;
+          });
+          wrapEl.style.transition = 'opacity 0.25s, transform 0.25s';
+          wrapEl.style.opacity = '0';
+          wrapEl.style.transform = 'scale(0.92)';
+          setTimeout(() => wrapEl.remove(), 260);
+        } catch (e) {
+          console.error('删除失败', e);
+        }
+      }
+
+      function editMsgEl(msgWrap, msg) {
+        const body = msgWrap.querySelector('.msg-body');
+        const editBtn = msgWrap.querySelector('.edit-btn');
+        if (msgWrap.classList.contains('editing')) {
+          // save
+          const newText = body.innerText.trim();
+          if (newText && newText !== msg.content) {
+            msg.content = newText;
+            dbPut('theater_messages', msg).catch(e => console.error('保存失败', e));
+          }
+          body.contentEditable = 'false';
+          msgWrap.classList.remove('editing');
+          editBtn.innerHTML = '<i class="fa-solid fa-pen-line"></i>';
+        } else {
+          body.contentEditable = 'true';
+          body.focus();
+          const range = document.createRange();
+          range.selectNodeContents(body);
+          range.collapse(false);
+          window.getSelection().removeAllRanges();
+          window.getSelection().addRange(range);
+          msgWrap.classList.add('editing');
+          editBtn.innerHTML = '<i class="fa-solid fa-check" style="color:var(--accent-lime)"></i>';
+        }
+      }
+
+      function navMsg(dir, curFloor) {
+        const area = document.getElementById('sArea');
+        const msgs = [...area.querySelectorAll('.s-msg[data-floor]')];
+        const curIdx = msgs.findIndex(el => Number(el.dataset.floor) === curFloor);
+        const target = msgs[curIdx + dir];
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          target.querySelector('.msg-wrap')?.classList.add('nav-flash');
+          setTimeout(() => target.querySelector('.msg-wrap')?.classList.remove('nav-flash'), 500);
+        }
+      }
+
+      /* ══════════════════════════════════════════════════════════
+       9. STAGE SEND
+    ══════════════════════════════════════════════════════════ */
+      const sField = document.getElementById('sField');
+      const sSend = document.getElementById('sSend');
+
+      sField.addEventListener('input', () => {
+        sField.style.height = 'auto';
+        sField.style.height = Math.min(sField.scrollHeight, 96) + 'px';
+      });
+
+      async function sendMsg() {
+        const text = sField.value.trim();
+        if (!text || !S.theater || S.activeRoleIdx < 0) return;
+
+        sField.value = '';
+        sField.style.height = 'auto';
+
+        const role = S.roles[S.activeRoleIdx];
+        const floor = await getNextFloor(S.theater.id);
+
+        const isUser = role.type === 'user';
+        const isNarrator = role.type === 'narrator';
+
+        const msg = {
+          theaterId: S.theater.id,
+          floor,
+          type: 'text',
+          // ── identity flags (④) ──
+          isUser: isUser,
+          isNarrator: isNarrator,
+          isSummary: false, // set true externally when inserting summary bubbles
+          // charId: for user msgs = user.id ; for char msgs = char.id ; narrator = null
+          charId: isNarrator ? null : role.id,
+          charIds: isUser ? [] : isNarrator ? [] : [role.id], // array form for multi-char future use
+          sender: role.type, // 'char' | 'user' | 'narrator'  (legacy compat)
+          content: text,
+          timestamp: Date.now(),
+        };
+
+        await dbPut('theater_messages', msg);
+        S.theater.updatedAt = Date.now();
+        S.theater.lastFloor = floor;
+        await dbPut('theaters', S.theater);
+
+        const area = document.getElementById('sArea');
+        area.querySelector('.s-empty')?.remove();
+        let el;
+        if (isNarrator) el = buildNarratorBubble(msg);
+        else el = buildBubble(msg, role.name, role.avatar, isUser);
+        area.appendChild(el);
+        area.scrollTop = area.scrollHeight;
+        updateFloor(floor);
+      }
+
+      sSend.addEventListener('click', sendMsg);
+      sField.addEventListener('keydown', e => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          sendMsg();
+        }
+      });
+
+      /* ══════════════════════════════════════════════════════════
+         11. DAY / NIGHT TOGGLE
+      ══════════════════════════════════════════════════════════ */
+      function toggleStageTheme() {
+        const stage = document.getElementById('p-stage');
+        const isDay = stage.classList.toggle('day-mode');
+        const icon = document.getElementById('sThemeIcon');
+        icon.className = isDay ? 'fa-solid fa-sun pill-icon' : 'fa-solid fa-moon pill-icon';
+        // sync settings panel bg
+        const settingsBg = document.getElementById('settingsBg');
+        settingsBg.classList.toggle('day', isDay);
+      }
+
+      /* ══════════════════════════════════════════════════════════
+         12. SETTINGS PANEL
+      ══════════════════════════════════════════════════════════ */
+      // nav-flash CSS (added dynamically)
+      const _flashStyle = document.createElement('style');
+      _flashStyle.textContent = `
+        @keyframes navFlash {
+          0%,100%{box-shadow:none}
+          30%{box-shadow:0 0 0 2px var(--accent-lime)}
+        }
+        .msg-wrap.nav-flash { animation: navFlash 0.5s ease; }
+      `;
+      document.head.appendChild(_flashStyle);
+
+      const settingsBg = document.getElementById('settingsBg');
+      const ssClose = document.getElementById('ssClose');
+
+      // open on sCharNames click
+      document.getElementById('sCharNames').addEventListener('click', openSettings);
+
+      function openSettings() {
+        if (!S.theater) return;
+        const isDay = document.getElementById('p-stage').classList.contains('day-mode');
+        settingsBg.classList.toggle('day', isDay);
+        settingsBg.classList.add('open');
+        loadChatLinks();
+      }
+
+      function closeSettings() {
+        settingsBg.classList.remove('open');
+      }
+
+      ssClose.addEventListener('click', closeSettings);
+      settingsBg.addEventListener('click', e => {
+        if (e.target === settingsBg) closeSettings();
+      });
+
+      // ── tab switching ──
+      document.querySelectorAll('.ss-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          const idx = tab.dataset.tab;
+          document.querySelectorAll('.ss-tab').forEach(t => t.classList.remove('active'));
+          document.querySelectorAll('.ss-body').forEach(b => b.classList.remove('active'));
+          tab.classList.add('active');
+          document.getElementById(`ssTab${idx}`).classList.add('active');
+          // show insert bar only on tab 1
+          document.getElementById('ssInsertBar').classList.toggle('visible', idx === '1');
+          if (idx === '1') loadChatLinks();
+        });
+      });
+
+      // ── summary count stepper ──
+      let summaryCount = 15;
+      document.getElementById('ssCountInc').addEventListener('click', () => {
+        summaryCount = Math.min(100, summaryCount + 5);
+        document.getElementById('ssCountNum').textContent = summaryCount;
+      });
+      document.getElementById('ssCountDec').addEventListener('click', () => {
+        summaryCount = Math.max(5, summaryCount - 5);
+        document.getElementById('ssCountNum').textContent = summaryCount;
+      });
+
+      // ── auto summary ──
+      document.getElementById('ssSummarize').addEventListener('click', async () => {
+        if (!S.theater) return;
+        const btn = document.getElementById('ssSummarize');
+        const resultEl = document.getElementById('ssSummaryResult');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> 总结中…';
+        resultEl.classList.add('show');
+        resultEl.textContent = '正在读取消息…';
+        try {
+          let msgs = await dbGetByIndex('theater_messages', 'by_theater', S.theater.id);
+          msgs = msgs
+            .filter(m => m.type !== 'prologue' && m.type !== 'history' && !m.isSummary)
+            .sort((a, b) => a.floor - b.floor);
+          const last = msgs.slice(-summaryCount);
+          if (!last.length) {
+            resultEl.textContent = '暂无消息可总结。';
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> 自动总结';
+            return;
+          }
+
+          // Build readable summary lines
+          const lines = last
+            .map(m => {
+              let rname;
+              if (m.isNarrator || m.sender === 'narrator') {
+                rname = '[旁白]';
+              } else if (m.isUser || m.sender === 'user') {
+                const u = S.users.find(u => u && u.id === m.charId) || S.users.find(Boolean);
+                rname = u?.name || 'User';
+              } else {
+                const c = S.chars.find(c => c.id === m.charId) || S.chars[0];
+                rname = c?.name || '?';
+              }
+              const txt = typeof m.content === 'string' ? m.content : '';
+              return `${rname}: ${txt.slice(0, 80)}${txt.length > 80 ? '…' : ''}`;
+            })
+            .join('\n');
+
+          resultEl.textContent = lines;
+
+          // ── also insert as a summary bubble into the stage area ──
+          const floor = await getNextFloor(S.theater.id);
+          const summaryMsg = {
+            theaterId: S.theater.id,
+            floor,
+            type: 'summary',
+            isUser: false,
+            isNarrator: false,
+            isSummary: true,
+            charId: null,
+            charIds: [],
+            sender: 'system',
+            content: lines,
+            srcCount: last.length,
+            timestamp: Date.now(),
+          };
+          await dbPut('theater_messages', summaryMsg);
+          S.theater.updatedAt = Date.now();
+          S.theater.lastFloor = floor;
+          await dbPut('theaters', S.theater);
+
+          const area = document.getElementById('sArea');
+          area.querySelector('.s-empty')?.remove();
+          area.appendChild(buildSummaryBubble(summaryMsg));
+          area.scrollTop = area.scrollHeight;
+          updateFloor(floor);
+        } catch (e) {
+          resultEl.textContent = '总结失败：' + e.message;
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> 自动总结';
+        }
+      });
+
+      function buildSummaryBubble(msg) {
+        const el = document.createElement('div');
+        el.className = 'history-bubble';
+        el.dataset.floor = msg.floor;
+        el.innerHTML = `<div class="history-bubble-inner summary-bubble-inner">
+          <div class="history-tag">
+            <i class="fa-solid fa-wand-magic-sparkles" style="font-size:8px"></i>
+            自动总结 · Summary · ${msg.srcCount || '?'} 条
+          </div>
+          <div class="history-entries">
+            ${(msg.content || '')
+              .split('\n')
+              .map(l => `<div class="history-entry"><span>${l}</span></div>`)
+              .join('')}
+          </div>
+          <div class="history-foot">F·${msg.floor} · isSummary</div>
+        </div>`;
+        return el;
+      }
+
+      // ── safe messages-by-chat query (index may not exist in older DBs) ──
+      async function getMsgsByChat(chatId) {
+        const db = await openDb();
+        return new Promise((res, rej) => {
+          try {
+            const tx = db.transaction('messages', 'readonly');
+            const store = tx.objectStore('messages');
+            // messages keyPath is ['chatId', 'floor'] — use key range, no index needed
+            const range = IDBKeyRange.bound([chatId, 0], [chatId, Infinity]);
+            const req = store.openCursor(range);
+            const msgs = [];
+            req.onsuccess = e => {
+              const cursor = e.target.result;
+              if (cursor) {
+                msgs.push(cursor.value);
+                cursor.continue();
+              } else res(msgs);
+            };
+            req.onerror = () => rej(req.error);
+          } catch (e) {
+            // fallback: full scan (e.g. if messages store key structure differs)
+            try {
+              const tx2 = db.transaction('messages', 'readonly');
+              const fallback = tx2.objectStore('messages').getAll();
+              fallback.onsuccess = () => res((fallback.result || []).filter(m => m.chatId === chatId));
+              fallback.onerror = () => rej(fallback.error);
+            } catch (e2) {
+              rej(e2);
+            }
+          }
+        });
+      }
+
+      // ── chat link list ──
+      const SS = { selectedChats: new Set() };
+
+      async function loadChatLinks() {
+        if (!S.theater) return;
+        const list = document.getElementById('ssChatList');
+        list.innerHTML = `<div style="text-align:center;padding:20px;font-family:'Geist Mono',monospace;font-size:9.5px;color:var(--s-mute)">
+          <i class="fa-solid fa-circle-notch fa-spin" style="margin-bottom:6px;display:block;font-size:16px"></i>加载中…</div>`;
+
+        try {
+          let allChats = await dbGetAll('chats');
+          // filter to chats involving chars in this theater
+          const charIds = new Set(S.theater.charIds || []);
+          const relevant = allChats.filter(c => {
+            if (c.charId && charIds.has(c.charId)) return true;
+            if (Array.isArray(c.charIds) && c.charIds.some(id => charIds.has(id))) return true;
+            return false;
+          });
+
+          if (!relevant.length) {
+            list.innerHTML = `<div style="text-align:center;padding:24px;font-family:'Geist Mono',monospace;font-size:9px;color:var(--s-mute)">
+              <i class="fa-solid fa-link-slash" style="font-size:20px;opacity:0.4;margin-bottom:8px;display:block"></i>
+              未找到关联聊天记录<br>请先在主应用中与此 Char 聊天</div>`;
+            return;
+          }
+
+          // get last floor count for each chat
+          const linkedInfo = S.theater.linkedChats || {};
+
+          list.innerHTML = '';
+          SS.selectedChats.clear();
+
+          for (const chat of relevant) {
+            const cid = chat.charId || chat.charIds?.[0];
+            const char = S.chars.find(c => c.id === cid) || { name: chat.name || chat.title || '未知', avatar: null };
+            const msgs = await getMsgsByChat(chat.id);
+            const totalFloor = msgs.length ? Math.max(...msgs.map(m => m.floor || 0)) : 0;
+            const syncedFloor = linkedInfo[chat.id] || 0;
+            const newCount = msgs.filter(m => (m.floor || 0) > syncedFloor).length;
+
+            // pre-load user for this chat so history entries can show correct sender names
+            let chatUser = null;
+            if (chat.userId) {
+              try {
+                chatUser = await dbGet('users', chat.userId);
+              } catch (e) {}
+            }
+
+            const item = document.createElement('div');
+            item.className = 'ss-chat-item';
+            item.dataset.chatId = chat.id;
+
+            const avStyle = char.avatar
+              ? `background-image:url('${char.avatar}');background-size:cover;background-position:center;`
+              : '';
+            const avIcon = char.avatar ? '' : `<i class="fa-solid fa-user-astronaut"></i>`;
+
+            item.innerHTML = `
+              <div class="ss-chat-check"><i class="fa-solid fa-check"></i></div>
+              <div class="ss-chat-av" style="${avStyle}">${avIcon}</div>
+              <div class="ss-chat-info">
+                <div class="ss-chat-name">${chat.name || chat.title || char.name || '聊天记录'}</div>
+                <div class="ss-chat-meta">
+                  <span>F·${totalFloor} 共${msgs.length}条</span>
+                  ${
+                    syncedFloor > 0
+                      ? `<span class="ss-chat-badge">已同步至 F·${syncedFloor}</span>
+                       ${newCount > 0 ? `<span class="ss-chat-badge new">+${newCount} 新增</span>` : ''}`
+                      : `<span class="ss-chat-badge new">未同步</span>`
+                  }
+                </div>
+              </div>`;
+
+            item._chatData = { chat, msgs, char, chatUser, syncedFloor };
+            item.addEventListener('click', () => {
+              item.classList.toggle('selected');
+              const chatId = item.dataset.chatId;
+              if (item.classList.contains('selected')) SS.selectedChats.add(chatId);
+              else SS.selectedChats.delete(chatId);
+              syncInsertBar();
+            });
+
+            list.appendChild(item);
+          }
+        } catch (e) {
+          list.innerHTML = `<div style="text-align:center;padding:20px;font-family:'Geist Mono',monospace;font-size:9px;color:#ff6b6b">
+            加载失败: ${e.message}</div>`;
+        }
+      }
+
+      function syncInsertBar() {
+        const n = SS.selectedChats.size;
+        document.getElementById('ssSelCount').textContent = `已选 ${n} 条`;
+        document.getElementById('ssInsertBtn').disabled = n === 0;
+      }
+
+      // ── insert history bubble ──
+      document.getElementById('ssInsertBtn').addEventListener('click', async () => {
+        if (!S.theater || !SS.selectedChats.size) return;
+        const btn = document.getElementById('ssInsertBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> 置入中…';
+
+        try {
+          const list = document.getElementById('ssChatList');
+          const items = [...list.querySelectorAll('.ss-chat-item.selected')];
+          const linkedInfo = S.theater.linkedChats || {};
+
+          for (const item of items) {
+            const { chat, msgs, char, chatUser, syncedFloor } = item._chatData;
+            // only messages after last synced floor
+            const toInsert = msgs
+              .filter(m => (m.floor || 0) > syncedFloor)
+              .sort((a, b) => (a.floor || 0) - (b.floor || 0));
+            if (!toInsert.length) continue;
+
+            const lastFloor = Math.max(...toInsert.map(m => m.floor || 0));
+
+            // tsukiphone1_1: field is `senderRole` ('user'|'char'), no per-msg charId
+            const entries = toInsert
+              .slice(-30)
+              .map(m => {
+                const role = m.senderRole || m.sender || 'char';
+                const isUserMsg = role === 'user';
+                const senderName = isUserMsg ? chatUser?.name || 'User' : char?.name || '—';
+                const text =
+                  typeof m.content === 'string'
+                    ? m.content
+                    : m.content?.text || m.content?.body || JSON.stringify(m.content);
+                return `<div class="history-entry">
+                <span class="history-entry-name">${senderName}</span>
+                <span>${text.slice(0, 100)}${text.length > 100 ? '…' : ''}</span>
+              </div>`;
+              })
+              .join('');
+
+            const chatLabel = chat.name || chat.title || char?.name || '聊天';
+            const historyContent = `
+              <div class="history-tag">
+                <i class="fa-solid fa-link" style="font-size:8px"></i>
+                前置剧情 · ${chatLabel} · F·${syncedFloor + 1}→F·${lastFloor}
+              </div>
+              <div class="history-entries">${entries}</div>
+              <div class="history-foot">— 共置入 ${toInsert.length} 条 · 截至 F·${lastFloor}</div>`;
+
+            // create theater message for history bubble
+            const floor = await getNextFloor(S.theater.id);
+            const histMsg = {
+              theaterId: S.theater.id,
+              floor,
+              type: 'history',
+              sender: 'system',
+              charId: null,
+              content: historyContent,
+              linkedChatId: chat.id,
+              linkedFloor: lastFloor,
+              timestamp: Date.now(),
+            };
+            await dbPut('theater_messages', histMsg);
+
+            // update theater's linkedChats
+            linkedInfo[chat.id] = lastFloor;
+
+            // render in area (append at current position in timeline)
+            const area = document.getElementById('sArea');
+            area.querySelector('.s-empty')?.remove();
+            const el = buildHistoryBubble(histMsg);
+            area.appendChild(el);
+            area.scrollTop = area.scrollHeight;
+
+            updateFloor(floor);
+          }
+
+          // save linkedChats state
+          S.theater.linkedChats = linkedInfo;
+          S.theater.updatedAt = Date.now();
+          await dbPut('theaters', S.theater);
+
+          // refresh list
+          await loadChatLinks();
+          SS.selectedChats.clear();
+          syncInsertBar();
+        } catch (e) {
+          console.error('置入失败', e);
+          alert('置入失败: ' + e.message);
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fa-solid fa-layer-plus"></i> 置入前置剧情';
+        }
+      });
+
+      function buildHistoryBubble(msg) {
+        const el = document.createElement('div');
+        el.className = 'history-bubble';
+        el.innerHTML = `<div class="history-bubble-inner">${msg.content}</div>`;
+        return el;
+      }
+
+      /* ══════════════════════════════════════════════════════════
+       10. INIT
+    ══════════════════════════════════════════════════════════ */
+      (async () => {
+        try {
+          await loadChars();
+          await loadTheaterList();
+          console.log('[Stage] 线下剧场初始化完成');
+        } catch (e) {
+          console.error('[Stage] 初始化失败', e);
+        }
+      })();
+    </script>
+    <script>
+      // ==========================================
+      // 1. 数据库兼容层 (必须保留，用于从数据库读数据)
+      // ==========================================
+
+      function initTsukiDB() {
+        return new Promise((resolve, reject) => {
+          const request = indexedDB.open('tsukiphonepromax');
+          request.onsuccess = e => resolve(e.target.result);
+          request.onerror = e => reject(e.target.error);
+        });
+      }
+
+      async function getDbAsync() {
+        const db = await initTsukiDB();
+        return new Promise((resolve, reject) => {
+          const tx = db.transaction('config', 'readonly');
+          const store = tx.objectStore('config');
+          const req = store.get('main_config');
+          req.onsuccess = () => resolve(req.result || { id: 'main_config' });
+          req.onerror = e => reject(e.target.error);
+        });
+      }
+
+      // ==========================================
+      // 2. 核心美化应用逻辑
+      // ==========================================
+      async function applyGlobalTheme() {
+        try {
+          // 【关键修改】：从 IndexedDB 异步获取数据，不再使用 localStorage
+          const db = await getDbAsync();
+          const globalTheme = db.theme?.global || { css: '', wallpaper: '' };
+
+          const homeScreen = document.querySelector('.screen-home');
+          const homesecondScreen = document.querySelector('.screen-music');
+          const styleTag = document.getElementById('tsuki-dynamic-style');
+
+          // 1. 应用壁纸
+          const wallpaperUrl = globalTheme.wallpaper;
+          [homeScreen, homesecondScreen].forEach(screen => {
+            if (screen) {
+              if (wallpaperUrl) {
+                screen.style.backgroundImage = `url(${wallpaperUrl})`;
+                screen.style.backgroundSize = 'cover';
+                screen.style.backgroundPosition = 'center';
+              } else {
+                screen.style.backgroundImage = 'none';
+              }
+            }
+          });
+
+          // 2. 注入全局自定义 CSS (包括字体、颜色等)
+          if (styleTag) {
+            styleTag.innerHTML = globalTheme.css || '';
+          }
+
+          console.log('TSUKIMI 视觉引擎：IndexedDB 样式注入成功');
+        } catch (e) {
+          console.error('TSUKIMI 视觉引擎：样式加载失败', e);
+        }
+      }
+
+      // ==========================================
+      // 3. 实时同步监听 (当在设置页修改时，这里会自动变)
+      // ==========================================
+      const tsukiChannel = new BroadcastChannel('tsuki_channel');
+      tsukiChannel.onmessage = e => {
+        if (e.data === 'update_theme') applyGlobalTheme();
+      };
+
+      // 初始化执行
+      document.addEventListener('DOMContentLoaded', applyGlobalTheme);
+
+      // 在代码最末尾，或者 DOMContentLoaded 事件中：
+
+      // 可选：监听 storage 事件，实现设置页保存时，主页不刷新也能实时变色
+      window.addEventListener('storage', e => {
+        if (e.key === 'tsukiphonepromax') {
+          applyGlobalTheme();
+        }
+      });
+      // 在 tsukistage.html 的 script 闭包最下面加上这几行暴露接口
+      window.buildBubble = buildBubble;
+      window.buildNarratorBubble = buildNarratorBubble;
+      window.getNextFloor = getNextFloor;
+      window.updateFloor = updateFloor;
+      window.sendMsg = sendMsg; // 借用这个可以实现本地自己打字时的入库操作
+    </script>
+    <script src="StageSend.js"></script>
+    <script src="TsukiBridge.js"></script>
+  </body>
+</html>

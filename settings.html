@@ -1,0 +1,1537 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Settings · TSUKIMI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      /* =========================================
+       1. 全局变量与重置 (iOS 极简黑白灰 + 亮色)
+    ========================================= */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      :root {
+        --setting-ink: #111112; /* 深黑 */
+        --setting-ink-2: #2c2c2e; /* 浅黑 */
+        --setting-mute: #8e8e93; /* iOS灰 */
+        --setting-line: rgba(0, 0, 0, 0.08);
+        --setting-paper: #f2f2f7; /* iOS底色 */
+        --setting-card: #ffffff; /* 纯白 */
+
+        /* 亮色点缀 */
+        --setting-blue: #007aff;
+        --setting-coral: #ff3b30;
+        --setting-mint: #34c759;
+        --setting-amber: #ff9500;
+      }
+
+      body {
+        font-family:
+          'Geist',
+          -apple-system,
+          'PingFang SC',
+          sans-serif;
+        background: transparent;
+        color: var(--setting-ink);
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding: 24px 11px 40px;
+      }
+      body::-webkit-scrollbar {
+        display: none;
+      }
+
+      /* =========================================
+       2. 标题与装饰文本
+    ========================================= */
+      .setting-header {
+        margin-bottom: 24px;
+        padding-left: 8px;
+        padding: 0 11px;
+        position: relative;
+      }
+      .setting-title {
+        font-family: inherit;
+        font-style: italic;
+        font-size: 32px;
+        font-weight: 500;
+        letter-spacing: -0.02em;
+        color: var(--setting-ink);
+      }
+      .setting-subtitle {
+        font-family: inherit;
+        font-size: 10px;
+        color: var(--setting-mute);
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        margin-top: 4px;
+      }
+
+      /* 右上角装饰文本 */
+      .setting-deco-text {
+        position: absolute;
+        top: 4px;
+        right: 21px;
+        text-align: right;
+        font-family: inherit;
+        font-size: 8px;
+        color: var(--setting-mute);
+        letter-spacing: 0.1em;
+        line-height: 1.4;
+      }
+      .setting-deco-text span {
+        color: var(--setting-ink);
+        font-weight: 700;
+        font-size: 9px;
+      }
+
+      /* =========================================
+       3. 双层边框模块 (iOS Card Style) & 折叠动画
+    ========================================= */
+      .setting-section {
+        background: rgba(242, 242, 247, 0.6);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(0, 0, 0, 0.04);
+        border-radius: 32px;
+        padding: 6px; /* 外层边距，形成双层嵌套感 */
+        /* margin-bottom: 24px; */
+        box-shadow: 0 4px 20px -8px rgba(0, 0, 0, 0.06);
+        margin: 24px auto;
+        width: 97%;
+      }
+
+      .setting-section-inner {
+        background: var(--setting-card);
+        border-radius: 26px;
+        padding: 20px;
+        border: 1px solid rgba(0, 0, 0, 0.03);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+      }
+
+      .setting-section-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        user-select: none;
+      }
+
+      .setting-section-title {
+        font-size: 15px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--setting-ink);
+      }
+
+      .setting-toggle-icon {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: var(--setting-paper);
+        color: var(--setting-mute);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        transition: 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+
+      /* 折叠交互类 */
+      .setting-section.collapsed .setting-toggle-icon {
+        transform: rotate(180deg);
+        background: var(--setting-ink);
+        color: var(--setting-card);
+      }
+      .setting-section-body {
+        display: grid;
+        grid-template-rows: 1fr;
+        transition: grid-template-rows 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      .setting-section.collapsed .setting-section-body {
+        grid-template-rows: 0fr;
+      }
+      .setting-section-content {
+        overflow: hidden;
+        padding-top: 0px; /* 展开后的顶部间距 */
+        transition: opacity 0.3s ease;
+      }
+      .setting-section.collapsed .setting-section-content {
+        opacity: 0;
+      }
+
+      /* =========================================
+       4. 表单与按钮 (黑白灰基调)
+    ========================================= */
+      .setting-row {
+        margin-bottom: 14px;
+      }
+      .setting-flex-row {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        margin-bottom: 14px;
+      }
+
+      .setting-label {
+        display: block;
+        font-family: inherit;
+        font-size: 9.5px;
+        color: var(--setting-mute);
+        margin-bottom: 6px;
+        letter-spacing: 0.05em;
+      }
+
+      .setting-input,
+      .setting-select {
+        width: 100%;
+        height: 36px;
+        background: var(--setting-paper);
+        border: 1px solid transparent;
+        border-radius: 12px;
+        padding: 0 14px;
+        font-family: inherit;
+        font-size: 11.5px;
+        color: var(--setting-ink);
+        outline: none;
+        transition: 0.2s;
+      }
+      .setting-input:focus,
+      .setting-select:focus {
+        border-color: var(--setting-ink);
+        background: var(--setting-card);
+        box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.03);
+      }
+
+      .setting-textarea {
+        width: 100%;
+        height: 120px;
+        background: var(--setting-paper);
+        border: 1px solid transparent;
+        border-radius: 14px;
+        padding: 14px;
+        font-family: inherit;
+        font-size: 10.5px;
+        color: var(--setting-ink);
+        resize: none;
+        outline: none;
+        transition: 0.2s;
+        line-height: 1.5;
+      }
+      .setting-textarea:focus {
+        border-color: var(--setting-ink);
+        background: var(--setting-card);
+      }
+
+      /* 按钮设计 */
+      .setting-btn {
+        height: 36px;
+        border-radius: 12px;
+        border: none;
+        background: var(--setting-paper);
+        color: var(--setting-ink);
+        font-size: 11.5px;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: 0.2s;
+        padding: 0 16px;
+      }
+      .setting-btn:hover {
+        background: #e5e5ea;
+      }
+
+      .setting-btn-primary {
+        background: var(--setting-ink);
+        color: var(--setting-card);
+        box-shadow: 0 6px 16px -4px rgba(0, 0, 0, 0.25);
+      }
+      .setting-btn-primary:hover {
+        background: var(--setting-ink-2);
+        transform: translateY(-1px);
+      }
+
+      .setting-btn-danger {
+        color: var(--setting-coral);
+        background: rgba(255, 59, 48, 0.08);
+      }
+      .setting-btn-danger:hover {
+        background: var(--setting-coral);
+        color: white;
+      }
+
+      .setting-btn-icon {
+        width: 42px;
+        padding: 0;
+        flex-shrink: 0;
+      }
+
+      /* =========================================
+       5. 定制组件 (Slider, Monitor, Wallpaper)
+    ========================================= */
+      /* 滑动条 (iOS风格) */
+      .setting-slider-wrap {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .setting-slider {
+        -webkit-appearance: none;
+        width: 100%;
+        height: 6px;
+        background: var(--setting-line);
+        border-radius: 10px;
+        outline: none;
+      }
+      .setting-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: var(--setting-card);
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+        cursor: pointer;
+        transition: 0.2s;
+      }
+      .setting-slider::-webkit-slider-thumb:hover {
+        transform: scale(1.1);
+      }
+      .setting-slider-val {
+        font-family: inherit;
+        font-size: 11px;
+        font-weight: 600;
+        width: 24px;
+        text-align: right;
+      }
+
+      /* 链路监控终端 */
+      .setting-monitor {
+        background: var(--setting-ink);
+        border-radius: 16px;
+        padding: 14px;
+        margin-top: 20px;
+        font-family: inherit;
+        font-size: 9px;
+        color: #a0a0a5;
+        max-height: 160px;
+        overflow-y: auto;
+        box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.5);
+      }
+      .setting-monitor::-webkit-scrollbar {
+        display: none;
+      }
+      .setting-monitor-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+        padding-bottom: 8px;
+        border-bottom: 1px dashed rgba(255, 255, 255, 0.15);
+        color: var(--setting-mute);
+        font-size: 8.5px;
+        text-transform: uppercase;
+      }
+      .setting-monitor-head .dot {
+        color: var(--setting-mint);
+        animation: blink 1.5s infinite;
+      }
+      @keyframes blink {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.3;
+        }
+      }
+
+      /* 壁纸预览 */
+      .setting-wp-box {
+        width: 100%;
+        height: 160px;
+        background: var(--setting-paper);
+        border-radius: 16px;
+        border: 2px dashed rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 16px;
+        transition: 0.2s;
+      }
+      .setting-wp-box:hover {
+        border-color: var(--setting-ink);
+        background: rgba(0, 0, 0, 0.02);
+      }
+      .setting-wp-box i {
+        font-size: 24px;
+        color: var(--setting-mute);
+      }
+      .setting-wp-box span {
+        font-size: 11px;
+        color: var(--setting-mute);
+        font-weight: 500;
+      }
+
+      .setting-wp-preview {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: none;
+        z-index: 1;
+      }
+      .setting-wp-overlay {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        z-index: 2;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(4px);
+        color: white;
+        font-size: 9px;
+        padding: 6px 12px;
+        border-radius: 100px;
+        display: none;
+        font-weight: 600;
+      }
+      .setting-wp-box.has-img .setting-wp-preview,
+      .setting-wp-box.has-img .setting-wp-overlay {
+        display: block;
+      }
+      .setting-wp-box.has-img i,
+      .setting-wp-box.has-img span {
+        display: none;
+      }
+
+      /* =========================================
+       6. 预设多选列表样式
+      ========================================= */
+      .theme-checkbox-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 12px;
+        background: var(--setting-paper);
+        padding: 12px;
+        border-radius: 14px;
+        max-height: 140px;
+        overflow-y: auto;
+      }
+      .theme-checkbox-list::-webkit-scrollbar {
+        width: 4px;
+      }
+      .theme-checkbox-list::-webkit-scrollbar-thumb {
+        background: var(--setting-mute);
+        border-radius: 4px;
+      }
+      .theme-checkbox-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 11.5px;
+        color: var(--setting-ink);
+        cursor: pointer;
+      }
+      .theme-checkbox-item input[type='checkbox'] {
+        appearance: none;
+        width: 16px;
+        height: 16px;
+        border: 1.5px solid var(--setting-mute);
+        border-radius: 4px;
+        outline: none;
+        cursor: pointer;
+        position: relative;
+        background: var(--setting-card);
+        transition: 0.2s;
+        flex-shrink: 0;
+      }
+      .theme-checkbox-item input[type='checkbox']:checked {
+        /* background: var(--setting-blue);
+        border-color: var(--setting-blue); */
+        background: #000;
+        border-color: #fff;
+      }
+      .theme-checkbox-item input[type='checkbox']:checked::after {
+        content: '';
+        position: absolute;
+        top: 2px;
+        left: 5px;
+        width: 3px;
+        height: 7px;
+        border: solid white;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+      }
+    </style>
+    <style id="tsuki-dynamic-style"></style>
+  </head>
+  <body>
+    <div class="setting-header">
+      <div class="setting-deco-text"><span>SYS.VER 1.4.2</span><br />TSUKIMI // CONFIG</div>
+      <div class="setting-title">Settings</div>
+      <div class="setting-subtitle">System Configuration</div>
+    </div>
+
+    <div class="setting-section" id="sec-api">
+      <div class="setting-section-inner">
+        <div class="setting-section-head" onclick="toggleSection('sec-api')">
+          <div class="setting-section-title">
+            <i class="fa-solid fa-server" style="color: var(--setting-blue)"></i> 神经元链路配置
+          </div>
+          <div class="setting-toggle-icon"><i class="fa-solid fa-chevron-up"></i></div>
+        </div>
+
+        <div class="setting-section-body">
+          <div class="setting-section-content">
+            <div class="setting-label" style="padding-top: 20px">预设节点 (API Presets)</div>
+            <div class="setting-flex-row">
+              <select class="setting-select" id="apiPresetSelect" style="flex: 1"></select>
+              <button
+                class="setting-btn setting-btn-icon"
+                id="apiSaveBtn"
+                title="保存/覆盖预设"
+                style="color: var(--setting-blue)"
+              >
+                <i class="fa-solid fa-floppy-disk"></i>
+              </button>
+              <button class="setting-btn setting-btn-icon setting-btn-danger" id="apiDelBtn" title="删除预设">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </div>
+
+            <div class="setting-row">
+              <div class="setting-label">Base URL</div>
+              <input type="text" class="setting-input" id="apiUrl" placeholder="https://api.openai.com" />
+            </div>
+
+            <div class="setting-row">
+              <div class="setting-label">API Key (Bearer Token)</div>
+              <input type="password" class="setting-input" id="apiKey" placeholder="sk-..." />
+            </div>
+
+            <div class="setting-flex-row">
+              <div style="flex: 1">
+                <div class="setting-label">模型 (Model)</div>
+                <select class="setting-select" id="apiModel">
+                  <option value="gpt-3.5-turbo">gpt-3.5-turbo</option>
+                  <option value="gpt-4o" selected>gpt-4o</option>
+                </select>
+              </div>
+              <div style="padding-top: 19px">
+                <button class="setting-btn" id="apiFetchBtn"><i class="fa-solid fa-rotate"></i> 获取</button>
+              </div>
+            </div>
+
+            <div class="setting-row">
+              <div class="setting-label">温度 (Temperature)</div>
+              <div class="setting-slider-wrap">
+                <input type="range" class="setting-slider" id="apiTemp" min="0" max="2" step="0.1" value="0.7" />
+                <span class="setting-slider-val" id="apiTempVal">0.7</span>
+              </div>
+            </div>
+
+            <button class="setting-btn setting-btn-primary" style="width: 100%; margin-top: 8px" id="apiTestBtn">
+              <i class="fa-solid fa-plug"></i> 测试链路连接
+            </button>
+
+            <div class="setting-monitor" id="apiMonitor">
+              <div class="setting-monitor-head">
+                <span><i class="fa-solid fa-terminal"></i> 链路监控 (Trace Log)</span>
+                <span><i class="fa-solid fa-circle dot"></i> STANDBY</span>
+              </div>
+              <div id="apiMonitorContent">
+                <div>> 系统已就绪，等待信标指令...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="setting-section collapsed" id="sec-theme">
+      <div class="setting-section-inner">
+        <div class="setting-section-head" onclick="toggleSection('sec-theme')">
+          <div class="setting-section-title">
+            <i class="fa-solid fa-wand-magic-sparkles" style="color: var(--setting-coral)"></i> 视觉与美化引擎
+          </div>
+          <div class="setting-toggle-icon"><i class="fa-solid fa-chevron-up"></i></div>
+        </div>
+
+        <div class="setting-section-body">
+          <div class="setting-section-content">
+            <div class="setting-label" style="padding-top: 20px">全息投影壁纸 (Wallpaper)</div>
+            <div class="setting-wp-box" id="wpBox" onclick="document.getElementById('wpInput').click()">
+              <i class="fa-solid fa-image"></i>
+              <span>点击上传图像</span>
+              <img src="" class="setting-wp-preview" id="wpPreview" />
+              <div class="setting-wp-overlay"><i class="fa-solid fa-pen"></i> 更换</div>
+              <input type="file" id="wpInput" accept="image/*" style="display: none" />
+            </div>
+
+            <div class="setting-label">自定义样式预设 (CSS Themes)</div>
+            <div class="setting-flex-row">
+              <select class="setting-select" id="themePresetSelect" style="flex: 1"></select>
+              <button
+                class="setting-btn setting-btn-icon"
+                id="themeSaveBtn"
+                title="保存/覆盖预设"
+                style="color: var(--setting-blue)"
+              >
+                <i class="fa-solid fa-floppy-disk"></i>
+              </button>
+              <button class="setting-btn setting-btn-icon setting-btn-danger" id="themeDelBtn" title="删除预设">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </div>
+
+            <div class="setting-row">
+              <textarea
+                class="setting-textarea"
+                id="themeCss"
+                placeholder="/* 在此编写 CSS，例如：\nbody { background: #000; } \n.bubble { border-radius: 0; } */"
+              ></textarea>
+            </div>
+
+            <div class="setting-label">字体设置预设 (Font Presets)</div>
+            <div class="setting-flex-row">
+              <select class="setting-select" id="fontPresetSelect" style="flex: 1"></select>
+              <button
+                class="setting-btn setting-btn-icon"
+                id="fontSaveBtn"
+                title="保存/覆盖预设"
+                style="color: var(--setting-blue)"
+              >
+                <i class="fa-solid fa-floppy-disk"></i>
+              </button>
+              <button class="setting-btn setting-btn-icon setting-btn-danger" id="fontDelBtn" title="删除预设">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </div>
+
+            <div class="setting-row">
+              <div class="setting-label">字体文件直链 (.ttf / .otf ...)</div>
+              <input type="text" class="setting-input" id="fontUrl" placeholder="https://..." />
+            </div>
+
+            <div class="setting-label" style="margin-top: 16px">组合应用预设 (勾选并叠加)</div>
+            <div class="theme-checkbox-list" id="themeCheckboxList"></div>
+
+            <button class="setting-btn setting-btn-primary" style="width: 100%; margin-top: 8px" id="themeApplyBtn">
+              <i class="fa-solid fa-check-double"></i> 应用并注入至全局
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="setting-section collapsed" id="sec-backup">
+      <div class="setting-section-inner">
+        <div class="setting-section-head" onclick="toggleSection('sec-backup')">
+          <div class="setting-section-title">
+            <i class="fa-solid fa-database" style="color: var(--setting-amber)"></i> 神经元数据迁移
+          </div>
+          <div class="setting-toggle-icon"><i class="fa-solid fa-chevron-up"></i></div>
+        </div>
+
+        <div class="setting-section-body">
+          <div class="setting-section-content">
+            <div class="setting-label" style="padding-top: 20px">数据完整性操作 (Database Backup)</div>
+            <p style="font-size: 10px; color: var(--setting-mute); margin-bottom: 15px; line-height: 1.4">
+              导出当前所有配置、角色、用户及世界书数据为 JSON 文件。导入操作将完全覆盖当前数据库，请谨慎操作。
+            </p>
+
+            <div class="setting-flex-row">
+              <button class="setting-btn setting-btn-primary" id="exportBtn" style="flex: 1">
+                <i class="fa-solid fa-file-export"></i> 导出
+              </button>
+              <button class="setting-btn" id="importBtn" style="flex: 1">
+                <i class="fa-solid fa-file-import"></i> 导入
+              </button>
+            </div>
+            <input type="file" id="importInput" accept=".json" style="display: none" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const MASTER_DB_KEY = 'tsukiphonepromax';
+
+      // 将你提供的 CSS 定义为一个常量，方便管理，注意这里使用反引号 ` 包裹多行文本
+      const FULLSCREEN_CSS = `/* ========================================== */
+/* 全屏无手机壳模式 (FULLSCREEN OVERRIDE)      */
+/* ========================================== */
+
+html, body {
+  padding: 0 !important;
+  /* 如果你想让整个网页背景和手机原本的背景一致，可以取消下面这行的注释 */
+  /* background: var(--paper) !important; */
+}
+
+/* 隐藏网页背景的噪点纹理，因为全屏后不需要了 */
+body::before {
+  display: none !important;
+}
+
+/* 展开手机容器，移除物理形态限制 */
+.phone {
+  width: 100vw !important;
+  max-width: none !important;
+  /* 使用 dvh 确保在移动端浏览器(如 Safari)的地址栏收缩时也能完美全屏 */
+  height: 100dvh !important; 
+  max-height: none !important;
+  border-radius: 0 !important; /* 移除大圆角 */
+  box-shadow: none !important; /* 移除外壳阴影 */
+}
+
+/* 隐藏顶部的黑色“刘海” */
+.phone::before {
+  display: none !important;
+}
+
+/* 调整状态栏内边距，适应直角屏幕 */
+.status-bar {
+  padding: 12px 20px 0 !important; 
+}
+
+/* 稍微调整底部主页横条的间距 */
+.home-bar {
+  bottom: 12px !important;
+}
+
+/* 调整 Dock 栏在全屏下的底部间距 */
+.dock {
+  bottom: 20px !important;
+}`;
+
+      // 默认数据库结构
+      const defaultDb = {
+        api: {
+          presets: { default: { url: '', key: '', model: 'gpt-4o', temp: 0.7 } },
+          fonts: {
+            // 新增：字体预设存储
+            default: { url: '', name: '' },
+          },
+          activePreset: 'default',
+          temp: { url: '', key: '', model: 'gpt-4o', temp: 0.7 },
+        },
+        theme: {
+          presets: {
+            default: { css: '', wallpaper: '' },
+            全屏无手机壳模式: {
+              css: FULLSCREEN_CSS,
+              wallpaper: '',
+              fontUrl: '', // 新增
+              fontName: '', // 新增
+            }, // 新增：将全屏配置加入默认预设中
+          },
+          activePresets: [],
+          temp: { css: '', wallpaper: '' },
+          global: { css: '', wallpaper: '' },
+        },
+      };
+
+      // ===== 新增: IndexedDB 与 跨页通信 核心封装 =====
+      let db = null; // 稍后在 DOMContentLoaded 中异步获取
+      // ==========================================
+      // 1. 终极 IndexedDB 核心封装 (Schema 声明式自动升级)
+      // ==========================================
+      const IDB_NAME = 'tsukiphonepromax';
+      const tsukiChannel = new BroadcastChannel('tsuki_channel');
+
+      // 【核心定义区】：就像 Dexie 一样，以后新增表只要在这里加一行！
+      const SCHEMA = {
+        config: { keyPath: 'id' },
+        chars: { keyPath: 'id' },
+        users: { keyPath: 'id' },
+        worldbook: null,
+        chats: { keyPath: 'id' },
+        // 👉 核心修改：使用数组作为复合主键，[聊天ID, 楼层]
+        messages: { keyPath: ['chatId', 'floor'] },
+      };
+
+      function initTsukiDB() {
+        return new Promise((resolve, reject) => {
+          // 第一步：不指定版本号，直接探测当前浏览器的真实版本
+          const probeReq = indexedDB.open(IDB_NAME);
+
+          probeReq.onsuccess = e => {
+            const db = e.target.result;
+            const currentVersion = db.version;
+
+            // 第二步：检查当前数据库里是否缺表
+            const missingStores = Object.keys(SCHEMA).filter(store => !db.objectStoreNames.contains(store));
+
+            if (missingStores.length === 0) {
+              // 结构完整，直接返回可用连接
+              resolve(db);
+            } else {
+              // 第三步：发现缺表！自动关掉当前连接，用 "当前版本 + 1" 触发系统升级
+              console.warn(
+                `[DB] 发现缺表: ${missingStores.join(', ')}。自动从 v${currentVersion} 升级至 v${currentVersion + 1}`,
+              );
+              db.close();
+
+              const upgradeReq = indexedDB.open(IDB_NAME, currentVersion + 1);
+
+              upgradeReq.onupgradeneeded = event => {
+                const upgradeDb = event.target.result;
+                // 遍历 SCHEMA 自动建表
+                for (const [storeName, options] of Object.entries(SCHEMA)) {
+                  if (!upgradeDb.objectStoreNames.contains(storeName)) {
+                    if (options) {
+                      upgradeDb.createObjectStore(storeName, options);
+                    } else {
+                      upgradeDb.createObjectStore(storeName);
+                    }
+                    console.log(`[DB] 成功创建数据表: ${storeName}`);
+                  }
+                }
+              };
+
+              upgradeReq.onsuccess = event => resolve(event.target.result);
+              upgradeReq.onerror = event => reject(event.target.error);
+              // 如果有其他标签页卡住了连接，提示用户
+              upgradeReq.onblocked = () =>
+                alert('数据库正在自动升级，请先暂时关闭其他 TSUKIMI 页面/预览窗口，然后刷新！');
+            }
+          };
+
+          probeReq.onerror = e => reject(e.target.error);
+        });
+      }
+
+      // getDbAsync 和 saveDbAsync 保持原样，它们会自动调用上面这个无敌版的 initTsukiDB
+
+      // 2. 专门为 settings 准备的获取数据函数（带结构补全防崩机制）
+      async function getDbAsync() {
+        const idb = await initTsukiDB();
+        return new Promise((resolve, reject) => {
+          const tx = idb.transaction('config', 'readonly');
+          const store = tx.objectStore('config');
+          const req = store.get('main_config');
+
+          req.onsuccess = () => {
+            let parsed = req.result || { id: 'main_config' };
+
+            // 【核心修复】：为新数据库彻底补齐 settings 需要的嵌套结构 (深层合并)
+            parsed.api = { ...defaultDb.api, ...(parsed.api || {}) };
+            parsed.api.temp = { ...defaultDb.api.temp, ...(parsed.api.temp || {}) };
+            parsed.api.presets = { ...defaultDb.api.presets, ...(parsed.api.presets || {}) };
+
+            parsed.theme = { ...defaultDb.theme, ...(parsed.theme || {}) };
+            parsed.theme.temp = { ...defaultDb.theme.temp, ...(parsed.theme.temp || {}) };
+            parsed.theme.presets = { ...defaultDb.theme.presets, ...(parsed.theme.presets || {}) };
+            parsed.theme.fonts = { ...defaultDb.theme.fonts, ...(parsed.theme.fonts || {}) };
+            parsed.theme.activePresets = parsed.theme.activePresets || [];
+
+            if (!parsed.theme.presets['全屏无手机壳模式']) {
+              parsed.theme.presets['全屏无手机壳模式'] = { css: FULLSCREEN_CSS, wallpaper: '' };
+              saveDb(parsed); // 发现缺失静默保存
+            }
+            resolve(parsed);
+          };
+          req.onerror = e => reject(e.target.error);
+        });
+      }
+
+      // 3. 异步保存函数 (名字保持 saveDb，这样你下面几百行的 saveDb(db) 都不用改)
+      async function saveDb(data) {
+        const idb = await initTsukiDB();
+        return new Promise((resolve, reject) => {
+          const tx = idb.transaction('config', 'readwrite');
+          const store = tx.objectStore('config');
+          data.id = 'main_config';
+          const req = store.put(data);
+          req.onsuccess = () => {
+            tsukiChannel.postMessage('update_theme'); // 通知主页实时变色
+            resolve();
+          };
+          req.onerror = e => reject(e.target.error);
+        });
+      }
+
+      // ==========================================
+      // 【时序修复关键点】：必须加上 async 和 await
+      // ==========================================
+      document.addEventListener('DOMContentLoaded', async () => {
+        try {
+          // 1. 死死等住数据库，拿到完整数据后再赋值给 db
+          db = await getDbAsync();
+
+          // 2. 此时 db 绝对不可能为 null 了，再去渲染 UI
+          initApiModule();
+          initThemeModule();
+        } catch (e) {
+          console.error('初始化配置数据失败:', e);
+        }
+      });
+
+      // 折叠展开函数
+      function toggleSection(id) {
+        const el = document.getElementById(id);
+        el.classList.toggle('collapsed');
+      }
+
+      /* ================= 1. API 模块逻辑 ================= */
+      function initApiModule() {
+        const select = document.getElementById('apiPresetSelect');
+        const tempSlider = document.getElementById('apiTemp');
+        const tempVal = document.getElementById('apiTempVal');
+
+        // 回显临时输入内容 (上次启用的内容)
+        restoreApiInputs();
+        loadApiPresets(db.api.activePreset);
+
+        // 监听输入，实时存入 temp 库
+        const inputs = ['apiUrl', 'apiKey', 'apiModel'];
+        inputs.forEach(id => {
+          document.getElementById(id).addEventListener('input', e => {
+            const key = id.replace('api', '').toLowerCase();
+            db.api.temp[key] = e.target.value;
+            saveDb(db);
+          });
+        });
+
+        tempSlider.addEventListener('input', e => {
+          tempVal.innerText = e.target.value;
+          db.api.temp.temp = e.target.value;
+          saveDb(db);
+        });
+
+        // 切换下拉预设
+        select.addEventListener('change', () => {
+          const data = db.api.presets[select.value];
+          if (data) {
+            db.api.activePreset = select.value;
+            db.api.temp = { ...data }; // 覆盖临时区
+            saveDb(db);
+            restoreApiInputs();
+            logMonitor(`<span style="color:var(--setting-mute);">已加载配置节点: [${select.value}]</span>`);
+          }
+        });
+
+        // 保存预设
+        // API 预设保存/更新逻辑
+        document.getElementById('apiSaveBtn').addEventListener('click', async () => {
+          const select = document.getElementById('apiPresetSelect');
+          let name = select.value;
+
+          // 核心修改：如果是默认配置或空，才需要弹窗取名
+          if (name === 'default' || !name) {
+            name = prompt('将当前配置保存为新预设，请输入名称：', 'MyNode_01');
+            if (!name) return; // 用户点取消则退出
+          }
+
+          // 逻辑：将临时区 temp 的内容深度克隆到对应的预设位置
+          db.api.presets[name] = JSON.parse(JSON.stringify(db.api.temp));
+          db.api.activePreset = name;
+
+          // 保存并更新 UI
+          await saveDb(db);
+          loadApiPresets(name);
+
+          logMonitor(
+            `<span style="color:var(--setting-mint);">已[${name === select.value ? '更新' : '保存'}]节点配置: [${name}]</span>`,
+          );
+        });
+
+        // 删除预设
+        document.getElementById('apiDelBtn').addEventListener('click', () => {
+          const name = select.value;
+          if (name === 'default') return alert('默认预设不可删除');
+          if (confirm(`确定删除节点 [${name}] 吗？`)) {
+            delete db.api.presets[name];
+            db.api.activePreset = 'default';
+            db.api.temp = { ...db.api.presets['default'] };
+            saveDb(db);
+            loadApiPresets('default');
+            restoreApiInputs();
+            logMonitor(`<span style="color:var(--setting-coral);">已抹除节点配置: [${name}]</span>`);
+          }
+        });
+
+        document.getElementById('apiFetchBtn').addEventListener('click', fetchModels);
+        document.getElementById('apiTestBtn').addEventListener('click', testApi);
+      }
+
+      function restoreApiInputs() {
+        // 新增：安全防御网，如果数据尚未准备好则安全退出，防止控制台报错
+        if (!db?.api?.temp) return;
+
+        document.getElementById('apiUrl').value = db.api.temp.url || '';
+        document.getElementById('apiKey').value = db.api.temp.key || '';
+
+        const modelSelect = document.getElementById('apiModel');
+        const presetModel = db.api.temp.model || 'gpt-4o';
+        let optionExists = Array.from(modelSelect.options).some(opt => opt.value === presetModel);
+        if (!optionExists && presetModel) {
+          modelSelect.add(new Option(presetModel, presetModel));
+        }
+        modelSelect.value = presetModel;
+
+        document.getElementById('apiTemp').value = db.api.temp.temp || 0.7;
+        document.getElementById('apiTempVal').innerText = db.api.temp.temp || 0.7;
+      }
+
+      function logMonitor(htmlContent) {
+        const content = document.getElementById('apiMonitorContent');
+        const time = new Date().toLocaleTimeString('en-US', { hour12: false });
+        content.innerHTML += `<div style="margin-top:4px;">[${time}] ${htmlContent}</div>`;
+        document.getElementById('apiMonitor').scrollTop = 9999;
+      }
+
+      async function testApi() {
+        const url = document.getElementById('apiUrl').value.replace(/\/+$/, '').replace(/\/v1$/, '');
+        const key = document.getElementById('apiKey').value;
+        const model = document.getElementById('apiModel').value || 'gpt-3.5-turbo';
+
+        if (!url) return logMonitor('<span style="color:var(--setting-coral);">[ERROR] 目标 URL 为空</span>');
+
+        logMonitor(`
+        <div style="color: var(--setting-blue); margin-top:8px;">
+          <b>[TEST] 发起神经元连接...</b><br>
+          <span style="color:#666;">Target: ${url} | Model: ${model}</span><br>
+          <i class="fas fa-spinner fa-spin" style="margin-top:4px;"></i> 等待响应中...
+        </div>
+      `);
+
+        try {
+          const res = await fetch(`${url}/v1/chat/completions`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
+            body: JSON.stringify({
+              model: model,
+              messages: [{ role: 'user', content: 'Say "SYSTEM ONLINE."' }],
+              temperature: parseFloat(db.api.temp.temp || 0.7),
+            }),
+          });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const data = await res.json();
+          const reply = data.choices[0]?.message?.content || 'NO_CONTENT';
+
+          logMonitor(`
+          <div style="color: var(--setting-mint); margin-top:8px;">
+            <b>[SUCCESS] 握手成功</b><br>
+            <span style="color:#888;">回复: ${reply}</span>
+          </div>
+        `);
+        } catch (err) {
+          logMonitor(`
+          <div style="color: var(--setting-coral); margin-top:8px;">
+            <b>[ERROR] 链路断开</b><br>
+            <span style="color:#888;">详情: ${err.message}</span>
+          </div>
+        `);
+        }
+      }
+
+      async function fetchModels() {
+        const url = document.getElementById('apiUrl').value.replace(/\/+$/, '').replace(/\/v1$/, '');
+        const key = document.getElementById('apiKey').value;
+        const modelSelect = document.getElementById('apiModel');
+
+        if (!url) return logMonitor('<span style="color:var(--setting-coral);">[ERROR] 请先填写 Base URL</span>');
+
+        logMonitor('<span style="color:var(--setting-blue);">开始向服务器探测可用模型列表...</span>');
+        modelSelect.innerHTML = '<option value="">✩ 加载中...</option>';
+
+        try {
+          const res = await fetch(`${url}/v1/models`, {
+            headers: { Authorization: `Bearer ${key}` },
+          });
+
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const json = await res.json();
+          const models = json.data || json;
+
+          modelSelect.innerHTML = '';
+
+          if (Array.isArray(models) && models.length > 0) {
+            models.forEach(m => {
+              const option = document.createElement('option');
+              option.value = m.id;
+              option.text = m.id;
+              modelSelect.appendChild(option);
+            });
+            // 如果拉取到的模型列表中包含当前保存的模型，则自动选中
+            if (models.some(m => m.id === db.api.temp.model)) {
+              modelSelect.value = db.api.temp.model;
+            } else {
+              // 否则更新为第一个
+              db.api.temp.model = models[0].id;
+              saveDb(db);
+            }
+
+            logMonitor(
+              `<span style="color:var(--setting-mint);">[SUCCESS] 成功拉取并渲染 ${models.length} 个模型</span>`,
+            );
+          } else {
+            modelSelect.innerHTML = '<option value="">没有可用的模型</option>';
+            logMonitor('<span style="color:var(--setting-amber);">[WARN] 未找到模型数据</span>');
+          }
+        } catch (error) {
+          modelSelect.innerHTML = '<option value="gpt-4o">gpt-4o (默认)</option>';
+          logMonitor(`<span style="color:var(--setting-coral);">[ERROR] 模型拉取失败: ${error.message}</span>`);
+        }
+      }
+
+      /* ================= 2. 美化模块逻辑 ================= */
+      function initThemeModule() {
+        // 核心修复：强制初始化 fonts 结构，防止 Cannot set properties of undefined 报错
+        db.theme.fonts = db.theme.fonts || { default: { url: '' } };
+        db.theme.temp.fontUrl = db.theme.temp.fontUrl || '';
+
+        const fontSelect = document.getElementById('fontPresetSelect');
+        const fontUrlInput = document.getElementById('fontUrl');
+
+        // 回显临时字体配置
+        fontUrlInput.value = db.theme.temp.fontUrl;
+
+        // 渲染预设下拉框
+        renderSelect('fontPresetSelect', db.theme.fonts, db.theme.activeFontPreset || 'default');
+
+        // 监听输入保存到临时区
+        fontUrlInput.addEventListener('input', () => {
+          db.theme.temp.fontUrl = fontUrlInput.value;
+          saveDb(db);
+        });
+
+        // 保存预设按钮
+        document.getElementById('fontSaveBtn').addEventListener('click', () => {
+          let name = fontSelect.value;
+          if (name === 'default' || !name) {
+            name = prompt('请输入新字体预设名称：', 'MyFont_01');
+            if (!name) return;
+          }
+          // 再次确保结构安全
+          db.theme.fonts = db.theme.fonts || {};
+          db.theme.fonts[name] = { url: db.theme.temp.fontUrl };
+          saveDb(db);
+          renderSelect('fontPresetSelect', db.theme.fonts, name);
+          alert('字体预设保存成功！');
+        });
+
+        // 删除预设按钮
+        document.getElementById('fontDelBtn').addEventListener('click', () => {
+          const name = fontSelect.value;
+          if (name === 'default') return alert('默认配置不可删除');
+          if (confirm(`确定删除字体预设 [${name}] 吗？`)) {
+            delete db.theme.fonts[name];
+            saveDb(db);
+            renderSelect('fontPresetSelect', db.theme.fonts, 'default');
+          }
+        });
+
+        // 下拉框切换
+        fontSelect.addEventListener('change', () => {
+          const data = db.theme.fonts[fontSelect.value];
+          if (data) {
+            fontUrlInput.value = data.url || '';
+            db.theme.temp.fontUrl = data.url || '';
+            db.theme.activeFontPreset = fontSelect.value; // 记录当前激活的字体下拉选项
+            saveDb(db);
+          }
+        });
+
+        const select = document.getElementById('themePresetSelect');
+        const wpInput = document.getElementById('wpInput');
+        const wpBox = document.getElementById('wpBox');
+        const wpPreview = document.getElementById('wpPreview');
+        const cssInput = document.getElementById('themeCss');
+
+        // 回显临时输入内容
+        cssInput.value = db.theme.temp.css || '';
+        if (db.theme.temp.wallpaper) {
+          wpPreview.src = db.theme.temp.wallpaper;
+          wpBox.classList.add('has-img');
+        }
+
+        loadThemePresets('default'); // 仅作管理下拉框初始化
+        renderThemeCheckboxes();
+
+        // 监听临时 CSS 输入
+        cssInput.addEventListener('input', e => {
+          db.theme.temp.css = e.target.value;
+          saveDb(db);
+        });
+
+        // 监听壁纸上传
+        wpInput.addEventListener('change', function () {
+          const file = this.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = e => {
+            db.theme.temp.wallpaper = e.target.result;
+            saveDb(db);
+            wpPreview.src = db.theme.temp.wallpaper;
+            wpBox.classList.add('has-img');
+          };
+          reader.readAsDataURL(file);
+        });
+
+        // 保存新预设 (从临时库保存)
+        document.getElementById('themeSaveBtn').addEventListener('click', () => {
+          let name = select.value;
+          if (name === 'default' || !name) {
+            name = prompt('请输入新美化预设的名称：', 'Theme_Cyberpunk');
+            if (!name) return;
+          }
+          db.theme.presets[name] = { css: db.theme.temp.css, wallpaper: db.theme.temp.wallpaper };
+          saveDb(db);
+          loadThemePresets(name);
+          renderThemeCheckboxes();
+          alert(`美化预设 [${name}] 保存成功！`);
+        });
+
+        // 删除预设
+        document.getElementById('themeDelBtn').addEventListener('click', () => {
+          const name = select.value;
+          if (name === 'default') return alert('默认预设不可删除');
+          if (confirm(`确定删除美化配置 [${name}] 吗？`)) {
+            delete db.theme.presets[name];
+            // 从多选中移除
+            db.theme.activePresets = db.theme.activePresets.filter(p => p !== name);
+            saveDb(db);
+            loadThemePresets('default');
+            renderThemeCheckboxes();
+          }
+        });
+
+        // 下拉框仅用于快速填充临时区以供编辑
+        select.addEventListener('change', () => {
+          const data = db.theme.presets[select.value];
+          if (data && select.value !== 'default') {
+            cssInput.value = data.css || '';
+            db.theme.temp.css = data.css || '';
+            if (data.wallpaper) {
+              wpPreview.src = data.wallpaper;
+              wpBox.classList.add('has-img');
+              db.theme.temp.wallpaper = data.wallpaper;
+            } else {
+              wpPreview.src = '';
+              wpBox.classList.remove('has-img');
+              db.theme.temp.wallpaper = '';
+            }
+            saveDb(db);
+          }
+        });
+
+        // 全局注入按钮逻辑 (叠加勾选的预设 + 临时输入)
+        document.getElementById('themeApplyBtn').addEventListener('click', () => {
+          let combinedCss = '';
+          let finalWallpaper = '';
+
+          // 1. 先遍历勾选的预设
+          db.theme.activePresets.forEach(presetName => {
+            const preset = db.theme.presets[presetName];
+            if (preset) {
+              if (preset.css) combinedCss += `\n/* --- 预设: ${presetName} --- */\n${preset.css}\n`;
+              if (preset.wallpaper) finalWallpaper = preset.wallpaper;
+            }
+          });
+
+          // 【新增】：处理直接字体文件注入
+          if (db.theme.temp.fontUrl) {
+            const fontCss = `
+      @font-face {
+        font-family: 'TsukimiCustomFont';
+        src: url('${db.theme.temp.fontUrl}');
+      }
+      * { 
+        font-family: 'TsukimiCustomFont', 'Geist', sans-serif !important; 
+      }
+    `;
+            // 将字体样式置于最顶层
+            combinedCss = fontCss + combinedCss;
+          }
+
+          // 2. 最后检查临时区。只要你在当前面板上传了新壁纸，就强制覆盖掉预设的壁纸！
+          if (db.theme.temp.wallpaper) {
+            finalWallpaper = db.theme.temp.wallpaper;
+          }
+
+          if (db.theme.temp.css) {
+            combinedCss += `\n/* --- 临时输入框 --- */\n${db.theme.temp.css}\n`;
+          }
+
+          // 3. 存入全局对象
+          db.theme.global = { css: combinedCss, wallpaper: finalWallpaper };
+          saveDb(db);
+
+          // 视觉反馈
+          const btn = document.getElementById('themeApplyBtn');
+          const oldHtml = btn.innerHTML;
+          btn.innerHTML = `<i class="fa-solid fa-check"></i> 样式已注入神经束！`;
+          btn.style.background = 'var(--setting-mint)';
+
+          setTimeout(() => {
+            btn.innerHTML = oldHtml;
+            btn.style.background = 'var(--setting-ink)';
+          }, 2000);
+        });
+      }
+
+      // 渲染主题多选框
+      function renderThemeCheckboxes() {
+        const container = document.getElementById('themeCheckboxList');
+        container.innerHTML = '';
+
+        for (let key in db.theme.presets) {
+          const label = document.createElement('label');
+          label.className = 'theme-checkbox-item';
+
+          const cb = document.createElement('input');
+          cb.type = 'checkbox';
+          cb.value = key;
+          cb.checked = db.theme.activePresets.includes(key);
+
+          // 监听勾选状态
+          cb.addEventListener('change', e => {
+            if (e.target.checked) {
+              if (!db.theme.activePresets.includes(key)) db.theme.activePresets.push(key);
+            } else {
+              db.theme.activePresets = db.theme.activePresets.filter(p => p !== key);
+            }
+            saveDb(db);
+          });
+
+          const span = document.createElement('span');
+          span.innerText = key === 'default' ? '默认配置 (Default)' : key;
+
+          label.appendChild(cb);
+          label.appendChild(span);
+          container.appendChild(label);
+        }
+      }
+
+      // ================= 3. 备份与恢复逻辑 =================
+      document.getElementById('exportBtn').addEventListener('click', exportBackup);
+      document
+        .getElementById('importBtn')
+        .addEventListener('click', () => document.getElementById('importInput').click());
+      document.getElementById('importInput').addEventListener('change', importBackup);
+
+      /**
+       * 导出数据库数据为 JSON
+       */
+      async function exportBackup() {
+        logMonitor('<span style="color:var(--setting-blue);">正在提取所有神经链路数据...</span>');
+        try {
+          const idb = await initTsukiDB();
+          const storeNames = Array.from(idb.objectStoreNames);
+          const backupData = {
+            version: idb.version,
+            timestamp: new Date().toISOString(),
+            data: {},
+          };
+
+          const tx = idb.transaction(storeNames, 'readonly');
+
+          // 循环读取每一个 objectStore
+          for (const storeName of storeNames) {
+            const store = tx.objectStore(storeName);
+
+            backupData.data[storeName] = await new Promise(resolve => {
+              // 处理没有 keyPath 的仓库 (如 worldbook)
+              if (storeName === 'worldbook') {
+                const map = {};
+                store.openCursor().onsuccess = e => {
+                  const cursor = e.target.result;
+                  if (cursor) {
+                    map[cursor.key] = cursor.value;
+                    cursor.continue();
+                  } else {
+                    resolve(map);
+                  }
+                };
+              } else {
+                // 处理有 keyPath 的仓库 (如 chars, users, config)
+                const req = store.getAll();
+                req.onsuccess = () => resolve(req.result);
+              }
+            });
+          }
+
+          // 生成并下载文件
+          const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `TSUKIMI_Backup_${new Date().toLocaleDateString().replace(/\//g, '-')}.json`;
+          a.click();
+          URL.revokeObjectURL(url);
+
+          logMonitor('<span style="color:var(--setting-mint);">[SUCCESS] 备份文件已生成并下载。</span>');
+        } catch (err) {
+          logMonitor(`<span style="color:var(--setting-coral);">[ERROR] 导出失败: ${err.message}</span>`);
+        }
+      }
+
+      /**
+       * 从 JSON 文件导入数据并覆盖数据库
+       */
+      async function importBackup(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        if (!confirm('警告：导入将清除当前所有数据并被备份文件覆盖！是否继续？')) {
+          event.target.value = '';
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = async e => {
+          try {
+            const backup = JSON.parse(e.target.result);
+            if (!backup.data) throw new Error('无效的备份文件格式');
+
+            const idb = await initTsukiDB();
+            const storeNames = Array.from(idb.objectStoreNames);
+            const tx = idb.transaction(storeNames, 'readwrite');
+
+            logMonitor('<span style="color:var(--setting-amber);">正在重构神经中枢...</span>');
+
+            for (const storeName of storeNames) {
+              const store = tx.objectStore(storeName);
+              const items = backup.data[storeName];
+
+              if (!items) continue;
+
+              // 1. 先清空当前仓库
+              store.clear();
+
+              // 2. 重新写入数据
+              if (storeName === 'worldbook') {
+                // 处理无 keyPath 的键值对
+                for (const key in items) {
+                  store.put(items[key], key);
+                }
+              } else if (Array.isArray(items)) {
+                // 处理有 keyPath 的对象数组
+                items.forEach(item => store.put(item));
+              }
+            }
+
+            tx.oncomplete = () => {
+              logMonitor('<span style="color:var(--setting-mint);">[SUCCESS] 数据导入成功！正在同步全局样式...</span>');
+              // 通知其他页面更新主题
+              tsukiChannel.postMessage('update_theme');
+              alert('数据导入成功！页面即将刷新以应用配置。');
+              location.reload();
+            };
+          } catch (err) {
+            logMonitor(`<span style="color:var(--setting-coral);">[ERROR] 导入解析失败: ${err.message}</span>`);
+            alert('导入失败，请检查文件格式。');
+          }
+        };
+        reader.readAsText(file);
+      }
+
+      /* ================= 辅助工具函数 ================= */
+      function loadApiPresets(activeName = 'default') {
+        renderSelect('apiPresetSelect', db.api.presets, activeName);
+      }
+
+      function loadThemePresets(activeName = 'default') {
+        renderSelect('themePresetSelect', db.theme.presets, activeName);
+      }
+
+      function renderSelect(id, dataObj, activeName) {
+        const sel = document.getElementById(id);
+        sel.innerHTML = '';
+        for (let key in dataObj) {
+          const opt = document.createElement('option');
+          opt.value = key;
+          opt.text = key === 'default' ? '默认配置 (Default)' : key;
+          if (key === activeName) opt.selected = true;
+          sel.appendChild(opt);
+        }
+      }
+    </script>
+    <script>
+      // ==========================================
+      // 2. 核心美化应用逻辑
+      // ==========================================
+      async function applyGlobalTheme() {
+        try {
+          // 【关键修改】：从 IndexedDB 异步获取数据，不再使用 localStorage
+          const db = await getDbAsync();
+          const globalTheme = db.theme?.global || { css: '', wallpaper: '' };
+
+          const homeScreen = document.querySelector('.screen-home');
+          const homesecondScreen = document.querySelector('.screen-music');
+          const styleTag = document.getElementById('tsuki-dynamic-style');
+
+          // 1. 应用壁纸
+          const wallpaperUrl = globalTheme.wallpaper;
+          [homeScreen, homesecondScreen].forEach(screen => {
+            if (screen) {
+              if (wallpaperUrl) {
+                screen.style.backgroundImage = `url(${wallpaperUrl})`;
+                screen.style.backgroundSize = 'cover';
+                screen.style.backgroundPosition = 'center';
+              } else {
+                screen.style.backgroundImage = 'none';
+              }
+            }
+          });
+
+          // 2. 注入全局自定义 CSS (包括字体、颜色等)
+          if (styleTag) {
+            styleTag.innerHTML = globalTheme.css || '';
+          }
+
+          console.log('TSUKIMI 视觉引擎：IndexedDB 样式注入成功');
+        } catch (e) {
+          console.error('TSUKIMI 视觉引擎：样式加载失败', e);
+        }
+      }
+
+      // ==========================================
+      // 3. 实时同步监听 (当在设置页修改时，这里会自动变)
+      // ==========================================
+      // const tsukiChannel = new BroadcastChannel('tsuki_channel');
+      tsukiChannel.onmessage = e => {
+        if (e.data === 'update_theme') applyGlobalTheme();
+      };
+
+      // 初始化执行
+      document.addEventListener('DOMContentLoaded', applyGlobalTheme);
+
+      // 在代码最末尾，或者 DOMContentLoaded 事件中：
+
+      // 可选：监听 storage 事件，实现设置页保存时，主页不刷新也能实时变色
+      window.addEventListener('storage', e => {
+        if (e.key === 'tsukiphonepromax') {
+          applyGlobalTheme();
+        }
+      });
+    </script>
+    <script src="TsukiBridge.js"></script>
+  </body>
+</html>

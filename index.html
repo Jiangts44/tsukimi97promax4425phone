@@ -1,0 +1,3008 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Home · 江眠月</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* BASE */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+      }
+      :root {
+        --ink: #0a0a0a;
+        --ink-3: #4a4a4d;
+        --mute: #8a8a8e;
+        --line: rgba(10, 10, 10, 0.07);
+        --paper: #fafaf7;
+        --paper-2: #f1f0ea;
+        --card: #fff;
+        --lime: #d4ff4d;
+        --blue: #5b7cfa;
+        --coral: #ff6b6b;
+        --amber: #ff9f43;
+        --mint: #43d9a0;
+        --purple: #a78bfa;
+      }
+      html,
+      body {
+        font-family:
+          'Geist',
+          -apple-system,
+          'PingFang SC',
+          sans-serif;
+        background:
+          radial-gradient(1200px 600px at 10% 10%, #eae7df, transparent 50%),
+          radial-gradient(800px 500px at 90% 90%, #e8eadd, transparent 50%), #eeece4;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 4px;
+        color: var(--ink);
+        -webkit-font-smoothing: antialiased;
+        width: 100%;
+      }
+      body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/><feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.08 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+        pointer-events: none;
+        mix-blend-mode: multiply;
+        opacity: 0.5;
+        z-index: 0;
+      }
+
+      /* PHONE */
+      .phone {
+        width: 94%;
+        max-width: 410px;
+        height: min(880px, calc(100vh - 36px));
+        max-height: 100%;
+        background: var(--paper);
+        border-radius: 52px;
+        overflow: hidden;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        box-shadow:
+          0 0 0 11px #1a1a1c,
+          0 0 0 12px #2a2a2c,
+          0 5px 10px -2px rgba(0, 0, 0, 0.35),
+          0 3px 6px -3px rgba(0, 0, 0, 0.25);
+        z-index: 1;
+        transition: opacity 0.4s ease-out;
+      }
+      .phone::before {
+        content: '';
+        position: absolute;
+        top: 12px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 110px;
+        height: 27px;
+        background: #000;
+        border-radius: 20px;
+        z-index: 50;
+      }
+
+      /* STATUS BAR */
+      .status-bar {
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 11px 29px 0;
+        font-size: 14px;
+        font-weight: 600;
+        font-family: 'Geist Mono', monospace;
+        flex-shrink: 0;
+        position: relative;
+        z-index: 10;
+      }
+      .status-bar .right {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+        font-size: 13px;
+      }
+
+      /* SWIPE SYSTEM */
+      .screens-wrap {
+        flex: 1;
+        overflow: hidden;
+        position: relative;
+      }
+      .screens {
+        display: flex;
+        width: 200%;
+        height: 100%;
+        transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+        will-change: transform;
+      }
+      .screen {
+        width: 50%;
+        height: 100%;
+        flex-shrink: 0;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .page-dots {
+        position: absolute;
+        bottom: 21px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 5px;
+        align-items: center;
+        z-index: 20;
+        pointer-events: none;
+      }
+      .page-dot {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: var(--ink);
+        opacity: 0.2;
+        transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      .page-dot.active {
+        opacity: 0.65;
+        width: 14px;
+        border-radius: 3px;
+      }
+
+      .home-bar {
+        height: 5px;
+        width: 130px;
+        background: var(--ink);
+        border-radius: 10px;
+        position: absolute;
+        bottom: 8px;
+        left: 50%;
+        transform: translateX(-50%);
+        opacity: 0.7;
+        z-index: 1000;
+        cursor: grab;
+        touch-action: none;
+        transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      }
+      .home-bar.dragging {
+        transition: none !important;
+      }
+      .home-bar:active {
+        cursor: grabbing;
+      }
+
+      /* ═══════════════════ PAGE 1 · HOME ═══════════════════ */
+      .screen-home {
+        background: var(--paper);
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* Widget area — 342px tall */
+      .widget-area {
+        flex-shrink: 0;
+        height: 364px;
+        position: relative;
+      }
+
+      /* Base widget — overflow hidden by default, overridden individually */
+      .w {
+        position: absolute;
+        background: var(--card);
+        box-shadow:
+          0 2px 12px -4px rgba(0, 0, 0, 0.09),
+          0 0 0 0.5px rgba(0, 0, 0, 0.04);
+      }
+
+      /* ── Clock ── dark, keep */
+      .w-clock {
+        left: 14px;
+        top: 10px;
+        width: 140px;
+        height: 74px;
+        border-radius: 20px;
+        padding: 10px 14px;
+        background: var(--ink);
+        overflow: hidden;
+        transform: rotate(-1.5deg);
+      }
+      .w-clock::after {
+        content: '';
+        position: absolute;
+        top: -22px;
+        right: -22px;
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(212, 255, 77, 0.28), transparent 60%);
+      }
+      .w-clock-time {
+        font-family: 'Fraunces', serif;
+        font-style: italic;
+        font-size: 36px;
+        line-height: 1;
+        letter-spacing: -0.03em;
+        color: white;
+      }
+      .w-clock-date {
+        font-family: 'Geist Mono', monospace;
+        font-size: 8px;
+        color: rgba(255, 255, 255, 0.4);
+        margin-top: 5px;
+        letter-spacing: 0.1em;
+      }
+
+      /* ── Avatar ── conic gradient, keep */
+      .w-avatar {
+        right: 14px;
+        top: 8px;
+        width: 90px;
+        height: 90px;
+        border-radius: 22px;
+        padding: 9px 7px 6px;
+        background: var(--paper-2);
+        border: 1px solid var(--line);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        transform: rotate(3deg);
+        overflow: hidden;
+        box-shadow: 0 3px 14px -5px rgba(0, 0, 0, 0.11);
+      }
+      .w-avatar-photo {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        overflow: hidden;
+        background: conic-gradient(from 180deg, #ffb8d1, #ff9a5a, #c7b8ff, #ffb8d1);
+        box-shadow: 0 3px 10px -3px rgba(0, 0, 0, 0.22);
+        flex-shrink: 0;
+      }
+      .w-avatar-photo img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+      .w-avatar-name {
+        font-family: 'Geist Mono', monospace;
+        font-size: 8.5px;
+        font-weight: 600;
+        color: var(--ink-3);
+        letter-spacing: 0.07em;
+      }
+      .w-avatar-online {
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        font-family: 'Geist Mono', monospace;
+        font-size: 7px;
+        color: var(--mute);
+      }
+      .w-avatar-online i {
+        font-size: 5px;
+        color: var(--mint);
+      }
+
+      /* ── Weather ── */
+      .w-weather {
+        left: 162px;
+        top: 14px;
+        width: 84px;
+        height: 34px;
+        border-radius: 12px;
+        padding: 0 9px;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        background: linear-gradient(135deg, #cce8ff, #e4f2ff);
+        transform: rotate(0.5deg);
+        overflow: hidden;
+      }
+      .w-weather-icon {
+        font-size: 15px;
+      }
+      .w-weather-temp {
+        font-size: 13px;
+        font-weight: 600;
+        color: #1a5a8a;
+        line-height: 1;
+      }
+      .w-weather-sub {
+        font-family: 'Geist Mono', monospace;
+        font-size: 7px;
+        color: #4a80b0;
+        margin-top: 1px;
+      }
+
+      /* ── Chat chip ── */
+      .w-chat {
+        left: 162px;
+        top: 56px;
+        width: 84px;
+        height: 28px;
+        border-radius: 9px;
+        padding: 0 10px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        background: var(--lime);
+        cursor: pointer;
+        transform: rotate(-0.8deg);
+        overflow: hidden;
+        transition: transform 0.18s;
+      }
+      .w-chat:hover {
+        transform: rotate(-0.8deg) scale(1.05);
+      }
+      .w-chat i {
+        font-size: 9px;
+        color: var(--ink);
+      }
+      .w-chat span {
+        font-size: 8.5px;
+        font-weight: 600;
+        font-family: 'Geist Mono', monospace;
+        color: var(--ink);
+      }
+
+      /* ── Date chip — fills center gap ── */
+      .w-date {
+        left: 104px;
+        top: 110px;
+        width: 50px;
+        height: 68px;
+        border-radius: 14px;
+        padding: 8px 6px;
+        background: var(--paper-2);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        transform: rotate(1deg);
+        border: 1px solid var(--line);
+        overflow: hidden;
+      }
+      .w-date-num {
+        font-family: 'Fraunces', serif;
+        font-style: italic;
+        font-size: 28px;
+        line-height: 1;
+        letter-spacing: -0.02em;
+        color: var(--ink);
+      }
+      .w-date-mon {
+        font-family: 'Geist Mono', monospace;
+        font-size: 7.5px;
+        color: var(--mute);
+        letter-spacing: 0.12em;
+        margin-top: 2px;
+      }
+
+      /* ── Haiku A — width fixed ── */
+      .w-haiku-a {
+        left: 14px;
+        top: 100px;
+        min-width: 82px;
+        height: 102px;
+        border-radius: 16px;
+        padding: 10px 8px 8px;
+        background: #fdf8ee;
+        transform: rotate(-2.5deg);
+        overflow: hidden;
+      }
+      .w-haiku-vtext {
+        writing-mode: vertical-rl;
+        text-orientation: mixed;
+        font-family: 'Fraunces', serif;
+        font-style: italic;
+        font-size: 11.5px;
+        line-height: 1.7;
+        color: var(--ink-3);
+        letter-spacing: 0.06em;
+        white-space: nowrap;
+      }
+      .w-haiku-by {
+        font-family: 'Geist Mono', monospace;
+        font-size: 7px;
+        color: var(--mute);
+        margin-top: 5px;
+        letter-spacing: 0.1em;
+      }
+
+      /* ── Sticky — white/periwinkle, pin overflows ── */
+      .w-sticky {
+        right: 14px;
+        top: 108px;
+        width: 116px;
+        height: 78px;
+        border-radius: 4px 16px 16px 4px;
+        padding: 12px 10px 8px;
+        background: #f0f5ff;
+        transform: rotate(2deg);
+        overflow: visible;
+        box-shadow:
+          2px 4px 14px -5px rgba(91, 124, 250, 0.16),
+          0 0 0 0.5px rgba(91, 124, 250, 0.09);
+      }
+      .w-sticky-pin {
+        position: absolute;
+        top: -7px;
+        left: calc(50% - 5px);
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--coral);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        z-index: 3;
+      }
+      .w-sticky-pin::after {
+        content: '';
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 1.5px;
+        height: 7px;
+        background: rgba(255, 107, 107, 0.35);
+      }
+      .w-sticky-text {
+        font-family: 'Fraunces', serif;
+        font-size: 10.5px;
+        line-height: 1.6;
+        color: var(--ink-3);
+        font-style: italic;
+      }
+      .w-sticky-tag {
+        font-family: 'Geist Mono', monospace;
+        font-size: 7px;
+        color: rgba(91, 124, 250, 0.5);
+        margin-top: 5px;
+        letter-spacing: 0.07em;
+      }
+
+      /* ── Haiku B — light sage, day theme ── */
+      .w-haiku-b {
+        right: 14px;
+        top: 198px;
+        width: 92px;
+        height: 58px;
+        border-radius: 14px;
+        padding: 8px 10px;
+        background: #f3f9f4;
+        transform: rotate(1.5deg);
+        overflow: hidden;
+      }
+      .w-haiku-b-text {
+        font-family: 'Fraunces', serif;
+        font-style: italic;
+        font-size: 9.5px;
+        line-height: 1.6;
+        color: var(--ink-3);
+      }
+      .w-haiku-b-by {
+        font-family: 'Geist Mono', monospace;
+        font-size: 7px;
+        color: rgba(80, 140, 100, 0.45);
+        margin-top: 3px;
+        letter-spacing: 0.1em;
+      }
+
+      /* ── Ticket ── dark, keep */
+      .w-ticket {
+        left: 14px;
+        top: 212px;
+        width: 148px;
+        height: 54px;
+        border-radius: 10px;
+        padding: 0;
+        background: var(--ink);
+        color: white;
+        display: flex;
+        transform: rotate(-0.8deg);
+        overflow: hidden;
+        box-shadow: 0 4px 16px -5px rgba(0, 0, 0, 0.3);
+      }
+      .w-ticket-body {
+        flex: 1;
+        padding: 7px 10px;
+      }
+      .w-ticket-event {
+        font-family: 'Geist Mono', monospace;
+        font-size: 7.5px;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--lime);
+      }
+      .w-ticket-name {
+        font-family: 'Fraunces', serif;
+        font-size: 13px;
+        font-style: italic;
+        margin-top: 1px;
+        color: white;
+        line-height: 1.2;
+      }
+      .w-ticket-info {
+        font-family: 'Geist Mono', monospace;
+        font-size: 7px;
+        color: rgba(255, 255, 255, 0.32);
+        margin-top: 2px;
+        letter-spacing: 0.05em;
+      }
+      .w-ticket-stub {
+        width: 20px;
+        border-left: 1.5px dashed rgba(255, 255, 255, 0.18);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        padding: 0 3px;
+      }
+      .w-ticket-stub span {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.22);
+      }
+
+      /* ── Photo wall ── spans full width */
+      .w-photowall {
+        left: 14px;
+        right: 14px;
+        top: 278px;
+        height: 80px;
+        border-radius: 16px;
+        padding: 10px 14px;
+        background: var(--card);
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+      .w-pw-photos {
+        position: relative;
+        width: 72px;
+        height: 58px;
+        flex-shrink: 0;
+      }
+      .w-pw-photo {
+        position: absolute;
+        background: white;
+        border-radius: 5px;
+        padding: 3px 3px 10px;
+        box-shadow: 0 3px 14px -5px rgba(0, 0, 0, 0.22);
+      }
+      .w-pw-p1 {
+        width: 50px;
+        height: 54px;
+        top: 2px;
+        left: 0;
+        transform: rotate(-5.5deg);
+        z-index: 1;
+      }
+      .w-pw-p2 {
+        width: 50px;
+        height: 54px;
+        top: 5px;
+        left: 18px;
+        transform: rotate(4deg);
+        z-index: 2;
+      }
+      .w-pw-photo-img {
+        width: 100%;
+        height: calc(100% - 4px);
+        border-radius: 3px;
+        display: block;
+      }
+      .w-pw-content {
+        flex: 1;
+        min-width: 0;
+      }
+      .w-pw-label {
+        font-family: 'Geist Mono', monospace;
+        font-size: 9px;
+        font-weight: 600;
+        color: var(--ink);
+        letter-spacing: 0.14em;
+      }
+      .w-pw-info {
+        font-family: 'Geist Mono', monospace;
+        font-size: 8px;
+        color: var(--mute);
+        margin-top: 3px;
+        letter-spacing: 0.04em;
+      }
+      .w-pw-deco {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 7px;
+      }
+      .w-pw-star {
+        font-size: 9px;
+        color: rgba(180, 220, 0, 0.7);
+        filter: drop-shadow(0 0 2px rgba(180, 220, 0, 0.4));
+      }
+      .w-pw-dot {
+        width: 3px;
+        height: 3px;
+        border-radius: 50%;
+        background: var(--paper-2);
+        flex-shrink: 0;
+      }
+      .w-pw-date {
+        font-family: 'Geist Mono', monospace;
+        font-size: 8px;
+        color: var(--mute);
+        letter-spacing: 0.06em;
+      }
+      .w-pw-view {
+        font-family: 'Geist Mono', monospace;
+        font-size: 8px;
+        color: var(--blue);
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        cursor: pointer;
+      }
+
+      /* Chat iframe overlay */
+      .chat-overlay {
+        position: absolute;
+        top: 44px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 200;
+        background: var(--paper);
+        transform: translateX(100%);
+        transition: transform 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+        display: flex;
+        flex-direction: column;
+      }
+      .chat-overlay.open {
+        transform: translateX(0);
+      }
+      .chat-back-btn {
+        position: absolute;
+        top: -27px;
+        left: 14px;
+        z-index: 210;
+        background: rgba(250, 250, 247, 1);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid var(--line);
+        border-radius: 100px;
+        padding: 4px 10px 4px 8px;
+        font-size: 12px;
+        color: var(--blue);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        box-shadow: 0 2px 10px -3px rgba(0, 0, 0, 0.14);
+        font-family: 'Geist', sans-serif;
+        font-weight: 500;
+        transition: 0.15s;
+      }
+      .chat-back-btn:hover {
+        background: rgba(250, 250, 247, 1);
+        box-shadow: 0 3px 14px -4px rgba(0, 0, 0, 0.18);
+      }
+      .chat-back-btn i {
+        font-size: 10px;
+      }
+      .chat-iframe {
+        flex: 1;
+        border: none;
+        width: 100%;
+        display: block;
+        background: var(--paper);
+      }
+
+      /* ── Apps section ── */
+      .apps-section {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        padding: 0 0 86px;
+        justify-content: space-evenly;
+      }
+      .apps-hdr {
+        padding: 4px 18px 9px;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        font-family: 'Geist Mono', monospace;
+        font-size: 8.5px;
+        font-weight: 600;
+        color: var(--mute);
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        flex-shrink: 0;
+      }
+      .apps-hdr::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: linear-gradient(90deg, var(--line), transparent);
+      }
+      .string-row {
+        position: relative;
+        padding: 0 10px;
+        flex-shrink: 0;
+      }
+      .string-line {
+        height: 1.5px;
+        margin: 0 8px;
+        background: linear-gradient(
+          90deg,
+          transparent 2%,
+          rgba(10, 10, 10, 0.13) 18%,
+          rgba(10, 10, 10, 0.13) 82%,
+          transparent 98%
+        );
+      }
+      .pendants-row {
+        display: flex;
+        justify-content: space-around;
+        align-items: flex-start;
+        padding: 0 2px;
+      }
+
+      /* Pendant */
+      .pendant {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        transform-origin: top center;
+        animation: pendSway var(--dur, 3s) ease-in-out infinite;
+        animation-delay: var(--dly, 0s);
+        cursor: pointer;
+      }
+      @keyframes pendSway {
+        0%,
+        100% {
+          transform: rotate(calc(var(--amp, 3) * 1deg));
+        }
+        50% {
+          transform: rotate(calc(var(--amp, 3) * -1deg));
+        }
+      }
+      .pend-thread {
+        width: 1px;
+        height: var(--tlen, 24px);
+        background: linear-gradient(180deg, rgba(10, 10, 10, 0.18), rgba(10, 10, 10, 0.05));
+      }
+      /* White-theme: glass icons */
+      .pend-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 17px;
+        background: var(--card);
+        border: 1px solid rgba(10, 10, 10, 0.07);
+        box-shadow: 0 2px 8px -3px rgba(0, 0, 0, 0.09);
+        transition: transform 0.2s;
+        flex-shrink: 0;
+      }
+      .pendant:hover .pend-icon {
+        transform: scale(1.1);
+      }
+      .pend-label {
+        font-family: 'Geist Mono', monospace;
+        font-size: 7.5px;
+        font-weight: 500;
+        color: var(--mute);
+        margin-top: 4px;
+        letter-spacing: 0.04em;
+        text-align: center;
+      }
+      /* App accent colors */
+      .ai-chat {
+        background: var(--ink) !important;
+        border-color: transparent !important;
+      }
+      .ai-chat i {
+        color: var(--lime);
+      }
+      .ai-cam i {
+        color: var(--coral);
+      }
+      .ai-music i {
+        color: var(--purple);
+      }
+      .ai-notes i {
+        color: var(--amber);
+      }
+      .ai-gallery i {
+        color: var(--blue);
+      }
+      .ai-cal i {
+        color: var(--mint);
+      }
+      .ai-maps i {
+        color: #f472b6;
+      }
+      .ai-mail i {
+        color: #3b82f6;
+      }
+      .ai-game i {
+        color: #84cc16;
+      }
+      .ai-weather i {
+        color: #22d3ee;
+      }
+
+      /* ── Deco banner (row 3) ── */
+      .banner-row {
+        position: relative;
+        padding: 0 10px;
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .banner-threads {
+        display: flex;
+        justify-content: space-between;
+        width: calc(100% - 40px);
+        flex-shrink: 0;
+      }
+      .b-thread {
+        width: 1px;
+        height: 20px;
+        background: linear-gradient(180deg, rgba(10, 10, 10, 0.18), rgba(10, 10, 10, 0.05));
+      }
+      .deco-banner {
+        width: 100%;
+        transform-origin: top center;
+        animation: pendSway 4s ease-in-out infinite 0.3s;
+        --amp: 1.2;
+        background: var(--card);
+        border-radius: 18px;
+        padding: 9px 13px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        box-shadow:
+          0 4px 16px -6px rgba(0, 0, 0, 0.1),
+          0 0 0 0.5px var(--line);
+      }
+      .db-avatar {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        background: conic-gradient(from 180deg, #ffb8d1, #ff9a5a, #c7b8ff, #ffb8d1);
+        overflow: hidden;
+        box-shadow:
+          0 0 0 2px white,
+          0 0 0 3.5px rgba(10, 10, 10, 0.08);
+      }
+      .db-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+      .db-content {
+        flex: 1;
+        min-width: 0;
+      }
+      .db-name {
+        font-family: 'Geist Mono', monospace;
+        font-size: 9px;
+        font-weight: 600;
+        color: var(--ink);
+        letter-spacing: 0.07em;
+      }
+      .db-quote {
+        font-family: 'Fraunces', serif;
+        font-style: italic;
+        font-size: 9.5px;
+        color: var(--mute);
+        margin-top: 1px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .db-right {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 2px;
+        flex-shrink: 0;
+      }
+      .db-star {
+        font-size: 11px;
+        color: rgba(180, 220, 0, 0.75);
+        filter: drop-shadow(0 0 3px rgba(180, 220, 0, 0.4));
+      }
+      .db-date {
+        font-family: 'Geist Mono', monospace;
+        font-size: 7.5px;
+        color: var(--mute);
+        letter-spacing: 0.08em;
+      }
+
+      /* ── Dock ── */
+      .dock {
+        position: absolute;
+        bottom: 17px;
+        left: 14px;
+        right: 14px;
+        background: rgba(255, 255, 255, 0.82);
+        backdrop-filter: blur(24px) saturate(180%);
+        -webkit-backdrop-filter: blur(24px) saturate(180%);
+        border-radius: 28px;
+        padding: 10px 18px;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        box-shadow:
+          0 4px 28px -8px rgba(0, 0, 0, 0.11),
+          0 0 0 1px rgba(255, 255, 255, 0.9),
+          inset 0 1px 0 rgba(255, 255, 255, 0.95);
+        z-index: 10;
+      }
+      .dock-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        cursor: pointer;
+      }
+      .dock-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        background: var(--card);
+        border: 1px solid rgba(10, 10, 10, 0.06);
+        box-shadow: 0 2px 10px -3px rgba(0, 0, 0, 0.09);
+        transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      .dock-item:hover .dock-icon {
+        transform: scale(1.12) translateY(-4px);
+      }
+      .dock-label {
+        font-family: 'Geist Mono', monospace;
+        font-size: 8px;
+        color: var(--mute);
+        letter-spacing: 0.04em;
+      }
+      .di-settings i {
+        color: var(--ink-3);
+      }
+      .di-phone i {
+        color: var(--mint);
+      }
+      .di-browse i {
+        color: var(--blue);
+      }
+      .di-home i {
+        color: var(--amber);
+      }
+
+      /* ═══════════════════ PAGE 2 · MUSIC (DAY) ═══════════════════ */
+      .screen-music {
+        background: var(--paper);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      /* Mini card (1:1 square) */
+      .music-card {
+        position: absolute;
+        left: 18px;
+        right: 18px;
+        top: 16px;
+        aspect-ratio: 1;
+        border-radius: 26px;
+        background: var(--card);
+        box-shadow:
+          0 8px 32px -10px rgba(0, 0, 0, 0.12),
+          0 0 0 1px var(--line);
+        overflow: hidden;
+        z-index: 5;
+      }
+      .music-card::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(ellipse at 30% 20%, rgba(167, 139, 250, 0.07), transparent 60%),
+          radial-gradient(ellipse at 70% 80%, rgba(91, 124, 250, 0.05), transparent 50%);
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      /* Vinyl in mini card */
+      .mc-vinyl-wrap {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -58%);
+        width: 62%;
+        aspect-ratio: 1;
+        border-radius: 50%;
+        cursor: pointer;
+        box-shadow: 0 12px 40px -12px rgba(0, 0, 0, 0.28);
+        animation: mcSpin 4s linear infinite;
+        animation-play-state: paused;
+      }
+      .vrecord {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background: conic-gradient(
+          from 0deg,
+          #111 0%,
+          #222 5%,
+          #111 10%,
+          #1a1a1a 15%,
+          #222 20%,
+          #111 25%,
+          #1a1a1a 30%,
+          #222 35%,
+          #111 40%,
+          #222 45%,
+          #111 50%,
+          #1a1a1a 55%,
+          #222 60%,
+          #111 65%,
+          #1a1a1a 70%,
+          #222 75%,
+          #111 80%,
+          #222 85%,
+          #111 90%,
+          #1a1a1a 95%,
+          #111 100%
+        );
+        position: relative;
+      }
+      .vrecord::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 30%;
+        aspect-ratio: 1;
+        border-radius: 50%;
+        background: radial-gradient(circle, #2a2a2a, #1a1a1a);
+      }
+      .vrecord::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 8%;
+        aspect-ratio: 1;
+        border-radius: 50%;
+        background: rgba(220, 220, 220, 0.4);
+      }
+      @keyframes mcSpin {
+        to {
+          transform: translate(-50%, -58%) rotate(360deg);
+        }
+      }
+
+      .mc-info {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 10px 14px 12px;
+        background: linear-gradient(0deg, rgba(255, 255, 255, 0.98) 60%, transparent 100%);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        z-index: 2;
+      }
+      .mc-track {
+        font-family: 'Fraunces', serif;
+        font-style: italic;
+        font-size: 14px;
+        letter-spacing: -0.01em;
+        color: var(--ink);
+      }
+      .mc-artist {
+        font-family: 'Geist Mono', monospace;
+        font-size: 8.5px;
+        color: var(--mute);
+        margin-top: 1px;
+      }
+      .mc-play-mini {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: var(--ink);
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-size: 11px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 3px 10px -3px rgba(0, 0, 0, 0.3);
+        transition: transform 0.18s;
+        flex-shrink: 0;
+      }
+      .mc-play-mini:hover {
+        transform: scale(1.1);
+      }
+
+      /* Decorations below card */
+      .music-decos {
+        position: absolute;
+        left: 0;
+        right: 0;
+        display: flex;
+        gap: 9px;
+        justify-content: center;
+        align-items: flex-start;
+        pointer-events: none;
+        transition: opacity 0.3s;
+        padding: 0 18px;
+      }
+      .music-decos.hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
+      .md-sticky {
+        background: #f0f5ff;
+        border-radius: 6px 12px 12px 6px;
+        padding: 7px 9px 6px;
+        transform: rotate(-2deg);
+        box-shadow:
+          2px 3px 10px -4px rgba(91, 124, 250, 0.14),
+          0 0 0 0.5px rgba(91, 124, 250, 0.08);
+        max-width: 130px;
+        pointer-events: auto;
+      }
+      .md-sticky-pin {
+        display: inline-block;
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--coral);
+        margin-right: 4px;
+        vertical-align: middle;
+        box-shadow: 0 1px 3px rgba(255, 107, 107, 0.4);
+      }
+      .md-sticky-text {
+        font-family: 'Fraunces', serif;
+        font-style: italic;
+        font-size: 9px;
+        color: var(--ink-3);
+        line-height: 1.5;
+      }
+      .md-sticky-sub {
+        font-family: 'Geist Mono', monospace;
+        font-size: 7px;
+        color: rgba(91, 124, 250, 0.5);
+        margin-top: 3px;
+        letter-spacing: 0.07em;
+      }
+      .md-chip {
+        background: var(--card);
+        border-radius: 100px;
+        padding: 5px 10px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        box-shadow:
+          0 2px 8px -3px rgba(0, 0, 0, 0.09),
+          0 0 0 0.5px var(--line);
+        pointer-events: auto;
+        transform: rotate(1.5deg);
+        margin-top: 10px;
+      }
+      .md-chip i {
+        font-size: 8px;
+        color: var(--purple);
+      }
+      .md-chip span {
+        font-family: 'Geist Mono', monospace;
+        font-size: 8px;
+        color: var(--mute);
+        letter-spacing: 0.05em;
+      }
+
+      /* Full player (slides up) */
+      .music-full {
+        position: absolute;
+        inset: 0;
+        z-index: 20;
+        background: var(--paper);
+        transform: translateY(100%);
+        transition: transform 0.48s cubic-bezier(0.22, 1, 0.36, 1);
+        overflow-y: auto;
+        overflow-x: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+      .music-full::-webkit-scrollbar {
+        display: none;
+      }
+      .music-full.open {
+        transform: translateY(0);
+      }
+
+      .mf-hdr {
+        padding: 12px 22px 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-shrink: 0;
+      }
+      .mf-hdr-lbl {
+        font-family: 'Geist Mono', monospace;
+        font-size: 9px;
+        font-weight: 600;
+        color: var(--mute);
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+      }
+      .mf-close {
+        width: 28px;
+        height: 28px;
+        border-radius: 9px;
+        background: var(--paper-2);
+        border: none;
+        cursor: pointer;
+        color: var(--ink-3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        transition: 0.15s;
+      }
+      .mf-close:hover {
+        background: var(--ink);
+        color: white;
+      }
+
+      /* Album art — keep vinyl look against light bg */
+      .mf-art-wrap {
+        padding: 16px 28px 0;
+        flex-shrink: 0;
+      }
+      .mf-art {
+        width: 100%;
+        aspect-ratio: 1;
+        border-radius: 22px;
+        background: linear-gradient(145deg, #0f0f1a, #1a1230, #0a1e30);
+        position: relative;
+        overflow: hidden;
+        box-shadow:
+          0 18px 50px -16px rgba(0, 0, 0, 0.28),
+          0 0 0 1px rgba(0, 0, 0, 0.06);
+        cursor: pointer;
+      }
+      .mf-art-glow {
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(ellipse at 25% 25%, rgba(167, 139, 250, 0.22), transparent 55%),
+          radial-gradient(ellipse at 75% 75%, rgba(91, 124, 250, 0.15), transparent 55%);
+      }
+      .mf-vinyl {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 52%;
+        aspect-ratio: 1;
+        border-radius: 50%;
+        background: conic-gradient(
+          from 0deg,
+          #111 0%,
+          #222 5%,
+          #111 10%,
+          #1a1a1a 15%,
+          #222 20%,
+          #111 25%,
+          #1a1a1a 30%,
+          #222 35%,
+          #111 40%,
+          #222 45%,
+          #111 50%,
+          #1a1a1a 55%,
+          #222 60%,
+          #111 65%,
+          #1a1a1a 70%,
+          #222 75%,
+          #111 80%,
+          #222 85%,
+          #111 90%,
+          #1a1a1a 95%,
+          #111 100%
+        );
+        box-shadow: 0 0 40px rgba(0, 0, 0, 0.4);
+        animation: mfSpin 4s linear infinite;
+        animation-play-state: paused;
+      }
+      .mf-vinyl::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 30%;
+        aspect-ratio: 1;
+        border-radius: 50%;
+        background: radial-gradient(circle, #2a2a2a, #1a1a1a);
+      }
+      .mf-vinyl::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 8%;
+        aspect-ratio: 1;
+        border-radius: 50%;
+        background: rgba(210, 210, 210, 0.35);
+      }
+      @keyframes mfSpin {
+        to {
+          transform: translate(-50%, -50%) rotate(360deg);
+        }
+      }
+      .mf-close-hint {
+        position: absolute;
+        bottom: 12px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-family: 'Geist Mono', monospace;
+        font-size: 7.5px;
+        color: rgba(255, 255, 255, 0.3);
+        letter-spacing: 0.1em;
+        pointer-events: none;
+      }
+
+      /* Track info — dark on light */
+      .mf-info {
+        padding: 14px 26px 0;
+        flex-shrink: 0;
+      }
+      .mf-like-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .mf-track {
+        font-family: 'Fraunces', serif;
+        font-style: italic;
+        font-size: 22px;
+        font-weight: 400;
+        color: var(--ink);
+        letter-spacing: -0.02em;
+        line-height: 1.2;
+        flex: 1;
+      }
+      .mf-heart {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 17px;
+        color: var(--mute);
+        transition: 0.2s;
+        padding: 0 0 0 10px;
+      }
+      .mf-heart.liked {
+        color: var(--coral);
+      }
+      .mf-artist {
+        font-family: 'Geist Mono', monospace;
+        font-size: 11px;
+        color: var(--mute);
+        margin-top: 4px;
+        letter-spacing: 0.06em;
+      }
+      .mf-album {
+        font-family: 'Geist Mono', monospace;
+        font-size: 8.5px;
+        color: rgba(10, 10, 10, 0.28);
+        margin-top: 2px;
+        letter-spacing: 0.08em;
+      }
+
+      /* Progress */
+      .mf-progress {
+        padding: 14px 26px 0;
+        flex-shrink: 0;
+      }
+      .mf-prog-track {
+        height: 3px;
+        border-radius: 3px;
+        background: rgba(10, 10, 10, 0.08);
+        cursor: pointer;
+      }
+      .mf-prog-fill {
+        height: 100%;
+        border-radius: 3px;
+        width: 38%;
+        background: linear-gradient(90deg, var(--purple), var(--blue));
+        transition: width 1s linear;
+      }
+      .mf-prog-times {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 5px;
+        font-family: 'Geist Mono', monospace;
+        font-size: 9px;
+        color: var(--mute);
+      }
+
+      /* Controls */
+      .mf-controls {
+        padding: 14px 26px 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-shrink: 0;
+      }
+      .mctl {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: rgba(10, 10, 10, 0.3);
+        transition: 0.18s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .mctl:hover {
+        color: var(--ink);
+      }
+      .mctl.sm {
+        font-size: 20px;
+      }
+      .mctl.xs {
+        font-size: 15px;
+      }
+      .mctl.active {
+        color: var(--purple);
+      }
+      .mctl.play {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: var(--ink);
+        color: white;
+        font-size: 20px;
+        box-shadow: 0 6px 22px -6px rgba(0, 0, 0, 0.2);
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+      }
+      .mctl.play:hover {
+        transform: scale(1.06);
+      }
+
+      /* Extras */
+      .mf-extras {
+        padding: 12px 26px 0;
+        display: flex;
+        justify-content: space-between;
+        flex-shrink: 0;
+      }
+      .mext {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 3px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--mute);
+        font-size: 14px;
+        transition: 0.18s;
+      }
+      .mext span {
+        font-family: 'Geist Mono', monospace;
+        font-size: 8px;
+        letter-spacing: 0.05em;
+      }
+      .mext:hover {
+        color: var(--ink-3);
+      }
+      .mext.active {
+        color: var(--purple);
+      }
+
+      /* Volume */
+      .mf-volume {
+        padding: 10px 26px 12px;
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        flex-shrink: 0;
+      }
+      .mf-volume i {
+        font-size: 12px;
+        color: rgba(10, 10, 10, 0.25);
+      }
+      .vol-track {
+        flex: 1;
+        height: 3px;
+        border-radius: 3px;
+        background: rgba(10, 10, 10, 0.08);
+        cursor: pointer;
+      }
+      .vol-fill {
+        height: 100%;
+        width: 65%;
+        border-radius: 3px;
+        background: rgba(10, 10, 10, 0.22);
+      }
+
+      /* Queue */
+      .mf-queue {
+        padding: 4px 26px 24px;
+        flex-shrink: 0;
+      }
+      .mf-queue-hdr {
+        font-family: 'Geist Mono', monospace;
+        font-size: 8.5px;
+        font-weight: 600;
+        color: var(--mute);
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .mf-queue-hdr::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: var(--line);
+      }
+      .queue-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 7px 0;
+        border-bottom: 1px solid var(--line);
+        cursor: pointer;
+        transition: 0.15s;
+      }
+      .queue-item:hover {
+        opacity: 0.7;
+      }
+      .queue-num {
+        font-family: 'Geist Mono', monospace;
+        font-size: 9px;
+        color: var(--mute);
+        width: 14px;
+        text-align: center;
+        flex-shrink: 0;
+      }
+      .queue-art {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        flex-shrink: 0;
+        background: var(--paper-2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        color: var(--mute);
+        overflow: hidden;
+      }
+      .queue-info {
+        flex: 1;
+        min-width: 0;
+      }
+      .queue-title {
+        font-size: 11.5px;
+        font-weight: 500;
+        color: var(--ink);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .queue-artist {
+        font-family: 'Geist Mono', monospace;
+        font-size: 9px;
+        color: var(--mute);
+        margin-top: 1px;
+      }
+      .queue-dur {
+        font-family: 'Geist Mono', monospace;
+        font-size: 9px;
+        color: var(--mute);
+        flex-shrink: 0;
+      }
+      .queue-item.np .queue-title,
+      .queue-item.np .queue-num {
+        color: var(--purple);
+      }
+      /* ① 主页允许纵向滚动（覆盖 .screen 的 overflow:hidden） */
+      .screen-home {
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+      }
+      .screen-home::-webkit-scrollbar {
+        display: none;
+      }
+
+      /* ② Dock 改为 sticky，滚动时始终贴在底部 */
+      .dock {
+        position: sticky !important;
+        bottom: 26px !important;
+        left: auto !important;
+        right: auto !important;
+        width: calc(100% - 28px);
+        margin: 0 14px;
+      }
+
+      /* ③ apps-section 去掉底部留白（dock 已回到正常流中占位） */
+      .apps-section {
+        padding-bottom: 33px !important;
+      }
+      /* ———————— GALLERY OVERLAY ———————— */
+      .gallery-overlay {
+        position: absolute;
+        inset: 0;
+        background: var(--paper);
+        z-index: 1001; /* 高于 Dock 和其他组件 */
+        display: none;
+        flex-direction: column;
+        animation: galleryFadeIn 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+
+      @keyframes galleryFadeIn {
+        from {
+          opacity: 0;
+          transform: scale(1.05);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      .gallery-overlay.open {
+        display: flex;
+      }
+
+      .gallery-header {
+        padding: 20px 20px 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .gallery-title {
+        font-family: 'Fraunces', serif;
+        font-style: italic;
+        font-size: 24px;
+      }
+
+      .gallery-close {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: var(--paper-2);
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      /* 分类栏 */
+      .gallery-tabs {
+        display: flex;
+        gap: 10px;
+        padding: 13px 17px;
+        overflow-x: auto;
+        white-space: nowrap;
+        scrollbar-width: none;
+      }
+      .gallery-tabs::-webkit-scrollbar {
+        display: none;
+      }
+
+      .gallery-tab {
+        padding: 6px 15px;
+        background: var(--paper-2);
+        border-radius: 100px;
+        font-size: 12px;
+        font-family: 'Geist Mono', monospace;
+        cursor: pointer;
+        transition: 0.3s;
+        border: 1px solid transparent;
+      }
+      .gallery-tab.active {
+        background: var(--ink);
+        color: white;
+      }
+      .gallery-tab-add {
+        background: transparent;
+        border: 1px dashed var(--mute);
+        color: var(--mute);
+      }
+
+      /* 图片网格 */
+      .gallery-content {
+        flex: 1;
+        padding: 10px 20px;
+        overflow-y: auto;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        align-content: start;
+      }
+
+      .gallery-item {
+        aspect-ratio: 1;
+        border-radius: 12px;
+        overflow: hidden;
+        background: var(--paper-2);
+        position: relative;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      }
+      .gallery-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .gallery-item .del-img {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background: rgba(255, 107, 107, 0.8);
+        color: white;
+        border: none;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        font-size: 10px;
+        cursor: pointer;
+      }
+
+      .gallery-upload-card {
+        aspect-ratio: 1;
+        border: 2px dashed var(--line);
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: var(--mute);
+        cursor: pointer;
+        transition: 0.3s;
+      }
+      .gallery-upload-card:hover {
+        border-color: var(--ink);
+        color: var(--ink);
+      }
+      .gallery-upload-card i {
+        font-size: 20px;
+        margin-bottom: 5px;
+      }
+      .gallery-upload-card span {
+        font-size: 10px;
+        font-family: 'Geist Mono', monospace;
+      }
+    </style>
+
+    <style>
+      /* ── index.html 全局日记横幅 ── */
+      #indexDiaryBanner {
+        position: absolute;
+        top: 44px;
+        left: 0;
+        right: 0;
+        z-index: 99998;
+        padding: 7px 16px;
+        font-family: 'Geist Mono', monospace, sans-serif;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: .05em;
+        text-align: center;
+        pointer-events: none;
+        transform: translateY(-100%);
+        transition: transform .28s cubic-bezier(.22, 1, .36, 1);
+      }
+      #indexDiaryBanner.visible {
+        transform: translateY(0);
+      }
+    </style>
+        <style id="tsuki-dynamic-style"></style>
+  </head>
+  <body>
+    <div class="phone" id="phone">
+      <!-- 全局日记横幅 -->
+      <div id="indexDiaryBanner"></div>
+      <div class="status-bar">
+        <span id="sbTime">9:41</span>
+        <div class="right">
+          <i class="fa-solid fa-signal"></i>
+          <i class="fa-solid fa-wifi"></i>
+          <i class="fa-solid fa-battery-three-quarters" style="font-size: 15px"></i>
+        </div>
+      </div>
+
+      <div class="screens-wrap">
+        <div class="screens" id="screens">
+          <!-- ══════════ PAGE 1 · HOME ══════════ -->
+          <div class="screen screen-home" id="pg1">
+            <div class="widget-area">
+              <div class="w w-clock">
+                <div class="w-clock-time" id="wClock">9:41</div>
+                <div class="w-clock-date" id="wDate">TUE · APR 18</div>
+              </div>
+
+              <div class="w w-avatar">
+                <div class="w-avatar-photo">
+                  <img src="https://i.ibb.co/hGg4QFM/1000175362.jpg" alt="" onerror="this.style.display = 'none'" />
+                </div>
+                <div class="w-avatar-name">TSUKIMI</div>
+                <div class="w-avatar-online"><i class="fa-solid fa-circle"></i> online</div>
+              </div>
+
+              <div class="w w-weather">
+                <div class="w-weather-icon">🌤</div>
+                <div>
+                  <div class="w-weather-temp">18°C</div>
+                  <div class="w-weather-sub">上海</div>
+                </div>
+              </div>
+
+              <div class="w w-chat" onclick="openChat()"><i class="fa-solid fa-comment-dots"></i><span>Chat</span></div>
+
+              <div class="w w-date">
+                <div class="w-date-num" id="wDayNum">18</div>
+                <div class="w-date-mon" id="wMon">APR</div>
+              </div>
+
+              <div class="w w-haiku-a" style="overflow: hidden">
+                <div class="w-haiku-vtext">古池や<br />蛙飛び込む<br />水の音</div>
+                <div class="w-haiku-by">Matsuo Bashō</div>
+              </div>
+
+              <div class="w w-sticky" style="overflow: visible">
+                <div class="w-sticky-pin"></div>
+                <div class="w-sticky-text">今日もいい日でありますように ✦</div>
+                <div class="w-sticky-tag"># note · 04.18</div>
+              </div>
+
+              <div class="w w-haiku-b" style="overflow: hidden">
+                <div class="w-haiku-b-text">月見れば<br />千々に物こそ<br />悲しけれ</div>
+                <div class="w-haiku-b-by">大江千里</div>
+              </div>
+
+              <div class="w w-ticket">
+                <div class="w-ticket-body">
+                  <div class="w-ticket-event">Spring Concert</div>
+                  <div class="w-ticket-name">夜に駆ける</div>
+                  <div class="w-ticket-info">2025.04.18 · Row G · 07</div>
+                </div>
+                <div class="w-ticket-stub"><span></span><span></span><span></span></div>
+              </div>
+
+              <div class="w w-photowall">
+                <!-- Left: stacked polaroid cards -->
+                <div class="w-pw-photos">
+                  <div class="w-pw-photo w-pw-p1">
+                    <div class="w-pw-photo-img" style="background: linear-gradient(135deg, #f9c5d1, #c3b1e1)"></div>
+                  </div>
+                  <div class="w-pw-photo w-pw-p2">
+                    <div class="w-pw-photo-img" style="background: linear-gradient(135deg, #b5d8f7, #c3e8a0)"></div>
+                  </div>
+                </div>
+                <!-- Right: text + deco -->
+                <div class="w-pw-content">
+                  <div class="w-pw-label">GALLERY ·</div>
+                  <div class="w-pw-info">12 photos · this week</div>
+                  <div class="w-pw-deco">
+                    <span class="w-pw-star">✦</span>
+                    <span class="w-pw-dot"></span>
+                    <span class="w-pw-date">04.18</span>
+                    <span class="w-pw-dot"></span>
+                    <span class="w-pw-view"
+                      ><i class="fa-solid fa-arrow-right" style="font-size: 6.5px"></i> view all</span
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- /widget-area -->
+
+            <div class="apps-section">
+              <div class="apps-hdr"><i class="fa-solid fa-grip" style="font-size: 7px; opacity: 0.4"></i> APPS</div>
+
+              <!-- Row 1 → Deco banner -->
+              <div class="banner-row">
+                <div class="string-line" style="width: calc(100% - 20px); margin: 0 10px"></div>
+                <div class="banner-threads">
+                  <div class="b-thread"></div>
+                  <div class="b-thread"></div>
+                  <div class="b-thread"></div>
+                  <div class="b-thread"></div>
+                </div>
+                <div class="deco-banner">
+                  <div class="db-avatar">
+                    <img src="https://i.ibb.co/hGg4QFM/1000175362.jpg" alt="" onerror="this.style.display = 'none'" />
+                  </div>
+                  <div class="db-content">
+                    <div class="db-name">TSUKIMI · 江眠月</div>
+                    <div class="db-quote">今日もいい日でありますように</div>
+                  </div>
+                  <div class="db-right">
+                    <div class="db-star">✦</div>
+                    <div class="db-date">APR.18</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Row 2 -->
+              <div class="string-row">
+                <div class="string-line"></div>
+                <div class="pendants-row">
+                  <div class="pendant" style="--dly: 0s; --dur: 3.2s; --amp: 3; --tlen: 24px" onclick="openChat()">
+                    <div class="pend-thread"></div>
+                    <div class="pend-icon ai-chat"><i class="fa-solid fa-comment-dots"></i></div>
+                    <div class="pend-label">Chat</div>
+                  </div>
+                  <div
+                    class="pendant"
+                    style="--dly: 0.35s; --dur: 2.8s; --amp: 4; --tlen: 30px"
+                    onclick="openApp('char.html')"
+                  >
+                    <div class="pend-thread"></div>
+                    <div class="pend-icon ai-cam">
+                      <i class="fa-solid fa-id-card-clip"></i>
+                    </div>
+                    <div class="pend-label">Char</div>
+                  </div>
+                  <div
+                    class="pendant"
+                    style="--dly: 1.45s; --dur: 2.6s; --amp: 5; --tlen: 22px"
+                    onclick="openApp('worldbook.html')"
+                  >
+                    <div class="pend-thread"></div>
+                    <div class="pend-icon ai-book"><i class="fa-solid fa-book"></i></div>
+                    <div class="pend-label">Worldbook</div>
+                  </div>
+                  <div
+                    class="pendant"
+                    style="--dly: 1.1s; --dur: 3s; --amp: 4; --tlen: 28px"
+                    onclick="openApp('tsukistage.html')"
+                  >
+                    <div class="pend-thread"></div>
+                    <div class="pend-icon ai-notes"><i class="fa-solid fa-pen-nib"></i></div>
+                    <div class="pend-label">Stages</div>
+                  </div>
+                  <div class="pendant" style="--dly: 0.7s; --dur: 3.5s; --amp: 2.5; --tlen: 20px">
+                    <div class="pend-thread"></div>
+                    <div class="pend-icon ai-music"><i class="fa-solid fa-music"></i></div>
+                    <div class="pend-label">Music</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Row 3 -->
+              <div class="string-row">
+                <div class="string-line"></div>
+                <div class="pendants-row">
+                  <div class="pendant" style="--dly: 0.2s; --dur: 3s; --amp: 4.5; --tlen: 26px">
+                    <div class="pend-thread"></div>
+                    <div class="pend-icon ai-cal"><i class="fa-solid fa-calendar-days"></i></div>
+                    <div class="pend-label">Calendar</div>
+                  </div>
+                  <div class="pendant" style="--dly: 0.55s; --dur: 3.3s; --amp: 3; --tlen: 32px">
+                    <div class="pend-thread"></div>
+                    <div class="pend-icon ai-maps"><i class="fa-solid fa-map-location-dot"></i></div>
+                    <div class="pend-label">Maps</div>
+                  </div>
+                  <div class="pendant" style="--dly: 0.9s; --dur: 2.7s; --amp: 4; --tlen: 22px" onclick="openApp('diary.html')">
+                    <div class="pend-thread"></div>
+                    <div class="pend-icon ai-mail"><i class="fa-solid fa-envelope"></i></div>
+                    <div class="pend-label">Diary</div>
+                  </div>
+                  <div class="pendant" style="--dly: 1.2s; --dur: 3.4s; --amp: 2; --tlen: 28px">
+                    <div class="pend-thread"></div>
+                    <div class="pend-icon ai-game"><i class="fa-solid fa-gamepad"></i></div>
+                    <div class="pend-label">Game</div>
+                  </div>
+                  <div class="pendant" style="--dly: 1.6s; --dur: 2.9s; --amp: 5; --tlen: 24px">
+                    <div class="pend-thread"></div>
+                    <div class="pend-icon ai-weather"><i class="fa-solid fa-cloud-sun"></i></div>
+                    <div class="pend-label">Weather</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- /apps-section -->
+
+            <div class="dock">
+              <div class="dock-item" onclick="openApp('settings.html')">
+                <div class="dock-icon di-settings"><i class="fa-solid fa-gear"></i></div>
+                <div class="dock-label">Settings</div>
+              </div>
+              <div class="dock-item">
+                <div class="dock-icon di-phone"><i class="fa-solid fa-phone"></i></div>
+                <div class="dock-label">Phone</div>
+              </div>
+              <div class="dock-item">
+                <div class="dock-icon di-browse"><i class="fa-solid fa-globe"></i></div>
+                <div class="dock-label">Browser</div>
+              </div>
+              <div class="dock-item">
+                <div class="dock-icon di-home"><i class="fa-solid fa-house"></i></div>
+                <div class="dock-label">Home</div>
+              </div>
+            </div>
+          </div>
+          <!-- /pg1 -->
+
+          <!-- ══════════ PAGE 2 · MUSIC ══════════ -->
+          <div class="screen screen-music" id="pg2">
+            <div class="music-card" id="musicCard">
+              <div class="mc-vinyl-wrap" id="mcVinyl"><div class="vrecord"></div></div>
+              <div class="mc-info">
+                <div>
+                  <div class="mc-track">夜に駆ける</div>
+                  <div class="mc-artist">YOASOBI</div>
+                </div>
+                <button class="mc-play-mini" id="mcPlayBtn"><i class="fa-solid fa-play" id="mcPlayIco"></i></button>
+              </div>
+            </div>
+
+            <div class="music-decos" id="musicDecos">
+              <div class="md-sticky">
+                <div><span class="md-sticky-pin"></span></div>
+                <div class="md-sticky-text">♪ 夜に駆ける<br />いつでもここにある</div>
+                <div class="md-sticky-sub">YOASOBI · THE BOOK</div>
+              </div>
+              <div class="md-chip">
+                <i class="fa-solid fa-music"></i>
+                <span>Now playing</span>
+              </div>
+            </div>
+
+            <div class="music-full" id="musicFull">
+              <div class="mf-hdr">
+                <div class="mf-hdr-lbl">Now Playing</div>
+                <button class="mf-close" id="mfClose"><i class="fa-solid fa-chevron-down"></i></button>
+              </div>
+              <div class="mf-art-wrap">
+                <div class="mf-art" id="mfArt">
+                  <div class="mf-art-glow"></div>
+                  <div class="mf-vinyl" id="mfVinyl"></div>
+                  <div class="mf-close-hint">tap to close ↓</div>
+                </div>
+              </div>
+              <div class="mf-info">
+                <div class="mf-like-row">
+                  <div class="mf-track">夜に駆ける</div>
+                  <button class="mf-heart" id="mfHeart"><i class="fa-solid fa-heart"></i></button>
+                </div>
+                <div class="mf-artist">YOASOBI</div>
+                <div class="mf-album">THE BOOK · 2021</div>
+              </div>
+              <div class="mf-progress">
+                <div class="mf-prog-track" id="mfProgTrack"><div class="mf-prog-fill" id="mfProgFill"></div></div>
+                <div class="mf-prog-times"><span id="mfCurTime">1:28</span><span>3:52</span></div>
+              </div>
+              <div class="mf-controls">
+                <button class="mctl xs active" id="mfShuffle"><i class="fa-solid fa-shuffle"></i></button>
+                <button class="mctl sm" id="mfPrev"><i class="fa-solid fa-backward-step"></i></button>
+                <button class="mctl play" id="mfPlay"><i class="fa-solid fa-play" id="mfPlayIco"></i></button>
+                <button class="mctl sm" id="mfNext"><i class="fa-solid fa-forward-step"></i></button>
+                <button class="mctl xs" id="mfRepeat"><i class="fa-solid fa-repeat"></i></button>
+              </div>
+              <div class="mf-extras">
+                <button class="mext"><i class="fa-solid fa-microphone-lines"></i><span>Lyrics</span></button>
+                <button class="mext active"><i class="fa-solid fa-list-music"></i><span>Queue</span></button>
+                <button class="mext"><i class="fa-solid fa-share-nodes"></i><span>Share</span></button>
+                <button class="mext"><i class="fa-solid fa-circle-plus"></i><span>Add to</span></button>
+              </div>
+              <div class="mf-volume">
+                <i class="fa-solid fa-volume-low"></i>
+                <div class="vol-track" id="mfVolTrack"><div class="vol-fill" id="mfVolFill"></div></div>
+                <i class="fa-solid fa-volume-high"></i>
+              </div>
+              <div class="mf-queue">
+                <div class="mf-queue-hdr"><i class="fa-solid fa-list" style="font-size: 7px"></i> UP NEXT</div>
+                <div class="queue-item np">
+                  <div class="queue-num"><i class="fa-solid fa-volume-high" style="font-size: 8px"></i></div>
+                  <div class="queue-art" style="background: linear-gradient(145deg, #1a1a30, #0f2a40)">
+                    <i class="fa-solid fa-music"></i>
+                  </div>
+                  <div class="queue-info">
+                    <div class="queue-title">夜に駆ける</div>
+                    <div class="queue-artist">YOASOBI</div>
+                  </div>
+                  <div class="queue-dur">3:52</div>
+                </div>
+                <div class="queue-item">
+                  <div class="queue-num">1</div>
+                  <div class="queue-art" style="background: linear-gradient(145deg, #2a1530, #1a0a20)">
+                    <i class="fa-solid fa-star" style="font-size: 9px; color: #a78bfa"></i>
+                  </div>
+                  <div class="queue-info">
+                    <div class="queue-title">怪物</div>
+                    <div class="queue-artist">YOASOBI</div>
+                  </div>
+                  <div class="queue-dur">4:18</div>
+                </div>
+                <div class="queue-item">
+                  <div class="queue-num">2</div>
+                  <div class="queue-art" style="background: linear-gradient(145deg, #0f2030, #0a1828)">
+                    <i class="fa-solid fa-moon" style="font-size: 9px; color: #74b9ff"></i>
+                  </div>
+                  <div class="queue-info">
+                    <div class="queue-title">群青</div>
+                    <div class="queue-artist">YOASOBI</div>
+                  </div>
+                  <div class="queue-dur">4:33</div>
+                </div>
+                <div class="queue-item">
+                  <div class="queue-num">3</div>
+                  <div class="queue-art" style="background: linear-gradient(145deg, #1a1020, #0f0a18)">
+                    <i class="fa-solid fa-fire" style="font-size: 9px; color: #ff9f43"></i>
+                  </div>
+                  <div class="queue-info">
+                    <div class="queue-title">アイドル</div>
+                    <div class="queue-artist">YOASOBI</div>
+                  </div>
+                  <div class="queue-dur">3:31</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- /pg2 -->
+        </div>
+      </div>
+
+      <div class="page-dots">
+        <div class="page-dot active" id="dot0"></div>
+        <div class="page-dot" id="dot1"></div>
+      </div>
+      <div class="home-bar" id="homeBar"></div>
+
+      <!-- Chat iframe overlay — slides in from right, covers all below status bar -->
+      <div class="chat-overlay" id="chatOverlay">
+        <button class="chat-back-btn" id="chatBackBtn"><i class="fa-solid fa-chevron-left"></i> Home</button>
+        <iframe src="" id="chatFrame" class="chat-iframe"></iframe>
+      </div>
+      <div class="gallery-overlay" id="galleryOverlay">
+        <div class="gallery-header">
+          <div class="gallery-title">Gallery Manager</div>
+          <button class="gallery-close" onclick="closeGallery()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <div class="gallery-tabs" id="galleryTabs"></div>
+
+        <div class="gallery-content" id="galleryContent"></div>
+
+        <input type="file" id="galleryInput" multiple accept="image/*" style="display: none" />
+      </div>
+
+      <!-- 隐藏 diary iframe — 永久后台运行，支撑楼层轮询 -->
+      <iframe
+        id="diaryFrameHidden"
+        src="diary.html"
+        style="display:none;position:absolute;width:0;height:0;border:none;pointer-events:none;"
+        title="diary-background"
+      ></iframe>
+    </div>
+
+    <script>
+      /* CLOCK */
+      (function () {
+        const DAYS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+        const MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+        function pad(n) {
+          return String(n).padStart(2, '0');
+        }
+        function tick() {
+          const n = new Date(),
+            h = n.getHours(),
+            m = n.getMinutes(),
+            h12 = h % 12 || 12;
+          const t = `${h12}:${pad(m)}`;
+          document.getElementById('sbTime').textContent = t;
+          document.getElementById('wClock').textContent = t;
+          document.getElementById('wDate').textContent = `${DAYS[n.getDay()]} · ${MONTHS[n.getMonth()]} ${n.getDate()}`;
+          document.getElementById('wDayNum').textContent = n.getDate();
+          document.getElementById('wMon').textContent = MONTHS[n.getMonth()];
+        }
+        tick();
+        setInterval(tick, 60000);
+      })();
+
+      /* PAGE SWIPE */
+      (function () {
+        const sc = document.getElementById('screens');
+        const dots = [document.getElementById('dot0'), document.getElementById('dot1')];
+        let page = 0,
+          sx = 0,
+          sy = 0,
+          swiping = false;
+        function goTo(n) {
+          page = Math.max(0, Math.min(1, n));
+          sc.style.transform = `translateX(${page * -50}%)`;
+          dots.forEach((d, i) => {
+            d.className = 'page-dot' + (i === page ? ' active' : '');
+          });
+        }
+        function gp(e) {
+          return { x: e.touches ? e.touches[0].clientX : e.clientX, y: e.touches ? e.touches[0].clientY : e.clientY };
+        }
+        function onStart(e) {
+          if (
+            e.target.closest(
+              '.dock,.w-chat,.mc-vinyl-wrap,.mc-play-mini,.mctl,.mext,.mf-close,.mf-art,.banner-row,.pendant',
+            )
+          )
+            return;
+          const p = gp(e);
+          sx = p.x;
+          sy = p.y;
+          swiping = true;
+        }
+        function onMove(e) {
+          if (!swiping) return;
+          const p = gp(e),
+            dx = p.x - sx,
+            dy = Math.abs(p.y - sy);
+          if (dy > Math.abs(dx) * 1.4) {
+            swiping = false;
+            return;
+          }
+          if (Math.abs(dx) > 8 && e.cancelable) e.preventDefault();
+        }
+        function onEnd(e) {
+          if (!swiping) return;
+          swiping = false;
+          const cx = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
+          if (cx - sx < -55) goTo(1);
+          else if (cx - sx > 55) goTo(0);
+        }
+        const w = document.querySelector('.screens-wrap');
+        w.addEventListener('touchstart', onStart, { passive: true });
+        w.addEventListener('touchmove', onMove, { passive: false });
+        w.addEventListener('touchend', onEnd);
+        w.addEventListener('mousedown', onStart);
+        document.addEventListener('mouseup', onEnd);
+      })();
+
+      /* HOME BAR (支持 Iframe 丝滑关闭版) */
+      (function () {
+        const bar = document.getElementById('homeBar') || document.querySelector('.home-bar');
+        const phone = document.getElementById('phone') || document.querySelector('.phone') || document.body;
+
+        let sy = 0,
+          drag = false;
+        const threshold = -100; // 上滑超过 100px 触发
+
+        function gy(e) {
+          return e.touches ? e.touches[0].clientY : e.clientY;
+        }
+
+        function start(e) {
+          if (e.type.includes('mouse')) e.preventDefault();
+          sy = gy(e);
+          drag = true;
+          bar.classList.add('dragging');
+        }
+
+        function move(e) {
+          if (!drag) return;
+          if (e.cancelable) e.preventDefault();
+          const d = gy(e) - sy;
+          if (d < 0) {
+            bar.style.transform = `translateX(-50%) translateY(${d * 0.9}px)`;
+          }
+        }
+
+        function end() {
+          if (!drag) return;
+          drag = false;
+          bar.classList.remove('dragging');
+
+          const m = window.getComputedStyle(bar).transform;
+          const ty = m !== 'none' ? parseFloat(m.split(',')[5]) : 0;
+
+          if (ty < threshold) {
+            // 成功触发：长条向上滑出，页面渐隐
+            bar.style.transition = 'transform 0.3s ease-in';
+            bar.style.transform = 'translateX(-50%) translateY(-200px)';
+            phone.style.transition = 'opacity 0.3s ease-out';
+            phone.style.opacity = '0';
+            phone.style.pointerEvents = 'none';
+
+            // 动画执行一半时，通知父窗口收起 Iframe
+            setTimeout(() => {
+              if (window.parent && window.parent !== window) {
+                // 我们在 Iframe 里：通知主屏幕 index.html 关掉 overlay
+                const overlay = window.parent.document.getElementById('chatOverlay');
+                if (overlay) {
+                  overlay.classList.remove('open');
+                }
+
+                // 核心：在父窗口收起动画结束后，悄悄把自己的状态恢复！
+                // 这样下次打开时才不会是白屏
+                setTimeout(() => {
+                  bar.style.transition = 'none';
+                  bar.style.transform = 'translateX(-50%) translateY(0)';
+                  phone.style.transition = 'none';
+                  phone.style.opacity = '1';
+                  phone.style.pointerEvents = 'auto';
+                }, 400);
+              } else {
+                // 兜底逻辑：如果不是嵌套在 iframe 里，依然执行跳转
+                window.location.href = 'index.html';
+              }
+            }, 150);
+          } else {
+            // 失败回弹
+            bar.style.transition = 'transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+            bar.style.transform = 'translateX(-50%) translateY(0)';
+          }
+          sy = 0;
+        }
+
+        if (bar) {
+          bar.addEventListener('touchstart', start, { passive: false });
+          document.addEventListener('touchmove', move, { passive: false });
+          document.addEventListener('touchend', end);
+          bar.addEventListener('mousedown', start);
+          document.addEventListener('mousemove', move);
+          document.addEventListener('mouseup', end);
+        }
+      })();
+
+      /* MUSIC PLAYER */
+      (function () {
+        const mcVinyl = document.getElementById('mcVinyl');
+        const mcPlayBtn = document.getElementById('mcPlayBtn');
+        const mcPlayIco = document.getElementById('mcPlayIco');
+        const musicFull = document.getElementById('musicFull');
+        const mfVinyl = document.getElementById('mfVinyl');
+        const mfArt = document.getElementById('mfArt');
+        const mfClose = document.getElementById('mfClose');
+        const mfPlay = document.getElementById('mfPlay');
+        const mfPlayIco = document.getElementById('mfPlayIco');
+        const mfProgFill = document.getElementById('mfProgFill');
+        const mfProgTrack = document.getElementById('mfProgTrack');
+        const mfCurTime = document.getElementById('mfCurTime');
+        const mfVolTrack = document.getElementById('mfVolTrack');
+        const mfVolFill = document.getElementById('mfVolFill');
+        const mfHeart = document.getElementById('mfHeart');
+        const musicDecos = document.getElementById('musicDecos');
+        const musicCard = document.getElementById('musicCard');
+
+        const TOTAL = 232;
+        let cur = 88,
+          playing = false,
+          ticker = null;
+        function fmt(s) {
+          return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+        }
+
+        function setPlaying(v) {
+          playing = v;
+          const ico = v ? 'fa-pause' : 'fa-play';
+          mcPlayIco.className = `fa-solid ${ico}`;
+          mfPlayIco.className = `fa-solid ${ico}`;
+          const st = v ? 'running' : 'paused';
+          mcVinyl.style.animationPlayState = st;
+          mfVinyl.style.animationPlayState = st;
+          if (v) {
+            ticker = setInterval(tick, 1000);
+          } else {
+            clearInterval(ticker);
+          }
+        }
+        function tick() {
+          if (!playing) return;
+          cur = Math.min(cur + 1, TOTAL);
+          mfProgFill.style.width = (cur / TOTAL) * 100 + '%';
+          mfCurTime.textContent = fmt(cur);
+          if (cur >= TOTAL) setPlaying(false);
+        }
+
+        function openFull() {
+          musicFull.classList.add('open');
+          musicDecos.classList.add('hidden');
+        }
+        function closeFull() {
+          musicFull.classList.remove('open');
+          musicDecos.classList.remove('hidden');
+        }
+
+        mcVinyl.addEventListener('click', openFull);
+        mfArt.addEventListener('click', closeFull);
+        mfClose.addEventListener('click', closeFull);
+        mcPlayBtn.addEventListener('click', e => {
+          e.stopPropagation();
+          setPlaying(!playing);
+        });
+        mfPlay.addEventListener('click', () => setPlaying(!playing));
+
+        mfProgTrack.addEventListener('click', e => {
+          const r = mfProgTrack.getBoundingClientRect(),
+            pct = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+          cur = Math.round(pct * TOTAL);
+          mfProgFill.style.width = pct * 100 + '%';
+          mfCurTime.textContent = fmt(cur);
+        });
+        mfVolTrack.addEventListener('click', e => {
+          const r = mfVolTrack.getBoundingClientRect(),
+            pct = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+          mfVolFill.style.width = pct * 100 + '%';
+        });
+
+        document.getElementById('mfPrev').addEventListener('click', () => {
+          cur = 0;
+          mfProgFill.style.width = '0%';
+          mfCurTime.textContent = '0:00';
+        });
+        document.getElementById('mfNext').addEventListener('click', () => {
+          cur = TOTAL;
+          mfProgFill.style.width = '100%';
+          mfCurTime.textContent = fmt(TOTAL);
+          setPlaying(false);
+        });
+        ['mfShuffle', 'mfRepeat'].forEach(id =>
+          document.getElementById(id)?.addEventListener('click', function () {
+            this.classList.toggle('active');
+          }),
+        );
+        mfHeart.addEventListener('click', function () {
+          this.classList.toggle('liked');
+        });
+
+        document.querySelectorAll('.queue-item:not(.np)').forEach(item => {
+          item.addEventListener('click', () => {
+            cur = 0;
+            mfProgFill.style.width = '0%';
+            mfCurTime.textContent = '0:00';
+            document.querySelectorAll('.queue-item').forEach(i => i.classList.remove('np'));
+            item.classList.add('np');
+            item.querySelector('.queue-num').innerHTML =
+              '<i class="fa-solid fa-volume-high" style="font-size:8px"></i>';
+          });
+        });
+
+        /* Position decos below the 1:1 card */
+        function posDecos() {
+          const rect = musicCard.getBoundingClientRect();
+          musicDecos.style.top = 16 + rect.height + 16 + 'px';
+        }
+        setTimeout(posDecos, 120);
+        window.addEventListener('resize', posDecos);
+      })();
+
+      /* APP OVERLAY (通用 APP 容器逻辑) */
+      (function () {
+        const overlay = document.getElementById('chatOverlay');
+        const frame = document.getElementById('chatFrame');
+        const backBtn = document.getElementById('chatBackBtn');
+        let currentApp = ''; // 记录当前加载的 APP 路径
+
+        // 核心：通用打开 APP 函数
+        window.openApp = function (url) {
+          // 如果当前 iframe 里的链接和要打开的不一样，就重新加载
+          if (currentApp !== url) {
+            frame.src = url;
+            currentApp = url;
+          }
+          overlay.classList.add('open');
+        };
+
+        // 兼容原有的 Chat 点击按钮
+        window.openChat = function () {
+          openApp('tsukiphone1.1.html'); // 这里填你聊天页面的真实文件名
+        };
+
+        // 点击左上角 Home 返回
+        backBtn.addEventListener('click', async function () {
+          overlay.classList.remove('open');
+          await applyGlobalTheme(); // 🚀 新增：每次退回桌面时，强制重新渲染皮肤和壁纸！
+        });
+
+        /* 核心修复：当 App 内部通过底部小黑条上滑，尝试跳转回 index.html 时，
+           拦截它的跳转，改为直接关闭 Overlay，实现丝滑的“退回桌面”效果 */
+        frame.addEventListener('load', async function () {
+          try {
+            const u = frame.contentWindow.location.href;
+            if (u && (u.includes('index.html') || u.endsWith('/'))) {
+              frame.src = currentApp; // 把路径重置回当前 APP，免得下次打开是白屏
+              overlay.classList.remove('open');
+              await applyGlobalTheme(); // 🚀 新增：通过上滑手势退回桌面时，也强制重新渲染！
+            }
+          } catch (e) {
+            // 忽略跨域等报错
+          }
+        });
+      })();
+    </script>
+    <script>
+      // ==========================================
+      // 1. 终极 IndexedDB 核心封装 (Schema 声明式自动升级)
+      // ==========================================
+      const IDB_NAME = 'tsukiphonepromax';
+      const tsukiChannel = new BroadcastChannel('tsuki_channel');
+
+      // 【核心定义区】：就像 Dexie 一样，以后新增表只要在这里加一行！
+      const SCHEMA = {
+        config: { keyPath: 'id' },
+        chars: { keyPath: 'id' },
+        users: { keyPath: 'id' },
+        worldbook: null,
+        chats: { keyPath: 'id' },
+        // 👉 核心修改：使用数组作为复合主键，[聊天ID, 楼层]
+        messages: { keyPath: ['chatId', 'floor'] },
+      };
+
+      function initTsukiDB() {
+        return new Promise((resolve, reject) => {
+          // 第一步：不指定版本号，直接探测当前浏览器的真实版本
+          const probeReq = indexedDB.open(IDB_NAME);
+
+          probeReq.onsuccess = e => {
+            const db = e.target.result;
+            const currentVersion = db.version;
+
+            // 第二步：检查当前数据库里是否缺表
+            const missingStores = Object.keys(SCHEMA).filter(store => !db.objectStoreNames.contains(store));
+
+            if (missingStores.length === 0) {
+              // 结构完整，直接返回可用连接
+              resolve(db);
+            } else {
+              // 第三步：发现缺表！自动关掉当前连接，用 "当前版本 + 1" 触发系统升级
+              console.warn(
+                `[DB] 发现缺表: ${missingStores.join(', ')}。自动从 v${currentVersion} 升级至 v${currentVersion + 1}`,
+              );
+              db.close();
+
+              const upgradeReq = indexedDB.open(IDB_NAME, currentVersion + 1);
+
+              upgradeReq.onupgradeneeded = event => {
+                const upgradeDb = event.target.result;
+                // 遍历 SCHEMA 自动建表
+                for (const [storeName, options] of Object.entries(SCHEMA)) {
+                  if (!upgradeDb.objectStoreNames.contains(storeName)) {
+                    if (options) {
+                      upgradeDb.createObjectStore(storeName, options);
+                    } else {
+                      upgradeDb.createObjectStore(storeName);
+                    }
+                    console.log(`[DB] 成功创建数据表: ${storeName}`);
+                  }
+                }
+              };
+
+              upgradeReq.onsuccess = event => resolve(event.target.result);
+              upgradeReq.onerror = event => reject(event.target.error);
+              // 如果有其他标签页卡住了连接，提示用户
+              upgradeReq.onblocked = () =>
+                alert('数据库正在自动升级，请先暂时关闭其他 TSUKIMI 页面/预览窗口，然后刷新！');
+            }
+          };
+
+          probeReq.onerror = e => reject(e.target.error);
+        });
+      }
+
+      // getDbAsync 和 saveDbAsync 保持原样，它们会自动调用上面这个无敌版的 initTsukiDB
+
+      async function getDbAsync() {
+        const db = await initTsukiDB();
+        return new Promise((resolve, reject) => {
+          const tx = db.transaction('config', 'readonly');
+          const store = tx.objectStore('config');
+          const req = store.get('main_config');
+          req.onsuccess = () => resolve(req.result || { id: 'main_config' });
+          req.onerror = e => reject(e.target.error);
+        });
+      }
+
+      async function saveDbAsync(data) {
+        const db = await initTsukiDB();
+        return new Promise((resolve, reject) => {
+          const tx = db.transaction('config', 'readwrite');
+          const store = tx.objectStore('config');
+          data.id = 'main_config';
+          const req = store.put(data);
+          req.onsuccess = () => resolve();
+          req.onerror = e => reject(e.target.error);
+        });
+      }
+
+      // ==========================================
+      // 2. 主题与全局样式渲染
+      // ==========================================
+      async function applyGlobalTheme() {
+        try {
+          const db = await getDbAsync();
+          // 核心修复：防止 db.theme 不存在时报错
+          const globalTheme = db.theme?.global || { css: '', wallpaper: '' };
+
+          const homeScreen = document.querySelector('.screen-home');
+          const homesecondScreen = document.querySelector('.screen-music');
+          const styleTag = document.getElementById('tsuki-dynamic-style');
+
+          if (homeScreen) {
+            homeScreen.style.backgroundImage = globalTheme.wallpaper ? `url(${globalTheme.wallpaper})` : 'none';
+            if (globalTheme.wallpaper) {
+              homeScreen.style.backgroundSize = 'cover';
+              homeScreen.style.backgroundPosition = 'center';
+            }
+          }
+          if (homesecondScreen) {
+            homesecondScreen.style.backgroundImage = globalTheme.wallpaper ? `url(${globalTheme.wallpaper})` : 'none';
+            if (globalTheme.wallpaper) {
+              homesecondScreen.style.backgroundSize = 'cover';
+              homesecondScreen.style.backgroundPosition = 'center';
+            }
+          }
+          if (styleTag) {
+            styleTag.innerHTML = globalTheme.css || '';
+          }
+          console.log('TSUKIMI 系统：视觉引擎注入成功 (IndexedDB)');
+        } catch (e) {
+          console.error('TSUKIMI 系统：读取配置失败', e);
+        }
+      }
+
+      // 监听 settings.html 发来的刷新通知
+      tsukiChannel.onmessage = e => {
+        if (e.data === 'update_theme') applyGlobalTheme();
+      };
+
+      // ==========================================
+      // 3. Home 数据与交互 (图片、文本、图库)
+      // ==========================================
+      document.addEventListener('DOMContentLoaded', async () => {
+        await applyGlobalTheme();
+
+        // 初始化主页默认数据结构
+        let db = await getDbAsync();
+        if (!db.homeData) {
+          db.homeData = { images: {}, texts: {} };
+          await saveDbAsync(db);
+        }
+
+        // --- 功能一：图片点击上传 ---
+        const imageElements = [
+          { selector: '.w-avatar-photo img', key: 'avatar', type: 'src' },
+          { selector: '.w-pw-p1 .w-pw-photo-img', key: 'pw1', type: 'bg' },
+          { selector: '.w-pw-p2 .w-pw-photo-img', key: 'pw2', type: 'bg' },
+          { selector: '.db-avatar img', key: 'dbAvatar', type: 'src' },
+        ];
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = 'image/*';
+        fileInput.style.display = 'none';
+        document.body.appendChild(fileInput);
+        let currentUploadTarget = null;
+
+        imageElements.forEach(item => {
+          const el = document.querySelector(item.selector);
+          if (!el) return;
+          el.style.cursor = 'pointer';
+
+          const savedImg = db.homeData.images[item.key];
+          if (savedImg) {
+            if (item.type === 'src') {
+              el.src = savedImg;
+              el.style.display = 'block';
+            } else {
+              el.style.background = `url(${savedImg}) center/cover no-repeat`;
+            }
+          }
+
+          el.addEventListener('click', e => {
+            e.stopPropagation();
+            currentUploadTarget = { el, item };
+            fileInput.click();
+          });
+        });
+
+        fileInput.addEventListener('change', e => {
+          const file = e.target.files[0];
+          if (!file || !currentUploadTarget) return;
+          const reader = new FileReader();
+          reader.onload = async event => {
+            const base64Data = event.target.result;
+            const { el, item } = currentUploadTarget;
+
+            if (item.type === 'src') {
+              el.src = base64Data;
+              el.style.display = 'block';
+            } else {
+              el.style.background = `url(${base64Data}) center/cover no-repeat`;
+            }
+
+            const currentDb = await getDbAsync();
+            currentDb.homeData.images[item.key] = base64Data;
+            await saveDbAsync(currentDb);
+            fileInput.value = '';
+          };
+          reader.readAsDataURL(file);
+        });
+
+        // --- 功能二：文本点击编辑 ---
+        const textElements = [
+          { selector: '.w-avatar-name', key: 'avatarName' },
+          { selector: '.w-avatar-online', key: 'avatarOnline' },
+          { selector: '.db-name', key: 'dbName' },
+          { selector: '.db-quote', key: 'dbQuote' },
+          { selector: '.w-sticky-text', key: 'stickyText' },
+          { selector: '.w-haiku-b-text', key: 'haikuB' },
+          { selector: '.w-haiku-vtext', key: 'haikuV' },
+          { selector: '.w-ticket-name', key: 'ticketName' },
+        ];
+
+        textElements.forEach(item => {
+          const el = document.querySelector(item.selector);
+          if (!el) return;
+          el.style.cursor = 'text';
+          const savedText = db.homeData.texts[item.key];
+          if (savedText) el.innerHTML = savedText;
+
+          el.addEventListener('click', e => {
+            e.stopPropagation();
+            el.contentEditable = 'true';
+            el.focus();
+            el.style.outline = '1px dashed rgba(91, 124, 250, 0.5)';
+          });
+
+          el.addEventListener('blur', async () => {
+            el.contentEditable = 'false';
+            el.style.outline = 'none';
+            const currentDb = await getDbAsync();
+            currentDb.homeData.texts[item.key] = el.innerHTML;
+            await saveDbAsync(currentDb);
+          });
+          el.addEventListener('keydown', e => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              document.execCommand('insertHTML', false, '<br>');
+            }
+          });
+        });
+
+        // --- 功能三：相册系统 (异步改造) ---
+        const overlay = document.getElementById('galleryOverlay');
+        const tabsContainer = document.getElementById('galleryTabs');
+        const contentContainer = document.getElementById('galleryContent');
+        const galleryInput = document.getElementById('galleryInput');
+
+        async function initGalleryDb() {
+          let currentDb = await getDbAsync();
+          if (!currentDb.gallery) {
+            currentDb.gallery = { categories: { Default: [] }, activeCategory: 'Default' };
+            await saveDbAsync(currentDb);
+          }
+          return currentDb.gallery;
+        }
+
+        function compressImage(base64Str, callback) {
+          const img = new Image();
+          img.src = base64Str;
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const maxWidth = 400;
+            const ratio = maxWidth / img.width;
+            const width = img.width > maxWidth ? maxWidth : img.width;
+            const height = img.width > maxWidth ? img.height * ratio : img.height;
+            canvas.width = width;
+            canvas.height = height;
+            canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+            callback(canvas.toDataURL('image/jpeg', 0.7));
+          };
+        }
+
+        async function renderGallery() {
+          const galleryData = await initGalleryDb();
+          tabsContainer.innerHTML = '';
+          Object.keys(galleryData.categories).forEach(cat => {
+            const tab = document.createElement('div');
+            tab.className = `gallery-tab ${cat === galleryData.activeCategory ? 'active' : ''}`;
+            tab.textContent = cat;
+            tab.onclick = async () => {
+              const cDb = await getDbAsync();
+              cDb.gallery.activeCategory = cat;
+              await saveDbAsync(cDb);
+              renderGallery();
+            };
+            tabsContainer.appendChild(tab);
+          });
+
+          const addTab = document.createElement('div');
+          addTab.className = 'gallery-tab gallery-tab-add';
+          addTab.innerHTML = '<i class="fa-solid fa-plus"></i> Category';
+          addTab.onclick = async () => {
+            const name = prompt('Enter new category name:');
+            if (name) {
+              const cDb = await getDbAsync();
+              if (!cDb.gallery.categories[name]) {
+                cDb.gallery.categories[name] = [];
+                cDb.gallery.activeCategory = name;
+                await saveDbAsync(cDb);
+                renderGallery();
+              }
+            }
+          };
+          tabsContainer.appendChild(addTab);
+
+          contentContainer.innerHTML = '';
+          const uploadBtn = document.createElement('div');
+          uploadBtn.className = 'gallery-upload-card';
+          uploadBtn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i><span>UPLOAD</span>';
+          uploadBtn.onclick = () => galleryInput.click();
+          contentContainer.appendChild(uploadBtn);
+
+          const currentImgs = galleryData.categories[galleryData.activeCategory] || [];
+          currentImgs.forEach((src, index) => {
+            const item = document.createElement('div');
+            item.className = 'gallery-item';
+            item.innerHTML = `
+            <img src="${src}">
+            <button class="del-img" onclick="deleteGalleryImg(${index})"><i class="fa-solid fa-xmark"></i></button>
+        `;
+            contentContainer.appendChild(item);
+          });
+        }
+
+        galleryInput.onchange = async e => {
+          const files = Array.from(e.target.files);
+          if (files.length === 0) return;
+
+          // 1. 将所有图片转为 Base64 并压缩的过程封装为 Promise 数组
+          const processFile = file => {
+            return new Promise(resolve => {
+              const reader = new FileReader();
+              reader.onload = event => {
+                compressImage(event.target.result, compressedBase64 => {
+                  resolve(compressedBase64);
+                });
+              };
+              reader.readAsDataURL(file);
+            });
+          };
+
+          // 2. 等待所有图片都压缩处理完毕，拿到一个包含所有图片的数组
+          const compressedImages = await Promise.all(files.map(processFile));
+
+          // 3. 统一读取一次数据库，将所有图片一次性推入，然后保存
+          const cDb = await getDbAsync();
+          cDb.gallery.categories[cDb.gallery.activeCategory].push(...compressedImages);
+          await saveDbAsync(cDb);
+
+          // 4. 清空输入框并重新渲染相册
+          galleryInput.value = '';
+          renderGallery();
+        };
+
+        window.deleteGalleryImg = async index => {
+          const cDb = await getDbAsync();
+          cDb.gallery.categories[cDb.gallery.activeCategory].splice(index, 1);
+          await saveDbAsync(cDb);
+          renderGallery();
+        };
+
+        window.openGallery = () => {
+          overlay.classList.add('open');
+          renderGallery();
+        };
+        window.closeGallery = () => overlay.classList.remove('open');
+
+        const viewAllBtn = document.querySelector('.w-pw-view');
+        if (viewAllBtn) {
+          viewAllBtn.addEventListener('click', e => {
+            e.stopPropagation();
+            window.openGallery();
+          });
+        }
+      });
+
+/* ═══════════════════════════════════════════════════════════════
+   DIARY × IFRAME BRIDGE  v4.0
+   ① 在 index.html 层显示全局横幅
+   ② 转发横幅通知给 chatFrame（tsukiphone）
+   ③ 把 TSUKI_CHAT_ACTIVE 转发给隐藏 diary iframe
+═══════════════════════════════════════════════════════════════ */
+(function () {
+  'use strict';
+  let _idxBannerTimer = null;
+
+  function showIndexBanner(msg, level) {
+    const el = document.getElementById('indexDiaryBanner');
+    if (!el) return;
+    const C = {
+      warn:    ['rgba(10,10,20,.94)', '#f59e0b', 'rgba(245,158,11,.3)'],
+      success: ['rgba(2,20,10,.94)',  '#43d9a0', 'rgba(67,217,160,.3)'],
+      err:     ['rgba(26,2,8,.94)',   '#ff6b6b', 'rgba(255,107,107,.3)'],
+    }[level] || ['rgba(10,10,20,.94)', 'rgba(255,255,255,.75)', 'rgba(255,255,255,.12)'];
+    el.style.background   = C[0];
+    el.style.color        = C[1];
+    el.style.borderBottom = '1px solid ' + C[2];
+    el.textContent        = msg;
+    el.classList.add('visible');
+    clearTimeout(_idxBannerTimer);
+    _idxBannerTimer = setTimeout(
+      () => el.classList.remove('visible'),
+      5000,
+    );
+  }
+
+  window.addEventListener('message', (e) => {
+    if (!e.data) return;
+    const t = e.data.type;
+
+    if (t === 'DIARY_STATUS_BANNER') {
+      showIndexBanner(e.data.msg, e.data.level || 'warn');
+      const cf = document.getElementById('chatFrame');
+      if (cf?.contentWindow) try { cf.contentWindow.postMessage(e.data, '*'); } catch (_) {}
+    }
+    if (t === 'DIARY_FLOOR_RESULT') {
+      const msg2 = e.data.success
+        ? '✅ 日记已生成（' + (e.data.written || '?') + ' 篇）'
+        : '❌ 日记生成失败: ' + (e.data.error || '未知');
+      showIndexBanner(msg2, e.data.success ? 'success' : 'err');
+      const cf = document.getElementById('chatFrame');
+      if (cf?.contentWindow) try { cf.contentWindow.postMessage(e.data, '*'); } catch (_) {}
+    }
+    if (t === 'TSUKI_CHAT_ACTIVE') {
+      const df = document.getElementById('diaryFrameHidden');
+      if (df?.contentWindow) {
+        try {
+          df.contentWindow.postMessage(
+            { type: 'TSUKI_WATCH_CHAT', chatId: e.data.chatId }, '*',
+          );
+        } catch (_) {}
+      }
+      console.log('%c[index] TSUKI_CHAT_ACTIVE → diary hidden iframe', 'color:#43d9a0;font-weight:600', e.data.chatId);
+    }
+  });
+})();
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vConsole/3.15.1/vconsole.min.js"></script>
+    <script src="TsukiDebug.js"></script>
+  </body>
+</html>
