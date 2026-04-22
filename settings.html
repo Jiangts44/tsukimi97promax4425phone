@@ -488,8 +488,48 @@
       }
 
       /* =========================================
-       7. 云端备份设置样式
+       7. 云端备份 & 自动备份样式
       ========================================= */
+      .tsuki-toggle {
+        width: 40px;
+        height: 22px;
+        border-radius: 100px;
+        background: var(--setting-line);
+        border: 1.5px solid rgba(0,0,0,0.08);
+        position: relative;
+        cursor: pointer;
+        transition: background 0.25s ease;
+        flex-shrink: 0;
+      }
+      .tsuki-toggle.on {
+        background: var(--setting-ink);
+        border-color: var(--setting-ink);
+      }
+      .tsuki-toggle-knob {
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: var(--setting-mute);
+        transition: transform 0.25s cubic-bezier(0.22,1,0.36,1), background 0.25s;
+      }
+      .tsuki-toggle.on .tsuki-toggle-knob {
+        transform: translateX(18px);
+        background: var(--setting-card);
+      }
+      #autoBackupConfig {
+        transition: opacity 0.25s, max-height 0.3s cubic-bezier(0.22,1,0.36,1);
+        overflow: hidden;
+        max-height: 200px;
+        opacity: 1;
+      }
+      #autoBackupConfig.hidden {
+        max-height: 0;
+        opacity: 0;
+        pointer-events: none;
+      }
       .cloud-backup-section {
         margin-top: 20px;
         padding-top: 18px;
@@ -749,6 +789,32 @@
                 <button class="setting-btn" id="cloudPullBtn" style="flex: 1">
                   <i class="fa-solid fa-cloud-arrow-down"></i> 拉取
                 </button>
+              </div>
+
+              <!-- 自动备份设置 -->
+              <div style="margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--setting-line);">
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+                  <div class="cloud-backup-title" style="margin-bottom:0;">
+                    <i class="fa-solid fa-clock-rotate-left"></i> 自动备份
+                  </div>
+                  <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                    <span style="font-size:10px;color:var(--setting-mute);" id="autoBackupToggleLabel">已关闭</span>
+                    <div class="tsuki-toggle" id="autoBackupToggle" onclick="toggleAutoBackup()">
+                      <div class="tsuki-toggle-knob"></div>
+                    </div>
+                  </label>
+                </div>
+                <div id="autoBackupConfig" class="hidden">
+                  <div class="setting-label">备份间隔（分钟）</div>
+                  <div class="setting-flex-row" style="margin-bottom:10px;">
+                    <input type="range" class="setting-slider" id="autoBackupInterval" min="1" max="1440" step="1" value="60" style="flex:1;" oninput="onIntervalChange(this.value)" />
+                    <span class="setting-slider-val" id="autoBackupIntervalVal" style="width:40px;">60m</span>
+                  </div>
+                  <div style="background:var(--setting-paper);border-radius:12px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;">
+                    <span style="font-size:10px;color:var(--setting-mute);">距下次备份</span>
+                    <span style="font-size:12px;font-weight:600;color:var(--setting-ink);font-family:inherit;" id="autoBackupCountdown">--:--:--</span>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -1631,13 +1697,158 @@ body::before {
         if (!db?.supabase) return;
         if (db.supabase.url) document.getElementById('supabaseUrl').value = db.supabase.url;
         if (db.supabase.key) document.getElementById('supabaseKey').value = db.supabase.key;
+        // 加载自动备份配置
+        const ab = db.supabase.autoBackup || {};
+        const enabled = !!ab.enabled;
+        const interval = ab.interval || 60;
+        document.getElementById('autoBackupInterval').value = interval;
+        document.getElementById('autoBackupIntervalVal').textContent = formatIntervalLabel(interval);
+        setToggleUI(enabled);
+        if (enabled) startAutoBackupTimer();
       }
       function saveSupabaseConfig() {
         const url = document.getElementById('supabaseUrl').value.trim();
         const key = document.getElementById('supabaseKey').value.trim();
-        db.supabase = { url, key };
+        const prev = db.supabase || {};
+        db.supabase = { url, key, autoBackup: prev.autoBackup || { enabled: false, interval: 60 } };
         saveDb(db);
         return { url, key };
+      }
+
+      /* ======== 自动备份逻辑 ======== */
+      let _autoBackupTimer = null;
+      let _autoBackupNextAt = null; // 下次备份的 Date 时间戳
+      let _autoBackupBusy = false;
+      let _countdownTick = null;
+
+      function formatIntervalLabel(min) {
+        if (min < 60) return min + 'm';
+        const h = Math.floor(min / 60), m = min % 60;
+        return m === 0 ? h + 'h' : h + 'h' + m + 'm';
+      }
+
+      function onIntervalChange(val) {
+        val = parseInt(val);
+        document.getElementById('autoBackupIntervalVal').textContent = formatIntervalLabel(val);
+        if (!db.supabase) db.supabase = {};
+        if (!db.supabase.autoBackup) db.supabase.autoBackup = {};
+        db.supabase.autoBackup.interval = val;
+        saveDb(db);
+        // 如果正在运行，重置计时
+        if (db.supabase.autoBackup.enabled) {
+          stopAutoBackupTimer();
+          startAutoBackupTimer();
+        }
+      }
+
+      function setToggleUI(on) {
+        const tog = document.getElementById('autoBackupToggle');
+        const lbl = document.getElementById('autoBackupToggleLabel');
+        const cfg = document.getElementById('autoBackupConfig');
+        if (on) {
+          tog.classList.add('on');
+          lbl.textContent = '已开启';
+          cfg.classList.remove('hidden');
+        } else {
+          tog.classList.remove('on');
+          lbl.textContent = '已关闭';
+          cfg.classList.add('hidden');
+        }
+      }
+
+      function toggleAutoBackup() {
+        if (!db.supabase) db.supabase = {};
+        if (!db.supabase.autoBackup) db.supabase.autoBackup = { interval: 60 };
+        const nowOn = !db.supabase.autoBackup.enabled;
+        db.supabase.autoBackup.enabled = nowOn;
+        saveDb(db);
+        setToggleUI(nowOn);
+        if (nowOn) {
+          startAutoBackupTimer();
+          logMonitor('<span style="color:var(--setting-mint);">自动备份已启动。</span>');
+        } else {
+          stopAutoBackupTimer();
+          logMonitor('<span style="color:var(--setting-mute);">自动备份已停止。</span>');
+        }
+      }
+
+      function stopAutoBackupTimer() {
+        clearTimeout(_autoBackupTimer);
+        clearInterval(_countdownTick);
+        _autoBackupTimer = null;
+        _autoBackupNextAt = null;
+        document.getElementById('autoBackupCountdown').textContent = '--:--:--';
+      }
+
+      function startAutoBackupTimer() {
+        stopAutoBackupTimer();
+        const interval = (db.supabase?.autoBackup?.interval || 60) * 60 * 1000;
+        _autoBackupNextAt = Date.now() + interval;
+        // 倒计时 tick
+        _countdownTick = setInterval(() => {
+          if (_autoBackupBusy) {
+            document.getElementById('autoBackupCountdown').textContent = '記事中……';
+            return;
+          }
+          const remaining = _autoBackupNextAt - Date.now();
+          if (remaining <= 0) {
+            document.getElementById('autoBackupCountdown').textContent = '00:00:00';
+            return;
+          }
+          const h = Math.floor(remaining / 3600000);
+          const m = Math.floor((remaining % 3600000) / 60000);
+          const s = Math.floor((remaining % 60000) / 1000);
+          document.getElementById('autoBackupCountdown').textContent =
+            String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+        }, 1000);
+        // 实际备份触发
+        _autoBackupTimer = setTimeout(async function fire() {
+          if (!db.supabase?.autoBackup?.enabled) return;
+          _autoBackupBusy = true;
+          logMonitor('<span style="color:var(--setting-blue);">自动备份触发，訴月記事中……</span>');
+          try {
+            const { url, key } = db.supabase;
+            if (!url || !key) throw new Error('URL 或 Key 未配置');
+            const idb = await initTsukiDB();
+            const storeNames = Array.from(idb.objectStoreNames);
+            const backupData = { version: idb.version, timestamp: new Date().toISOString(), data: {} };
+            const txr = idb.transaction(storeNames, 'readonly');
+            for (const storeName of storeNames) {
+              const store = txr.objectStore(storeName);
+              backupData.data[storeName] = await new Promise(resolve => {
+                if (storeName === 'worldbook') {
+                  const map = {};
+                  store.openCursor().onsuccess = e => {
+                    const cursor = e.target.result;
+                    if (cursor) { map[cursor.key] = cursor.value; cursor.continue(); }
+                    else resolve(map);
+                  };
+                } else {
+                  const req = store.getAll();
+                  req.onsuccess = () => resolve(req.result);
+                }
+              });
+            }
+            const payload = JSON.stringify(backupData);
+            const bucketUrl = url.replace(/\/$/, '') + '/storage/v1/object/tsukimi-backup/backup.json';
+            const res = await fetch(bucketUrl, {
+              method: 'POST',
+              headers: { 'apikey': key, 'Authorization': 'Bearer ' + key, 'Content-Type': 'application/json', 'x-upsert': 'true' },
+              body: payload,
+            });
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            logMonitor('<span style="color:var(--setting-mint);">[AUTO] 訴月已記事 · 自动备份成功</span>');
+            showTsukiToast('訴月已記事 · 自動備份成功', 'success');
+          } catch(err) {
+            logMonitor('<span style="color:var(--setting-coral);">[AUTO][ERROR] 自动备份失败: ' + err.message + '</span>');
+          } finally {
+            _autoBackupBusy = false;
+            // 备份完成，重新开始下一轮计时
+            const nextInterval = (db.supabase?.autoBackup?.interval || 60) * 60 * 1000;
+            _autoBackupNextAt = Date.now() + nextInterval;
+            _autoBackupTimer = setTimeout(fire, nextInterval);
+          }
+        }, interval);
       }
 
       // 输入时自动保存到 IndexedDB
