@@ -486,6 +486,60 @@
         border-width: 0 2px 2px 0;
         transform: rotate(45deg);
       }
+
+      /* =========================================
+       7. 云端备份设置样式
+      ========================================= */
+      .cloud-backup-section {
+        margin-top: 20px;
+        padding-top: 18px;
+        border-top: 1px solid var(--setting-line);
+      }
+      .cloud-backup-title {
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--setting-ink);
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        letter-spacing: 0.02em;
+      }
+      .cloud-backup-title i {
+        color: var(--setting-blue);
+        font-size: 12px;
+      }
+
+      /* 气泡提示 */
+      .tsuki-toast {
+        position: fixed;
+        bottom: 36px;
+        left: 50%;
+        transform: translateX(-50%) translateY(20px);
+        background: var(--setting-ink);
+        color: var(--setting-card);
+        font-size: 11px;
+        font-weight: 500;
+        padding: 9px 18px;
+        border-radius: 100px;
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.25s ease, transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+        z-index: 9999;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.18);
+        letter-spacing: 0.03em;
+        max-width: 90vw;
+        text-align: center;
+        white-space: normal;
+      }
+      .tsuki-toast.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+      .tsuki-toast.success { background: #1c1c1e; }
+      .tsuki-toast.error { background: var(--setting-coral); }
+      .tsuki-toast.loading { background: var(--setting-blue); }
     </style>
     <style id="tsuki-dynamic-style"></style>
   </head>
@@ -561,11 +615,9 @@
             <div class="setting-monitor" id="apiMonitor">
               <div class="setting-monitor-head">
                 <span><i class="fa-solid fa-terminal"></i> 链路监控 (Trace Log)</span>
-                <span><i class="fa-solid fa-circle dot"></i> STANDBY</span>
+                <span id="monitorClearBtn" style="cursor:pointer;" title="清空日志"><i class="fa-solid fa-circle dot"></i> STANDBY</span>
               </div>
-              <div id="apiMonitorContent">
-                <div>> 系统已就绪，等待信标指令...</div>
-              </div>
+              <div id="apiMonitorContent"></div>
             </div>
           </div>
         </div>
@@ -673,13 +725,52 @@
               </button>
             </div>
             <input type="file" id="importInput" accept=".json" style="display: none" />
+
+            <!-- 云端备份设置 -->
+            <div class="cloud-backup-section">
+              <div class="cloud-backup-title">
+                <i class="fa-solid fa-cloud"></i> 云端备份 (Supabase)
+              </div>
+
+              <div class="setting-row">
+                <div class="setting-label">Project URL</div>
+                <input type="password" class="setting-input" id="supabaseUrl" placeholder="https://xxxx.supabase.co" autocomplete="off" />
+              </div>
+
+              <div class="setting-row">
+                <div class="setting-label">Anon / Service Key</div>
+                <input type="password" class="setting-input" id="supabaseKey" placeholder="eyJ..." autocomplete="off" />
+              </div>
+
+              <div class="setting-flex-row" style="margin-top: 4px; margin-bottom: 0">
+                <button class="setting-btn setting-btn-primary" id="cloudUploadBtn" style="flex: 1">
+                  <i class="fa-solid fa-cloud-arrow-up"></i> 上传
+                </button>
+                <button class="setting-btn" id="cloudPullBtn" style="flex: 1">
+                  <i class="fa-solid fa-cloud-arrow-down"></i> 拉取
+                </button>
+              </div>
+            </div>
+
+            <!-- 初始化数据库 -->
+            <div style="margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--setting-line);">
+              <div class="setting-flex-row">
+                <button class="setting-btn setting-btn-danger" id="resetDbBtn" style="flex: 1">
+                  <i class="fa-solid fa-triangle-exclamation"></i> 初始化数据库
+                </button>
+                <button class="setting-btn" id="restoreShadowBtn" style="flex: 1">
+                  <i class="fa-solid fa-rotate-left"></i> 本地快照恢复
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
+    <div class="tsuki-toast" id="tsukiToast"></div>
+
     <script>
-      const MASTER_DB_KEY = 'tsukiphonepromax';
 
       // 将你提供的 CSS 定义为一个常量，方便管理，注意这里使用反引号 ` 包裹多行文本
       const FULLSCREEN_CSS = `/* ========================================== */
@@ -860,6 +951,8 @@ body::before {
       }
 
       // 3. 异步保存函数 (名字保持 saveDb，这样你下面几百行的 saveDb(db) 都不用改)
+      const CONFIG_LS_KEY = 'tsuki_config_shadow';
+
       async function saveDb(data) {
         const idb = await initTsukiDB();
         return new Promise((resolve, reject) => {
@@ -869,6 +962,8 @@ body::before {
           const req = store.put(data);
           req.onsuccess = () => {
             tsukiChannel.postMessage('update_theme'); // 通知主页实时变色
+            // 同步镜像到 localStorage，数据库清空后仍可快速恢复
+            try { localStorage.setItem(CONFIG_LS_KEY, JSON.stringify(data)); } catch(e) {}
             resolve();
           };
           req.onerror = e => reject(e.target.error);
@@ -886,6 +981,8 @@ body::before {
           // 2. 此时 db 绝对不可能为 null 了，再去渲染 UI
           initApiModule();
           initThemeModule();
+          loadSupabaseConfig();
+          restoreMonitorLog();
         } catch (e) {
           console.error('初始化配置数据失败:', e);
         }
@@ -998,12 +1095,42 @@ body::before {
         document.getElementById('apiTempVal').innerText = db.api.temp.temp || 0.7;
       }
 
+      const MONITOR_LS_KEY = 'tsuki_monitor_log';
+
       function logMonitor(htmlContent) {
         const content = document.getElementById('apiMonitorContent');
         const time = new Date().toLocaleTimeString('en-US', { hour12: false });
-        content.innerHTML += `<div style="margin-top:4px;">[${time}] ${htmlContent}</div>`;
+        content.innerHTML += '<div style="margin-top:4px;">[' + time + '] ' + htmlContent + '</div>';
         document.getElementById('apiMonitor').scrollTop = 9999;
+        try {
+          const stored = JSON.parse(localStorage.getItem(MONITOR_LS_KEY) || '[]');
+          stored.push({ t: time, h: htmlContent });
+          if (stored.length > 200) stored.splice(0, stored.length - 200);
+          localStorage.setItem(MONITOR_LS_KEY, JSON.stringify(stored));
+        } catch(e) {}
       }
+
+      function restoreMonitorLog() {
+        try {
+          const stored = JSON.parse(localStorage.getItem(MONITOR_LS_KEY) || '[]');
+          const content = document.getElementById('apiMonitorContent');
+          if (stored.length === 0) {
+            content.innerHTML = '<div>> 系统已就绪，等待信标指令...</div>';
+          } else {
+            content.innerHTML = stored.map(function(e) {
+              return '<div style="margin-top:4px;">[' + e.t + '] ' + e.h + '</div>';
+            }).join('');
+          }
+          document.getElementById('apiMonitor').scrollTop = 9999;
+        } catch(e) {}
+      }
+
+      function clearMonitorLog() {
+        localStorage.removeItem(MONITOR_LS_KEY);
+        document.getElementById('apiMonitorContent').innerHTML = '<div>> 日志已清空，系统就绪...</div>';
+      }
+
+      document.getElementById('monitorClearBtn').addEventListener('click', clearMonitorLog);
 
       async function testApi() {
         const url = document.getElementById('apiUrl').value.replace(/\/+$/, '').replace(/\/v1$/, '');
@@ -1336,6 +1463,65 @@ body::before {
         .addEventListener('click', () => document.getElementById('importInput').click());
       document.getElementById('importInput').addEventListener('change', importBackup);
 
+      /* ---- 气泡提示 ---- */
+      let _toastTimer = null;
+      function showTsukiToast(msg, type = 'success', duration = 2800) {
+        const el = document.getElementById('tsukiToast');
+        el.textContent = msg;
+        el.className = `tsuki-toast ${type} show`;
+        clearTimeout(_toastTimer);
+        _toastTimer = setTimeout(() => {
+          el.classList.remove('show');
+        }, duration);
+      }
+
+      /* ---- 智能导出：兼容 APK (Cordova) 与浏览器 ---- */
+      function saveBlobSmartly(blob, fileName) {
+        if (window.cordova && cordova.file) {
+          showTsukiToast('訴月記事中……', 'loading', 5000);
+          const storageLocation = cordova.file.externalRootDirectory || cordova.file.externalDataDirectory;
+          window.resolveLocalFileSystemURL(
+            storageLocation,
+            function (dirEntry) {
+              dirEntry.getDirectory('Download', { create: true, exclusive: false },
+                function (downDir) {
+                  downDir.getFile(fileName, { create: true, exclusive: false },
+                    function (fileEntry) {
+                      fileEntry.createWriter(function (fileWriter) {
+                        fileWriter.onwriteend = function () {
+                          fileWriter.onwriteend = function () {
+                            showTsukiToast(`訴月已記事 · Download/${fileName}`, 'success');
+                          };
+                          fileWriter.write(blob);
+                        };
+                        fileWriter.onerror = function (e) {
+                          showTsukiToast('記事失敗：' + e.toString(), 'error');
+                        };
+                        fileWriter.truncate(0);
+                      });
+                    },
+                    () => showTsukiToast('無法建立檔案', 'error')
+                  );
+                },
+                () => showTsukiToast('找不到 Download 目錄', 'error')
+              );
+            },
+            () => showTsukiToast('無法訪問手機存儲', 'error')
+          );
+        } else {
+          // 浏览器标准下载
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = fileName;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          showTsukiToast('訴月已記事 · 備份已下載', 'success');
+        }
+      }
+
       /**
        * 导出数据库数据为 JSON
        */
@@ -1352,12 +1538,10 @@ body::before {
 
           const tx = idb.transaction(storeNames, 'readonly');
 
-          // 循环读取每一个 objectStore
           for (const storeName of storeNames) {
             const store = tx.objectStore(storeName);
 
             backupData.data[storeName] = await new Promise(resolve => {
-              // 处理没有 keyPath 的仓库 (如 worldbook)
               if (storeName === 'worldbook') {
                 const map = {};
                 store.openCursor().onsuccess = e => {
@@ -1370,25 +1554,20 @@ body::before {
                   }
                 };
               } else {
-                // 处理有 keyPath 的仓库 (如 chars, users, config)
                 const req = store.getAll();
                 req.onsuccess = () => resolve(req.result);
               }
             });
           }
 
-          // 生成并下载文件
           const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = `TSUKIMI_Backup_${new Date().toLocaleDateString().replace(/\//g, '-')}.json`;
-          a.click();
-          URL.revokeObjectURL(url);
+          const fileName = `TSUKIMI_Backup_${new Date().toLocaleDateString().replace(/\//g, '-')}.json`;
+          saveBlobSmartly(blob, fileName);
 
           logMonitor('<span style="color:var(--setting-mint);">[SUCCESS] 备份文件已生成并下载。</span>');
         } catch (err) {
           logMonitor(`<span style="color:var(--setting-coral);">[ERROR] 导出失败: ${err.message}</span>`);
+          showTsukiToast('導出失敗：' + err.message, 'error');
         }
       }
 
@@ -1422,37 +1601,214 @@ body::before {
 
               if (!items) continue;
 
-              // 1. 先清空当前仓库
               store.clear();
 
-              // 2. 重新写入数据
               if (storeName === 'worldbook') {
-                // 处理无 keyPath 的键值对
                 for (const key in items) {
                   store.put(items[key], key);
                 }
               } else if (Array.isArray(items)) {
-                // 处理有 keyPath 的对象数组
                 items.forEach(item => store.put(item));
               }
             }
 
             tx.oncomplete = () => {
               logMonitor('<span style="color:var(--setting-mint);">[SUCCESS] 数据导入成功！正在同步全局样式...</span>');
-              // 通知其他页面更新主题
               tsukiChannel.postMessage('update_theme');
-              alert('数据导入成功！页面即将刷新以应用配置。');
-              location.reload();
+              showTsukiToast('訴月已記事 · 數據導入成功', 'success');
+              setTimeout(() => { alert('数据导入成功！页面即将刷新以应用配置。'); location.reload(); }, 1000);
             };
           } catch (err) {
             logMonitor(`<span style="color:var(--setting-coral);">[ERROR] 导入解析失败: ${err.message}</span>`);
-            alert('导入失败，请检查文件格式。');
+            showTsukiToast('導入失敗，格式有誤', 'error');
           }
         };
         reader.readAsText(file);
       }
 
-      /* ================= 辅助工具函数 ================= */
+      /* ---- Supabase 云端备份配置存读（存入 IndexedDB main_config，随导出一起备份）---- */
+      function loadSupabaseConfig() {
+        if (!db?.supabase) return;
+        if (db.supabase.url) document.getElementById('supabaseUrl').value = db.supabase.url;
+        if (db.supabase.key) document.getElementById('supabaseKey').value = db.supabase.key;
+      }
+      function saveSupabaseConfig() {
+        const url = document.getElementById('supabaseUrl').value.trim();
+        const key = document.getElementById('supabaseKey').value.trim();
+        db.supabase = { url, key };
+        saveDb(db);
+        return { url, key };
+      }
+
+      // 输入时自动保存到 IndexedDB
+      ['supabaseUrl', 'supabaseKey'].forEach(id => {
+        document.getElementById(id)?.addEventListener('input', saveSupabaseConfig);
+      });
+
+      /* ---- 云端上传 ---- */
+      document.getElementById('cloudUploadBtn').addEventListener('click', async () => {
+        const { url, key } = saveSupabaseConfig();
+        if (!url || !key) { showTsukiToast('請先填寫 URL 和 Key', 'error'); return; }
+
+        showTsukiToast('訴月記事中……', 'loading', 8000);
+        logMonitor('<span style="color:var(--setting-blue);">正在上传备份至云端...</span>');
+
+        try {
+          const idb = await initTsukiDB();
+          const storeNames = Array.from(idb.objectStoreNames);
+          const backupData = { version: idb.version, timestamp: new Date().toISOString(), data: {} };
+          const tx = idb.transaction(storeNames, 'readonly');
+
+          for (const storeName of storeNames) {
+            const store = tx.objectStore(storeName);
+            backupData.data[storeName] = await new Promise(resolve => {
+              if (storeName === 'worldbook') {
+                const map = {};
+                store.openCursor().onsuccess = e => {
+                  const cursor = e.target.result;
+                  if (cursor) { map[cursor.key] = cursor.value; cursor.continue(); }
+                  else resolve(map);
+                };
+              } else {
+                const req = store.getAll();
+                req.onsuccess = () => resolve(req.result);
+              }
+            });
+          }
+
+          const payload = JSON.stringify(backupData);
+          const bucketUrl = `${url.replace(/\/$/, '')}/storage/v1/object/tsukimi-backup/backup.json`;
+          const res = await fetch(bucketUrl, {
+            method: 'POST',
+            headers: { 'apikey': key, 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json', 'x-upsert': 'true' },
+            body: payload,
+          });
+
+          if (!res.ok) {
+            const errText = await res.text();
+            throw new Error(`HTTP ${res.status}: ${errText}`);
+          }
+
+          showTsukiToast('訴月已記事 · 雲端備份成功', 'success');
+          logMonitor('<span style="color:var(--setting-mint);">[SUCCESS] 已上传至 Supabase 云端。</span>');
+        } catch (err) {
+          showTsukiToast('上傳失敗：' + err.message, 'error');
+          logMonitor(`<span style="color:var(--setting-coral);">[ERROR] 云端上传失败: ${err.message}</span>`);
+        }
+      });
+
+      /* ---- 云端拉取 ---- */
+      document.getElementById('cloudPullBtn').addEventListener('click', async () => {
+        const { url, key } = saveSupabaseConfig();
+        if (!url || !key) { showTsukiToast('請先填寫 URL 和 Key', 'error'); return; }
+
+        if (!confirm('警告：拉取将清除当前所有数据并被云端数据覆盖！是否继续？')) return;
+
+        showTsukiToast('訴月記事中……', 'loading', 8000);
+        logMonitor('<span style="color:var(--setting-blue);">正在从云端拉取备份...</span>');
+
+        try {
+          const bucketUrl = `${url.replace(/\/$/, '')}/storage/v1/object/tsukimi-backup/backup.json`;
+          const res = await fetch(bucketUrl, {
+            headers: { 'apikey': key, 'Authorization': `Bearer ${key}` },
+          });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+          const backup = await res.json();
+          if (!backup.data) throw new Error('无效的备份格式');
+
+          const idb = await initTsukiDB();
+          const storeNames = Array.from(idb.objectStoreNames);
+          const txw = idb.transaction(storeNames, 'readwrite');
+
+          for (const storeName of storeNames) {
+            const store = txw.objectStore(storeName);
+            const items = backup.data[storeName];
+            if (!items) continue;
+            store.clear();
+            if (storeName === 'worldbook') {
+              for (const k in items) store.put(items[k], k);
+            } else if (Array.isArray(items)) {
+              items.forEach(item => store.put(item));
+            }
+          }
+
+          txw.oncomplete = () => {
+            tsukiChannel.postMessage('update_theme');
+            showTsukiToast('訴月已記事 · 雲端數據已還原', 'success');
+            logMonitor('<span style="color:var(--setting-mint);">[SUCCESS] 云端数据拉取并写入成功！</span>');
+            setTimeout(() => { alert('拉取成功！页面即将刷新以应用配置。'); location.reload(); }, 1200);
+          };
+        } catch (err) {
+          showTsukiToast('拉取失敗：' + err.message, 'error');
+          logMonitor(`<span style="color:var(--setting-coral);">[ERROR] 云端拉取失败: ${err.message}</span>`);
+        }
+      });
+
+      /* ---- 初始化数据库（清空所有表内容，保留表结构）---- */
+      document.getElementById('resetDbBtn').addEventListener('click', async () => {
+        if (!confirm('警告：此操作将清空所有数据（角色、聊天、配置、世界书等），且不可恢复！\n\n确认要初始化数据库吗？')) return;
+        if (!confirm('再次确认：所有本地数据将被清除，建议先导出备份。继续？')) return;
+
+        showTsukiToast('訴月記事中……', 'loading', 8000);
+        logMonitor('<span style="color:var(--setting-amber);">正在初始化神经中枢，抹除所有记忆碎片...</span>');
+
+        try {
+          const idb = await initTsukiDB();
+          const storeNames = Array.from(idb.objectStoreNames);
+          const tx = idb.transaction(storeNames, 'readwrite');
+
+          for (const storeName of storeNames) {
+            tx.objectStore(storeName).clear();
+          }
+
+          tx.oncomplete = async () => {
+            // 重新写入默认 config，保证页面不因为读不到数据而崩溃
+            const freshDb = JSON.parse(JSON.stringify(defaultDb));
+            freshDb.id = 'main_config';
+            const idb2 = await initTsukiDB();
+            const tx2 = idb2.transaction('config', 'readwrite');
+            tx2.objectStore('config').put(freshDb);
+            tx2.oncomplete = () => {
+              tsukiChannel.postMessage('update_theme');
+              showTsukiToast('訴月已記事 · 數據庫已初始化', 'success');
+              logMonitor('<span style="color:var(--setting-mint);">[SUCCESS] 数据库已清空并恢复默认结构。</span>');
+              setTimeout(() => { alert('初始化完成！页面即将刷新。'); location.reload(); }, 1200);
+            };
+          };
+
+          tx.onerror = e => {
+            throw new Error(e.target.error);
+          };
+        } catch (err) {
+          showTsukiToast('初始化失敗：' + err.message, 'error');
+          logMonitor(`<span style="color:var(--setting-coral);">[ERROR] 初始化失败: ${err.message}</span>`);
+        }
+      });
+
+      /* ---- 本地快照恢复 ---- */
+      document.getElementById('restoreShadowBtn').addEventListener('click', async () => {
+        const shadow = localStorage.getItem(CONFIG_LS_KEY);
+        if (!shadow) { showTsukiToast('暫無本地快照', 'error'); return; }
+        if (!confirm('将用本地快照覆盖当前 config 配置，确认恢复？')) return;
+        try {
+          const data = JSON.parse(shadow);
+          data.id = 'main_config';
+          const idb = await initTsukiDB();
+          const tx = idb.transaction('config', 'readwrite');
+          tx.objectStore('config').put(data);
+          tx.oncomplete = () => {
+            tsukiChannel.postMessage('update_theme');
+            showTsukiToast('訴月已記事 · 本地快照已恢復', 'success');
+            logMonitor('<span style="color:var(--setting-mint);">[SUCCESS] 本地快照已写回 IndexedDB。</span>');
+            setTimeout(() => { alert('恢复成功！页面即将刷新。'); location.reload(); }, 1200);
+          };
+        } catch(err) {
+          showTsukiToast('恢復失敗：' + err.message, 'error');
+          logMonitor('<span style="color:var(--setting-coral);">[ERROR] 本地快照恢复失败: ' + err.message + '</span>');
+        }
+      });
+
       function loadApiPresets(activeName = 'default') {
         renderSelect('apiPresetSelect', db.api.presets, activeName);
       }
