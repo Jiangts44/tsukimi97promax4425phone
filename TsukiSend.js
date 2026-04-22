@@ -285,7 +285,7 @@ Rules:
     if (!chat) throw new Error(`找不到聊天室: ${chatId}`);
 
     const charIds = chat.charIds || [];
-    const category = chat.category || '所有';
+    const category = 'Online'; // 线上聊天专用，固定传入 Online 分类
     const chatUserId = chat.userId || null;
 
     let personaPrompts = [];

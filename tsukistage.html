@@ -277,11 +277,21 @@
         justify-content: center;
         color: white;
         font-size: 22px;
-        background-size: cover;
-        background-position: center;
+        /* overflow 不设 hidden，避免裁切子元素 .char-check */
+        overflow: visible;
         position: relative;
         box-shadow: -3px 3px 6px rgba(0, 0, 0, 0.15);
         transform: rotate(-3deg);
+      }
+      /* 专用图片层，负责裁切头像，不影响 .char-check 溢出显示 */
+      .char-card-av-img {
+        position: absolute;
+        inset: 0;
+        border-radius: 18px;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        overflow: hidden;
       }
       .char-card.selected .char-card-av {
         box-shadow:
@@ -568,6 +578,7 @@
         transition: transform 0.18s;
         position: relative;
         overflow: hidden;
+        flex-shrink: 0;
         box-shadow:
           0 2px 14px -4px rgba(10, 10, 10, 0.08),
           0 1px 0 rgba(255, 255, 255, 0.8) inset;
@@ -746,6 +757,8 @@
         margin-left: -8px;
         background-size: cover;
         background-position: center;
+        background-repeat: no-repeat;
+        overflow: hidden;
         transition: 0.2s;
         position: relative;
         z-index: 1;
@@ -757,6 +770,14 @@
       .s-av:hover {
         z-index: 2;
         transform: scale(1.07);
+      }
+      /* 省略号占位头像 */
+      .s-av.s-av-ellipsis {
+        background: rgba(255, 255, 255, 0.13);
+        font-family: 'Geist Mono', monospace;
+        font-size: 10px;
+        color: rgba(255, 255, 255, 0.6);
+        letter-spacing: 0.05em;
       }
       .s-av.user-av {
         background: conic-gradient(from 180deg, #ffb8d1, #ff9a5a, #c7b8ff, #ffb8d1);
@@ -909,6 +930,25 @@
         color: rgba(255, 255, 255, 0.2);
         text-align: right;
         letter-spacing: 0.15em;
+      }
+      .prologue-foot-edit {
+        cursor: pointer;
+        transition: color 0.18s;
+      }
+      .prologue-foot-edit:hover {
+        color: rgba(255, 255, 255, 0.5);
+      }
+      .prologue-inner.prologue-editing .prologue-foot-edit {
+        color: var(--accent-lime);
+      }
+      .prologue-inner.prologue-editing .prologue-text {
+        outline: none;
+        border-radius: 6px;
+        background: rgba(212, 255, 77, 0.05);
+        border: 1px solid rgba(212, 255, 77, 0.2);
+        padding: 6px 8px;
+        margin: -6px -8px;
+        cursor: text;
       }
 
       /* stage message bubble */
@@ -1426,6 +1466,10 @@
         background: linear-gradient(135deg, #e8e8ec, #d4d4d8);
         color: var(--ink-3);
       }
+      #p-stage.day-mode .s-av.s-av-ellipsis {
+        background: #e8e8ec;
+        color: var(--mute);
+      }
       #p-stage.day-mode .s-av.user-av {
         background: conic-gradient(from 180deg, #ffb8d1, #ff9a5a, #c7b8ff, #ffb8d1);
       }
@@ -1454,6 +1498,16 @@
       }
       #p-stage.day-mode .prologue-foot {
         color: var(--mute);
+      }
+      #p-stage.day-mode .prologue-foot-edit:hover {
+        color: var(--ink-3);
+      }
+      #p-stage.day-mode .prologue-inner.prologue-editing .prologue-foot-edit {
+        color: var(--ink);
+      }
+      #p-stage.day-mode .prologue-inner.prologue-editing .prologue-text {
+        background: rgba(10, 10, 10, 0.04);
+        border-color: rgba(10, 10, 10, 0.18);
       }
       #p-stage.day-mode .s-empty {
         color: var(--mute);
@@ -2625,11 +2679,13 @@
           card.className = 'char-card';
           card.dataset.cid = c.id;
           const avStyle = c.avatar
-            ? `background-image:url('${c.avatar}');background-size:cover;background-position:center;`
+            ? `background-image:url('${c.avatar}');`
             : '';
           const avIcon = c.avatar ? '' : '<i class="fa-solid fa-user-astronaut"></i>';
           card.innerHTML = `
-          <div class="char-card-av" style="${avStyle}">${avIcon}
+          <div class="char-card-av">
+            <div class="char-card-av-img" style="${avStyle}"></div>
+            ${avIcon}
             <div class="char-check"><i class="fa-solid fa-check"></i></div>
           </div>
           <div class="char-card-name">${c.name || '未命名'}</div>
@@ -2780,7 +2836,7 @@
               : Math.floor(age / 86400000) + '天前';
 
         card.innerHTML = `
-        <div class="t-starmap">${buildStarMapSVG(chars, users)}</div>
+        <div class="t-starmap">${buildStarMapSVG(chars, users, theater.id)}</div>
         <div class="t-footer">
           <div class="t-meta">
             <span>${chars.map(c => c.name).join(' · ') || '?'}</span>
@@ -2855,9 +2911,13 @@
       }
 
       /* ── Star Map SVG ── */
-      function buildStarMapSVG(chars, users) {
+      // svgId: 每张卡唯一标识，用于隔离 SVG 内部 defs ID，防止多卡片 ID 全局污染
+      function buildStarMapSVG(chars, users, svgId) {
+        // 生成唯一前缀；若调用方没传则用随机数兜底
+        const uid = (svgId || Math.random().toString(36).slice(2, 8)).replace(/[^a-z0-9]/gi, '_');
+
         const W = 300,
-          H = 90;
+          H = 92;
         const CHAR_X = 42,
           USER_X = W - 42,
           NODE_R = 16;
@@ -2871,6 +2931,7 @@
           uList.push(u);
         });
 
+        // Y positions：头像垂直居中分布，上下各留 18px
         const getYs = (n, pad = 18) => {
           if (n === 1) return [H / 2];
           const step = (H - pad * 2) / (n - 1);
@@ -2881,16 +2942,33 @@
 
         let s = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
         <defs>
-          <filter id="glow"><feGaussianBlur stdDeviation="1.5" result="b"/>
+          <filter id="glow_${uid}"><feGaussianBlur stdDeviation="1.5" result="b"/>
             <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
           </filter>`;
         uList.forEach(
           (_, i) =>
-            (s += `<linearGradient id="ug${i}" x1="0" y1="0" x2="1" y2="1">
+            (s += `<linearGradient id="ug_${uid}_${i}" x1="0" y1="0" x2="1" y2="1">
                 <stop offset="0%" stop-color="#ffb8d1"/>
                 <stop offset="100%" stop-color="#c7b8ff"/>
               </linearGradient>`),
         );
+        // 所有 clipPath 必须在 defs 里定义才有效
+        chars.forEach((c, i) => {
+          if (c.avatar) {
+            const cx = CHAR_X, cy = cYs[i];
+            s += `<clipPath id="cavclip_${uid}_${i}">
+              <rect x="${cx - NODE_R}" y="${cy - NODE_R}" width="${NODE_R * 2}" height="${NODE_R * 2}" rx="8"/>
+            </clipPath>`;
+          }
+        });
+        uList.forEach((u, i) => {
+          if (u.avatar) {
+            const cx = USER_X, cy = uYs[i];
+            s += `<clipPath id="uavclip_${uid}_${i}">
+              <rect x="${cx - NODE_R}" y="${cy - NODE_R}" width="${NODE_R * 2}" height="${NODE_R * 2}" rx="8"/>
+            </clipPath>`;
+          }
+        });
         s += `</defs>`;
 
         // background star dots
@@ -2901,20 +2979,20 @@
 
         // connection paths + animated dots
         chars.forEach((c, i) => {
-          const uid = users[i]?.id;
-          const ui = uid != null ? (userMap.get(uid) ?? 0) : uList.length ? 0 : -1;
+          const uidRef = users[i]?.id;
+          const ui = uidRef != null ? (userMap.get(uidRef) ?? 0) : uList.length ? 0 : -1;
           if (ui < 0) return;
           const x1 = CHAR_X + NODE_R,
             y1 = cYs[i];
           const x2 = USER_X - NODE_R,
             y2 = uYs[ui];
           const mx = (x1 + x2) / 2;
-          const pid = `p${i}`;
+          const pid = `p_${uid}_${i}`;
           const dur = 2.2 + i * 0.35;
           s += `<path id="${pid}" d="M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}"
                 stroke="rgba(10,10,10,0.18)" stroke-width="1.2" fill="none"
                 stroke-dasharray="3.5 3"/>
-              <circle r="2.2" fill="rgba(10,10,10,0.35)" filter="url(#glow)">
+              <circle r="2.2" fill="rgba(10,10,10,0.35)" filter="url(#glow_${uid})">
                 <animateMotion dur="${dur}s" repeatCount="indefinite">
                   <mpath href="#${pid}"/>
                 </animateMotion>
@@ -2926,23 +3004,19 @@
           const cx = CHAR_X,
             cy = cYs[i];
           const initials = (c.name || '?').slice(0, 2);
-          const fill = '#1a1a1a';
           s += `<rect x="${cx - NODE_R}" y="${cy - NODE_R}" width="${NODE_R * 2}" height="${NODE_R * 2}"
-                rx="8" fill="${fill}"/>`;
+                rx="8" fill="#1a1a1a"/>`;
           if (c.avatar) {
-            const cid = `cavclip${i}`;
-            s += `<clipPath id="${cid}"><rect x="${cx - NODE_R}" y="${cy - NODE_R}"
-                  width="${NODE_R * 2}" height="${NODE_R * 2}" rx="8"/></clipPath>
-                <image href="${c.avatar}" x="${cx - NODE_R}" y="${cy - NODE_R}"
-                  width="${NODE_R * 2}" height="${NODE_R * 2}" clip-path="url(#${cid})"/>`;
+            s += `<image href="${c.avatar}"
+                  x="${cx - NODE_R}" y="${cy - NODE_R}"
+                  width="${NODE_R * 2}" height="${NODE_R * 2}"
+                  preserveAspectRatio="xMidYMid slice"
+                  clip-path="url(#cavclip_${uid}_${i})"/>`;
           } else {
             s += `<text x="${cx}" y="${cy + 4}" fill="rgba(255,255,255,0.75)"
                   font-size="10" font-family="Geist,sans-serif" font-weight="600"
                   text-anchor="middle">${initials}</text>`;
           }
-          s += `<text x="${cx}" y="${cy + NODE_R + 13}" fill="rgba(10,10,10,0.45)"
-                font-size="7.5" font-family="Geist Mono,monospace"
-                text-anchor="middle">${(c.name || '').slice(0, 5)}</text>`;
         });
 
         // user nodes
@@ -2952,21 +3026,18 @@
               cy = uYs[i];
             const initials = (u.name || '?').slice(0, 2);
             s += `<rect x="${cx - NODE_R}" y="${cy - NODE_R}" width="${NODE_R * 2}" height="${NODE_R * 2}"
-                  rx="8" fill="url(#ug${i})"/>`;
+                  rx="8" fill="url(#ug_${uid}_${i})"/>`;
             if (u.avatar) {
-              const uid2 = `uavclip${i}`;
-              s += `<clipPath id="${uid2}"><rect x="${cx - NODE_R}" y="${cy - NODE_R}"
-                    width="${NODE_R * 2}" height="${NODE_R * 2}" rx="8"/></clipPath>
-                  <image href="${u.avatar}" x="${cx - NODE_R}" y="${cy - NODE_R}"
-                    width="${NODE_R * 2}" height="${NODE_R * 2}" clip-path="url(#${uid2})"/>`;
+              s += `<image href="${u.avatar}"
+                    x="${cx - NODE_R}" y="${cy - NODE_R}"
+                    width="${NODE_R * 2}" height="${NODE_R * 2}"
+                    preserveAspectRatio="xMidYMid slice"
+                    clip-path="url(#uavclip_${uid}_${i})"/>`;
             } else {
               s += `<text x="${cx}" y="${cy + 4}" fill="rgba(10,10,10,0.7)"
                     font-size="10" font-family="Geist,sans-serif" font-weight="600"
                     text-anchor="middle">${initials}</text>`;
             }
-            s += `<text x="${cx}" y="${cy + NODE_R + 13}" fill="rgba(10,10,10,0.45)"
-                  font-size="7.5" font-family="Geist Mono,monospace"
-                  text-anchor="middle">${(u.name || '').slice(0, 5)}</text>`;
           });
         } else {
           // No user placeholder
@@ -3022,20 +3093,34 @@
         // ── left col: char avatars ──
         const charAvRow = document.getElementById('sCharAvRow');
         charAvRow.innerHTML = '';
-        chars.forEach(c => {
-          const av = document.createElement('div');
-          av.className = 's-av';
-          if (c.avatar) {
-            av.style.backgroundImage = `url('${c.avatar}')`;
-            av.style.backgroundSize = 'cover';
-            av.style.backgroundPosition = 'center';
-          } else av.innerHTML = '<i class="fa-solid fa-user-astronaut" style="font-size:11px"></i>';
-          charAvRow.appendChild(av);
+        const MAX_CHAR_AV = 3;
+        chars.forEach((c, idx) => {
+          if (idx < MAX_CHAR_AV) {
+            const av = document.createElement('div');
+            av.className = 's-av';
+            if (c.avatar) {
+              av.style.backgroundImage = `url('${c.avatar}')`;
+              av.style.backgroundSize = 'cover';
+              av.style.backgroundPosition = 'center';
+              av.style.backgroundRepeat = 'no-repeat';
+            } else av.innerHTML = '<i class="fa-solid fa-user-astronaut" style="font-size:11px"></i>';
+            charAvRow.appendChild(av);
+          } else if (idx === MAX_CHAR_AV) {
+            // 省略号占位：浅灰底
+            const av = document.createElement('div');
+            av.className = 's-av s-av-ellipsis';
+            av.textContent = '···';
+            charAvRow.appendChild(av);
+          }
         });
 
-        // char names label (clickable → settings)
+        // char names label：宽度跟随头像行实际宽度
         const namesEl = document.getElementById('sCharNames');
         namesEl.textContent = chars.map(c => c.name).join(' · ') || '—';
+        // 头像行宽度 = 第一个36px + 后续每个(36-8)px overlap
+        const avCount = Math.min(chars.length, MAX_CHAR_AV + 1); // 最多4个（含省略号）
+        const avRowWidth = avCount > 0 ? 36 + (avCount - 1) * 28 : 36;
+        namesEl.style.width = avRowWidth + 'px';
 
         // ── center: theater title ──
         const titleEl = document.getElementById('sTheaterTitle');
@@ -3098,9 +3183,7 @@
         wrap.innerHTML = '';
         S.roles = [];
 
-        // chars first
-        S.chars.forEach(c => S.roles.push({ type: 'char', id: c.id, name: c.name, avatar: c.avatar || null }));
-        // unique users
+        // unique users first
         const seen = new Set();
         S.users.forEach(u => {
           if (u && !seen.has(u.id)) {
@@ -3108,8 +3191,10 @@
             S.roles.push({ type: 'user', id: u.id, name: u.name, avatar: u.avatar || null });
           }
         });
-        // narrator (always last)
+        // narrator second
         S.roles.push({ type: 'narrator', id: 'narrator', name: '旁白', avatar: null });
+        // chars after
+        S.chars.forEach(c => S.roles.push({ type: 'char', id: c.id, name: c.name, avatar: c.avatar || null }));
 
         if (!S.roles.length) {
           S.activeRoleIdx = -1;
@@ -3189,7 +3274,7 @@
       }
 
       function buildMsgEl(msg) {
-        if (msg.type === 'prologue') return buildPrologueEl(msg.content);
+        if (msg.type === 'prologue') return buildPrologueEl(msg);
         if (msg.type === 'history') return buildHistoryBubble(msg);
         if (msg.type === 'summary' || msg.isSummary) return buildSummaryBubble(msg);
         if (msg.isNarrator || msg.sender === 'narrator') return buildNarratorBubble(msg);
@@ -3280,7 +3365,7 @@
         return wrap;
       }
 
-      function buildPrologueEl(content) {
+      function buildPrologueEl(msg) {
         const el = document.createElement('div');
         el.className = 'prologue';
         el.innerHTML = `
@@ -3289,9 +3374,38 @@
             <i class="fa-solid fa-sparkles" style="font-size:9px"></i>
             序幕 · Prologue
           </div>
-          <div class="prologue-text">${content}</div>
-          <div class="prologue-foot">— 幕启</div>
+          <div class="prologue-text">${msg.content}</div>
+          <div class="prologue-foot prologue-foot-edit" title="点击编辑开场白">— 幕启</div>
         </div>`;
+
+        const inner = el.querySelector('.prologue-inner');
+        const body = el.querySelector('.prologue-text');
+        const foot = el.querySelector('.prologue-foot-edit');
+
+        foot.addEventListener('click', () => {
+          if (inner.classList.contains('prologue-editing')) {
+            // 保存
+            const newContent = body.innerText.trim();
+            msg.content = newContent;
+            body.contentEditable = 'false';
+            inner.classList.remove('prologue-editing');
+            foot.textContent = '— 幕启';
+            dbPut('theater_messages', msg).catch(e => console.error('序幕保存失败', e));
+          } else {
+            // 进入编辑
+            body.contentEditable = 'true';
+            body.focus();
+            const range = document.createRange();
+            const sel = window.getSelection();
+            range.selectNodeContents(body);
+            range.collapse(false);
+            sel.removeAllRanges();
+            sel.addRange(range);
+            inner.classList.add('prologue-editing');
+            foot.textContent = '✓ 保存';
+          }
+        });
+
         return el;
       }
 

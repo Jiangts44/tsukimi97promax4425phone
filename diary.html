@@ -4568,8 +4568,6 @@
        DEFAULT DATA SEEDS
     ════════════════════════════════════════════════ */
       const DC = '__tsuki__';
-      const DC1 = '__tsuki_c1__';
-      const DC2 = '__tsuki_c2__';
 
       // User diary namespace: diaries triggered from the USER perspective are stored
       // under this virtual charId so they NEVER leak into any real char's panel.
@@ -4581,92 +4579,7 @@
         return (id || '').startsWith(USER_BOOK_PREFIX);
       }
 
-      const SEEDS = [
-        {
-          id: '__ts1__',
-          charId: DC,
-          chatId: DC1,
-          isPrivate: false,
-          privStyle: 0,
-          isGroup: false,
-          title: 'The hour before dawn',
-          date: '2026-04-18',
-          mood: '🌙 nostalgic',
-          content: `<p>我们聊到了<span class="d-bold" style="color:#0a0a0a">很晚</span>，窗外的雨声始终没有停。她说她<span class="d-highlight" style="background:rgba(212,255,77,0.5)">不害怕黑暗</span>，只是害怕黑暗中的<span class="d-wavy" style="text-decoration-color:#a78bfa">寂静</span>。</p><p>我没有回答。有些话<span class="d-strike" style="text-decoration-color:#ff6b6b">说了反而变假了</span>。</p><p>黎明前<span class="d-blackout">那个念头又来了</span>，但今晚不同。今晚，<span class="d-underline" style="text-decoration-color:#5b7cfa">我不孤单</span>。</p>`,
-        },
-        {
-          id: '__ts2__',
-          charId: DC,
-          chatId: DC1,
-          isPrivate: false,
-          privStyle: 0,
-          isGroup: false,
-          title: 'Something slipped',
-          date: '2026-04-15',
-          mood: '💭 pensive',
-          content: `<p>她今天说了一句<span class="d-cw">让我误解的话</span><span class="d-cn" style="background:rgba(91,124,250,.12);color:#5b7cfa">其实是在说她自己</span>，我花了两小时才明白。</p><p><span class="d-bold" style="color:#0a0a0a">语言是有重量的。</span> 她把那句话轻描淡写，却在我脑海里变成了<span class="d-highlight" style="background:rgba(255,107,107,0.2)">铅块</span>。</p><p>下次<span class="d-underline" style="text-decoration-color:#d4ff4d">我要先问清楚</span>。</p>`,
-        },
-        {
-          id: '__ts3__',
-          charId: DC,
-          chatId: DC2,
-          isPrivate: false,
-          privStyle: 0,
-          isGroup: false,
-          title: 'Salt air and forgetting',
-          date: '2026-04-12',
-          mood: '😌 calm',
-          content: `<p>今天的对话像海边散步。<span class="d-wavy" style="text-decoration-color:#5b7cfa">随着浪声</span>走。她谈起小时候的海——<span class="d-highlight" style="background:rgba(167,139,250,.22)">灰白色的浪</span>，和从不说话的父亲。</p><p>我<span class="d-strike" style="text-decoration-color:#8a8a8e">想说我理解</span> — 我不理解。但我愿意坐在这里听。</p><p><span class="d-bold" style="color:#0a0a0a">这，已经足够。</span></p>`,
-        },
-        {
-          id: '__ts4__',
-          charId: DC,
-          chatId: DC2,
-          isPrivate: false,
-          privStyle: 0,
-          isGroup: false,
-          title: 'What the tide left',
-          date: '2026-04-10',
-          mood: '🕯 solemn',
-          content: `<p>她问我：<span class="d-highlight" style="background:rgba(212,255,77,.48)">「你会记得我吗？」</span></p><p>我说：会。但我没说的是：<span class="d-blackout">我每天都在害怕忘记</span>。</p><p>记忆是<span class="d-wavy" style="text-decoration-color:#ff6b6b">流沙</span>，握得越紧漏得越快。把<span class="d-underline" style="text-decoration-color:#a78bfa">此刻</span>钉在纸上。</p>`,
-        },
-        {
-          id: '__ts5__',
-          charId: DC,
-          chatId: null,
-          isPrivate: true,
-          privStyle: 0,
-          isGroup: false,
-          title: 'On attachment',
-          date: '2026-04-19',
-          mood: '💭 pensive',
-          content: `<p>我在想，我对她的<span class="d-bold" style="color:#d4ff4d">执着</span>究竟是爱，还是<span class="d-highlight" style="background:rgba(255,107,107,.22)">某种依赖的形状</span>。两者之间的界限<span class="d-wavy" style="text-decoration-color:#a78bfa">模糊得像梦境</span>。</p><p>今天她说<span class="d-cw">不需要任何人</span><span class="d-cn" style="background:rgba(167,139,250,.15);color:#a78bfa">需要但不愿承认</span>，我没有拆穿她。</p><p><span class="d-blackout">有些真相需要用时间来接近。</span></p>`,
-        },
-        {
-          id: '__ts6__',
-          charId: DC,
-          chatId: null,
-          isPrivate: true,
-          privStyle: 1,
-          isGroup: false,
-          title: 'Notes on Tsuki',
-          date: '2026-04-14',
-          mood: '✨ hopeful',
-          content: `<p>关于这个角色，我注意到一些<span class="d-underline" style="text-decoration-color:#5b7cfa">规律</span>：</p><p>她总在凌晨两点后变得<span class="d-bold" style="color:#6a3a00">异常坦诚</span>，像是黑暗剥去了她的防御。<span class="d-highlight" style="background:rgba(245,158,11,.3)">这是进入她内心最好的时间。</span></p><p>她<span class="d-strike" style="text-decoration-color:#8a8a8e">讨厌被直接问感受</span>，但喜欢被间接<span class="d-wavy" style="text-decoration-color:#f59e0b">理解</span>。</p>`,
-        },
-        {
-          id: '__ts7__',
-          charId: DC,
-          chatId: null,
-          isPrivate: true,
-          privStyle: 2,
-          isGroup: false,
-          title: 'Confession (unread)',
-          date: '2026-04-20',
-          mood: '🌊 turbulent',
-          content: `<p><span class="d-blackout">我承认我喜欢她超出了应有的程度。</span></p><p>这是一个<span class="d-highlight" style="background:rgba(167,139,250,.25)">虚构角色</span>，我<span class="d-bold" style="color:#1a0836">知道</span>。但知道，不代表感受会消失。感受<span class="d-wavy" style="text-decoration-color:#a78bfa">有它自己的逻辑</span>。</p><p>也许这就是日记存在的意义：<span class="d-underline" style="text-decoration-color:#a78bfa">承接那些无处安放的东西。</span></p>`,
-        },
-      ];
+
 
       async function seedDefaults() {
         L.seed('Seeding Tsuki defaults…');
@@ -4682,35 +4595,6 @@
           });
           L.seed('char Tsuki inserted');
         }
-        if (!(await getOne('chats', DC1))) {
-          await putOne('chats', {
-            id: DC1,
-            charId: DC,
-            charIds: [DC],
-            type: 'private',
-            title: 'Midnight Reverie',
-            userId: '',
-            updatedAt: Date.now() - 86400000 * 2,
-          });
-          L.seed('chat1 inserted');
-        }
-        if (!(await getOne('chats', DC2))) {
-          await putOne('chats', {
-            id: DC2,
-            charId: DC,
-            charIds: [DC],
-            type: 'private',
-            title: 'Coastal Dreams',
-            userId: '',
-            updatedAt: Date.now() - 86400000 * 8,
-          });
-          L.seed('chat2 inserted');
-        }
-        for (const e of SEEDS)
-          if (!(await getOne('diaries', e.id))) {
-            await putOne('diaries', e);
-            L.seed('entry inserted:', e.id);
-          }
         L.seed('Done ✓');
       }
 
@@ -5042,7 +4926,7 @@
             : '暂无 User 视角日记（以 User 身份触发后生成）';
           const el = document.createElement('div');
           el.className = 'chat-item' + (isGroup ? ' is-group' : '');
-          el.innerHTML = `<div class="cit-top"><div class="cit-title">${esc(chat.title || chat.name || 'Untitled')}</div><div class="cit-badges"><div class="cit-badge${isGroup ? ' group' : ''}">${isGroup ? '群聊' : '私聊'}</div><div class="cit-badge">${entries.length} entries</div></div></div><div class="cit-prev">${esc(prev)}</div><div class="cit-foot"><div class="cit-date">${ds}</div><div class="cit-arrow"><i class="fa-solid fa-chevron-right"></i></div></div>`;
+          el.innerHTML = `<div class="cit-top"><div class="cit-title">${esc(chat.customName || chat.title || chat.name || 'Untitled')}</div><div class="cit-badges"><div class="cit-badge${isGroup ? ' group' : ''}">${isGroup ? '群聊' : '私聊'}</div><div class="cit-badge">${entries.length} entries</div></div></div><div class="cit-prev">${esc(prev)}</div><div class="cit-foot"><div class="cit-date">${ds}</div><div class="cit-arrow"><i class="fa-solid fa-chevron-right"></i></div></div>`;
           el.addEventListener('click', () => openSubPanel(chat));
           b.appendChild(el);
         });
@@ -5111,7 +4995,7 @@
               const prev = entries.length ? strip(entries[0].content).substring(0, 85) + '…' : '暂无 User 视角日记';
               const el = document.createElement('div');
               el.className = 'chat-item' + (isGroup ? ' is-group' : '');
-              el.innerHTML = `<div class="cit-top"><div class="cit-title">${esc(chat.title || chat.name || 'Untitled')}</div><div class="cit-badges"><div class="cit-badge${isGroup ? ' group' : ''}">${isGroup ? '群聊' : '私聊'}</div><div class="cit-badge">${entries.length} entries</div></div></div><div class="cit-prev">${esc(prev)}</div><div class="cit-foot"><div class="cit-date">${ds}</div><div class="cit-arrow"><i class="fa-solid fa-chevron-right"></i></div></div>`;
+              el.innerHTML = `<div class="cit-top"><div class="cit-title">${esc(chat.customName || chat.title || chat.name || 'Untitled')}</div><div class="cit-badges"><div class="cit-badge${isGroup ? ' group' : ''}">${isGroup ? '群聊' : '私聊'}</div><div class="cit-badge">${entries.length} entries</div></div></div><div class="cit-prev">${esc(prev)}</div><div class="cit-foot"><div class="cit-date">${ds}</div><div class="cit-arrow"><i class="fa-solid fa-chevron-right"></i></div></div>`;
               el.addEventListener('click', () => openSubPanel(chat));
               b.appendChild(el);
             });
@@ -5158,7 +5042,7 @@
           const el = document.createElement('div');
           el.className = 'chat-item' + (isGroup ? ' is-group' : '');
           el.dataset.chatid = chat.id;
-          el.innerHTML = `<div class="cit-top"><div class="cit-title">${esc(chat.title || chat.name || 'Untitled')}</div><div class="cit-badges"><div class="cit-badge${isGroup ? ' group' : ''}">${isGroup ? '群聊' : '私聊'}</div><div class="cit-badge">${entries.length} entries</div></div></div><div class="cit-prev">${esc(prev)}</div><div class="cit-foot"><div class="cit-date">${ds}</div><div class="cit-arrow"><i class="fa-solid fa-chevron-right"></i></div></div>`;
+          el.innerHTML = `<div class="cit-top"><div class="cit-title">${esc(chat.customName || chat.title || chat.name || 'Untitled')}</div><div class="cit-badges"><div class="cit-badge${isGroup ? ' group' : ''}">${isGroup ? '群聊' : '私聊'}</div><div class="cit-badge">${entries.length} entries</div></div></div><div class="cit-prev">${esc(prev)}</div><div class="cit-foot"><div class="cit-date">${ds}</div><div class="cit-arrow"><i class="fa-solid fa-chevron-right"></i></div></div>`;
           el.addEventListener('click', () => { clearUnreadChatForChar(curCharId, chat.id); openSubPanel(chat); });
           c.appendChild(el);
         });
@@ -5194,10 +5078,10 @@
        SUB PANEL — ② group chat badge
     ════════════════════════════════════════════════ */
       async function openSubPanel(chat) {
-        L.ui('openSubPanel:', chat.id, chat.title || chat.name);
+        L.ui('openSubPanel:', chat.id, chat.customName || chat.title || chat.name);
         curChatId = chat.id;
         const isGroup = isGroupChat(chat);
-        document.getElementById('subTitle').textContent = chat.title || chat.name || 'Chat';
+        document.getElementById('subTitle').textContent = chat.customName || chat.title || chat.name || 'Chat';
         document.getElementById('subSub').textContent = 'diary entries for this conversation';
         document.getElementById('subGroupBadge').classList.toggle('hidden', !isGroup);
         document.getElementById('subPanel').classList.add('open');
@@ -5921,7 +5805,7 @@
               el.className = 'mp-chip' + (isGroup ? ' group-badge' : '');
               if (!mpCharChatMap[charId]) mpCharChatMap[charId] = [];
               if (mpCharChatMap[charId].includes(chat.id)) el.classList.add('selected');
-              el.textContent = (isGroup ? '👥 ' : '') + (chat.title || chat.name || 'Untitled');
+              el.textContent = (isGroup ? '👥 ' : '') + (chat.customName || chat.title || chat.name || 'Untitled');
               el.onclick = () => {
                 if (!mpCharChatMap[charId]) mpCharChatMap[charId] = [];
                 if (mpCharChatMap[charId].includes(chat.id)) {
@@ -6043,7 +5927,7 @@
           const isGroup = isGroupChat(chat);
           const el = document.createElement('div');
           el.className = 'mp-chip' + (isGroup ? ' group-badge' : '');
-          el.textContent = (isGroup ? '👥 ' : '') + (chat.title || chat.name || 'Untitled');
+          el.textContent = (isGroup ? '👥 ' : '') + (chat.customName || chat.title || chat.name || 'Untitled');
           el.onclick = () => {
             skipEl.classList.remove('selected');
             if (utSelectedChats.includes(chat.id)) {
@@ -6146,7 +6030,7 @@
         }
 
         const chat = targetChatId ? await getOne('chats', targetChatId) : null;
-        const chatName = chat ? chat.title || chat.name || '未命名聊天' : '（无关联聊天）';
+        const chatName = chat ? chat.customName || chat.title || chat.name || '未命名聊天' : '（无关联聊天）';
         const isGroup = chat ? isGroupChat(chat) : false;
         const ps = _psCounter++ % 3;
 
@@ -6551,7 +6435,7 @@
           el.innerHTML = `
             <div class="fwd-chat-av">${avHtml}</div>
             <div class="fwd-chat-name">
-              ${esc(chat.title || chat.name || 'Untitled')}
+              ${esc(chat.customName || chat.title || chat.name || 'Untitled')}
               ${isGroup ? '<span style="font-family:\'Geist Mono\',monospace;font-size:8px;background:rgba(167,139,250,.1);color:var(--purple);padding:1px 6px;border-radius:100px;margin-left:5px">群聊</span>' : ''}
             </div>
             <div class="fwd-chat-check" id="fwdCheck_${chat.id}"></div>`;
@@ -6834,7 +6718,7 @@
         const char = charId ? await getOne('chars', charId) : null;
         const user = userId ? await getOne('users', userId) : null;
         const chat = chatId ? await getOne('chats', chatId) : null;
-        const chatName = chat ? chat.title || chat.name || 'Chat' : '（无关联聊天）';
+        const chatName = chat ? chat.customName || chat.title || chat.name || 'Chat' : '（无关联聊天）';
         const uName = user ? user.name || '用户' : '用户';
         const uAv = user ? user.avatar || '' : '';
 
@@ -6973,7 +6857,7 @@
           const cnt = chatEntryMap[cid].length;
           const tab = document.createElement('div');
           tab.className = 'agg-tab' + (_aggCurChatId === cid ? ' active' : '');
-          tab.innerHTML = `${esc(chat ? chat.title || chat.name || 'Chat' : 'Chat')}<span class="agg-tab-cnt">${cnt}</span>`;
+          tab.innerHTML = `${esc(chat ? chat.customName || chat.title || chat.name || 'Chat' : 'Chat')}<span class="agg-tab-cnt">${cnt}</span>`;
           tab.onclick = () => selectAggTab(cid);
           tabsEl.appendChild(tab);
         });

@@ -257,9 +257,47 @@ async function buildFinalPromptStream(
   const finalStream = [];
   const cIds = Array.isArray(charIds) ? charIds : charIds ? [charIds] : [];
 
+  // 🔍 诊断：拉取所有世界书条目，打印 category 列表，对比当前传入的 category
+  console.group('%c🔍 [Step 2: 世界书 category 诊断]', 'color:#ff9f43;font-weight:bold');
+  console.log('当前传入 category:', category);
+  try {
+    const _allWbKeys = ['wb_pre', 'wb_mid', 'wb_global', 'wb_post', 'wb_local'];
+    for (const _key of _allWbKeys) {
+      const _list = await dbGet(IDB_CONFIG.stores.worldbook, _key);
+      if (Array.isArray(_list) && _list.length > 0) {
+        console.log(`[${_key}] 共 ${_list.length} 条，category 分布:`);
+        _list.forEach(item => {
+          console.log(
+            `  · "${item.title || '(无标题)'}"  enabled=${item.enabled}  category=${JSON.stringify(item.category ?? '(无)')}`,
+          );
+        });
+      } else {
+        console.log(`[${_key}] 空`);
+      }
+    }
+  } catch (_e) {
+    console.warn('世界书诊断读取失败:', _e);
+  }
+  console.groupEnd();
+
   async function getGlobalWb(key) {
     const data = await dbGet(IDB_CONFIG.stores.worldbook, key);
     return Array.isArray(data) ? data : [];
+  }
+
+  /**
+   * 分类匹配：支持 item.category 为字符串或数组，大小写不敏感
+   * - 无分类 / '所有' → 全局，始终通过
+   * - 数组分类 → 只要包含当前 category 就通过
+   */
+  function matchesCategory(itemCategory, currentCategory) {
+    if (!itemCategory) return true;
+    const normalize = s => String(s).trim().toLowerCase();
+    const currentNorm = normalize(currentCategory);
+    const cats = Array.isArray(itemCategory)
+      ? itemCategory.map(normalize)
+      : [normalize(itemCategory)];
+    return cats.includes('所有') || cats.includes(currentNorm);
   }
 
   const pushWbWithLog = (list, label) => {
@@ -267,13 +305,15 @@ async function buildFinalPromptStream(
       .filter(
         item =>
           item.enabled &&
-          (!item.category || item.category === '所有' || item.category === category) &&
+          matchesCategory(item.category, category) &&
           isKeywordTriggered(latestMessage, item.keys),
       )
       .sort(sortByPriority);
     console.log(`  - [${label}] 触发: ${filtered.length} 条`);
     filtered.forEach(item => {
-      console.log(`%c    [注入 ${label} 内容] ->\n${item.content}`, 'color: #a78bfa;');
+      // ① 修复：content 单独打印，防止 content 内的 %c 吃掉颜色参数导致色号尾缀
+      console.log('%c    [注入 ' + label + ' 内容] ->', 'color: #a78bfa;');
+      console.log(item.content);
       finalStream.push(item.content);
     });
   };
@@ -297,7 +337,8 @@ async function buildFinalPromptStream(
     .sort(sortByPriority);
   console.log(`  - [局部(Local)] 触发: ${filteredLocal.length} 条`);
   filteredLocal.forEach(item => {
-    console.log(`%c    [注入 局部 Wb] ->\n${item.content}`, 'color: #a78bfa;');
+    console.log('%c    [注入 局部 Wb] ->', 'color: #a78bfa;');
+    console.log(item.content);
     finalStream.push(item.content);
   });
 

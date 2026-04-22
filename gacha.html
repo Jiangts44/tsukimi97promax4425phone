@@ -1,0 +1,3406 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <title>訴月記 · 祈月命軌</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&family=Cinzel+Decorative:wght@400;700&family=Cinzel:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* ═══════════════════════════════════════ TOKENS (极致清冷月系) */
+      :root {
+        --void: #020509;
+        --deep: #080e17;
+        --night: #0c1422;
+        --ink: #141c26;
+        --paper: #ebf0f6;
+        --paper2: #dae3ee;
+        --paper3: #c1d0e3;
+        --gold: #a5bce3;
+        --goldb: #c8d9f0;
+        --golds: #f0f6ff;
+        --goldp: rgba(165, 188, 227, 0.12);
+        --rose: #b8b4d4;
+        --rosed: #948eb5;
+        --rosep: rgba(184, 180, 212, 0.1);
+        --moon: #e6eef8;
+        --star: #b4c8df;
+        --mute: #7d8c9e;
+        --line: rgba(165, 188, 227, 0.15);
+        --lineh: rgba(165, 188, 227, 0.25);
+
+        /* 清冷稀有度色系：银、冰蓝、淡紫、极光蓝、皎白 */
+        --rc: #94a3b8; /* R: 霜银 */
+        --src: #7dd3fc; /* SR: 冰蓝 */
+        --ssrc: #c084fc; /* SSR: 幽紫 */
+        --urc: #38bdf8; /* UR: 极光 */
+        --sssc: #ffffff; /* SSS: 皎月 */
+      }
+      *,
+      *::before,
+      *::after {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+      }
+      html,
+      body {
+        width: 100%;
+        height: 100vh;
+        overflow: hidden;
+        font-family: 'Geist', sans-serif;
+        background: var(--paper);
+        color: var(--ink);
+        -webkit-font-smoothing: antialiased;
+      }
+
+      /* ═══════════════════════════════════════ NAV */
+      .nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 58px;
+        z-index: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 16px;
+      }
+      .nav-glass {
+        position: absolute;
+        inset: 0;
+        background: rgba(235, 240, 246, 0.85);
+        backdrop-filter: blur(24px) saturate(1.2);
+        -webkit-backdrop-filter: blur(24px) saturate(1.2);
+        border-bottom: 1px solid rgba(165, 188, 227, 0.2);
+      }
+      .app-name {
+        position: absolute;
+        left: 16px;
+        z-index: 1;
+        font-family: 'Fraunces', serif;
+        font-style: italic;
+        font-size: 15px;
+        background: linear-gradient(90deg, #8b9dc3, #b4a8cc);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        letter-spacing: 0.06em;
+        font-weight: 600;
+      }
+      .tabs-row {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        background: rgba(20, 28, 38, 0.04);
+        border-radius: 100px;
+        padding: 3px;
+        border: 1px solid rgba(165, 188, 227, 0.1);
+      }
+      .tab-pill {
+        position: relative;
+        z-index: 1;
+        padding: 7px 13px;
+        border-radius: 100px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 11px;
+        font-weight: 500;
+        color: var(--mute);
+        white-space: nowrap;
+        letter-spacing: 0.04em;
+        transition: color 0.3s;
+        user-select: none;
+      }
+      .tab-pill.on {
+        color: rgba(255, 255, 255, 0.95);
+      }
+      .tab-ink {
+        position: absolute;
+        top: 3px;
+        left: 3px;
+        height: calc(100% - 6px);
+        background: linear-gradient(135deg, #1b2636, #2a3b52);
+        border-radius: 100px;
+        transition:
+          transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+          width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        box-shadow: 0 2px 8px rgba(165, 188, 227, 0.2);
+      }
+      .back-btn {
+        position: absolute;
+        right: 16px;
+        z-index: 1;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        border: 1px solid rgba(165, 188, 227, 0.3);
+        background: rgba(255, 255, 255, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 11px;
+        color: var(--mute);
+      }
+
+      /* ═══════════════════════════════════════ PAGE SYSTEM */
+      .pages {
+        position: fixed;
+        top: 58px;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        overflow: hidden;
+      }
+      .page {
+        position: absolute;
+        inset: 0;
+        overflow-y: auto;
+        overflow-x: hidden;
+        scrollbar-width: none;
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(12px) scale(0.98);
+        transition:
+          opacity 0.38s ease,
+          transform 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      .page::-webkit-scrollbar {
+        display: none;
+      }
+      .page.on {
+        opacity: 1;
+        pointer-events: auto;
+        transform: translateY(0) scale(1);
+      }
+
+      /* ═══════════════════════════════════════ PAGE: GACHA */
+      #pg-gacha {
+        background:
+          radial-gradient(ellipse 90% 50% at 50% -5%, rgba(165, 188, 227, 0.12), transparent 70%),
+          radial-gradient(ellipse 65% 38% at 88% 94%, rgba(184, 180, 212, 0.08), transparent 60%), var(--paper);
+        padding-bottom: 60px;
+      }
+
+      .dust-wrap {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        overflow: hidden;
+        z-index: 0;
+      }
+      .dp {
+        position: absolute;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(240, 246, 255, 0.9), transparent);
+        box-shadow: 0 0 8px rgba(200, 217, 240, 0.6);
+        animation: dpf var(--d) ease-in-out var(--dl) infinite;
+      }
+      @keyframes dpf {
+        0% {
+          opacity: 0;
+          transform: translate(0, 0) scale(1);
+        }
+        20% {
+          opacity: 0.8;
+        }
+        80% {
+          opacity: 0.3;
+        }
+        100% {
+          opacity: 0;
+          transform: translate(var(--tx), var(--ty)) scale(0.2);
+        }
+      }
+
+      .g-bar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 18px 8px;
+      }
+      .g-bar-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .g-bar-gem {
+        width: 26px;
+        height: 26px;
+        border-radius: 7px;
+        background: linear-gradient(135deg, #a5bce3, #b8b4d4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        color: #fff;
+        box-shadow: 0 3px 8px rgba(165, 188, 227, 0.3);
+      }
+      .g-bar-lbl {
+        font-family: 'Cinzel', serif;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.14em;
+        opacity: 0.7;
+      }
+      .g-bar-right {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .preview-pill {
+        padding: 5px 11px;
+        border-radius: 100px;
+        border: 1px solid rgba(165, 188, 227, 0.4);
+        background: rgba(255, 255, 255, 0.5);
+        font-family: 'Geist Mono', monospace;
+        font-size: 8px;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        color: #6b82a6;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+      .preview-pill:active {
+        background: rgba(165, 188, 227, 0.15);
+      }
+      .char-orb {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        overflow: hidden;
+        cursor: pointer;
+        background: var(--paper2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        flex-shrink: 0;
+        border: 2px solid rgba(165, 188, 227, 0.4);
+      }
+      .char-orb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .char-orb-ring {
+        position: absolute;
+        inset: -3px;
+        border-radius: 50%;
+        background: conic-gradient(
+          rgba(184, 180, 212, 0.7) 0deg,
+          transparent 120deg,
+          rgba(165, 188, 227, 0.5) 200deg,
+          transparent 310deg,
+          rgba(184, 180, 212, 0.7) 360deg
+        );
+        animation: coring 3s linear infinite;
+        z-index: -1;
+      }
+      @keyframes coring {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .g-machine {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 0 20px 4px;
+        position: relative;
+        z-index: 1;
+      }
+      .orb-stage {
+        position: relative;
+        width: 220px;
+        height: 220px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .g-orbit {
+        position: absolute;
+        border-radius: 50%;
+        border: 1px solid transparent;
+      }
+      .go1 {
+        width: 205px;
+        height: 205px;
+        border-color: rgba(165, 188, 227, 0.15) rgba(165, 188, 227, 0.05) rgba(165, 188, 227, 0.2)
+          rgba(165, 188, 227, 0.05);
+        animation: spin 12s linear infinite;
+      }
+      .go2 {
+        width: 168px;
+        height: 168px;
+        border-color: rgba(184, 180, 212, 0.2) transparent rgba(184, 180, 212, 0.1) transparent;
+        animation: spin 8s linear infinite reverse;
+      }
+      .go3 {
+        width: 130px;
+        height: 130px;
+        border-width: 1.5px;
+        border-color: transparent rgba(240, 246, 255, 0.3) transparent rgba(165, 188, 227, 0.2);
+        animation: spin 9s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .g-rune {
+        position: absolute;
+        font-size: 9px;
+        color: rgba(165, 188, 227, 0.5);
+        font-family: 'Cinzel', serif;
+        animation: rg 4s ease-in-out var(--dl) infinite;
+      }
+      @keyframes rg {
+        0%,
+        100% {
+          opacity: 0.2;
+          text-shadow: none;
+        }
+        50% {
+          opacity: 1;
+          text-shadow: 0 0 10px rgba(165, 188, 227, 0.8);
+        }
+      }
+
+      .orb-core {
+        width: 108px;
+        height: 108px;
+        border-radius: 50%;
+        background: radial-gradient(circle at 30% 30%, #ffffff, #d6e2f0 35%, #8b9dc3 70%, #46587a);
+        box-shadow:
+          0 0 30px rgba(165, 188, 227, 0.4),
+          0 0 60px rgba(184, 180, 212, 0.3),
+          inset 0 0 25px rgba(255, 255, 255, 0.6);
+        animation: opulse 3.2s ease-in-out infinite;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+      }
+      .orb-core::before {
+        content: '';
+        position: absolute;
+        top: 10%;
+        left: 15%;
+        width: 35%;
+        height: 22%;
+        background: rgba(255, 255, 255, 0.6);
+        border-radius: 50%;
+        filter: blur(4px);
+        transform: rotate(-25deg);
+      }
+      .orb-core::after {
+        content: '☾';
+        font-size: 28px;
+        color: rgba(255, 255, 255, 0.95);
+        text-shadow:
+          0 0 15px #fff,
+          0 0 30px rgba(165, 188, 227, 0.8);
+        animation: mspin 5s ease-in-out infinite;
+      }
+      @keyframes opulse {
+        0%,
+        100% {
+          box-shadow:
+            0 0 30px rgba(165, 188, 227, 0.4),
+            0 0 60px rgba(184, 180, 212, 0.3),
+            inset 0 0 25px rgba(255, 255, 255, 0.6);
+        }
+        50% {
+          box-shadow:
+            0 0 45px rgba(165, 188, 227, 0.7),
+            0 0 85px rgba(184, 180, 212, 0.5),
+            inset 0 0 35px rgba(255, 255, 255, 0.8);
+        }
+      }
+      @keyframes mspin {
+        0%,
+        100% {
+          transform: scale(1) rotate(-5deg);
+        }
+        50% {
+          transform: scale(1.08) rotate(5deg);
+        }
+      }
+
+      .g-counter {
+        display: flex;
+        align-items: baseline;
+        gap: 5px;
+        margin: 6px 0 14px;
+      }
+      .gc-n {
+        font-family: 'Cinzel Decorative', serif;
+        font-size: 30px;
+        font-weight: 700;
+        background: linear-gradient(135deg, #6b82a6, #a5bce3);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        line-height: 1;
+      }
+      .gc-l {
+        font-family: 'Geist Mono', monospace;
+        font-size: 9px;
+        color: var(--mute);
+        letter-spacing: 0.15em;
+      }
+
+      .draw-wrap {
+        position: relative;
+        margin-bottom: 20px;
+      }
+      .draw-aura {
+        position: absolute;
+        inset: -20px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(165, 188, 227, 0.2), transparent 70%);
+        animation: aura 3.5s ease-in-out infinite;
+        pointer-events: none;
+      }
+      @keyframes aura {
+        0%,
+        100% {
+          transform: scale(1);
+          opacity: 0.4;
+        }
+        50% {
+          transform: scale(1.15);
+          opacity: 1;
+        }
+      }
+      .draw-btn {
+        position: relative;
+        width: 124px;
+        height: 124px;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 3px;
+        transition: transform 0.14s cubic-bezier(0.34, 1.56, 0.64, 1);
+        filter: drop-shadow(0 0 15px rgba(165, 188, 227, 0.4)) drop-shadow(0 6px 14px rgba(0, 0, 0, 0.15));
+        user-select: none;
+      }
+      .draw-btn:active {
+        transform: scale(0.91);
+        filter: drop-shadow(0 0 24px rgba(165, 188, 227, 0.8)) drop-shadow(0 3px 8px rgba(0, 0, 0, 0.2));
+      }
+      .db-crystal {
+        position: absolute;
+        inset: 0;
+        clip-path: polygon(50% 0%, 91% 15%, 100% 50%, 91% 85%, 50% 100%, 9% 85%, 0% 50%, 9% 15%);
+        background: linear-gradient(150deg, #ffffff 0%, #c8d9f0 25%, #8b9dc3 55%, #56698a 82%, #2a3b52 100%);
+      }
+      .db-shine {
+        position: absolute;
+        inset: 8px;
+        clip-path: polygon(50% 0%, 91% 15%, 100% 50%, 91% 85%, 50% 100%, 9% 85%, 0% 50%, 9% 15%);
+        background: linear-gradient(
+          140deg,
+          rgba(255, 255, 255, 0.5) 0%,
+          rgba(165, 188, 227, 0.15) 40%,
+          transparent 75%
+        );
+      }
+      .db-inner-line {
+        position: absolute;
+        inset: 0;
+        clip-path: polygon(50% 0%, 91% 15%, 100% 50%, 91% 85%, 50% 100%, 9% 85%, 0% 50%, 9% 15%);
+        overflow: hidden;
+        opacity: 0.25;
+      }
+      .db-inner-line::before,
+      .db-inner-line::after {
+        content: '';
+        position: absolute;
+        background: rgba(255, 255, 255, 0.9);
+      }
+      .db-inner-line::before {
+        width: 1.5px;
+        height: 200%;
+        top: -50%;
+        left: 50%;
+        transform: rotate(28deg);
+      }
+      .db-inner-line::after {
+        width: 1.5px;
+        height: 200%;
+        top: -50%;
+        left: 35%;
+        transform: rotate(-22deg);
+      }
+      .db-txt {
+        position: relative;
+        z-index: 1;
+        font-family: 'Cinzel', serif;
+        font-size: 15px;
+        font-weight: 700;
+        color: rgba(255, 255, 255, 0.95);
+        text-shadow:
+          0 2px 6px rgba(0, 0, 0, 0.3),
+          0 0 12px rgba(165, 188, 227, 0.8);
+        letter-spacing: 0.12em;
+      }
+      .db-sub {
+        position: relative;
+        z-index: 1;
+        font-family: 'Geist Mono', monospace;
+        font-size: 7px;
+        color: rgba(255, 255, 255, 0.8);
+        letter-spacing: 0.18em;
+      }
+
+      .burst {
+        position: absolute;
+        inset: -20px;
+        border-radius: 50%;
+        pointer-events: none;
+        opacity: 0;
+      }
+      .burst.go {
+        animation: burstgo 0.65s ease-out forwards;
+      }
+      @keyframes burstgo {
+        0% {
+          opacity: 1;
+          transform: scale(0.6);
+        }
+        100% {
+          opacity: 0;
+          transform: scale(1.8);
+        }
+      }
+      .burst::before,
+      .burst::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        border: 1.5px solid rgba(165, 188, 227, 0.5);
+      }
+      .burst::after {
+        inset: 14px;
+        border-color: rgba(240, 246, 255, 0.4);
+      }
+
+      .g-tray {
+        padding: 0 16px 16px;
+      }
+      .tray-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+      .tray-lbl {
+        font-family: 'Geist Mono', monospace;
+        font-size: 9px;
+        color: var(--mute);
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+      .tray-cnt {
+        font-family: 'Geist Mono', monospace;
+        font-size: 10px;
+        font-weight: 600;
+        color: #6b82a6;
+      }
+      .tray-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 5px;
+      }
+
+      .tc {
+        aspect-ratio: 2/3;
+        border-radius: 8px;
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
+        transition: transform 0.18s;
+        background: var(--paper2);
+        border: 1px solid var(--line);
+      }
+      .tc:active {
+        transform: scale(0.93);
+      }
+      .tc-empty {
+        background: rgba(165, 188, 227, 0.05);
+        border: 1px solid rgba(165, 188, 227, 0.2);
+      }
+      .tc-empty::after {
+        content: '✧';
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        color: rgba(165, 188, 227, 0.4);
+      }
+      .tc-drawn {
+        border: 1.5px solid;
+      }
+      .tc-drawn img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .tc-drawn .tc-grad {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: rgba(255, 255, 255, 0.6);
+        position: relative;
+      }
+      .tc-drawn .tc-grad::before {
+        content: '';
+        position: absolute;
+        inset: 3px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 5px;
+      }
+      .tc-drawn .tc-r {
+        position: absolute;
+        bottom: 3px;
+        right: 3px;
+        font-family: 'Cinzel', serif;
+        font-size: 6px;
+        font-weight: 700;
+        padding: 2px 5px;
+        border-radius: 4px;
+        backdrop-filter: blur(4px);
+        z-index: 2;
+        color: #fff;
+      }
+      .tc-new {
+        animation: tcnew 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+      @keyframes tcnew {
+        0% {
+          transform: scale(1.5) rotate(8deg);
+          opacity: 0;
+        }
+        100% {
+          transform: scale(1) rotate(0);
+          opacity: 1;
+        }
+      }
+
+      /* 稀有度色彩映射 (清冷系) */
+      .tc-R {
+        border-color: var(--rc);
+        box-shadow: 0 0 6px rgba(148, 163, 184, 0.4);
+      }
+      .tc-SR {
+        border-color: var(--src);
+        box-shadow: 0 0 8px rgba(125, 211, 252, 0.4);
+      }
+      .tc-SSR {
+        border-color: var(--ssrc);
+        box-shadow: 0 0 11px rgba(192, 132, 252, 0.45);
+      }
+      .tc-UR {
+        border-color: var(--urc);
+        box-shadow: 0 0 12px rgba(56, 189, 248, 0.5);
+      }
+      .tc-SSS {
+        border-color: var(--sssc);
+        box-shadow: 0 0 15px rgba(255, 255, 255, 0.7);
+        animation: sssgl 2s linear infinite;
+      }
+      @keyframes sssgl {
+        0%,
+        100% {
+          box-shadow: 0 0 15px rgba(255, 255, 255, 0.7);
+        }
+        50% {
+          box-shadow: 0 0 25px rgba(165, 188, 227, 0.9);
+        }
+      }
+
+      .rb-R {
+        background: rgba(148, 163, 184, 0.85);
+      }
+      .rb-SR {
+        background: rgba(56, 189, 248, 0.85);
+      }
+      .rb-SSR {
+        background: rgba(192, 132, 252, 0.85);
+      }
+      .rb-UR {
+        background: rgba(14, 165, 233, 0.85);
+      }
+      .rb-SSS {
+        background: rgba(255, 255, 255, 0.85);
+        color: #0f172a !important;
+      }
+
+      /* ═══════════════════════════════════════ PAGE: CHARS (NIGHT) */
+      #pg-chars {
+        background:
+          radial-gradient(ellipse 100% 55% at 50% 20%, rgba(20, 32, 48, 0.88), transparent),
+          radial-gradient(ellipse 80% 50% at 15% 80%, rgba(15, 23, 34, 0.75), transparent), var(--void);
+        min-height: 100%;
+        padding-bottom: 60px;
+      }
+      .starfield {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        overflow: hidden;
+      }
+      .ss {
+        position: absolute;
+        border-radius: 50%;
+        background: #e2e8f0;
+        animation: twk var(--d) ease-in-out var(--dl) infinite;
+      }
+      @keyframes twk {
+        0%,
+        100% {
+          opacity: var(--o0);
+          transform: scale(1);
+        }
+        50% {
+          opacity: var(--o1);
+          transform: scale(1.8);
+        }
+      }
+
+      .nebula {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(45px);
+        pointer-events: none;
+      }
+      .nb1 {
+        width: 200px;
+        height: 120px;
+        top: 10%;
+        right: 0%;
+        background: rgba(165, 188, 227, 0.1);
+      }
+      .nb2 {
+        width: 160px;
+        height: 180px;
+        bottom: 15%;
+        left: 5%;
+        background: rgba(192, 132, 252, 0.08);
+      }
+
+      .chart-moon {
+        position: absolute;
+        top: 20px;
+        right: 24px;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: transparent;
+        box-shadow:
+          inset 10px -8px 0 2px rgba(255, 255, 255, 0.9),
+          0 0 25px rgba(165, 188, 227, 0.2);
+        animation: mfloat 6s ease-in-out infinite;
+        z-index: 5;
+      }
+      @keyframes mfloat {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-5px);
+        }
+      }
+
+      .chart-hdr {
+        padding: 18px 18px 8px;
+        position: relative;
+        z-index: 10;
+      }
+      .chart-ttl {
+        font-family: 'Fraunces', serif;
+        font-style: italic;
+        font-size: 24px;
+        color: rgba(240, 246, 255, 0.95);
+        text-shadow: 0 0 24px rgba(165, 188, 227, 0.4);
+      }
+      .chart-sub {
+        font-family: 'Geist Mono', monospace;
+        font-size: 8px;
+        letter-spacing: 0.2em;
+        color: rgba(165, 188, 227, 0.5);
+        margin-top: 2px;
+        text-transform: uppercase;
+      }
+
+      .const-wrap {
+        position: relative;
+        min-height: calc(100vh - 130px);
+      }
+      .cst-svg {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+      }
+
+      .cnode {
+        position: absolute;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        cursor: pointer;
+        z-index: 5;
+        animation: cf var(--fd) ease-in-out var(--fdl) infinite;
+      }
+      @keyframes cf {
+        0%,
+        100% {
+          transform: translateY(0) translateX(0);
+        }
+        33% {
+          transform: translateY(-6px) translateX(2px);
+        }
+        66% {
+          transform: translateY(4px) translateX(-3px);
+        }
+      }
+      .cnode-ring {
+        position: relative;
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        margin-bottom: 6px;
+      }
+      .cnode-av {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        object-fit: cover;
+        background: var(--night);
+        border: 2px solid rgba(165, 188, 227, 0.3);
+        box-shadow:
+          0 0 0 4px rgba(165, 188, 227, 0.1),
+          0 0 20px rgba(165, 188, 227, 0.2);
+      }
+      .cnode-av-empty {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        background: rgba(20, 32, 48, 0.6);
+        border: 2px solid rgba(165, 188, 227, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        color: rgba(165, 188, 227, 0.4);
+      }
+      .cnode-ring::before {
+        content: '';
+        position: absolute;
+        inset: -5px;
+        border-radius: 50%;
+        border: 1px solid rgba(165, 188, 227, 0.2);
+        animation: nring 5s linear var(--fdl) infinite;
+      }
+      @keyframes nring {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      .cnode-ring::after {
+        content: '';
+        position: absolute;
+        inset: -10px;
+        border-radius: 50%;
+        border: 1px dashed rgba(165, 188, 227, 0.1);
+      }
+
+      .cnode-phase {
+        position: absolute;
+        top: -4px;
+        right: -4px;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: var(--deep);
+        border: 1px solid rgba(165, 188, 227, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        color: #f0f6ff;
+      }
+      .cnode-name {
+        font-family: 'Fraunces', serif;
+        font-style: italic;
+        font-size: 12px;
+        color: rgba(240, 246, 255, 0.8);
+        text-shadow: 0 0 10px rgba(165, 188, 227, 0.5);
+        text-align: center;
+        max-width: 80px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .empty-night {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 60vh;
+        gap: 12px;
+      }
+      .en-icon {
+        font-size: 48px;
+        opacity: 0.3;
+        color: #a5bce3;
+      }
+      .en-txt {
+        font-family: 'Geist Mono', monospace;
+        font-size: 9px;
+        color: rgba(165, 188, 227, 0.4);
+        letter-spacing: 0.1em;
+        text-align: center;
+        line-height: 2;
+      }
+
+      /* char detail slide */
+      .char-slide {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(8, 14, 23, 0.96);
+        backdrop-filter: blur(20px);
+        border-top: 1px solid rgba(165, 188, 227, 0.2);
+        border-radius: 22px 22px 0 0;
+        padding: 16px 18px 40px;
+        transform: translateY(110%);
+        transition: transform 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+        z-index: 700;
+      }
+      .char-slide.open {
+        transform: translateY(0);
+      }
+      .cs-drag {
+        width: 34px;
+        height: 4px;
+        background: rgba(165, 188, 227, 0.25);
+        border-radius: 100px;
+        margin: 0 auto 14px;
+      }
+      .cs-row {
+        display: flex;
+        gap: 14px;
+        align-items: flex-start;
+        margin-bottom: 14px;
+      }
+      .cs-av {
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        object-fit: cover;
+        background: var(--night);
+        border: 2px solid rgba(165, 188, 227, 0.3);
+      }
+      .cs-name {
+        font-family: 'Fraunces', serif;
+        font-style: italic;
+        font-size: 20px;
+        color: rgba(240, 246, 255, 0.95);
+        line-height: 1.2;
+      }
+      .cs-sub {
+        font-family: 'Geist Mono', monospace;
+        font-size: 8px;
+        letter-spacing: 0.1em;
+        color: rgba(165, 188, 227, 0.5);
+        margin-top: 3px;
+      }
+      .cs-close {
+        margin-left: auto;
+        cursor: pointer;
+        color: rgba(165, 188, 227, 0.5);
+        font-size: 14px;
+        padding: 4px;
+      }
+      .cs-chips {
+        display: flex;
+        gap: 5px;
+        flex-wrap: wrap;
+      }
+      .cs-chip {
+        padding: 5px 10px;
+        border-radius: 100px;
+        border: 1px solid rgba(165, 188, 227, 0.2);
+        background: rgba(165, 188, 227, 0.08);
+        font-family: 'Geist Mono', monospace;
+        font-size: 8px;
+        color: rgba(165, 188, 227, 0.7);
+        letter-spacing: 0.05em;
+      }
+
+      /* ═══════════════════════════════════════ PAGE: USER */
+      #pg-user {
+        background:
+          radial-gradient(ellipse 75% 45% at 78% -5%, rgba(192, 132, 252, 0.06), transparent),
+          radial-gradient(ellipse 60% 35% at 2% 85%, rgba(125, 211, 252, 0.06), transparent), var(--paper);
+        padding-bottom: 80px;
+      }
+
+      .ubp {
+        margin: 14px 14px 0;
+        border-radius: 20px;
+        position: relative;
+        overflow: hidden;
+      }
+      .ubp-glass {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(140deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.3));
+        border: 1px solid rgba(165, 188, 227, 0.4);
+        border-radius: 20px;
+      }
+      .ubp-in {
+        position: relative;
+        z-index: 1;
+        padding: 18px;
+      }
+      .ubp-lbl {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        font-family: 'Geist Mono', monospace;
+        font-size: 8px;
+        color: #56698a;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        margin-bottom: 14px;
+      }
+      .ubp-lbl::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: rgba(165, 188, 227, 0.3);
+      }
+      .ubp-top {
+        display: flex;
+        gap: 14px;
+        align-items: center;
+      }
+      .ubp-av {
+        width: 66px;
+        height: 66px;
+        border-radius: 50%;
+        object-fit: cover;
+        background: var(--paper2);
+        border: 2px solid rgba(165, 188, 227, 0.5);
+        box-shadow: 0 4px 16px rgba(165, 188, 227, 0.2);
+        cursor: pointer;
+        flex-shrink: 0;
+      }
+      .ubp-av-ph {
+        width: 66px;
+        height: 66px;
+        border-radius: 50%;
+        border: 2px dashed rgba(165, 188, 227, 0.4);
+        background: rgba(165, 188, 227, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        cursor: pointer;
+        color: rgba(165, 188, 227, 0.6);
+        flex-shrink: 0;
+      }
+      .ubp-meta {
+        flex: 1;
+        min-width: 0;
+      }
+      .ubp-name {
+        font-family: 'Fraunces', serif;
+        font-style: italic;
+        font-size: 22px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        color: #1b2636;
+      }
+      .ubp-tag {
+        font-family: 'Geist Mono', monospace;
+        font-size: 9px;
+        color: var(--mute);
+        margin-top: 2px;
+      }
+      .ubp-stats {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+      }
+      .ubp-st {
+        flex: 1;
+        background: rgba(255, 255, 255, 0.7);
+        border: 1px solid rgba(165, 188, 227, 0.2);
+        border-radius: 10px;
+        padding: 10px 8px;
+        text-align: center;
+      }
+      .ubp-st-n {
+        font-family: 'Geist Mono', monospace;
+        font-size: 20px;
+        font-weight: 700;
+        line-height: 1;
+        color: #1b2636;
+      }
+      .ubp-st-l {
+        font-family: 'Geist Mono', monospace;
+        font-size: 7px;
+        color: var(--mute);
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        margin-top: 3px;
+      }
+      .ubp-ctrl {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+        align-items: center;
+      }
+      .ubp-sel {
+        flex: 1;
+        padding: 9px 12px;
+        border: 1px solid rgba(165, 188, 227, 0.4);
+        background: rgba(255, 255, 255, 0.8);
+        border-radius: 100px;
+        outline: none;
+        font-family: 'Geist', sans-serif;
+        font-size: 12px;
+        color: #1b2636;
+        -webkit-appearance: none;
+        cursor: pointer;
+      }
+      .ubp-bind {
+        padding: 9px 18px;
+        border-radius: 100px;
+        border: none;
+        background: linear-gradient(135deg, #56698a, #2a3b52);
+        color: white;
+        font-family: 'Geist Mono', monospace;
+        font-size: 9px;
+        letter-spacing: 0.08em;
+        cursor: pointer;
+        transition: opacity 0.2s;
+        box-shadow: 0 2px 6px rgba(42, 59, 82, 0.3);
+      }
+      .ubp-bind:active {
+        opacity: 0.8;
+      }
+
+      .ucs {
+        padding: 16px 14px 0;
+      }
+      .ucs-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+      .ucs-title {
+        font-family: 'Fraunces', serif;
+        font-style: italic;
+        font-size: 22px;
+        color: #1b2636;
+      }
+
+      .ucs-gen {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        cursor: pointer;
+        padding: 5px 2px;
+        position: relative;
+      }
+      .ucs-gem {
+        position: relative;
+        width: 24px;
+        height: 24px;
+      }
+      .ucs-gem::before {
+        content: '✦';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 17px;
+        color: #7d8c9e;
+        animation: gemspin 5s linear infinite;
+        display: block;
+      }
+      .ucs-gem::after {
+        content: '✧';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 9px;
+        color: rgba(165, 188, 227, 0.8);
+        animation: gemspin 5s linear infinite reverse;
+        display: block;
+      }
+      @keyframes gemspin {
+        to {
+          transform: translate(-50%, -50%) rotate(360deg);
+        }
+      }
+      .ucs-gen-lbl {
+        font-family: 'Geist Mono', monospace;
+        font-size: 8px;
+        color: #56698a;
+        letter-spacing: 0.1em;
+      }
+
+      .rf-row {
+        display: flex;
+        gap: 5px;
+        margin-bottom: 12px;
+        flex-wrap: wrap;
+      }
+      .rf {
+        padding: 5px 11px;
+        border-radius: 100px;
+        border: 1.5px solid transparent;
+        font-family: 'Cinzel', serif;
+        font-size: 10px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.18s;
+      }
+      .rf-all {
+        border-color: rgba(165, 188, 227, 0.6);
+        color: #56698a;
+      }
+      .rf-R {
+        border-color: var(--rc);
+        color: var(--rc);
+      }
+      .rf-SR {
+        border-color: var(--src);
+        color: var(--src);
+      }
+      .rf-SSR {
+        border-color: var(--ssrc);
+        color: var(--ssrc);
+      }
+      .rf-UR {
+        border-color: var(--urc);
+        color: var(--urc);
+      }
+      .rf-SSS {
+        border-color: #a5bce3;
+        color: #a5bce3;
+      }
+      .rf.sel {
+        color: white !important;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+      }
+      .rf-all.sel {
+        background: #56698a;
+        border-color: #56698a;
+      }
+      .rf-R.sel {
+        background: var(--rc);
+        border-color: var(--rc);
+      }
+      .rf-SR.sel {
+        background: var(--src);
+        border-color: var(--src);
+      }
+      .rf-SSR.sel {
+        background: var(--ssrc);
+        border-color: var(--ssrc);
+      }
+      .rf-UR.sel {
+        background: var(--urc);
+        border-color: var(--urc);
+      }
+      .rf-SSS.sel {
+        background: linear-gradient(135deg, #c8d9f0, #fff);
+        border-color: #fff;
+        color: #1b2636 !important;
+        text-shadow: none;
+      }
+
+      .ucard-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 9px;
+      }
+      .uc {
+        aspect-ratio: 2/3;
+        border-radius: 13px;
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
+        transition:
+          transform 0.18s,
+          box-shadow 0.18s;
+        background: var(--night);
+      }
+      .uc:active {
+        transform: scale(0.955);
+      }
+      .uc img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        position: relative;
+        z-index: 0;
+      }
+      .uc-no-img {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        z-index: 0;
+      }
+      .uc-no-img::before {
+        content: '';
+        position: absolute;
+        inset: 6px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        pointer-events: none;
+      }
+      .uc-no-img::after {
+        content: '✦';
+        position: absolute;
+        top: 12px;
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.5);
+      }
+      .uc-veil {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to bottom, transparent 40%, rgba(4, 9, 16, 0.8) 100%);
+        z-index: 1;
+        pointer-events: none;
+      }
+      .uc-rbadge {
+        position: absolute;
+        top: 8px;
+        left: 8px;
+        font-family: 'Cinzel', serif;
+        font-size: 8px;
+        font-weight: 700;
+        padding: 2px 7px;
+        border-radius: 4px;
+        backdrop-filter: blur(5px);
+        z-index: 2;
+        color: #fff;
+      }
+      .uc-id {
+        position: absolute;
+        bottom: 10px;
+        left: 0;
+        width: 100%;
+        text-align: center;
+        font-family: 'Fraunces', serif;
+        font-style: italic;
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.95);
+        text-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        z-index: 2;
+        padding: 0 10px;
+        letter-spacing: 0.02em;
+      }
+
+      .uc.uc-R {
+        box-shadow: 0 0 0 1.5px rgba(148, 163, 184, 0.4);
+      }
+      .uc.uc-SR {
+        box-shadow:
+          0 0 10px rgba(125, 211, 252, 0.3),
+          0 0 0 1.5px rgba(125, 211, 252, 0.4);
+      }
+      .uc.uc-SSR {
+        box-shadow:
+          0 0 13px rgba(192, 132, 252, 0.35),
+          0 0 0 1.5px rgba(192, 132, 252, 0.4);
+      }
+      .uc.uc-UR {
+        box-shadow:
+          0 0 14px rgba(56, 189, 248, 0.4),
+          0 0 0 1.5px rgba(56, 189, 248, 0.4);
+      }
+      .uc.uc-SSS {
+        box-shadow:
+          0 0 18px rgba(255, 255, 255, 0.6),
+          0 0 0 1.5px rgba(255, 255, 255, 0.8);
+        animation: sssgl 2s linear infinite;
+      }
+
+      .uc-add {
+        aspect-ratio: 2/3;
+        border-radius: 13px;
+        border: 1.5px dashed rgba(165, 188, 227, 0.5);
+        background: rgba(255, 255, 255, 0.5);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        cursor: pointer;
+        transition:
+          background 0.2s,
+          border-color 0.2s;
+      }
+      .uc-add:active {
+        background: rgba(165, 188, 227, 0.2);
+      }
+      .uc-add-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: rgba(165, 188, 227, 0.15);
+        border: 1.5px solid rgba(165, 188, 227, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        color: #56698a;
+      }
+      .uc-add-lbl {
+        font-family: 'Geist Mono', monospace;
+        font-size: 8px;
+        color: #56698a;
+        letter-spacing: 0.12em;
+        text-align: center;
+        line-height: 1.7;
+      }
+      .ec-area {
+        grid-column: 1/-1;
+        padding: 40px 20px;
+        text-align: center;
+      }
+      .ec-icon {
+        font-size: 36px;
+        opacity: 0.4;
+        margin-bottom: 9px;
+        color: #a5bce3;
+      }
+      .ec-txt {
+        font-family: 'Geist Mono', monospace;
+        font-size: 9px;
+        color: var(--mute);
+        line-height: 1.9;
+        letter-spacing: 0.06em;
+      }
+
+      /* ═══════════════════════════════════════ OVERLAYS */
+      .backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(2, 5, 9, 0.8);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        z-index: 700;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s;
+      }
+      .backdrop.on {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .bs {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: var(--paper);
+        border-radius: 22px 22px 0 0;
+        max-height: 92vh;
+        overflow-y: auto;
+        transform: translateY(108%);
+        transition: transform 0.44s cubic-bezier(0.22, 1, 0.36, 1);
+        z-index: 800;
+        scrollbar-width: none;
+        padding: 16px 18px 40px;
+      }
+      .bs::-webkit-scrollbar {
+        display: none;
+      }
+      .bs.on {
+        transform: translateY(0);
+      }
+      .bs-handle {
+        width: 34px;
+        height: 4px;
+        background: rgba(165, 188, 227, 0.4);
+        border-radius: 100px;
+        margin: 0 auto 16px;
+      }
+      .bs-ttl {
+        font-family: 'Fraunces', serif;
+        font-style: italic;
+        font-size: 20px;
+        margin-bottom: 3px;
+        color: #1b2636;
+      }
+      .bs-sub {
+        font-family: 'Geist Mono', monospace;
+        font-size: 8px;
+        color: var(--mute);
+        letter-spacing: 0.1em;
+        margin-bottom: 18px;
+      }
+
+      .fl {
+        font-family: 'Geist Mono', monospace;
+        font-size: 8px;
+        color: var(--mute);
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        margin-bottom: 6px;
+        margin-top: 14px;
+      }
+      .fi {
+        width: 100%;
+        padding: 11px 13px;
+        border: 1px solid rgba(165, 188, 227, 0.4);
+        border-radius: 10px;
+        background: white;
+        font-family: 'Geist', sans-serif;
+        font-size: 13px;
+        color: #1b2636;
+        outline: none;
+      }
+      .fi:focus {
+        border-color: #8b9dc3;
+      }
+      .fta {
+        width: 100%;
+        min-height: 68px;
+        padding: 11px 13px;
+        border: 1px solid rgba(165, 188, 227, 0.4);
+        border-radius: 10px;
+        background: white;
+        font-family: 'Geist', sans-serif;
+        font-size: 13px;
+        color: #1b2636;
+        outline: none;
+        resize: none;
+        line-height: 1.6;
+      }
+      .fta:focus {
+        border-color: #8b9dc3;
+      }
+      .fsel {
+        width: 100%;
+        padding: 11px 13px;
+        border: 1px solid rgba(165, 188, 227, 0.4);
+        border-radius: 10px;
+        background: white;
+        font-family: 'Geist', sans-serif;
+        font-size: 13px;
+        color: #1b2636;
+        outline: none;
+        -webkit-appearance: none;
+        cursor: pointer;
+      }
+      .bs-btn {
+        width: 100%;
+        margin-top: 18px;
+        padding: 14px;
+        border-radius: 14px;
+        border: none;
+        background: linear-gradient(135deg, #56698a, #2a3b52);
+        color: white;
+        font-family: 'Cinzel', serif;
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        cursor: pointer;
+        transition: opacity 0.2s;
+        box-shadow: 0 4px 12px rgba(42, 59, 82, 0.25);
+      }
+      .bs-btn:active {
+        opacity: 0.8;
+      }
+
+      .up-area {
+        width: 100%;
+        min-height: 80px;
+        border: 1.5px dashed rgba(165, 188, 227, 0.6);
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        cursor: pointer;
+        background: rgba(255, 255, 255, 0.5);
+        margin-top: 6px;
+        transition: background 0.2s;
+        padding: 16px;
+      }
+      .up-area:active {
+        background: rgba(165, 188, 227, 0.1);
+      }
+      .up-area img {
+        max-width: 100%;
+        max-height: 120px;
+        object-fit: contain;
+        border-radius: 8px;
+        display: none;
+      }
+      .up-icon {
+        font-size: 18px;
+        color: #8b9dc3;
+      }
+      .up-lbl {
+        font-family: 'Geist Mono', monospace;
+        font-size: 8px;
+        color: var(--mute);
+        letter-spacing: 0.1em;
+        text-align: center;
+      }
+
+      .preview-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-top: 4px;
+      }
+      .pl-row {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        padding: 10px 12px;
+        border-radius: 12px;
+        border: 1px solid rgba(165, 188, 227, 0.3);
+        background: white;
+      }
+      .pl-badge {
+        font-family: 'Cinzel', serif;
+        font-size: 10px;
+        font-weight: 700;
+        padding: 3px 8px;
+        border-radius: 6px;
+        flex-shrink: 0;
+        color: #fff;
+      }
+      .pl-name {
+        font-family: 'Fraunces', serif;
+        font-style: italic;
+        font-size: 15px;
+        flex: 1;
+        min-width: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        color: #1b2636;
+      }
+      .pl-cnt {
+        font-family: 'Geist Mono', monospace;
+        font-size: 9px;
+        color: var(--mute);
+      }
+
+      .pl-R {
+        border-left: 3px solid var(--rc) !important;
+      }
+      .pl-SR {
+        border-left: 3px solid var(--src) !important;
+      }
+      .pl-SSR {
+        border-left: 3px solid var(--ssrc) !important;
+      }
+      .pl-UR {
+        border-left: 3px solid var(--urc) !important;
+      }
+      .pl-SSS {
+        border-left: 3px solid #b4c8df !important;
+      }
+
+      .gen-theme-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+        margin-top: 6px;
+      }
+      .theme-chip {
+        padding: 8px 5px;
+        border-radius: 10px;
+        border: 1px solid rgba(165, 188, 227, 0.4);
+        background: white;
+        font-family: 'Geist Mono', monospace;
+        font-size: 9px;
+        color: var(--mute);
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.18s;
+        letter-spacing: 0.04em;
+      }
+      .theme-chip.sel {
+        border-color: #8b9dc3;
+        background: rgba(165, 188, 227, 0.15);
+        color: #2a3b52;
+      }
+      .nsfw-chip {
+        border-color: rgba(192, 132, 252, 0.3);
+        color: rgba(160, 100, 220, 0.7);
+      }
+      .nsfw-chip.sel {
+        border-color: #c084fc;
+        background: rgba(192, 132, 252, 0.1);
+        color: #9333ea;
+      }
+
+      .rl-row {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-top: 6px;
+      }
+      .rl-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .rl-check {
+        width: 18px;
+        height: 18px;
+        border-radius: 4px;
+        border: 1.5px solid rgba(165, 188, 227, 0.6);
+        flex-shrink: 0;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.18s;
+      }
+      .rl-check.checked {
+        border-color: #56698a;
+        background: #56698a;
+      }
+      .rl-check.checked::after {
+        content: '✓';
+        font-size: 10px;
+        color: white;
+        font-weight: 700;
+      }
+      .rl-label {
+        font-family: 'Cinzel', serif;
+        font-size: 11px;
+        font-weight: 700;
+        min-width: 36px;
+      }
+      .rl-pct {
+        flex: 1;
+      }
+      .rl-pct input {
+        width: 100%;
+        accent-color: #56698a;
+      }
+      .rl-val {
+        font-family: 'Geist Mono', monospace;
+        font-size: 10px;
+        color: var(--mute);
+        min-width: 30px;
+        text-align: right;
+      }
+
+      .char-sel-list {
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        padding-bottom: 4px;
+        margin-top: 4px;
+        scrollbar-width: none;
+      }
+      .char-sel-list::-webkit-scrollbar {
+        display: none;
+      }
+      .csl-item {
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        cursor: pointer;
+      }
+      .csl-av {
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        object-fit: cover;
+        background: var(--paper2);
+        border: 2px solid rgba(165, 188, 227, 0.3);
+        transition: border-color 0.2s;
+      }
+      .csl-av-ph {
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        background: var(--paper2);
+        border: 2px solid rgba(165, 188, 227, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        color: rgba(165, 188, 227, 0.6);
+      }
+      .csl-name {
+        font-family: 'Geist Mono', monospace;
+        font-size: 7px;
+        color: var(--mute);
+        letter-spacing: 0.05em;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 50px;
+      }
+      .csl-item.sel .csl-av,
+      .csl-item.sel .csl-av-ph {
+        border-color: #56698a;
+        box-shadow: 0 0 8px rgba(165, 188, 227, 0.4);
+      }
+
+      /* ═══════════════════════════════════════ CARD MODAL (3D 翻转实体卡) */
+      .card-modal-wrap {
+        position: fixed;
+        inset: 0;
+        z-index: 900;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: none;
+        perspective: 1200px;
+      }
+      .card-modal-wrap.on {
+        pointer-events: auto;
+      }
+      .cm-perspective {
+        width: 320px;
+        height: 500px;
+        position: relative;
+        transform: translateY(20px) scale(0.9);
+        opacity: 0;
+        transition:
+          transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+          opacity 0.3s ease;
+      }
+      .card-modal-wrap.on .cm-perspective {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+      }
+
+      .cm-flip-inner {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        transform-style: preserve-3d;
+      }
+      .cm-flip-inner.flipped {
+        transform: rotateY(180deg);
+      }
+
+      .cm-front,
+      .cm-back {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+        border-radius: 18px;
+        overflow: hidden;
+        box-shadow:
+          0 20px 50px rgba(0, 0, 0, 0.6),
+          inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+      }
+
+      /* --- 正面设计 --- */
+      .cm-front {
+        background: var(--night);
+        cursor: pointer;
+      }
+      .cm-front img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+      .cm-front-empty {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+      }
+      .cm-front-empty::before {
+        content: '';
+        position: absolute;
+        inset: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        pointer-events: none;
+      }
+      .cm-front-empty-icon {
+        font-size: 60px;
+        margin-bottom: 15px;
+        color: rgba(255, 255, 255, 0.6);
+        text-shadow: 0 0 30px rgba(255, 255, 255, 0.4);
+      }
+      .cm-front-veil {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to bottom, transparent 40%, rgba(4, 9, 16, 0.9) 100%);
+        pointer-events: none;
+      }
+      .cm-front-info {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        padding: 20px 16px;
+        text-align: center;
+        pointer-events: none;
+      }
+      .cm-front-r {
+        font-family: 'Cinzel', serif;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 3px 12px;
+        border-radius: 6px;
+        display: inline-block;
+        margin-bottom: 8px;
+        color: #fff;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+      }
+      .cm-front-name {
+        font-family: 'Fraunces', serif;
+        font-style: italic;
+        font-size: 24px;
+        color: #f0f6ff;
+        text-shadow:
+          0 2px 8px rgba(0, 0, 0, 0.8),
+          0 0 15px rgba(165, 188, 227, 0.5);
+        letter-spacing: 0.04em;
+        line-height: 1.2;
+      }
+      .cm-flip-hint {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 16px;
+        text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+        z-index: 10;
+        animation: pulseHint 2s infinite;
+        pointer-events: none;
+      }
+      @keyframes pulseHint {
+        0%,
+        100% {
+          opacity: 0.5;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 1;
+          transform: scale(1.1);
+        }
+      }
+
+      /* --- 背面设计 --- */
+      .cm-back {
+        background: rgba(12, 20, 34, 0.95);
+        backdrop-filter: blur(15px);
+        transform: rotateY(180deg);
+        display: flex;
+        flex-direction: column;
+        color: #e2e8f0;
+      }
+      .cm-back::before {
+        content: '';
+        position: absolute;
+        inset: 6px;
+        border: 1px solid rgba(165, 188, 227, 0.15);
+        border-radius: 12px;
+        pointer-events: none;
+        z-index: 0;
+      }
+      .cm-back-head {
+        padding: 20px 20px 10px;
+        text-align: center;
+        border-bottom: 1px solid rgba(165, 188, 227, 0.1);
+        position: relative;
+        z-index: 1;
+        flex-shrink: 0;
+        cursor: pointer;
+      }
+      .cm-back-head-icon {
+        font-size: 14px;
+        color: rgba(165, 188, 227, 0.5);
+        margin-bottom: 4px;
+      }
+      .cm-back-title {
+        font-family: 'Fraunces', serif;
+        font-style: italic;
+        font-size: 18px;
+        color: #f0f6ff;
+        letter-spacing: 0.05em;
+        text-shadow: 0 0 10px rgba(165, 188, 227, 0.3);
+      }
+
+      .cm-back-body {
+        flex: 1;
+        overflow-y: auto;
+        padding: 16px 20px 24px;
+        scrollbar-width: none;
+        position: relative;
+        z-index: 1;
+      }
+      .cm-back-body::-webkit-scrollbar {
+        display: none;
+      }
+
+      .cm-sec {
+        margin-bottom: 18px;
+      }
+      .cm-sec-lbl {
+        font-family: 'Geist Mono', monospace;
+        font-size: 9px;
+        color: #a5bce3;
+        letter-spacing: 0.15em;
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-transform: uppercase;
+      }
+      .cm-sec-lbl::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: linear-gradient(90deg, rgba(165, 188, 227, 0.2), transparent);
+      }
+      .cm-sec-txt {
+        font-size: 12px;
+        color: rgba(226, 232, 240, 0.85);
+        line-height: 1.7;
+        text-align: justify;
+      }
+      .cm-sec-txt.highlight {
+        color: #f0f6ff;
+        font-weight: 500;
+      }
+
+      .cm-close-btn-out {
+        position: absolute;
+        bottom: -60px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(8px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: #fff;
+        font-size: 18px;
+        transition: background 0.2s;
+      }
+      .cm-close-btn-out:active {
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      /* owners in back */
+      .owner-list {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-top: 6px;
+      }
+      .owner-chip {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: 100px;
+        border: 1px solid rgba(165, 188, 227, 0.15);
+        background: rgba(165, 188, 227, 0.05);
+      }
+      .owner-av {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        object-fit: cover;
+        background: var(--deep);
+        border: 1px solid rgba(165, 188, 227, 0.3);
+      }
+      .owner-name {
+        font-family: 'Geist', sans-serif;
+        font-size: 10px;
+        color: #c8d9f0;
+      }
+      .no-owners {
+        font-family: 'Geist Mono', monospace;
+        font-size: 9px;
+        color: rgba(165, 188, 227, 0.4);
+        letter-spacing: 0.1em;
+      }
+
+      /* toast */
+      .toast {
+        position: fixed;
+        bottom: 28px;
+        left: 50%;
+        transform: translateX(-50%) translateY(18px);
+        background: rgba(20, 28, 38, 0.95);
+        backdrop-filter: blur(10px);
+        color: white;
+        padding: 10px 20px;
+        border-radius: 100px;
+        font-family: 'Geist Mono', monospace;
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        opacity: 0;
+        transition: all 0.3s;
+        pointer-events: none;
+        white-space: nowrap;
+        z-index: 1100;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+        border: 1px solid rgba(165, 188, 227, 0.3);
+      }
+      .toast.on {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ═══════════════════════ NAV -->
+    <nav class="nav">
+      <div class="nav-glass"></div>
+      <div class="app-name">訴月記</div>
+      <div class="tabs-row" id="tabsRow">
+        <div class="tab-ink" id="tabInk"></div>
+        <div class="tab-pill on" data-tab="gacha" onclick="switchTab('gacha')"><span>☾</span> 祈月台</div>
+        <div class="tab-pill" data-tab="chars" onclick="switchTab('chars')"><span>✦</span> 星圖</div>
+        <div class="tab-pill" data-tab="user" onclick="switchTab('user')"><span>◈</span> 命軌</div>
+      </div>
+      <div class="back-btn" onclick="goHome()"><i class="fa-solid fa-arrow-left"></i></div>
+    </nav>
+
+    <!-- ═══════════════════════ PAGES -->
+    <div class="pages">
+      <!-- ─────────────────── PAGE: GACHA -->
+      <div class="page on" id="pg-gacha">
+        <div class="dust-wrap" id="dustWrap"></div>
+
+        <div class="g-bar">
+          <div class="g-bar-title">
+            <div class="g-bar-gem">☾</div>
+            <span class="g-bar-lbl">LUNAR DESTINY</span>
+          </div>
+          <div class="g-bar-right">
+            <div class="preview-pill" onclick="openPreview()">月海</div>
+            <div class="char-orb" onclick="openCharSwitch()" title="切換溯源者">
+              <div class="char-orb-ring"></div>
+              <img id="gachaCharAvImg" src="" style="display: none" />
+              <span id="gachaCharAvPh" style="font-size: 20px; color: rgba(165, 188, 227, 0.6)">◈</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="g-machine">
+          <div class="orb-stage">
+            <div class="g-orbit go1"></div>
+            <div class="g-orbit go2"></div>
+            <div class="g-orbit go3"></div>
+            <div class="g-rune" style="top: 8%; left: 42%; --dl: 0s">冷</div>
+            <div class="g-rune" style="top: 45%; right: 5%; --dl: 0.7s">银</div>
+            <div class="g-rune" style="bottom: 8%; left: 44%; --dl: 1.4s">命</div>
+            <div class="g-rune" style="top: 45%; left: 3%; --dl: 2s">霜</div>
+            <div class="g-rune" style="top: 18%; right: 16%; --dl: 0.3s">月</div>
+            <div class="g-rune" style="bottom: 18%; left: 14%; --dl: 1s">诉</div>
+            <div class="orb-core" id="orbCore"></div>
+          </div>
+
+          <div class="g-counter">
+            <span class="gc-n" id="pullCount">0</span>
+            <span class="gc-l">祈願次數</span>
+          </div>
+
+          <div class="draw-wrap">
+            <div class="draw-aura"></div>
+            <div class="draw-btn" id="drawBtn" onclick="doDraw()">
+              <div class="db-crystal"></div>
+              <div class="db-shine"></div>
+              <div class="db-inner-line"></div>
+              <span class="db-txt">祈月</span>
+              <span class="db-sub">凝月 · 壹回</span>
+            </div>
+            <div class="burst" id="burst"></div>
+          </div>
+        </div>
+
+        <div class="g-tray">
+          <div class="tray-head">
+            <span class="tray-lbl">结缘之印</span>
+            <span class="tray-cnt" id="trayCnt">0 / 10</span>
+          </div>
+          <div class="tray-grid" id="trayGrid"></div>
+        </div>
+      </div>
+
+      <!-- ─────────────────── PAGE: CHARS -->
+      <div class="page" id="pg-chars">
+        <div class="starfield" id="starfield"></div>
+        <div class="nebula nb1"></div>
+        <div class="nebula nb2"></div>
+        <div class="chart-moon"></div>
+
+        <div class="chart-hdr">
+          <div class="chart-ttl">月下衆生</div>
+          <div class="chart-sub">CHARACTER · STAR ATLAS</div>
+        </div>
+
+        <div class="constellation-wrap" id="constWrap">
+          <svg class="cst-svg" id="cstSvg"></svg>
+          <div class="empty-night" id="charEmptyNight" style="display: none">
+            <div class="en-icon">✦</div>
+            <div class="en-txt">尚无溯源者入册<br />请先在设定中新增</div>
+          </div>
+        </div>
+
+        <div class="char-slide" id="charSlide">
+          <div class="cs-drag"></div>
+          <div class="cs-row">
+            <img class="cs-av" id="csAv" src="" style="display: none" />
+            <div
+              id="csAvPh"
+              style="
+                width: 52px;
+                height: 52px;
+                border-radius: 50%;
+                background: rgba(20, 32, 48, 0.6);
+                border: 2px solid rgba(165, 188, 227, 0.3);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 20px;
+                color: rgba(165, 188, 227, 0.4);
+                flex-shrink: 0;
+              "
+            >
+              ◈
+            </div>
+            <div>
+              <div class="cs-name" id="csName">角色名</div>
+              <div class="cs-sub" id="csSub">NO PERSONA</div>
+            </div>
+            <div class="cs-close" onclick="closeCharSlide()"><i class="fa-solid fa-xmark"></i></div>
+          </div>
+          <div class="cs-chips" id="csChips"></div>
+        </div>
+      </div>
+
+      <!-- ─────────────────── PAGE: USER -->
+      <div class="page" id="pg-user">
+        <div class="ubp">
+          <div class="ubp-glass"></div>
+          <div class="ubp-in">
+            <div class="ubp-lbl"><i class="fa-regular fa-moon"></i> 靈魂印記綁定</div>
+            <div class="ubp-top">
+              <img class="ubp-av" id="ubpAv" src="" style="display: none" onclick="openUserAvSheet()" />
+              <div class="ubp-av-ph" id="ubpAvPh" onclick="openUserAvSheet()">◈</div>
+              <div class="ubp-meta">
+                <div class="ubp-name" id="ubpName">— 未綁定 —</div>
+                <div class="ubp-tag" id="ubpTag">請選擇靈魂印記</div>
+              </div>
+            </div>
+            <div class="ubp-stats">
+              <div class="ubp-st">
+                <div class="ubp-st-n" id="statCards">0</div>
+                <div class="ubp-st-l">命軌數</div>
+              </div>
+              <div class="ubp-st">
+                <div class="ubp-st-n" id="statPulls">0</div>
+                <div class="ubp-st-l">祈月數</div>
+              </div>
+              <div class="ubp-st">
+                <div class="ubp-st-n" id="statSSR">0</div>
+                <div class="ubp-st-l">SSR+</div>
+              </div>
+            </div>
+            <div class="ubp-ctrl">
+              <select class="ubp-sel" id="ubpSel" onchange="onUserSelChange()">
+                <option value="">— 選擇靈魂 —</option>
+              </select>
+              <button class="ubp-bind" onclick="bindUser()">締結</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="ucs">
+          <div class="ucs-top">
+            <span class="ucs-title">命軌留痕</span>
+            <div class="ucs-gen" onclick="openGenSheet()">
+              <div class="ucs-gem"></div>
+              <span class="ucs-gen-lbl">幻月衍化</span>
+            </div>
+          </div>
+
+          <div class="rf-row" id="rfRow">
+            <div class="rf rf-all sel" onclick="filterCards('all')">ALL</div>
+            <div class="rf rf-R" onclick="filterCards('R')">R</div>
+            <div class="rf rf-SR" onclick="filterCards('SR')">SR</div>
+            <div class="rf rf-SSR" onclick="filterCards('SSR')">SSR</div>
+            <div class="rf rf-UR" onclick="filterCards('UR')">UR</div>
+            <div class="rf rf-SSS" onclick="filterCards('SSS')">SSS</div>
+          </div>
+
+          <div class="ucard-grid" id="ucardGrid"></div>
+        </div>
+      </div>
+    </div>
+    <!-- /pages -->
+
+    <!-- ═══════════════════════ OVERLAYS -->
+    <div class="backdrop" id="backdrop" onclick="closeAllSheets()"></div>
+
+    <div class="bs" id="previewSheet">
+      <div class="bs-handle"></div>
+      <div class="bs-ttl">月海浮影</div>
+      <div class="bs-sub">AVAILABLE POOL · LUNAR FATE</div>
+      <div class="preview-list" id="previewList"></div>
+    </div>
+
+    <div class="bs" id="charSwitchSheet">
+      <div class="bs-handle"></div>
+      <div class="bs-ttl">輪迴切換</div>
+      <div class="bs-sub">SELECT CHARACTER</div>
+      <div class="char-sel-list" id="charSelList"></div>
+    </div>
+
+    <div class="bs" id="addCardSheet">
+      <div class="bs-handle"></div>
+      <div class="bs-ttl">凝刻命軌</div>
+      <div class="bs-sub">ADD DESTINY CARD</div>
+
+      <div class="fl">等级</div>
+      <select class="fsel" id="newCardRarity">
+        <option value="R">R — 霜银</option>
+        <option value="SR">SR — 冰蓝</option>
+        <option value="SSR" selected>SSR — 幽紫</option>
+        <option value="UR">UR — 极光</option>
+        <option value="SSS">SSS — 皎白</option>
+      </select>
+
+      <div class="fl">身份设定</div>
+      <input class="fi" id="newCardIdentity" placeholder="例：朔月·神女之囚" />
+
+      <div class="fl">服装设定</div>
+      <input class="fi" id="newCardOutfit" placeholder="例：破损的流云霜绫..." />
+
+      <div class="fl">特殊道具</div>
+      <input class="fi" id="newCardProp" placeholder="例：缚仙银链、蒙眼轻纱..." />
+
+      <div class="fl">世界观背景</div>
+      <input class="fi" id="newCardWorld" placeholder="例：崩坏的凌霄神殿，神明堕落的纪元。" />
+
+      <div class="fl">剧情羁绊 (核心情节)</div>
+      <textarea class="fta" id="newCardStory" placeholder="描写充满剧情张力的片段，用于触发专属剧情..."></textarea>
+
+      <div class="fl">卡面留影</div>
+      <input class="fi" id="newCardUrl" placeholder="图片URL（选填）" style="margin-bottom: 8px" />
+      <div class="up-area" id="upArea" onclick="document.getElementById('cardFileInput').click()">
+        <img id="upPreviewImg" alt="" />
+        <i class="fa-solid fa-cloud-arrow-up up-icon"></i>
+        <span class="up-lbl">点击上传留影</span>
+      </div>
+      <input
+        type="file"
+        id="cardFileInput"
+        accept="image/*"
+        style="display: none"
+        onchange="handleCardFileUpload(event)"
+      />
+
+      <button class="bs-btn" onclick="saveNewCard()">✦ 凝刻命轨</button>
+    </div>
+
+    <div class="bs" id="genSheet">
+      <div class="bs-handle"></div>
+      <div class="bs-ttl">幻月衍化</div>
+      <div class="bs-sub">AI CARD GENERATION</div>
+
+      <div class="fl">幻境主题</div>
+      <div class="gen-theme-grid" id="themeGrid"></div>
+
+      <div class="fl">衍化祷词</div>
+      <textarea class="fta" id="genPrompt" style="min-height: 80px">
+银白与清冷的月光氛围，极致精致的破碎感，高分辨率，动漫风格插画。</textarea
+      >
+
+      <div class="fl">凝刻数量</div>
+      <input class="fi" id="genCount" type="number" value="10" min="1" max="100" style="width: 80px" />
+
+      <div class="fl">命数分配</div>
+      <div class="rl-row" id="rlRow"></div>
+
+      <button class="bs-btn" onclick="startGenerate()">✦ 开始衍化</button>
+    </div>
+
+    <!-- 3D 翻转卡牌 Modal -->
+    <div class="card-modal-wrap" id="cardModalWrap">
+      <div class="cm-perspective">
+        <div class="cm-flip-inner" id="cmFlipInner">
+          <!-- 卡牌正面 -->
+          <div class="cm-front" onclick="flipCard()">
+            <div id="cmFrontContent" style="width: 100%; height: 100%"></div>
+            <div class="cm-front-veil"></div>
+            <div class="cm-flip-hint"><i class="fa-solid fa-rotate"></i></div>
+            <div class="cm-front-info">
+              <div class="cm-front-r" id="cmFrontR"></div>
+              <div class="cm-front-name" id="cmFrontName"></div>
+            </div>
+          </div>
+
+          <!-- 卡牌背面 -->
+          <div class="cm-back">
+            <div class="cm-back-head" onclick="flipCard()">
+              <div class="cm-back-head-icon"><i class="fa-solid fa-rotate"></i> 轻触翻转</div>
+              <div class="cm-back-title" id="cmBackName"></div>
+            </div>
+            <div class="cm-back-body">
+              <div class="cm-sec">
+                <div class="cm-sec-lbl">❖ 服装设定 ❖</div>
+                <div class="cm-sec-txt highlight" id="cmBackOutfit"></div>
+              </div>
+              <div class="cm-sec">
+                <div class="cm-sec-lbl">❖ 特殊道具 ❖</div>
+                <div class="cm-sec-txt highlight" id="cmBackProp"></div>
+              </div>
+              <div class="cm-sec">
+                <div class="cm-sec-lbl">❖ 世界观背景 ❖</div>
+                <div class="cm-sec-txt" id="cmBackWorld"></div>
+              </div>
+              <div class="cm-sec">
+                <div class="cm-sec-lbl">❖ 命轨残篇 (剧情) ❖</div>
+                <div
+                  class="cm-sec-txt"
+                  id="cmBackStory"
+                  style="font-style: italic; border-left: 2px solid rgba(165, 188, 227, 0.4); padding-left: 10px"
+                ></div>
+              </div>
+              <div class="cm-sec">
+                <div class="cm-sec-lbl">❖ 缔结者 ❖</div>
+                <div class="owner-list" id="cmBackOwners"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="cm-close-btn-out" onclick="closeCardModal()"><i class="fa-solid fa-xmark"></i></div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+      /* ═══════════════════════════════════════════════
+   IDB CORE
+════════════════════════════════════════════════ */
+      const IDB_NAME = 'tsukiphonepromax';
+      const SCHEMA = {
+        config: { keyPath: 'id' },
+        chars: { keyPath: 'id' },
+        users: { keyPath: 'id' },
+        worldbook: null,
+        chats: { keyPath: 'id' },
+        messages: { keyPath: ['chatId', 'floor'] },
+      };
+
+      function initDB() {
+        return new Promise((res, rej) => {
+          const p = indexedDB.open(IDB_NAME);
+          p.onsuccess = e => {
+            const db = e.target.result;
+            const miss = Object.keys(SCHEMA).filter(s => !db.objectStoreNames.contains(s));
+            if (!miss.length) {
+              res(db);
+              return;
+            }
+            db.close();
+            const u = indexedDB.open(IDB_NAME, db.version + 1);
+            u.onupgradeneeded = ev => {
+              const d2 = ev.target.result;
+              for (const [s, o] of Object.entries(SCHEMA))
+                if (!d2.objectStoreNames.contains(s)) d2.createObjectStore(s, o || undefined);
+            };
+            u.onsuccess = e2 => res(e2.target.result);
+            u.onerror = e2 => rej(e2.target.error);
+          };
+          p.onerror = e => rej(e.target.error);
+        });
+      }
+
+      async function getAllFrom(store) {
+        const db = await initDB();
+        return new Promise((res, rej) => {
+          const tx = db.transaction(store, 'readonly');
+          const req = tx.objectStore(store).getAll();
+          req.onsuccess = () => res(req.result || []);
+          req.onerror = e => rej(e.target.error);
+        });
+      }
+      async function getOne(store, key) {
+        const db = await initDB();
+        return new Promise((res, rej) => {
+          const tx = db.transaction(store, 'readonly');
+          const req = tx.objectStore(store).get(key);
+          req.onsuccess = () => res(req.result);
+          req.onerror = e => rej(e.target.error);
+        });
+      }
+      async function putOne(store, obj) {
+        const db = await initDB();
+        return new Promise((res, rej) => {
+          const tx = db.transaction(store, 'readwrite');
+          const req = tx.objectStore(store).put(obj);
+          req.onsuccess = () => res();
+          req.onerror = e => rej(e.target.error);
+        });
+      }
+      async function getConfig() {
+        const db = await initDB();
+        return new Promise((res, rej) => {
+          const tx = db.transaction('config', 'readonly');
+          const req = tx.objectStore('config').get('main_config');
+          req.onsuccess = () => res(req.result || { id: 'main_config' });
+          req.onerror = e => rej(e.target.error);
+        });
+      }
+      async function putConfig(data) {
+        const db = await initDB();
+        return new Promise((res, rej) => {
+          data.id = 'main_config';
+          const tx = db.transaction('config', 'readwrite');
+          const req = tx.objectStore('config').put(data);
+          req.onsuccess = () => res();
+          req.onerror = e => rej(e.target.error);
+        });
+      }
+
+      /* ═══════════════════════════════════════════════
+   STATE & DATA
+════════════════════════════════════════════════ */
+      let chars = [],
+        users = [],
+        config = {};
+      let currentChar = null;
+      let boundUserId = null;
+      let activeFilter = 'all';
+      let trayCards = [];
+      let pullCount = 0;
+      let userCards = [];
+
+      const RARITIES = ['R', 'SR', 'SSR', 'UR', 'SSS'];
+      const RARITY_WEIGHTS = { R: 50, SR: 30, SSR: 14, UR: 5, SSS: 1 };
+      const RARITY_BG = {
+        R: 'linear-gradient(145deg,#202836,#2a3b52)',
+        SR: 'linear-gradient(145deg,#1b2b40,#2b4c7e)',
+        SSR: 'linear-gradient(145deg,#2a1840,#4a2870)',
+        UR: 'linear-gradient(145deg,#0e2e40,#1e587a)',
+        SSS: 'linear-gradient(145deg,#c8d9f0,#ffffff)',
+      };
+
+      /* 极致清冷、具有剧情张力的内置预设卡数据 (满足 NSFW 边缘与优雅剧情) */
+      const CARD_IDENTITIES = [
+        {
+          r: 'SSS',
+          id: '朔月・神女之囚',
+          outfit: '破损的流云霜绫，遮掩不住白皙莹润的肌肤',
+          prop: '缚仙银链、蒙眼轻纱',
+          world: '崩坏的凌霄神殿，神明堕落的纪元。',
+          story:
+            '曾经高高在上的神女被扯下神坛，囚禁于暗无天日的寒潭。你发现了她，她却用颤抖的声音，隔着轻纱请求你给予“惩罚”以延续灵力……',
+        },
+        {
+          r: 'UR',
+          id: '满月・暗夜血裔',
+          outfit: '贴身真丝暗银色吊带裙，腿部环绕着冰冷银饰',
+          prop: '冰血红酒杯、束缚皮带',
+          world: '繁华都市的地下隐秘阶层，吸血鬼与猎人的狂欢场。',
+          story:
+            '在满月之夜，她会失去所有理智与力量，沦为最脆弱的猎物。她主动将银制手铐的钥匙交给了你，渴望着被你彻底支配与享用。',
+        },
+        {
+          r: 'SSR',
+          id: '残月・废墟仿生人',
+          outfit: '半透明机能风紧身衣、外露的冰蓝色机械义体',
+          prop: '感官同步芯片、冷却液软管',
+          world: '赛博朋克废土，人类灭绝后仅存的机械反乌托邦。',
+          story:
+            '她的情感模块出现了“致命故障”——对你产生了极度的依赖与病态的渴求。为了让你不离开，她拔掉了自己的能源总闸，只能靠你手动注入能量液。',
+        },
+        {
+          r: 'SR',
+          id: '上弦月・笼中妖妃',
+          outfit: '绯红半透亵衣、金丝雀羽披风',
+          prop: '绒毛玉笔、软金锁',
+          world: '权谋交织的幽深宫廷，君王荒淫无道的末代。',
+          story:
+            '被当做礼物献给你的妖妃。表面清冷孤高，实则早已被调教得离不开人的触碰。夜深人静时，她会衔着玉笔跪在你膝下，求你赐下一滴笔墨。',
+        },
+        {
+          r: 'R',
+          id: '下弦月・流亡刺客',
+          outfit: '沾染冰霜的破旧夜行衣',
+          prop: '缺口寒刃、止痛药水',
+          world: '被风雪掩埋的极寒帝国边缘。',
+          story: '她倒在你的木屋前，伤口深可见骨。当你为她褪去衣物上药时，她咬紧嘴唇，眼神中却闪过一丝甘愿臣服的狂热。',
+        },
+      ];
+
+      /* ═══════════════════════════════════════════════
+   INIT
+════════════════════════════════════════════════ */
+      let curTab = 'gacha';
+      function switchTab(tab) {
+        curTab = tab;
+        document.querySelectorAll('.tab-pill').forEach(el => el.classList.toggle('on', el.dataset.tab === tab));
+        document.querySelectorAll('.page').forEach(el => el.classList.toggle('on', el.id === `pg-${tab}`));
+        const activeEl = document.querySelector(`.tab-pill[data-tab="${tab}"]`);
+        const ink = document.getElementById('tabInk');
+        ink.style.width = activeEl.offsetWidth + 'px';
+        ink.style.transform = `translateX(${activeEl.offsetLeft - 3}px)`;
+
+        if (tab === 'chars') renderConstellations();
+        if (tab === 'user') renderUserPage();
+      }
+
+      window.addEventListener('DOMContentLoaded', () => {
+        const el = document.querySelector('.tab-pill[data-tab="gacha"]');
+        const ink = document.getElementById('tabInk');
+        ink.style.width = el.offsetWidth + 'px';
+        ink.style.transform = `translateX(${el.offsetLeft - 3}px)`;
+      });
+
+      function goHome() {
+        window.location.href = 'index.html';
+      }
+
+      async function init() {
+        [chars, users, config] = await Promise.all([getAllFrom('chars'), getAllFrom('users'), getConfig()]);
+        boundUserId = config.gachaBoundUserId || null;
+        userCards = config.gachaUserCards || seedUserCards();
+        pullCount = config.gachaPullCount || 0;
+        currentChar = chars[0] || null;
+
+        document.getElementById('pullCount').textContent = pullCount;
+        buildDust();
+        buildStars();
+        buildTraySlots();
+        renderGachaChar();
+        renderUserPage();
+        populateUserSelect();
+        buildThemeChips();
+        buildRarityRows();
+      }
+
+      function seedUserCards() {
+        return [
+          {
+            id: 'uc1',
+            rarity: 'SSS',
+            identity: CARD_IDENTITIES[0].id,
+            outfit: CARD_IDENTITIES[0].outfit,
+            prop: CARD_IDENTITIES[0].prop,
+            world: CARD_IDENTITIES[0].world,
+            story: CARD_IDENTITIES[0].story,
+            img: '',
+            owners: [],
+          },
+          {
+            id: 'uc2',
+            rarity: 'UR',
+            identity: CARD_IDENTITIES[1].id,
+            outfit: CARD_IDENTITIES[1].outfit,
+            prop: CARD_IDENTITIES[1].prop,
+            world: CARD_IDENTITIES[1].world,
+            story: CARD_IDENTITIES[1].story,
+            img: '',
+            owners: [],
+          },
+        ];
+      }
+
+      /* ═══════════════════════════════════════════════
+   GACHA
+════════════════════════════════════════════════ */
+      function buildDust() {
+        const w = document.getElementById('dustWrap');
+        for (let i = 0; i < 18; i++) {
+          const d = document.createElement('div');
+          d.className = 'dp';
+          const s = Math.random() * 4 + 2;
+          Object.assign(d.style, {
+            width: s + 'px',
+            height: s + 'px',
+            left: Math.random() * 100 + '%',
+            top: Math.random() * 100 + '%',
+            '--d': Math.random() * 4 + 3 + 's',
+            '--dl': -Math.random() * 5 + 's',
+            '--tx': Math.random() * 80 - 40 + 'px',
+            '--ty': Math.random() * -120 - 40 + 'px',
+          });
+          w.appendChild(d);
+        }
+      }
+
+      function buildTraySlots() {
+        const g = document.getElementById('trayGrid');
+        g.innerHTML = '';
+        trayCards.forEach(card => g.appendChild(makeTrayCard(card, false)));
+        for (let i = trayCards.length; i < 10; i++) {
+          const d = document.createElement('div');
+          d.className = 'tc tc-empty';
+          g.appendChild(d);
+        }
+        document.getElementById('trayCnt').textContent = `${trayCards.length} / 10`;
+      }
+
+      function makeTrayCard(card, isNew) {
+        const d = document.createElement('div');
+        d.className = `tc tc-drawn tc-${card.rarity} ${isNew ? 'tc-new' : ''}`;
+        d.title = card.identity;
+        d.onclick = () => openCardModal(card);
+        if (card.img) {
+          const im = document.createElement('img');
+          im.src = card.img;
+          d.appendChild(im);
+        } else {
+          const g = document.createElement('div');
+          g.className = 'tc-grad';
+          g.style.background = RARITY_BG[card.rarity];
+          g.innerHTML = `<span style="font-family:'Cinzel Decorative';font-size:18px">${card.rarity}</span>`;
+          d.appendChild(g);
+        }
+        const rb = document.createElement('div');
+        rb.className = `tc-r rb-${card.rarity}`;
+        rb.textContent = card.rarity;
+        d.appendChild(rb);
+        return d;
+      }
+
+      function renderGachaChar() {
+        const av = document.getElementById('gachaCharAvImg');
+        const ph = document.getElementById('gachaCharAvPh');
+        if (currentChar?.avatar) {
+          av.src = currentChar.avatar;
+          av.style.display = '';
+          ph.style.display = 'none';
+        } else {
+          av.style.display = 'none';
+          ph.style.display = '';
+        }
+      }
+
+      function doDraw() {
+        const btn = document.getElementById('drawBtn');
+        btn.style.pointerEvents = 'none';
+        const burst = document.getElementById('burst');
+        burst.classList.remove('go');
+        void burst.offsetWidth;
+        burst.classList.add('go');
+
+        setTimeout(() => {
+          let card;
+          if (userCards.length) {
+            card = { ...userCards[Math.floor(Math.random() * userCards.length)] };
+            card.id = 'drawn_' + Date.now();
+          } else {
+            const tmpl = CARD_IDENTITIES[Math.floor(Math.random() * CARD_IDENTITIES.length)];
+            card = { ...tmpl, id: 'drawn_' + Date.now(), owners: [], img: '' };
+          }
+
+          if (trayCards.length >= 10) trayCards.shift();
+          trayCards.push(card);
+          pullCount++;
+
+          if (currentChar) {
+            const existCard = userCards.find(
+              c => c.id === card.id || (c.identity === card.identity && c.rarity === card.rarity),
+            );
+            if (existCard && !existCard.owners.includes(currentChar.id)) {
+              existCard.owners.push(currentChar.id);
+            }
+          }
+
+          document.getElementById('pullCount').textContent = pullCount;
+          buildTraySlots();
+          const cells = document.querySelectorAll('#trayGrid .tc-drawn');
+          if (cells.length) cells[cells.length - 1].classList.add('tc-new');
+          btn.style.pointerEvents = '';
+          saveState();
+        }, 680);
+      }
+
+      async function saveState() {
+        config.gachaBoundUserId = boundUserId;
+        config.gachaUserCards = userCards;
+        config.gachaPullCount = pullCount;
+        await putConfig(config);
+      }
+
+      /* ═══════════════════════════════════════════════
+   STARS / CONSTELLATIONS
+════════════════════════════════════════════════ */
+      function buildStars() {
+        const sf = document.getElementById('starfield');
+        for (let i = 0; i < 120; i++) {
+          const s = document.createElement('div');
+          s.className = 'ss';
+          const sz = Math.random() * 2 + 0.5;
+          Object.assign(s.style, {
+            width: sz + 'px',
+            height: sz + 'px',
+            left: Math.random() * 100 + '%',
+            top: Math.random() * 100 + '%',
+            '--d': Math.random() * 4 + 2 + 's',
+            '--dl': -Math.random() * 6 + 's',
+            '--o0': (Math.random() * 0.3 + 0.05).toFixed(2),
+            '--o1': (Math.random() * 0.6 + 0.3).toFixed(2),
+          });
+          sf.appendChild(s);
+        }
+      }
+      const MOON_PHASES = ['☾', '☽', '◑', '◐', '○', '●', '◕', '◔'];
+      const POSITIONS = [
+        [18, 18],
+        [72, 12],
+        [35, 38],
+        [62, 42],
+        [15, 58],
+        [80, 52],
+        [28, 70],
+        [65, 68],
+        [44, 20],
+        [50, 55],
+        [12, 82],
+        [85, 76],
+        [38, 85],
+        [72, 85],
+        [55, 30],
+        [25, 48],
+        [88, 32],
+        [8, 40],
+      ];
+
+      function renderConstellations() {
+        const wrap = document.getElementById('constWrap');
+        const svg = document.getElementById('cstSvg');
+        const empty = document.getElementById('charEmptyNight');
+        wrap.querySelectorAll('.cnode').forEach(n => n.remove());
+        svg.innerHTML = '';
+        if (!chars.length) {
+          empty.style.display = 'flex';
+          return;
+        }
+        empty.style.display = 'none';
+        const nodes = [];
+        chars.forEach((ch, i) => {
+          const [lp, tp] = POSITIONS[i] || [Math.random() * 80 + 5, Math.random() * 70 + 5];
+          nodes.push({ x: lp, y: tp, char: ch });
+          const node = document.createElement('div');
+          node.className = 'cnode';
+          node.style.cssText = `left:${lp}%;top:${tp}%;--fd:${(Math.random() * 4 + 4).toFixed(1)}s;--fdl:${(-Math.random() * 4).toFixed(1)}s`;
+          node.onclick = () => openCharDetail(ch);
+          const ring = document.createElement('div');
+          ring.className = 'cnode-ring';
+          ring.style.setProperty('--fdl', (Math.random() * -4).toFixed(1) + 's');
+          if (ch.avatar) {
+            const av = document.createElement('img');
+            av.className = 'cnode-av';
+            av.src = ch.avatar;
+            ring.appendChild(av);
+          } else {
+            const ph = document.createElement('div');
+            ph.className = 'cnode-av-empty';
+            ph.textContent = '◈';
+            ring.appendChild(ph);
+          }
+          const phase = document.createElement('div');
+          phase.className = 'cnode-phase';
+          phase.textContent = MOON_PHASES[i % MOON_PHASES.length];
+          ring.appendChild(phase);
+          node.appendChild(ring);
+          const nameEl = document.createElement('div');
+          nameEl.className = 'cnode-name';
+          nameEl.textContent = ch.name || '未命名';
+          node.appendChild(nameEl);
+          wrap.appendChild(node);
+        });
+        setTimeout(() => {
+          const W = wrap.offsetWidth,
+            H = wrap.offsetHeight;
+          svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+          for (let i = 0; i < nodes.length - 1; i++) {
+            const a = nodes[i],
+              b = nodes[i + 1];
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', (a.x / 100) * W);
+            line.setAttribute('y1', (a.y / 100) * H);
+            line.setAttribute('x2', (b.x / 100) * W);
+            line.setAttribute('y2', (b.y / 100) * H);
+            line.setAttribute('stroke', 'rgba(165,188,227,0.2)');
+            line.setAttribute('stroke-width', '0.8');
+            line.setAttribute('stroke-dasharray', '3 5');
+            svg.appendChild(line);
+          }
+        }, 80);
+      }
+
+      function openCharDetail(ch) {
+        const slide = document.getElementById('charSlide');
+        if (ch.avatar) {
+          document.getElementById('csAv').src = ch.avatar;
+          document.getElementById('csAv').style.display = '';
+          document.getElementById('csAvPh').style.display = 'none';
+        } else {
+          document.getElementById('csAv').style.display = 'none';
+          document.getElementById('csAvPh').style.display = '';
+        }
+        document.getElementById('csName').textContent = ch.name || '未命名';
+        document.getElementById('csSub').textContent = ch.remark || 'NO PERSONA';
+        const chips = document.getElementById('csChips');
+        chips.innerHTML = '';
+        [ch.remark, '绑定印记: ' + (users.find(u => u.id === ch.bindId)?.name || '—')].filter(Boolean).forEach(t => {
+          const c = document.createElement('div');
+          c.className = 'cs-chip';
+          c.textContent = t;
+          chips.appendChild(c);
+        });
+        slide.classList.add('open');
+        document.getElementById('backdrop').classList.add('on');
+      }
+      function closeCharSlide() {
+        document.getElementById('charSlide').classList.remove('open');
+        document.getElementById('backdrop').classList.remove('on');
+      }
+
+      /* ═══════════════════════════════════════════════
+   USER PAGE
+════════════════════════════════════════════════ */
+      function populateUserSelect() {
+        const sel = document.getElementById('ubpSel');
+        sel.innerHTML = '<option value="">— 選擇靈魂 —</option>';
+        users.forEach(u => {
+          const o = document.createElement('option');
+          o.value = u.id;
+          o.textContent = u.name || '未命名';
+          sel.appendChild(o);
+        });
+        if (boundUserId) sel.value = boundUserId;
+      }
+      function onUserSelChange() {
+        boundUserId = document.getElementById('ubpSel').value || null;
+      }
+      function bindUser() {
+        boundUserId = document.getElementById('ubpSel').value || null;
+        saveState();
+        renderUserPage();
+        toast('✦ 締結成功');
+      }
+
+      function renderUserPage() {
+        const u = users.find(u => u.id === boundUserId) || null;
+        if (u?.avatar) {
+          document.getElementById('ubpAv').src = u.avatar;
+          document.getElementById('ubpAv').style.display = '';
+          document.getElementById('ubpAvPh').style.display = 'none';
+        } else {
+          document.getElementById('ubpAv').style.display = 'none';
+          document.getElementById('ubpAvPh').style.display = '';
+        }
+        document.getElementById('ubpName').textContent = u?.name || '— 未綁定 —';
+        document.getElementById('ubpTag').textContent = u ? `ID · ${u.id.slice(0, 8)}` : '請選擇靈魂印記';
+        document.getElementById('statCards').textContent = userCards.length;
+        document.getElementById('statPulls').textContent = pullCount;
+        document.getElementById('statSSR').textContent = userCards.filter(c =>
+          ['SSR', 'UR', 'SSS'].includes(c.rarity),
+        ).length;
+        renderCardGrid();
+      }
+
+      function renderCardGrid() {
+        const grid = document.getElementById('ucardGrid');
+        grid.innerHTML = '';
+        const add = document.createElement('div');
+        add.className = 'uc-add';
+        add.onclick = openAddCardSheet;
+        add.innerHTML = `<div class="uc-add-icon"><i class="fa-solid fa-plus"></i></div><div class="uc-add-lbl">凝刻命軌<br>URL / 上傳</div>`;
+        grid.appendChild(add);
+
+        const filtered = activeFilter === 'all' ? userCards : userCards.filter(c => c.rarity === activeFilter);
+        if (!filtered.length) {
+          const empty = document.createElement('div');
+          empty.style.cssText = 'grid-column:1/-1;padding:40px 20px;text-align:center';
+          empty.innerHTML = `<div class="ec-icon">✦</div><div class="ec-txt">此命軌暫无痕迹<br>点击 + 凝刻或幻月衍化</div>`;
+          grid.appendChild(empty);
+          return;
+        }
+        filtered.forEach(card => {
+          const el = document.createElement('div');
+          el.className = `uc uc-${card.rarity}`;
+          el.onclick = () => openCardModal(card);
+          if (card.img) {
+            el.innerHTML = `<img src="${card.img}" alt="">`;
+          } else {
+            const g = document.createElement('div');
+            g.className = 'uc-no-img';
+            g.style.background = RARITY_BG[card.rarity];
+            g.innerHTML = `<span style="font-family:'Cinzel Decorative';font-size:24px;color:rgba(255,255,255,0.4)">${card.rarity}</span>`;
+            el.appendChild(g);
+          }
+          el.innerHTML += `<div class="uc-veil"></div><div class="uc-rbadge rb-${card.rarity}">${card.rarity}</div><div class="uc-id">${card.identity || '—'}</div>`;
+          grid.appendChild(el);
+        });
+      }
+
+      function filterCards(r) {
+        activeFilter = r;
+        document
+          .querySelectorAll('.rf')
+          .forEach(el =>
+            el.classList.toggle('sel', el.textContent.trim() === r || (r === 'all' && el.textContent.trim() === 'ALL')),
+          );
+        renderCardGrid();
+      }
+
+      /* ═══════════════════════════════════════════════
+   SHEETS / OVERLAYS
+════════════════════════════════════════════════ */
+      function openSheet(id) {
+        document.getElementById(id).classList.add('on');
+        document.getElementById('backdrop').classList.add('on');
+      }
+      function closeSheet(id) {
+        document.getElementById(id).classList.remove('on');
+      }
+      function closeAllSheets() {
+        ['previewSheet', 'charSwitchSheet', 'addCardSheet', 'genSheet'].forEach(closeSheet);
+        closeCharSlide();
+        closeCardModal();
+        document.getElementById('backdrop').classList.remove('on');
+      }
+
+      function openPreview() {
+        const list = document.getElementById('previewList');
+        list.innerHTML = '';
+        const grouped = {};
+        userCards.forEach(c => {
+          if (!grouped[c.rarity]) grouped[c.rarity] = { rarity: c.rarity, cards: [] };
+          grouped[c.rarity].cards.push(c);
+        });
+        ['SSS', 'UR', 'SSR', 'SR', 'R'].forEach(r => {
+          if (!grouped[r] || !grouped[r].cards.length) {
+            const tmplCards = CARD_IDENTITIES.filter(c => c.r === r);
+            if (!tmplCards.length) return;
+            const row = document.createElement('div');
+            row.className = `pl-row pl-${r}`;
+            row.innerHTML = `<div class="pl-badge rb-${r}">${r}</div><div class="pl-name">${tmplCards.length}道残余命轨</div><div class="pl-cnt">${tmplCards.length}</div>`;
+            list.appendChild(row);
+            return;
+          }
+          grouped[r].cards.forEach(card => {
+            const row = document.createElement('div');
+            row.className = `pl-row pl-${r}`;
+            row.innerHTML = `<div class="pl-badge rb-${r}">${r}</div><div class="pl-name">${card.identity || '未命名'}</div>`;
+            list.appendChild(row);
+          });
+        });
+        openSheet('previewSheet');
+      }
+
+      function openCharSwitch() {
+        const list = document.getElementById('charSelList');
+        list.innerHTML = '';
+        chars.forEach(ch => {
+          const item = document.createElement('div');
+          item.className = `csl-item${currentChar?.id === ch.id ? ' sel' : ''}`;
+          item.onclick = () => {
+            currentChar = ch;
+            renderGachaChar();
+            closeAllSheets();
+            toast('轮回已切换至 ' + (ch.name || '溯源者'));
+          };
+          if (ch.avatar) {
+            item.innerHTML = `<img class="csl-av" src="${ch.avatar}"><div class="csl-name">${ch.name || '未命名'}</div>`;
+          } else {
+            item.innerHTML = `<div class="csl-av-ph">◈</div><div class="csl-name">${ch.name || '未命名'}</div>`;
+          }
+          list.appendChild(item);
+        });
+        if (!chars.length)
+          list.innerHTML =
+            '<div style="font-family:Geist Mono,monospace;font-size:9px;color:var(--mute);padding:20px">尚无溯源者，请先新增</div>';
+        openSheet('charSwitchSheet');
+      }
+
+      let uploadedCardImg = '';
+      function openAddCardSheet() {
+        ['newCardIdentity', 'newCardOutfit', 'newCardProp', 'newCardWorld', 'newCardStory', 'newCardUrl'].forEach(
+          id => (document.getElementById(id).value = ''),
+        );
+        document.getElementById('upPreviewImg').style.display = 'none';
+        document.querySelector('#upArea .up-icon').style.display = '';
+        document.querySelector('#upArea .up-lbl').style.display = '';
+        uploadedCardImg = '';
+        openSheet('addCardSheet');
+      }
+      function handleCardFileUpload(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = ev => {
+          uploadedCardImg = ev.target.result;
+          document.getElementById('upPreviewImg').src = uploadedCardImg;
+          document.getElementById('upPreviewImg').style.display = 'block';
+          document.querySelector('#upArea .up-icon').style.display = 'none';
+          document.querySelector('#upArea .up-lbl').style.display = 'none';
+        };
+        reader.readAsDataURL(file);
+      }
+      async function saveNewCard() {
+        const card = {
+          id: 'uc' + Date.now(),
+          rarity: document.getElementById('newCardRarity').value,
+          identity: document.getElementById('newCardIdentity').value.trim() || '未解之谜',
+          outfit: document.getElementById('newCardOutfit').value.trim(),
+          prop: document.getElementById('newCardProp').value.trim(),
+          world: document.getElementById('newCardWorld').value.trim(),
+          story: document.getElementById('newCardStory').value.trim(),
+          img: uploadedCardImg || document.getElementById('newCardUrl').value.trim(),
+          owners: [],
+        };
+        userCards.push(card);
+        await saveState();
+        closeAllSheets();
+        renderUserPage();
+        toast('✦ 命轨已凝刻');
+      }
+
+      const THEMES_COMMON = ['都市幻月', '修仙问道', '赛博废土', '暗夜血族', '星际迷航', '末日神明', '幽深宫阙'];
+      const THEMES_NSFW = ['冰冷支配', '月下祭品', '禁忌沉沦', '神明囚笼', '失控渴求'];
+      let selThemes = new Set();
+      let rarityDist = {
+        R: { on: true, pct: 50 },
+        SR: { on: true, pct: 30 },
+        SSR: { on: true, pct: 14 },
+        UR: { on: true, pct: 5 },
+        SSS: { on: true, pct: 1 },
+      };
+
+      function buildThemeChips() {
+        const g = document.getElementById('themeGrid');
+        g.innerHTML = '';
+        THEMES_COMMON.forEach(t => {
+          const d = document.createElement('div');
+          d.className = 'theme-chip';
+          d.textContent = t;
+          d.onclick = () => {
+            selThemes.has(t) ? selThemes.delete(t) : selThemes.add(t);
+            d.classList.toggle('sel');
+          };
+          g.appendChild(d);
+        });
+        THEMES_NSFW.forEach(t => {
+          const d = document.createElement('div');
+          d.className = 'theme-chip nsfw-chip';
+          d.textContent = t;
+          d.onclick = () => {
+            selThemes.has(t) ? selThemes.delete(t) : selThemes.add(t);
+            d.classList.toggle('sel');
+          };
+          g.appendChild(d);
+        });
+      }
+      function buildRarityRows() {
+        const row = document.getElementById('rlRow');
+        row.innerHTML = '';
+        RARITIES.forEach(r => {
+          const div = document.createElement('div');
+          div.className = 'rl-item';
+          const cfg = rarityDist[r];
+          div.innerHTML = `<div class="rl-check${cfg.on ? ' checked' : ''}" id="rlchk-${r}" onclick="toggleRarity('${r}')"></div><div class="rl-label" style="color:var(--${r.toLowerCase() + 'c'})">${r}</div><div class="rl-pct"><input type="range" min="0" max="100" value="${cfg.pct}" oninput="updatePct('${r}',this.value)" id="rlrange-${r}"></div><div class="rl-val" id="rlval-${r}">${cfg.pct}%</div>`;
+          row.appendChild(div);
+        });
+      }
+      function toggleRarity(r) {
+        rarityDist[r].on = !rarityDist[r].on;
+        document.getElementById('rlchk-' + r).classList.toggle('checked', rarityDist[r].on);
+      }
+      function updatePct(r, v) {
+        rarityDist[r].pct = +v;
+        document.getElementById('rlval-' + r).textContent = v + '%';
+      }
+
+      function openGenSheet() {
+        openSheet('genSheet');
+      }
+      async function startGenerate() {
+        const count = parseInt(document.getElementById('genCount').value) || 10;
+        closeAllSheets();
+        toast('✦ 衍化中… (' + count + '道命轨)');
+        const onRarities = RARITIES.filter(r => rarityDist[r].on);
+        const totalW = onRarities.reduce((s, r) => s + rarityDist[r].pct, 0) || 100;
+        const generated = [];
+        for (let i = 0; i < count; i++) {
+          let rnd = Math.random() * totalW,
+            chosen = onRarities[onRarities.length - 1];
+          for (const r of onRarities) {
+            rnd -= rarityDist[r].pct;
+            if (rnd <= 0) {
+              chosen = r;
+              break;
+            }
+          }
+          const tmpl = CARD_IDENTITIES.find(c => c.r === chosen) || CARD_IDENTITIES[0];
+          generated.push({
+            id: 'uc' + Date.now() + i,
+            rarity: chosen,
+            identity: tmpl.id + ' ' + ['之影', '碎片', '幻梦', '映射'][i % 4],
+            outfit: tmpl.outfit,
+            prop: tmpl.prop,
+            world: tmpl.world,
+            story: tmpl.story,
+            img: '',
+            owners: [],
+          });
+        }
+        userCards.push(...generated);
+        await saveState();
+        renderUserPage();
+        toast(`✦ 已衍化 ${count} 道命轨`);
+      }
+
+      /* ═══════════════════════════════════════════════
+   3D CARD MODAL FLIP LOGIC
+════════════════════════════════════════════════ */
+      function openCardModal(card) {
+        // Front setup
+        const frontContent = document.getElementById('cmFrontContent');
+        if (card.img) {
+          frontContent.innerHTML = `<img src="${card.img}">`;
+        } else {
+          frontContent.style.background = RARITY_BG[card.rarity];
+          frontContent.innerHTML = `<div class="cm-front-empty"><div class="cm-front-empty-icon">☾</div><div style="font-family:'Cinzel Decorative';font-size:28px;color:rgba(255,255,255,0.7)">${card.rarity}</div></div>`;
+        }
+        document.getElementById('cmFrontR').textContent = card.rarity;
+        document.getElementById('cmFrontR').className = `cm-front-r rb-${card.rarity}`;
+        document.getElementById('cmFrontName').textContent = card.identity || '未解之谜';
+
+        // Back setup
+        document.getElementById('cmBackName').textContent = card.identity || '未解之谜';
+        document.getElementById('cmBackOutfit').textContent = card.outfit || '（未记录服装）';
+        document.getElementById('cmBackProp').textContent = card.prop || '（无特殊道具）';
+        document.getElementById('cmBackWorld').textContent = card.world || '（世界坐标缺失）';
+        document.getElementById('cmBackStory').textContent = card.story || '“命轨残篇已遗失于月海深处…”';
+
+        // Owners
+        const ownersList = document.getElementById('cmBackOwners');
+        ownersList.innerHTML = '';
+        const ownerChars = chars.filter(ch => (card.owners || []).includes(ch.id));
+        if (!ownerChars.length) {
+          ownersList.innerHTML = '<div class="no-owners">尚未有缔结者寻得</div>';
+        } else {
+          ownerChars.forEach(ch => {
+            const chip = document.createElement('div');
+            chip.className = 'owner-chip';
+            chip.innerHTML = `${ch.avatar ? `<img class="owner-av" src="${ch.avatar}">` : '<div class="owner-av" style="background:var(--paper2);display:flex;align-items:center;justify-content:center;font-size:8px;color:rgba(0,0,0,0.5)">◈</div>'}
+        <span class="owner-name">${ch.name || '未命名'}</span>`;
+            ownersList.appendChild(chip);
+          });
+        }
+
+        // Reset flip state
+        document.getElementById('cmFlipInner').classList.remove('flipped');
+        document.getElementById('cardModalWrap').classList.add('on');
+        document.getElementById('backdrop').classList.add('on');
+      }
+
+      function closeCardModal() {
+        document.getElementById('cardModalWrap').classList.remove('on');
+      }
+
+      function flipCard() {
+        document.getElementById('cmFlipInner').classList.toggle('flipped');
+      }
+
+      function openUserAvSheet() {
+        toast('此功能待接入灵魂之海');
+      }
+
+      /* ═══════════════════════════════════════════════
+   TOAST
+════════════════════════════════════════════════ */
+      let toastTimer = null;
+      function toast(msg) {
+        const el = document.getElementById('toast');
+        el.textContent = msg;
+        el.classList.add('on');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => el.classList.remove('on'), 2400);
+      }
+
+      init().catch(console.error);
+    </script>
+  </body>
+</html>

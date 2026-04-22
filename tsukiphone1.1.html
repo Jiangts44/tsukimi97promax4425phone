@@ -5108,6 +5108,65 @@
         </div>
 
         <div class="setting-tab-content" id="settingTabTheme" style="display: none">
+          <div class="si-sec-label"><i class="fa-solid fa-tag"></i> 自定义聊天名称</div>
+          <div
+            style="
+              display: flex;
+              align-items: center;
+              gap: 8px;
+              padding: 10px 12px;
+              background: var(--card);
+              border: 1px solid var(--line);
+              border-radius: 12px;
+              margin-bottom: 14px;
+            "
+          >
+            <input
+              type="text"
+              id="customChatNameInput"
+              placeholder="留空则使用默认名称"
+              style="
+                flex: 1;
+                height: 28px;
+                border: none;
+                background: transparent;
+                font-size: 12px;
+                font-family: 'Geist', sans-serif;
+                color: var(--ink);
+                outline: none;
+              "
+            />
+            <button
+              id="saveChatNameBtn"
+              style="
+                height: 28px;
+                padding: 0 12px;
+                border-radius: 8px;
+                border: none;
+                background: var(--ink);
+                color: white;
+                font-size: 11px;
+                font-weight: 600;
+                cursor: pointer;
+                flex-shrink: 0;
+                font-family: 'Geist Mono', monospace;
+                letter-spacing: 0.05em;
+              "
+            >保存</button>
+          </div>
+          <div
+            id="customChatNameHint"
+            style="
+              font-family: 'Geist Mono', monospace;
+              font-size: 9px;
+              color: var(--mute);
+              margin-top: -10px;
+              margin-bottom: 14px;
+              padding: 0 2px;
+              letter-spacing: 0.08em;
+            "
+          ></div>
+
           <div class="si-sec-label"><i class="fa-solid fa-image"></i> 聊天背景图</div>
 
           <div class="bg-preview-box" id="bgPreviewBox">
@@ -5721,7 +5780,7 @@
                     ${avInner}
                     <div class="chat-item-body">
                       <div class="chat-item-top">
-                        <div class="chat-item-name">${typeTag}${chat.name}</div>
+                        <div class="chat-item-name">${typeTag}${chat.customName || chat.name}</div>
                         <div class="chat-item-time">${timeStr}</div>
                       </div>
                       <div class="chat-item-msg">${chat.lastMessage || '还没有消息...'}</div>
@@ -5890,14 +5949,16 @@
 
           let charData = null;
           let displayAvatar = chatData.avatar;
-          let displayName = chatData.name;
+          // 优先使用自定义聊天名称，没有则使用默认 name
+          let displayName = chatData.customName || chatData.name;
 
           // 获取并存入 Char 数据 (处理私聊)
           // 如果是私聊，从 chars 商店获取完整的角色对象（包含 status 和 id）
           if (chatData.type === 'private' && chatData.charIds?.length > 0) {
             charData = await dbGet('chars', chatData.charIds[0]);
             if (charData) {
-              displayName = charData.name || displayName;
+              // 有自定义名称时不被 charData.name 覆盖
+              if (!chatData.customName) displayName = charData.name || displayName;
               displayAvatar = charData.avatar || displayAvatar;
             }
           }
@@ -8913,13 +8974,70 @@
 
         // --- 面板开关逻辑 ---
         if (settingsBtn) {
-          settingsBtn.addEventListener('click', () => {
+          settingsBtn.addEventListener('click', async () => {
             settingsPanel.classList.add('open');
+            // 打开面板时回显自定义名称
+            if (window.currentChatId) {
+              try {
+                const chatData = await dbGet('chats', window.currentChatId);
+                const nameInput = document.getElementById('customChatNameInput');
+                const hint = document.getElementById('customChatNameHint');
+                if (nameInput && chatData) {
+                  nameInput.value = chatData.customName || '';
+                  if (hint) {
+                    const defaultName = chatData.name || '';
+                    hint.textContent = defaultName ? `默认名称：${defaultName}` : '';
+                  }
+                }
+              } catch (e) { /* ignore */ }
+            }
           });
         }
         if (closeSettingsBtn) {
           closeSettingsBtn.addEventListener('click', () => {
             settingsPanel.classList.remove('open');
+          });
+        }
+
+        // ==========================================
+        // 功能 0：自定义聊天名称
+        // ==========================================
+        const saveChatNameBtn = document.getElementById('saveChatNameBtn');
+        if (saveChatNameBtn) {
+          saveChatNameBtn.addEventListener('click', async () => {
+            if (!window.currentChatId) return;
+            const nameInput = document.getElementById('customChatNameInput');
+            const hint = document.getElementById('customChatNameHint');
+            const newName = nameInput ? nameInput.value.trim() : '';
+
+            try {
+              const chatData = await dbGet('chats', window.currentChatId);
+              if (!chatData) return;
+
+              if (newName) {
+                chatData.customName = newName;
+              } else {
+                delete chatData.customName; // 留空则清除，恢复默认
+              }
+              await dbPut('chats', chatData);
+
+              // 实时更新顶部角色名显示
+              const finalDisplay = newName || chatData.name;
+              const charNameEl = document.querySelector('.char-name');
+              if (charNameEl) {
+                charNameEl.innerHTML = `${finalDisplay}<span class="dot"></span>`;
+              }
+
+              // 更新 hint 提示
+              if (hint) hint.textContent = `已保存 · 默认名称：${chatData.name}`;
+
+              // 刷新联系人列表（如果已显示）
+              if (typeof loadChatList === 'function') loadChatList();
+
+              console.log(`[Settings] 自定义聊天名称已保存: "${newName || '(已清除)'}"`);
+            } catch (e) {
+              console.error('[Settings] 保存自定义名称失败', e);
+            }
           });
         }
 
