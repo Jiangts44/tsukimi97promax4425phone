@@ -1,6 +1,6 @@
 /**
  * Tsukimi 提示词管理调试脚本 - 全链路监控版
- * v4.2: diary/diary_annotation 解析 + 批注内容自动更新 + 已有批注注入
+ * v4.3: 新增 offline 线下剧场消息类型解析
  */
 
 const IDB_CONFIG = {
@@ -165,6 +165,195 @@ function resolveLatestAnnotationText(msg, allMessages, diaryText, annotationText
     }
   }
   return annotationText; // 没找到更新版本就保持原样
+}
+
+// ── 线下剧场(offline)解析工具 ────────────────────────────────────────────────
+
+/**
+ * 从 IDB theater_messages 表读取指定剧场、指定楼层范围内的所有消息
+ * @param {IDBDatabase} db
+ * @param {string} theaterId
+ * @param {number|'prologue'} floorStart  stageFloorRange[0]
+ * @param {number|null}       floorEnd    stageFloorRange[1]，null 表示读到最末
+ */
+async function fetchOfflineTheaterMessages(db, theaterId, floorStart, floorEnd) {
+  try {
+    const allMsgs = await new Promise(resolve => {
+      try {
+        const tx = db.transaction('theater_messages', 'readonly');
+        const store = tx.objectStore('theater_messages');
+
+        // theater_messages 的 keyPath 是 [theaterId, floor]
+        const lower = [theaterId, 0];
+        const upper = [theaterId, Infinity];
+        const range = IDBKeyRange.bound(lower, upper);
+        const req = store.openCursor(range);
+        const msgs = [];
+        req.onsuccess = e => {
+          const cursor = e.target.result;
+          if (cursor) { msgs.push(cursor.value); cursor.continue(); }
+          else resolve(msgs);
+        };
+        req.onerror = () => resolve([]);
+      } catch (e) {
+        // 兜底：getAll 全量过滤
+        try {
+          const tx2 = db.transaction('theater_messages', 'readonly');
+          const fallback = tx2.objectStore('theater_messages').getAll();
+          fallback.onsuccess = () =>
+            resolve((fallback.result || []).filter(m => m.theaterId === theaterId));
+          fallback.onerror = () => resolve([]);
+        } catch (e2) {
+          resolve([]);
+        }
+      }
+    });
+
+    // 按楼层升序
+    const sorted = allMsgs.sort((a, b) => (a.floor || 0) - (b.floor || 0));
+
+    // 过滤楼层范围
+    return sorted.filter(m => {
+      const f = m.floor || 0;
+      const startOk = floorStart === 'prologue' ? true : f >= Number(floorStart);
+      const endOk   = floorEnd == null ? true : f <= Number(floorEnd);
+      return startOk && endOk;
+    });
+  } catch (e) {
+    console.warn('[fetchOfflineTheaterMessages] 读取失败:', e);
+    return [];
+  }
+}
+
+/**
+ * 从 IDB theaters 表读取剧场信息（标题、参与 charIds）
+ */
+async function fetchTheaterInfo(db, theaterId) {
+  try {
+    const theater = await new Promise(resolve => {
+      const tx = db.transaction('theaters', 'readonly');
+      const req = tx.objectStore('theaters').get(theaterId);
+      req.onsuccess = () => resolve(req.result || null);
+      req.onerror = () => resolve(null);
+    });
+    return theater;
+  } catch (e) {
+    return null;
+  }
+}
+
+/**
+ * 将线下剧场消息列表格式化为提示词字符串
+ * @param {Array}  msgs      已过滤的 theater_messages
+ * @param {Array}  chars     剧场参与的 chars 数组（从 IDB chars 表读出）
+ * @param {string} charNames 剧场角色名拼接字符串（用于开头提示）
+ * @param {string} stageTitle 剧场标题
+ * @param {string} floorRangeLabel  楼层范围描述文本
+ */
+function formatOfflineMessages(msgs, chars, charNames, stageTitle, floorRangeLabel) {
+  const lines = [];
+
+  for (const m of msgs) {
+    // 跳过系统辅助型消息（history/summary 卡片本身不需要传给 AI）
+    if (m.type === 'history' || m.type === 'summary') continue;
+
+    let senderName = '系统';
+    if (m.sender === 'user' || m.isUser) {
+      senderName = 'User';
+    } else if (m.charId) {
+      const c = chars.find(ch => ch.id === m.charId);
+      if (c) senderName = c.name;
+    } else if (m.sender === 'narrator' || m.isNarrator) {
+      senderName = '旁白';
+    }
+
+    // 内容提取
+    let contentStr = '';
+    if (typeof m.content === 'string') {
+      contentStr = m.content;
+    } else if (m.content && typeof m.content === 'object') {
+      contentStr = m.content.text || m.content.body || JSON.stringify(m.content);
+    }
+
+    const typeLabel = m.type && m.type !== 'text' ? `|${m.type}` : '';
+    lines.push(`[${senderName}|${formatTime(m.timestamp || 0)}${typeLabel}] ${contentStr}`);
+  }
+
+  return lines.join('\n');
+}
+
+/**
+ * 主入口：解析一条 offline 类型消息，返回格式化的提示词字符串
+ * 结构：
+ *   【开头】剧场名 + 参与角色 + 楼层范围提示
+ *   【中间】该范围内的所有线下对话
+ *   【结尾】标记线下内容结束，提示 AI 后续为线上场景
+ */
+async function buildOfflineSegment(db, msg) {
+  console.log(`%c[buildOfflineSegment] 🎭 offline floor=${msg.floor} 开始解析`, 'color:#fa5bd5;font-weight:bold');
+
+  // ── 从 content 对象读取元数据 ──
+  const c = msg.content && typeof msg.content === 'object' ? msg.content : {};
+  const stageId         = msg.stageId        || c.stageId        || null;
+  const stageTitle      = msg.stageTitle      || c.stageTitle      || c.displayTitle || '线下剧场';
+  const stageFloorRange = msg.stageFloorRange || c.stageFloorRange || [null, null];
+  const floorStart      = stageFloorRange[0];  // number | 'prologue' | null
+  const floorEnd        = stageFloorRange[1];  // number | null
+
+  if (!stageId) {
+    console.warn('[buildOfflineSegment] stageId 缺失，跳过 offline 解析');
+    return `[系统] 线下剧场记录（元数据不完整，无法展开）`;
+  }
+
+  // ── 读取剧场信息 ──
+  const theater = await fetchTheaterInfo(db, stageId);
+  const resolvedTitle = theater?.title || stageTitle;
+  const theaterCharIds = theater?.charIds || [];
+
+  // ── 读取剧场参与角色 ──
+  const chars = [];
+  for (const cid of theaterCharIds) {
+    const ch = await dbGet(IDB_CONFIG.stores.chars, cid);
+    if (ch) chars.push(ch);
+  }
+  const charNames = chars.length
+    ? chars.map(ch => ch.name).join('、')
+    : '（角色信息缺失）';
+
+  // ── 楼层范围描述 ──
+  const floorRangeLabel = (() => {
+    const s = floorStart === 'prologue' ? '开场白' : floorStart != null ? `F·${floorStart}` : '起始';
+    const e = floorEnd   != null ? `F·${floorEnd}` : '末尾';
+    return `${s} → ${e}`;
+  })();
+
+  console.log(`  stageId=${stageId} title="${resolvedTitle}" chars=[${charNames}] range=${floorRangeLabel}`);
+
+  // ── 拉取线下剧场消息 ──
+  const theaterMsgs = await fetchOfflineTheaterMessages(db, stageId, floorStart, floorEnd);
+  console.log(`  共读取 ${theaterMsgs.length} 条线下消息`);
+
+  // ── 格式化 ──
+  const bodyText = formatOfflineMessages(theaterMsgs, chars, charNames, resolvedTitle, floorRangeLabel);
+
+  // ── 拼接完整片段 ──
+  const header = [
+    `========== 线下剧场内容开始 ==========`,
+    `【剧场名称】${resolvedTitle}`,
+    `【参与角色】${charNames}`,
+    `【剧场楼层范围】${floorRangeLabel}`,
+    `以下为该线下剧场的完整对话内容，发生在线下真实见面场景中，与线上聊天是独立的：`,
+  ].join('\n');
+
+  const footer = [
+    ``,
+    `========== 线下剧场内容结束 ==========`,
+    `[系统提示] 以上是「${resolvedTitle}」线下剧场（${floorRangeLabel}）的全部内容，此后回到线上聊天场景，请勿将线下剧场内容混入线上聊天的续写或推演中。`,
+  ].join('\n');
+
+  const result = `${header}\n${bodyText || '（该楼层范围内暂无对话内容）'}${footer}`;
+  console.log('%c  → 最终 offline 片段(前200字):\n' + result.substring(0, 200), 'color:#fa5bd5');
+  return result;
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -401,8 +590,14 @@ async function buildChatHistoryPrompt(chatId, historyCount = 0) {
       msgType = 'diary';
     }
 
+    // 🌟 线下剧场卡片 — 展开对应楼层范围内的所有线下对话内容
+    if (msgType === 'offline') {
+      console.log(`%c[buildChatHistoryPrompt] 🎭 offline floor=${msg.floor} 开始解析`, 'color:#fa5bd5');
+      content = await buildOfflineSegment(db, msg);
+      senderName = '系统';
+
     // 🌟 日记转发 — 解析 <diary=日记内容|批注汇总>，实时补全已有批注 + 作者 + 标题
-    if (msgType === 'diary') {
+    } else if (msgType === 'diary') {
       console.log(`%c[buildChatHistoryPrompt] 📓 diary floor=${msg.floor} 开始解析`, 'color:#d4ff4d');
       const { diaryText, annotationText } = parseDiaryContent(content);
       const { annsSummary, authorName, diaryTitle } = await fetchExistingAnnotations(db, diaryText);

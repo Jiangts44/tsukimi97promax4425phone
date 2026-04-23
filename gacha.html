@@ -627,6 +627,47 @@
         font-weight: 600;
         color: #6b82a6;
       }
+      /* ─── Rarity capsule bar ─── */
+      .tray-rarity-bar {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        margin-bottom: 8px;
+        flex-wrap: wrap;
+      }
+      .tray-rc {
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        padding: 3px 8px;
+        border-radius: 100px;
+        font-family: 'Cinzel', serif;
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        line-height: 1;
+        border: 1.5px solid;
+        white-space: nowrap;
+      }
+      .tray-rc-n {
+        font-family: 'Geist Mono', monospace;
+        font-size: 9px;
+        font-weight: 600;
+        opacity: 0.85;
+      }
+      .tray-rc.rc-R   { color: var(--rc);   border-color: rgba(148,163,184,0.5); background: rgba(148,163,184,0.08); }
+      .tray-rc.rc-SR  { color: var(--src);  border-color: rgba(125,211,252,0.5); background: rgba(125,211,252,0.08); }
+      .tray-rc.rc-SSR { color: var(--ssrc); border-color: rgba(192,132,252,0.5); background: rgba(192,132,252,0.08); }
+      .tray-rc.rc-UR  { color: var(--urc);  border-color: rgba(56,189,248,0.5);  background: rgba(56,189,248,0.08); }
+      .tray-rc.rc-SSS { color: #c8d9f0;     border-color: rgba(200,220,255,0.6); background: rgba(200,220,255,0.1); }
+      .tray-rc-total {
+        margin-left: auto;
+        font-family: 'Geist Mono', monospace;
+        font-size: 9px;
+        color: var(--mute);
+        letter-spacing: 0.08em;
+        flex-shrink: 0;
+      }
       .tray-grid {
         display: grid;
         grid-template-columns: repeat(5, 1fr);
@@ -689,14 +730,50 @@
         position: absolute;
         bottom: 3px;
         right: 3px;
-        font-family: 'Cinzel', serif;
-        font-size: 6px;
+        font-family: 'Cinzel Decorative', serif;
+        font-size: 5.5px;
         font-weight: 700;
         padding: 2px 5px;
         border-radius: 4px;
         backdrop-filter: blur(4px);
         z-index: 2;
         color: #fff;
+        letter-spacing: 0.04em;
+      }
+      /* Art glyph badge for tray cards */
+      .tc-r-glyph {
+        position: absolute;
+        bottom: 3px;
+        right: 3px;
+        z-index: 2;
+        font-size: 9px;
+        line-height: 1;
+        filter: drop-shadow(0 0 4px currentColor);
+        opacity: 0.85;
+      }
+      .tc-r-glyph.r-R   { color: #b4c4d4; }
+      .tc-r-glyph.r-SR  { color: #7dd3fc; }
+      .tc-r-glyph.r-SSR { color: #d8b4fe; }
+      .tc-r-glyph.r-UR  { color: #7dd3fc; filter: drop-shadow(0 0 5px #38bdf8); }
+      /* Large glyph inside the gradient card face */
+      .tc-art-icon {
+        font-size: 28px;
+        line-height: 1;
+        opacity: 0.7;
+        text-shadow: 0 0 12px currentColor;
+      }
+      .tc-art-icon.r-R   { color: #c0d0e0; }
+      .tc-art-icon.r-SR  { color: #90d4fc; }
+      .tc-art-icon.r-SSR { color: #d8b4fe; text-shadow: 0 0 16px #c084fc; }
+      .tc-art-icon.r-UR  { color: #7dd3fc; text-shadow: 0 0 18px #38bdf8; }
+      .tc-art-sub {
+        font-family: 'Cinzel Decorative', serif;
+        font-size: 5.5px;
+        font-weight: 400;
+        letter-spacing: 0.22em;
+        opacity: 0.6;
+        color: rgba(255,255,255,0.75);
+        margin-top: 3px;
       }
       .tc-new {
         animation: tcnew 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -816,26 +893,73 @@
 
       .chart-moon {
         position: absolute;
-        top: 20px;
-        right: 24px;
-        width: 50px;
-        height: 50px;
+        top: 16px;
+        right: 20px;
+        width: 54px;
+        height: 54px;
+        animation: mfloat 6s ease-in-out infinite;
+        z-index: 5;
+        pointer-events: none;
+      }
+      /* Outer full-moon sphere */
+      .chart-moon::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        background: radial-gradient(circle at 38% 32%,
+          #f0f6ff 0%,
+          #c8d9f0 30%,
+          #8fa8cc 62%,
+          #4a6080 88%,
+          #1e2e42 100%
+        );
+        box-shadow:
+          0 0 18px rgba(165,188,227,0.45),
+          0 0 40px rgba(165,188,227,0.2),
+          inset -4px -3px 10px rgba(0,0,0,0.35),
+          inset 6px 4px 14px rgba(255,255,255,0.18);
+      }
+      /* Shadow disc that carves the crescent */
+      .chart-moon::after {
+        content: '';
+        position: absolute;
+        top: -4px;
+        left: 10px;
+        width: 54px;
+        height: 54px;
+        border-radius: 50%;
+        background: radial-gradient(circle at 42% 40%,
+          #060d18 0%,
+          #0b1828 55%,
+          rgba(8,15,26,0.92) 100%
+        );
+        box-shadow: inset 3px 2px 8px rgba(165,188,227,0.08);
+      }
+      /* Highlight rim on crescent edge */
+      .chart-moon-rim {
+        position: absolute;
+        inset: 0;
         border-radius: 50%;
         background: transparent;
         box-shadow:
-          inset 10px -8px 0 2px rgba(255, 255, 255, 0.9),
-          0 0 25px rgba(165, 188, 227, 0.2);
-        animation: mfloat 6s ease-in-out infinite;
-        z-index: 5;
+          -5px 2px 0 0 rgba(210,230,255,0.10),
+          -8px 0px 12px 2px rgba(165,188,227,0.12);
+        z-index: 1;
+      }
+      /* Subtle surface texture dots */
+      .chart-moon-glow {
+        position: absolute;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(200,217,240,0.22), transparent 70%);
+        width: 14px; height: 14px;
+        top: 28%; left: 6%;
+        filter: blur(2px);
+        z-index: 1;
       }
       @keyframes mfloat {
-        0%,
-        100% {
-          transform: translateY(0);
-        }
-        50% {
-          transform: translateY(-5px);
-        }
+        0%,100% { transform: translateY(0) rotate(-2deg); }
+        50%      { transform: translateY(-6px) rotate(2deg); }
       }
 
       .chart-hdr {
@@ -992,80 +1116,179 @@
         line-height: 2;
       }
 
-      /* char detail slide */
+      /* dismiss overlay for char slide */
+      .cs-dismiss {
+        position: fixed;
+        inset: 0;
+        z-index: 699;
+        display: none;
+        cursor: pointer;
+      }
+      .cs-dismiss.on { display: block; }
+
+      /* char detail slide — expanded with history + card collection */
       .char-slide {
         position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background: rgba(8, 14, 23, 0.96);
-        backdrop-filter: blur(20px);
-        border-top: 1px solid rgba(165, 188, 227, 0.2);
+        bottom: 0; left: 0; right: 0;
+        background: linear-gradient(170deg, rgba(6,12,22,0.97) 0%, rgba(10,18,32,0.98) 100%);
+        backdrop-filter: blur(24px);
+        border-top: 1px solid rgba(165,188,227,0.18);
         border-radius: 22px 22px 0 0;
-        padding: 16px 18px 40px;
+        max-height: 88vh;
+        display: flex; flex-direction: column;
         transform: translateY(110%);
-        transition: transform 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+        transition: transform 0.44s cubic-bezier(0.22,1,0.36,1);
         z-index: 700;
+        overflow: hidden;
       }
-      .char-slide.open {
-        transform: translateY(0);
-      }
+      .char-slide.open { transform: translateY(0); }
       .cs-drag {
-        width: 34px;
-        height: 4px;
-        background: rgba(165, 188, 227, 0.25);
+        width: 34px; height: 4px;
+        background: rgba(165,188,227,0.2);
         border-radius: 100px;
-        margin: 0 auto 14px;
+        margin: 12px auto 0;
+        flex-shrink: 0;
+      }
+      /* Fixed header */
+      .cs-header {
+        padding: 12px 18px 10px;
+        flex-shrink: 0;
+        border-bottom: 1px solid rgba(165,188,227,0.08);
       }
       .cs-row {
-        display: flex;
-        gap: 14px;
-        align-items: flex-start;
-        margin-bottom: 14px;
+        display: flex; gap: 12px; align-items: center;
       }
       .cs-av {
-        width: 52px;
-        height: 52px;
-        border-radius: 50%;
-        object-fit: cover;
-        background: var(--night);
-        border: 2px solid rgba(165, 188, 227, 0.3);
+        width: 46px; height: 46px; border-radius: 50%;
+        object-fit: cover; background: var(--night);
+        border: 2px solid rgba(165,188,227,0.3);
+        flex-shrink: 0;
       }
+      .cs-info { flex: 1; min-width: 0; }
       .cs-name {
-        font-family: 'Fraunces', serif;
-        font-style: italic;
-        font-size: 20px;
-        color: rgba(240, 246, 255, 0.95);
-        line-height: 1.2;
+        font-family: 'Fraunces', serif; font-style: italic;
+        font-size: 18px; color: rgba(240,246,255,0.95); line-height: 1.2;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
       }
       .cs-sub {
-        font-family: 'Geist Mono', monospace;
-        font-size: 8px;
-        letter-spacing: 0.1em;
-        color: rgba(165, 188, 227, 0.5);
-        margin-top: 3px;
+        font-family: 'Geist Mono', monospace; font-size: 8px;
+        letter-spacing: 0.1em; color: rgba(165,188,227,0.45); margin-top: 2px;
       }
       .cs-close {
-        margin-left: auto;
-        cursor: pointer;
-        color: rgba(165, 188, 227, 0.5);
-        font-size: 14px;
-        padding: 4px;
+        cursor: pointer; color: rgba(165,188,227,0.4);
+        font-size: 13px; padding: 4px; flex-shrink: 0;
       }
-      .cs-chips {
-        display: flex;
-        gap: 5px;
-        flex-wrap: wrap;
+      /* Stats row */
+      .cs-stats {
+        display: flex; gap: 6px; margin-top: 10px;
       }
-      .cs-chip {
-        padding: 5px 10px;
-        border-radius: 100px;
-        border: 1px solid rgba(165, 188, 227, 0.2);
-        background: rgba(165, 188, 227, 0.08);
-        font-family: 'Geist Mono', monospace;
-        font-size: 8px;
-        color: rgba(165, 188, 227, 0.7);
-        letter-spacing: 0.05em;
+      .cs-stat {
+        flex: 1; background: rgba(165,188,227,0.05);
+        border: 1px solid rgba(165,188,227,0.1);
+        border-radius: 8px; padding: 7px 6px; text-align: center;
+      }
+      .cs-stat-n {
+        font-family: 'Geist Mono', monospace; font-size: 16px;
+        font-weight: 700; color: rgba(200,220,255,0.9); line-height: 1;
+      }
+      .cs-stat-l {
+        font-family: 'Geist Mono', monospace; font-size: 7px;
+        color: rgba(165,188,227,0.4); letter-spacing: 0.08em;
+        text-transform: uppercase; margin-top: 3px;
+      }
+      /* Scrollable body */
+      .cs-body {
+        flex: 1; overflow-y: auto; scrollbar-width: none;
+        padding: 14px 18px 36px;
+      }
+      .cs-body::-webkit-scrollbar { display: none; }
+      /* Section label */
+      .cs-sec-lbl {
+        font-family: 'Geist Mono', monospace; font-size: 8px;
+        letter-spacing: 0.16em; color: rgba(165,188,227,0.45);
+        text-transform: uppercase;
+        display: flex; align-items: center; gap: 6px;
+        margin-bottom: 8px;
+      }
+      .cs-sec-lbl::after {
+        content: ''; flex: 1; height: 1px;
+        background: linear-gradient(90deg,rgba(165,188,227,0.15),transparent);
+      }
+      /* History tray — small card grid */
+      .cs-history-grid {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 4px;
+        margin-bottom: 18px;
+      }
+      .cs-htc {
+        aspect-ratio: 2/3; border-radius: 6px;
+        position: relative; overflow: hidden; cursor: pointer;
+        transition: transform 0.15s;
+      }
+      .cs-htc:active { transform: scale(0.92); }
+      .cs-htc img { width:100%;height:100%;object-fit:cover;display:block; }
+      .cs-htc-grad {
+        width:100%;height:100%;display:flex;align-items:center;
+        justify-content:center; font-size:14px;
+      }
+      .cs-htc-r {
+        position: absolute; bottom: 2px; right: 2px;
+        font-size: 7px; line-height: 1;
+        filter: drop-shadow(0 0 3px currentColor);
+      }
+      .cs-htc-r.r-R   { color: #c0d0e0; }
+      .cs-htc-r.r-SR  { color: #7dd3fc; }
+      .cs-htc-r.r-SSR { color: #d8b4fe; }
+      .cs-htc-r.r-UR  { color: #7dd3fc; }
+      .cs-htc-r.r-SSS { color: #f0f6ff; font-family:'Cinzel Decorative';font-size:5px; }
+      /* empty history */
+      .cs-hist-empty {
+        font-family: 'Geist Mono', monospace; font-size: 9px;
+        color: rgba(165,188,227,0.25); letter-spacing: 0.1em;
+        padding: 14px 0; text-align: center;
+      }
+      /* Owned cards list */
+      .cs-owned-grid {
+        display: flex; flex-direction: column; gap: 6px;
+        margin-bottom: 8px;
+      }
+      .cs-owned-row {
+        display: flex; align-items: center; gap: 10px;
+        padding: 8px 10px; border-radius: 10px;
+        background: rgba(165,188,227,0.04);
+        border: 1px solid rgba(165,188,227,0.08);
+        cursor: pointer; transition: background 0.15s;
+      }
+      .cs-owned-row:active { background: rgba(165,188,227,0.1); }
+      .cs-owned-thumb {
+        width: 32px; height: 48px; border-radius: 5px;
+        overflow: hidden; flex-shrink: 0; position: relative;
+      }
+      .cs-owned-thumb img { width:100%;height:100%;object-fit:cover; }
+      .cs-owned-thumb-empty {
+        width:100%;height:100%;display:flex;align-items:center;
+        justify-content:center; font-size:12px;
+      }
+      .cs-owned-meta { flex: 1; min-width: 0; }
+      .cs-owned-name {
+        font-family: 'Fraunces', serif; font-style: italic;
+        font-size: 13px; color: rgba(210,225,245,0.9);
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      }
+      .cs-owned-rarity {
+        font-family: 'Cinzel', serif; font-size: 8px; font-weight: 700;
+        padding: 1px 6px; border-radius: 3px; display: inline-block;
+        margin-top: 3px; color: #fff;
+      }
+      .cs-owned-count {
+        font-family: 'Geist Mono', monospace; font-size: 9px;
+        color: rgba(165,188,227,0.4); flex-shrink: 0;
+      }
+      .cs-no-owned {
+        font-family: 'Geist Mono', monospace; font-size: 9px;
+        color: rgba(165,188,227,0.25); letter-spacing: 0.1em;
+        padding: 14px 0; text-align: center;
       }
 
       /* ═══════════════════════════════════════ PAGE: USER */
@@ -1238,6 +1461,204 @@
         font-style: italic;
         font-size: 22px;
         color: #1b2636;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: opacity 0.18s;
+        user-select: none;
+      }
+      .ucs-title:active { opacity: 0.6; }
+      .ucs-title-edit-hint {
+        font-family: 'Geist Mono', monospace;
+        font-size: 9px;
+        color: rgba(165,188,227,0.6);
+        font-style: normal;
+        letter-spacing: 0.08em;
+        font-weight: 400;
+        margin-top: 2px;
+      }
+
+      /* ── Quick Edit Sheet ── */
+      .qe-clear-all {
+        width: 100%;
+        padding: 11px;
+        border-radius: 12px;
+        border: 1.5px solid rgba(248,113,113,0.4);
+        background: rgba(248,113,113,0.06);
+        color: #f87171;
+        font-family: 'Geist Mono', monospace;
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        cursor: pointer;
+        transition: background 0.18s, border-color 0.18s;
+        margin-bottom: 14px;
+      }
+      .qe-clear-all:active { background: rgba(248,113,113,0.14); }
+
+      /* Perspective tabs */
+      .qe-tabs {
+        display: flex;
+        gap: 0;
+        border-radius: 10px;
+        overflow: hidden;
+        border: 1px solid rgba(165,188,227,0.2);
+        margin-bottom: 12px;
+      }
+      .qe-tab {
+        flex: 1;
+        padding: 8px 0;
+        text-align: center;
+        font-family: 'Cinzel', serif;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        color: var(--mute);
+        background: rgba(255,255,255,0.5);
+        cursor: pointer;
+        transition: background 0.18s, color 0.18s;
+        user-select: none;
+        border-right: 1px solid rgba(165,188,227,0.2);
+      }
+      .qe-tab:last-child { border-right: none; }
+      .qe-tab.on {
+        background: linear-gradient(135deg, #56698a, #2a3b52);
+        color: #fff;
+      }
+
+      /* Per-tab content */
+      .qe-tab-body { display: none; }
+      .qe-tab-body.on { display: block; }
+
+      .qe-tab-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+      }
+      .qe-tab-count {
+        font-family: 'Geist Mono', monospace;
+        font-size: 9px;
+        color: var(--mute);
+        letter-spacing: 0.06em;
+      }
+      .qe-tab-clear {
+        font-family: 'Geist Mono', monospace;
+        font-size: 9px;
+        color: #f87171;
+        cursor: pointer;
+        letter-spacing: 0.06em;
+        padding: 3px 0;
+        border: none;
+        background: none;
+        transition: opacity 0.18s;
+      }
+      .qe-tab-clear:active { opacity: 0.6; }
+
+      /* Card list */
+      .qe-card-list {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        margin-bottom: 14px;
+        max-height: 40vh;
+        overflow-y: auto;
+        scrollbar-width: none;
+      }
+      .qe-card-list::-webkit-scrollbar { display: none; }
+
+      .qe-card-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 10px;
+        border-radius: 10px;
+        border: 1.5px solid rgba(165,188,227,0.14);
+        background: rgba(255,255,255,0.5);
+        cursor: pointer;
+        transition: border-color 0.15s, background 0.15s;
+        user-select: none;
+      }
+      .qe-card-row.sel {
+        border-color: #7b93b8;
+        background: rgba(165,188,227,0.1);
+      }
+      .qe-card-check {
+        width: 16px; height: 16px;
+        border-radius: 4px;
+        border: 1.5px solid rgba(165,188,227,0.4);
+        flex-shrink: 0;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 9px; color: transparent;
+        transition: all 0.15s;
+      }
+      .qe-card-row.sel .qe-card-check {
+        background: #56698a; border-color: #56698a; color: #fff;
+      }
+      .qe-card-info { flex: 1; min-width: 0; }
+      .qe-card-name {
+        font-family: 'Fraunces', serif;
+        font-style: italic;
+        font-size: 13px;
+        color: #1b2636;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .qe-card-meta {
+        font-family: 'Geist Mono', monospace;
+        font-size: 8px;
+        color: var(--mute);
+        letter-spacing: 0.05em;
+        margin-top: 1px;
+      }
+      .qe-card-preview {
+        font-family: 'Geist Mono', monospace;
+        font-size: 9px;
+        color: #7b93b8;
+        cursor: pointer;
+        flex-shrink: 0;
+        padding: 3px 6px;
+        border-radius: 6px;
+        border: 1px solid rgba(165,188,227,0.3);
+        background: rgba(165,188,227,0.06);
+        transition: background 0.15s;
+        white-space: nowrap;
+      }
+      .qe-card-preview:active { background: rgba(165,188,227,0.18); }
+
+      .qe-empty {
+        font-family: 'Geist Mono', monospace;
+        font-size: 9px;
+        color: rgba(165,188,227,0.4);
+        text-align: center;
+        padding: 18px 0;
+        letter-spacing: 0.1em;
+      }
+
+      /* Delete selected button */
+      .qe-delete-btn {
+        width: 100%;
+        padding: 13px;
+        border-radius: 13px;
+        border: none;
+        background: linear-gradient(135deg, #7b2020, #a83232);
+        color: white;
+        font-family: 'Cinzel', serif;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        cursor: pointer;
+        transition: opacity 0.2s;
+        box-shadow: 0 3px 10px rgba(168,50,50,0.25);
+      }
+      .qe-delete-btn:active { opacity: 0.8; }
+      .qe-delete-btn:disabled {
+        background: rgba(165,188,227,0.2);
+        color: var(--mute);
+        box-shadow: none;
+        cursor: default;
       }
 
       .ucs-gen {
@@ -1847,6 +2268,46 @@
         text-align: right;
       }
 
+      /* Perspective toggle chips */
+      .gen-perspective-row {
+        display: flex;
+        gap: 7px;
+        margin-top: 4px;
+      }
+      .gen-persp-chip {
+        flex: 1;
+        padding: 9px 10px;
+        border-radius: 10px;
+        border: 1.5px solid rgba(165,188,227,0.22);
+        background: rgba(255,255,255,0.45);
+        cursor: pointer;
+        user-select: none;
+        transition: border-color 0.18s, background 0.18s, box-shadow 0.18s;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      .gen-persp-chip.sel {
+        border-color: #7b93b8;
+        background: rgba(165,188,227,0.12);
+        box-shadow: 0 0 8px rgba(165,188,227,0.18);
+      }
+      .gen-persp-chip-title {
+        font-family: 'Cinzel', serif;
+        font-size: 10px;
+        font-weight: 700;
+        color: #56698a;
+        letter-spacing: 0.08em;
+      }
+      .gen-persp-chip.sel .gen-persp-chip-title { color: #2a3b52; }
+      .gen-persp-chip-desc {
+        font-family: 'Geist Mono', monospace;
+        font-size: 8px;
+        color: var(--mute);
+        line-height: 1.4;
+        letter-spacing: 0.04em;
+      }
+
       .char-sel-list {
         display: flex;
         gap: 8px;
@@ -1901,6 +2362,47 @@
       .csl-item.sel .csl-av-ph {
         border-color: #56698a;
         box-shadow: 0 0 8px rgba(165, 188, 227, 0.4);
+      }
+      .csl-info-wrap {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+      }
+      .csl-tag {
+        font-family: 'Geist Mono', monospace;
+        font-size: 6px;
+        letter-spacing: 0.06em;
+        padding: 1px 5px;
+        border-radius: 100px;
+        white-space: nowrap;
+      }
+      .csl-tag-debug {
+        background: rgba(165,188,227,0.15);
+        color: rgba(165,188,227,0.7);
+        border: 1px solid rgba(165,188,227,0.25);
+      }
+      .csl-tag-bound {
+        background: rgba(192,132,252,0.12);
+        color: rgba(192,132,252,0.8);
+        border: 1px solid rgba(192,132,252,0.2);
+      }
+      .csl-pulls {
+        font-family: 'Geist Mono', monospace;
+        font-size: 10px;
+        font-weight: 600;
+        color: #6b82a6;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1px;
+        margin-left: auto;
+        flex-shrink: 0;
+      }
+      .csl-pulls-l {
+        font-size: 7px;
+        color: var(--mute);
+        font-weight: 400;
       }
 
       /* ═══════════════════════════════════════ CARD MODAL (3D 翻转实体卡) */
@@ -2173,7 +2675,47 @@
         border-radius: 100px;
         border: 1px solid rgba(165, 188, 227, 0.15);
         background: rgba(165, 188, 227, 0.05);
+        cursor: pointer;
+        transition: background 0.18s, border-color 0.18s, box-shadow 0.18s;
+        user-select: none;
       }
+      .owner-chip:active { background: rgba(165,188,227,0.14); }
+      .owner-chip.selected {
+        border-color: rgba(165,188,227,0.55);
+        background: rgba(165,188,227,0.13);
+        box-shadow: 0 0 8px rgba(165,188,227,0.25);
+      }
+      .owner-chip.selected .owner-name { color: #f0f6ff; }
+      /* enter-world button below owners */
+      .enter-world-btn {
+        display: none;
+        width: 100%;
+        margin-top: 10px;
+        padding: 10px 14px;
+        border-radius: 10px;
+        border: 1px solid rgba(165,188,227,0.35);
+        background: linear-gradient(135deg, rgba(20,35,55,0.9), rgba(10,22,38,0.95));
+        color: rgba(200,220,255,0.9);
+        font-family: 'Cinzel', serif;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        cursor: pointer;
+        text-align: center;
+        transition: all 0.22s;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        position: relative;
+        overflow: hidden;
+      }
+      .enter-world-btn::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(165,188,227,0.06), transparent);
+        border-radius: 10px;
+      }
+      .enter-world-btn.on { display: block; }
+      .enter-world-btn:active { opacity: 0.8; transform: scale(0.98); }
       .owner-av {
         width: 16px;
         height: 16px;
@@ -2194,6 +2736,262 @@
         letter-spacing: 0.1em;
       }
 
+      /* ─── Lunar Settings Sheet ─── */
+      .lss-toggle-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid rgba(165,188,227,0.12);
+      }
+      .lss-toggle-info { flex: 1; min-width: 0; }
+      .lss-toggle-lbl {
+        font-family: 'Geist', sans-serif;
+        font-size: 13px;
+        font-weight: 500;
+        color: #1b2636;
+      }
+      .lss-toggle-sub {
+        font-family: 'Geist Mono', monospace;
+        font-size: 8px;
+        color: var(--mute);
+        letter-spacing: 0.08em;
+        margin-top: 2px;
+      }
+      /* iOS-style toggle */
+      .lss-sw {
+        position: relative;
+        width: 44px; height: 26px;
+        flex-shrink: 0; margin-left: 12px;
+      }
+      .lss-sw input { opacity: 0; width: 0; height: 0; }
+      .lss-sw-track {
+        position: absolute; inset: 0;
+        background: rgba(165,188,227,0.25);
+        border-radius: 100px;
+        transition: background 0.25s;
+        cursor: pointer;
+      }
+      .lss-sw-track::after {
+        content: '';
+        position: absolute;
+        top: 3px; left: 3px;
+        width: 20px; height: 20px;
+        border-radius: 50%;
+        background: #fff;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+        transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+      }
+      .lss-sw input:checked + .lss-sw-track {
+        background: linear-gradient(135deg, #56698a, #7b93b8);
+      }
+      .lss-sw input:checked + .lss-sw-track::after {
+        transform: translateX(18px);
+      }
+      /* Chat list for log injection */
+      .lss-chat-wrap {
+        margin-top: 10px;
+        /* Entrance animation only — no max-height cap after open */
+        overflow: hidden;
+        max-height: 0;
+        transition: max-height 0.38s cubic-bezier(0.22,1,0.36,1), opacity 0.28s;
+        opacity: 0;
+      }
+      .lss-chat-wrap.on {
+        /* Large enough to never clip; actual scroll is on the .bs sheet itself */
+        max-height: 9999px;
+        opacity: 1;
+      }
+      /* Clickable "写入会话" section header for each char group */
+      .lss-char-hdr {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 0 8px;
+        border-top: 1px solid rgba(165,188,227,0.1);
+        margin-top: 6px;
+        cursor: pointer;
+        user-select: none;
+      }
+      .lss-char-hdr:first-child { border-top: none; margin-top: 0; }
+      .lss-char-hdr-meta { flex: 1; min-width: 0; }
+      .lss-char-hdr-name {
+        font-family: 'Geist', sans-serif;
+        font-size: 12px; font-weight: 600; color: #1b2636;
+        display: flex; align-items: center; gap: 5px;
+      }
+      .lss-char-hdr-sub {
+        font-family: 'Geist Mono', monospace;
+        font-size: 8px; color: var(--mute); margin-top: 1px;
+      }
+      .lss-char-hdr-arrow {
+        font-size: 10px; color: rgba(165,188,227,0.6);
+        transition: transform 0.24s cubic-bezier(0.34,1.56,0.64,1);
+        flex-shrink: 0;
+      }
+      .lss-char-hdr-arrow.open { transform: rotate(180deg); }
+      /* Per-char collapsible chat list */
+      .lss-char-body {
+        overflow: hidden;
+        max-height: 0;
+        opacity: 0;
+        transition: max-height 0.32s cubic-bezier(0.22,1,0.36,1), opacity 0.22s;
+      }
+      .lss-char-body.open {
+        max-height: 9999px;
+        opacity: 1;
+      }
+      .lss-char-body-inner {
+        display: flex; flex-direction: column; gap: 6px;
+        padding-bottom: 6px;
+      }
+      .lss-chat-item {
+        display: flex; align-items: center; gap: 10px;
+        padding: 9px 11px;
+        border-radius: 11px;
+        border: 1.5px solid rgba(165,188,227,0.18);
+        background: rgba(255,255,255,0.55);
+        cursor: pointer;
+        transition: border-color 0.18s, background 0.18s;
+        user-select: none;
+      }
+      .lss-chat-item.sel {
+        border-color: #7b93b8;
+        background: rgba(165,188,227,0.12);
+      }
+      .lss-chat-av {
+        width: 34px; height: 34px; border-radius: 50%;
+        object-fit: cover; background: var(--paper2);
+        border: 1.5px solid rgba(165,188,227,0.3);
+        flex-shrink: 0; display: flex; align-items: center;
+        justify-content: center; font-size: 14px;
+        color: rgba(165,188,227,0.7);
+        overflow: hidden;
+      }
+      .lss-chat-av img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
+      .lss-chat-meta { flex: 1; min-width: 0; }
+      .lss-chat-name {
+        font-family: 'Geist', sans-serif;
+        font-size: 12px; font-weight: 500;
+        color: #1b2636;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      }
+      .lss-chat-sub {
+        font-family: 'Geist Mono', monospace;
+        font-size: 8px; color: var(--mute);
+        letter-spacing: 0.06em; margin-top: 1px;
+      }
+      .lss-chat-ck {
+        width: 18px; height: 18px;
+        border-radius: 50%;
+        border: 1.5px solid rgba(165,188,227,0.4);
+        flex-shrink: 0;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 9px; color: transparent;
+        transition: all 0.18s;
+      }
+      .lss-chat-item.sel .lss-chat-ck {
+        background: #56698a;
+        border-color: #56698a;
+        color: #fff;
+      }
+      .lss-empty-chats {
+        font-family: 'Geist Mono', monospace;
+        font-size: 9px; color: rgba(165,188,227,0.5);
+        text-align: center; padding: 16px 0;
+        letter-spacing: 0.1em;
+      }
+      /* g-bar gem hover/active */
+      .g-bar-gem { cursor: pointer; transition: transform 0.18s, box-shadow 0.18s; }
+      .g-bar-gem:active { transform: scale(0.88); box-shadow: 0 0 14px rgba(165,188,227,0.5); }
+
+      /* Section label inside settings */
+      .lss-sec-lbl {
+        font-family: 'Geist Mono', monospace;
+        font-size: 8px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--mute);
+        margin-bottom: 8px;
+      }
+
+      /* Master char selector — horizontal scroll row of char chips */
+      .lss-master-list {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        padding: 2px 0 4px;
+      }
+      .lss-master-char {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        cursor: pointer;
+        padding: 7px 10px 6px;
+        border-radius: 12px;
+        border: 1.5px solid rgba(165,188,227,0.18);
+        background: rgba(255,255,255,0.5);
+        transition: border-color 0.18s, background 0.18s, box-shadow 0.18s;
+        position: relative;
+        min-width: 56px;
+        user-select: none;
+      }
+      .lss-master-char.sel {
+        border-color: #7b93b8;
+        background: rgba(165,188,227,0.12);
+        box-shadow: 0 0 8px rgba(165,188,227,0.2);
+      }
+      .lss-master-av {
+        width: 36px; height: 36px; border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid rgba(165,188,227,0.3);
+        display: block;
+      }
+      .lss-master-av-ph {
+        display: flex; align-items: center; justify-content: center;
+        background: rgba(165,188,227,0.1);
+        font-size: 16px; color: rgba(165,188,227,0.7);
+      }
+      .lss-master-char.sel .lss-master-av,
+      .lss-master-char.sel .lss-master-av-ph {
+        border-color: #7b93b8;
+      }
+      .lss-master-name {
+        font-family: 'Geist Mono', monospace;
+        font-size: 7px; color: var(--mute);
+        letter-spacing: 0.05em;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        max-width: 54px; text-align: center;
+      }
+      .lss-master-char.sel .lss-master-name { color: #56698a; font-weight: 600; }
+      .lss-master-ck {
+        position: absolute;
+        top: 4px; right: 4px;
+        width: 14px; height: 14px;
+        border-radius: 50%;
+        border: 1.5px solid rgba(165,188,227,0.35);
+        font-size: 7px; color: transparent;
+        display: flex; align-items: center; justify-content: center;
+        transition: all 0.18s;
+      }
+      .lss-master-char.sel .lss-master-ck {
+        background: #56698a; border-color: #56698a; color: #fff;
+      }
+      .lss-master-cur {
+        position: absolute;
+        bottom: 28px; right: 6px;
+        width: 8px; height: 8px;
+        border-radius: 50%;
+        background: #7b93b8;
+        border: 1.5px solid #fff;
+        box-shadow: 0 0 0 0 rgba(123,147,184,0.5);
+        animation: lss-cur-pulse 2s ease-in-out infinite;
+      }
+      @keyframes lss-cur-pulse {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(123,147,184,0.5); }
+        50%       { box-shadow: 0 0 0 4px rgba(123,147,184,0); }
+      }
       /* toast */
       .toast {
         position: fixed;
@@ -2221,6 +3019,7 @@
         transform: translateX(-50%) translateY(0);
       }
     </style>
+    <script src="gacha-gen.js"></script>
   </head>
   <body>
     <!-- ═══════════════════════ NAV -->
@@ -2244,7 +3043,7 @@
 
         <div class="g-bar">
           <div class="g-bar-title">
-            <div class="g-bar-gem">☾</div>
+            <div class="g-bar-gem" onclick="openLunarSettings()" title="祈月設定">☾</div>
             <span class="g-bar-lbl">LUNAR DESTINY</span>
           </div>
           <div class="g-bar-right">
@@ -2294,6 +3093,7 @@
             <span class="tray-lbl">结缘之印</span>
             <span class="tray-cnt" id="trayCnt">0 / 10</span>
           </div>
+          <div class="tray-rarity-bar" id="trayRarityBar"></div>
           <div class="tray-grid" id="trayGrid"></div>
         </div>
       </div>
@@ -2303,7 +3103,7 @@
         <div class="starfield" id="starfield"></div>
         <div class="nebula nb1"></div>
         <div class="nebula nb2"></div>
-        <div class="chart-moon"></div>
+        <div class="chart-moon"><div class="chart-moon-rim"></div><div class="chart-moon-glow"></div></div>
 
         <div class="chart-hdr">
           <div class="chart-ttl">月下衆生</div>
@@ -2318,35 +3118,33 @@
           </div>
         </div>
 
+        <div class="cs-dismiss" id="csDismiss" onclick="closeCharSlide()"></div>
         <div class="char-slide" id="charSlide">
           <div class="cs-drag"></div>
-          <div class="cs-row">
-            <img class="cs-av" id="csAv" src="" style="display: none" />
-            <div
-              id="csAvPh"
-              style="
-                width: 52px;
-                height: 52px;
-                border-radius: 50%;
-                background: rgba(20, 32, 48, 0.6);
-                border: 2px solid rgba(165, 188, 227, 0.3);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 20px;
-                color: rgba(165, 188, 227, 0.4);
-                flex-shrink: 0;
-              "
-            >
-              ◈
+          <!-- Fixed header -->
+          <div class="cs-header">
+            <div class="cs-row">
+              <img class="cs-av" id="csAv" src="" style="display:none"/>
+              <div id="csAvPh" style="width:46px;height:46px;border-radius:50%;background:rgba(20,32,48,0.6);border:2px solid rgba(165,188,227,0.3);display:flex;align-items:center;justify-content:center;font-size:18px;color:rgba(165,188,227,0.4);flex-shrink:0">◈</div>
+              <div class="cs-info">
+                <div class="cs-name" id="csName">角色名</div>
+                <div class="cs-sub" id="csSub">NO PERSONA</div>
+              </div>
+              <div class="cs-close" onclick="closeCharSlide()"><i class="fa-solid fa-xmark"></i></div>
             </div>
-            <div>
-              <div class="cs-name" id="csName">角色名</div>
-              <div class="cs-sub" id="csSub">NO PERSONA</div>
+            <div class="cs-stats">
+              <div class="cs-stat"><div class="cs-stat-n" id="csStatPulls">0</div><div class="cs-stat-l">祈月次數</div></div>
+              <div class="cs-stat"><div class="cs-stat-n" id="csStatOwned">0</div><div class="cs-stat-l">已擁命軌</div></div>
+              <div class="cs-stat"><div class="cs-stat-n" id="csStatSSR">0</div><div class="cs-stat-l">SSR+</div></div>
             </div>
-            <div class="cs-close" onclick="closeCharSlide()"><i class="fa-solid fa-xmark"></i></div>
           </div>
-          <div class="cs-chips" id="csChips"></div>
+          <!-- Scrollable body -->
+          <div class="cs-body">
+            <div class="cs-sec-lbl">祈月印記</div>
+            <div class="cs-history-grid" id="csHistGrid"></div>
+            <div class="cs-sec-lbl">命軌留存</div>
+            <div class="cs-owned-grid" id="csOwnedGrid"></div>
+          </div>
         </div>
       </div>
 
@@ -2389,7 +3187,10 @@
 
         <div class="ucs">
           <div class="ucs-top">
-            <span class="ucs-title">命軌留痕</span>
+            <span class="ucs-title" onclick="openQuickEdit()">
+              命軌留痕
+              <span class="ucs-title-edit-hint">✎</span>
+            </span>
             <div class="ucs-gen" onclick="openGenSheet()">
               <div class="ucs-gem"></div>
               <span class="ucs-gen-lbl">幻月衍化</span>
@@ -2484,22 +3285,125 @@
       <div class="gen-theme-grid" id="themeGrid"></div>
 
       <div class="fl">衍化祷词</div>
-      <textarea class="fta" id="genPrompt" style="min-height: 80px">
-银白与清冷的月光氛围，极致精致的破碎感，高分辨率，动漫风格插画。</textarea
-      >
+      <textarea class="fta" id="genPrompt" style="min-height: 80px"></textarea>
 
-      <div class="fl">凝刻数量</div>
-      <input class="fi" id="genCount" type="number" value="10" min="1" max="100" style="width: 80px" />
+      <div class="fl" style="display:flex;align-items:center;justify-content:space-between">
+        <span>凝刻数量</span>
+        <span style="font-family:'Geist Mono',monospace;font-size:9px;color:#56698a" id="rlSum">100%</span>
+        <span style="font-family:'Geist Mono',monospace;font-size:9px" id="rlRem">✓ 恰好100%</span>
+      </div>
+      <input class="fi" id="genCount" type="number" value="10" min="1" max="100" style="width:80px;margin-bottom:10px" />
 
       <div class="fl">命数分配</div>
       <div class="rl-row" id="rlRow"></div>
 
-      <button class="bs-btn" onclick="startGenerate()">✦ 开始衍化</button>
+      <div class="fl" style="margin-top:14px">生成视角</div>
+      <div class="gen-perspective-row">
+        <div class="gen-persp-chip sel" id="genPerspective-user" onclick="togglePerspective('user')">
+          <div class="gen-persp-chip-title">◈ USER</div>
+          <div class="gen-persp-chip-desc">用户卡面<br>服装道具剧情<br>作用在 user 身上</div>
+        </div>
+        <div class="gen-persp-chip" id="genPerspective-char" onclick="togglePerspective('char')">
+          <div class="gen-persp-chip-title">☾ CHAR</div>
+          <div class="gen-persp-chip-desc">角色卡面<br>服装道具剧情<br>作用在 char 身上</div>
+        </div>
+        <div class="gen-persp-chip" id="genPerspective-duo" onclick="togglePerspective('duo')">
+          <div class="gen-persp-chip-title">✦ DUO</div>
+          <div class="gen-persp-chip-desc">多人卡面<br>user + char 共同<br>出现，双向羁绊</div>
+        </div>
+      </div>
+
+      <button class="bs-btn" onclick="startGenerateAI()">✦ 幻月衍化</button>
     </div>
 
-    <!-- 3D 翻转卡牌 Modal -->
-    <div class="card-modal-wrap" id="cardModalWrap">
-      <div class="cm-perspective">
+    <!-- 祈月設定 Sheet -->
+    <div class="bs" id="lunarSettingsSheet">
+      <div class="bs-handle"></div>
+      <div class="bs-ttl">祈月設定</div>
+      <div class="bs-sub">LUNAR DESTINY · CONFIG</div>
+
+      <!-- Toggle row -->
+      <div class="lss-toggle-row">
+        <div class="lss-toggle-info">
+          <div class="lss-toggle-lbl">抽卡记录写入聊天</div>
+          <div class="lss-toggle-sub">选中的角色抽卡后自动写入对应会话</div>
+        </div>
+        <label class="lss-sw">
+          <input type="checkbox" id="lssGachaLogToggle" onchange="onGachaLogToggle()">
+          <div class="lss-sw-track"></div>
+        </label>
+      </div>
+
+      <!-- Tier-1: master char selector (always visible when sheet open) -->
+      <div class="lss-sec-lbl" style="margin-top:14px">启用角色</div>
+      <div id="lssMasterCharList" class="lss-master-list"></div>
+
+      <!-- Tier-2: per-char chat accordion (visible when any char enabled) -->
+      <div class="lss-chat-wrap" id="lssChatWrap">
+        <div class="lss-sec-lbl" style="margin-top:14px;margin-bottom:6px">写入会话</div>
+        <div id="lssChatList"></div>
+      </div>
+    </div>
+
+    <!-- 快速編輯 Sheet -->
+    <div class="bs" id="quickEditSheet">
+      <div class="bs-handle"></div>
+      <div class="bs-ttl">命軌快速編輯</div>
+      <div class="bs-sub">QUICK EDIT · DESTINY CARDS</div>
+
+      <!-- Clear all -->
+      <button class="qe-clear-all" onclick="qeClearAll()">⚠ 全部清空（当前角色所有命轨）</button>
+
+      <!-- Perspective tabs -->
+      <div class="qe-tabs">
+        <div class="qe-tab on"  id="qeTab-user"  onclick="qeSwitchTab('user')">◈ USER</div>
+        <div class="qe-tab"     id="qeTab-char"  onclick="qeSwitchTab('char')">☾ CHAR</div>
+        <div class="qe-tab"     id="qeTab-duo"   onclick="qeSwitchTab('duo')">✦ DUO</div>
+        <div class="qe-tab"     id="qeTab-other" onclick="qeSwitchTab('other')">· 其他</div>
+      </div>
+
+      <!-- USER tab -->
+      <div class="qe-tab-body on" id="qeBody-user">
+        <div class="qe-tab-top">
+          <span class="qe-tab-count" id="qeCount-user">0 张</span>
+          <button class="qe-tab-clear" onclick="qeClearTab('user')">清空此视角</button>
+        </div>
+        <div class="qe-card-list" id="qeList-user"></div>
+      </div>
+
+      <!-- CHAR tab -->
+      <div class="qe-tab-body" id="qeBody-char">
+        <div class="qe-tab-top">
+          <span class="qe-tab-count" id="qeCount-char">0 张</span>
+          <button class="qe-tab-clear" onclick="qeClearTab('char')">清空此视角</button>
+        </div>
+        <div class="qe-card-list" id="qeList-char"></div>
+      </div>
+
+      <!-- DUO tab -->
+      <div class="qe-tab-body" id="qeBody-duo">
+        <div class="qe-tab-top">
+          <span class="qe-tab-count" id="qeCount-duo">0 张</span>
+          <button class="qe-tab-clear" onclick="qeClearTab('duo')">清空此视角</button>
+        </div>
+        <div class="qe-card-list" id="qeList-duo"></div>
+      </div>
+
+      <!-- OTHER tab -->
+      <div class="qe-tab-body" id="qeBody-other">
+        <div class="qe-tab-top">
+          <span class="qe-tab-count" id="qeCount-other">0 张</span>
+          <button class="qe-tab-clear" onclick="qeClearTab('other')">清空此分类</button>
+        </div>
+        <div class="qe-card-list" id="qeList-other"></div>
+      </div>
+
+      <button class="qe-delete-btn" id="qeDeleteBtn" onclick="qeDeleteSelected()" disabled>
+        删除选中命轨
+      </button>
+    </div>
+    <div class="card-modal-wrap" id="cardModalWrap" onclick="closeCardModal()">
+      <div class="cm-perspective" onclick="event.stopPropagation()">
         <div class="cm-flip-inner" id="cmFlipInner">
           <!-- 卡牌正面 -->
           <div class="cm-front" onclick="flipCard()">
@@ -2542,6 +3446,7 @@
               <div class="cm-sec">
                 <div class="cm-sec-lbl">❖ 缔结者 ❖</div>
                 <div class="owner-list" id="cmBackOwners"></div>
+                <button class="enter-world-btn" id="enterWorldBtn" onclick="enterWorld()">☾ 踏入命軌小世界</button>
               </div>
             </div>
           </div>
@@ -2649,6 +3554,49 @@
       let trayCards = [];
       let pullCount = 0;
       let userCards = [];
+      let charDrawHistory = {}; // charId -> [{...card, drawnAt}]
+      // Per-char state: charId -> { pullCount, trayCards, userCards }
+      let charStates = {};
+
+      // Built-in Tsuki debug char
+      const TSUKI_ID = 'tsuki_builtin';
+      function getTsukiChar() {
+        return {
+          id: TSUKI_ID,
+          name: 'Tsuki',
+          remark: 'built-in · debug',
+          avatar: '',
+          _isBuiltin: true,
+        };
+      }
+
+      function getCharState(charId) {
+        if (!charStates[charId]) {
+          charStates[charId] = {
+            pullCount: 0,
+            trayCards: [],
+            userCards: seedUserCards(),
+          };
+        }
+        return charStates[charId];
+      }
+
+      function loadCharState(char) {
+        if (!char) return;
+        const s = getCharState(char.id);
+        pullCount = s.pullCount;
+        trayCards = s.trayCards;
+        userCards = s.userCards;
+        // Keep gacha-gen.js globals in sync
+        window.userCards   = userCards;
+        window.boundUserId = boundUserId;
+        window.users       = users;
+      }
+
+      function saveCurrentCharState() {
+        if (!currentChar) return;
+        charStates[currentChar.id] = { pullCount, trayCards, userCards };
+      }
 
       const RARITIES = ['R', 'SR', 'SSR', 'UR', 'SSS'];
       const RARITY_WEIGHTS = { R: 50, SR: 30, SSR: 14, UR: 5, SSS: 1 };
@@ -2739,9 +3687,31 @@
       async function init() {
         [chars, users, config] = await Promise.all([getAllFrom('chars'), getAllFrom('users'), getConfig()]);
         boundUserId = config.gachaBoundUserId || null;
-        userCards = config.gachaUserCards || seedUserCards();
-        pullCount = config.gachaPullCount || 0;
-        currentChar = chars[0] || null;
+        charDrawHistory = config.charDrawHistory || {};
+        charStates = config.charStates || {};
+
+        // Restore gacha log settings
+        gachaLogMasterCharIds = new Set(config.gachaLogMasterCharIds || []);
+        gachaLogCharChats     = config.gachaLogCharChats || {};
+
+        // Ensure Tsuki built-in state exists
+        if (!charStates[TSUKI_ID]) {
+          const seeded = seedUserCards();
+          ensureCardIds(seeded);
+          charStates[TSUKI_ID] = {
+            pullCount: config.gachaPullCount || 0,
+            trayCards: [],
+            userCards: config.gachaUserCards || seeded,
+          };
+        } else {
+          // Ensure existing cards in all charStates have IDs
+          Object.values(charStates).forEach(st => ensureCardIds(st.userCards || []));
+        }
+
+        // Default char: bound user's matching char, or first real char, or Tsuki
+        const boundUser = users.find(u => u.id === boundUserId);
+        currentChar = (boundUser && chars.find(c => c.userId === boundUser.id)) || chars[0] || getTsukiChar();
+        loadCharState(currentChar);
 
         document.getElementById('pullCount').textContent = pullCount;
         buildDust();
@@ -2752,33 +3722,34 @@
         populateUserSelect();
         buildThemeChips();
         buildRarityRows();
+        if (typeof initGenSliders === 'function') initGenSliders();
+        // Restore gen prompt from localStorage
+        const _savedPrompt = localStorage.getItem('gacha_gen_prompt');
+        const _promptEl = document.getElementById('genPrompt');
+        if (_promptEl) {
+          _promptEl.value = _savedPrompt !== null
+            ? _savedPrompt
+            : '银白与清冷的月光氛围，极致精致的破碎感，高分辨率，动漫风格插画。';
+          _promptEl.addEventListener('input', () => {
+            localStorage.setItem('gacha_gen_prompt', _promptEl.value);
+          });
+        }
       }
 
       function seedUserCards() {
-        return [
-          {
-            id: 'uc1',
-            rarity: 'SSS',
-            identity: CARD_IDENTITIES[0].id,
-            outfit: CARD_IDENTITIES[0].outfit,
-            prop: CARD_IDENTITIES[0].prop,
-            world: CARD_IDENTITIES[0].world,
-            story: CARD_IDENTITIES[0].story,
-            img: '',
-            owners: [],
-          },
-          {
-            id: 'uc2',
-            rarity: 'UR',
-            identity: CARD_IDENTITIES[1].id,
-            outfit: CARD_IDENTITIES[1].outfit,
-            prop: CARD_IDENTITIES[1].prop,
-            world: CARD_IDENTITIES[1].world,
-            story: CARD_IDENTITIES[1].story,
-            img: '',
-            owners: [],
-          },
-        ];
+        // Start with the 5 built-in fully-written cards
+        const t = Date.now();
+        return CARD_IDENTITIES.map((tmpl, i) => ({
+          id:       'uc_' + (t + i),
+          rarity:   tmpl.r,
+          identity: tmpl.id,
+          outfit:   tmpl.outfit,
+          prop:     tmpl.prop,
+          world:    tmpl.world,
+          story:    tmpl.story,
+          img:      '',
+          owners:   [],
+        }));
       }
 
       /* ═══════════════════════════════════════════════
@@ -2804,7 +3775,32 @@
         }
       }
 
+      function renderTrayRarityBar() {
+        const bar = document.getElementById('trayRarityBar');
+        if (!bar) return;
+        bar.innerHTML = '';
+        const counts = {};
+        trayCards.forEach(c => { counts[c.rarity] = (counts[c.rarity] || 0) + 1; });
+        const order = ['SSS','UR','SSR','SR','R'];
+        let anyShown = false;
+        order.forEach(r => {
+          if (!counts[r]) return;
+          anyShown = true;
+          const pill = document.createElement('div');
+          pill.className = `tray-rc rc-${r}`;
+          pill.innerHTML = `${r} <span class="tray-rc-n">${counts[r]}</span>`;
+          bar.appendChild(pill);
+        });
+        if (anyShown) {
+          const total = document.createElement('div');
+          total.className = 'tray-rc-total';
+          total.textContent = trayCards.length + ' 種';
+          bar.appendChild(total);
+        }
+      }
+
       function buildTraySlots() {
+        renderTrayRarityBar();
         const g = document.getElementById('trayGrid');
         g.innerHTML = '';
         trayCards.forEach(card => g.appendChild(makeTrayCard(card, false)));
@@ -2815,6 +3811,11 @@
         }
         document.getElementById('trayCnt').textContent = `${trayCards.length} / 10`;
       }
+
+      // Art glyphs per rarity — elegant unicode symbols instead of plain text
+      const RARITY_GLYPH = {R:'❄',SR:'❅',SSR:'✧',UR:'◉',SSS:null};
+      // Art label shown as small text below glyph
+      const RARITY_ART_LBL = {R:'ℜ',SR:'𝕊ℜ',SSR:'𝕊𝕊ℜ',UR:'𝕌ℜ',SSS:'S·S·S'};
 
       function makeTrayCard(card, isNew) {
         const d = document.createElement('div');
@@ -2829,13 +3830,34 @@
           const g = document.createElement('div');
           g.className = 'tc-grad';
           g.style.background = RARITY_BG[card.rarity];
-          g.innerHTML = `<span style="font-family:'Cinzel Decorative';font-size:18px">${card.rarity}</span>`;
+          const glyph = RARITY_GLYPH[card.rarity];
+          if (glyph) {
+            // art glyph style for R/SR/SSR/UR
+            g.innerHTML = `
+              <span class="tc-art-icon r-${card.rarity}">${glyph}</span>
+              <span class="tc-art-sub">${RARITY_ART_LBL[card.rarity]}</span>`;
+          } else {
+            // SSS: moon crescent + decorative spaced text
+            g.innerHTML = `
+              <span class="tc-art-icon r-SSS" style="font-size:22px;color:rgba(15,23,40,0.65);text-shadow:0 0 10px rgba(15,23,40,0.3)">☽</span>
+              <span style="font-family:'Cinzel Decorative',serif;font-size:7px;letter-spacing:0.25em;color:rgba(15,23,40,0.55);margin-top:2px">S·S·S</span>`;
+          }
           d.appendChild(g);
         }
-        const rb = document.createElement('div');
-        rb.className = `tc-r rb-${card.rarity}`;
-        rb.textContent = card.rarity;
-        d.appendChild(rb);
+        // Bottom-right badge: art style for R/SR/SSR/UR, original for SSS
+        if (RARITY_GLYPH[card.rarity]) {
+          const rb = document.createElement('div');
+          rb.className = `tc-r-glyph r-${card.rarity}`;
+          rb.textContent = RARITY_GLYPH[card.rarity];
+          d.appendChild(rb);
+        } else {
+          // SSS corner badge — use star glyph with SSS class
+          const rb = document.createElement('div');
+          rb.className = 'tc-r-glyph r-SSS';
+          rb.style.cssText = 'color:rgba(15,23,40,0.6);font-size:11px;filter:drop-shadow(0 0 4px rgba(200,217,240,0.8))';
+          rb.textContent = '✦';
+          d.appendChild(rb);
+        }
         return d;
       }
 
@@ -2849,10 +3871,12 @@
         } else {
           av.style.display = 'none';
           ph.style.display = '';
+          ph.textContent = currentChar?._isBuiltin ? '☾' : '◈';
         }
       }
 
       function doDraw() {
+        if (!currentChar) { toast('请先选择轮回角色'); return; }
         const btn = document.getElementById('drawBtn');
         btn.style.pointerEvents = 'none';
         const burst = document.getElementById('burst');
@@ -2860,27 +3884,36 @@
         void burst.offsetWidth;
         burst.classList.add('go');
 
-        setTimeout(() => {
+        setTimeout(async () => {
           let card;
           if (userCards.length) {
-            card = { ...userCards[Math.floor(Math.random() * userCards.length)] };
-            card.id = 'drawn_' + Date.now();
+            const src = userCards[Math.floor(Math.random() * userCards.length)];
+            card = { ...src };
+            // Guarantee stable id on the source card
+            if (!src.id) { src.id = 'uc_' + Date.now(); card.id = src.id; }
+            card.id = src.id; // drawn copy keeps same source id for lookup
           } else {
             const tmpl = CARD_IDENTITIES[Math.floor(Math.random() * CARD_IDENTITIES.length)];
-            card = { ...tmpl, id: 'drawn_' + Date.now(), owners: [], img: '' };
+            card = { ...tmpl, id: 'uc_' + Date.now(), owners: [], img: '' };
           }
 
           if (trayCards.length >= 10) trayCards.shift();
           trayCards.push(card);
           pullCount++;
 
-          if (currentChar) {
-            const existCard = userCards.find(
-              c => c.id === card.id || (c.identity === card.identity && c.rarity === card.rarity),
-            );
-            if (existCard && !existCard.owners.includes(currentChar.id)) {
-              existCard.owners.push(currentChar.id);
-            }
+          // Update owners on the original userCard
+          const existCard = userCards.find(
+            c => c.id === card.id || (c.identity === card.identity && c.rarity === card.rarity),
+          );
+          if (existCard && !existCard.owners.includes(currentChar.id)) {
+            existCard.owners.push(currentChar.id);
+          }
+
+          // Record per-char draw history (keep latest 30)
+          if (!charDrawHistory[currentChar.id]) charDrawHistory[currentChar.id] = [];
+          charDrawHistory[currentChar.id].unshift({ ...card, drawnAt: Date.now() });
+          if (charDrawHistory[currentChar.id].length > 30) {
+            charDrawHistory[currentChar.id] = charDrawHistory[currentChar.id].slice(0, 30);
           }
 
           document.getElementById('pullCount').textContent = pullCount;
@@ -2888,12 +3921,21 @@
           const cells = document.querySelectorAll('#trayGrid .tc-drawn');
           if (cells.length) cells[cells.length - 1].classList.add('tc-new');
           btn.style.pointerEvents = '';
+
+          // Write to chat logs (non-blocking)
+          const charName = currentChar.name || (currentChar._isBuiltin ? 'Tsuki' : '溯源者');
+          writeGachaLogToChats(currentChar.id, charName, card);
+
           saveState();
         }, 680);
       }
 
       async function saveState() {
+        saveCurrentCharState();
         config.gachaBoundUserId = boundUserId;
+        config.charDrawHistory = charDrawHistory;
+        config.charStates = charStates;
+        // legacy compat
         config.gachaUserCards = userCards;
         config.gachaPullCount = pullCount;
         await putConfig(config);
@@ -3008,7 +4050,7 @@
       }
 
       function openCharDetail(ch) {
-        const slide = document.getElementById('charSlide');
+        // Avatar
         if (ch.avatar) {
           document.getElementById('csAv').src = ch.avatar;
           document.getElementById('csAv').style.display = '';
@@ -3019,19 +4061,101 @@
         }
         document.getElementById('csName').textContent = ch.name || '未命名';
         document.getElementById('csSub').textContent = ch.remark || 'NO PERSONA';
-        const chips = document.getElementById('csChips');
-        chips.innerHTML = '';
-        [ch.remark, '绑定印记: ' + (users.find(u => u.id === ch.bindId)?.name || '—')].filter(Boolean).forEach(t => {
-          const c = document.createElement('div');
-          c.className = 'cs-chip';
-          c.textContent = t;
-          chips.appendChild(c);
-        });
-        slide.classList.add('open');
+
+        // Draw history for this char
+        const history = charDrawHistory[ch.id] || [];
+        // Owned cards (cards where this char is in owners)
+        const ownedCards = userCards.filter(card => (card.owners||[]).includes(ch.id));
+
+        // Stats
+        document.getElementById('csStatPulls').textContent = history.length;
+        document.getElementById('csStatOwned').textContent = ownedCards.length;
+        document.getElementById('csStatSSR').textContent = ownedCards.filter(c=>['SSR','UR','SSS'].includes(c.rarity)).length;
+
+        // History grid (latest 18 shown in 6-col grid)
+        const histGrid = document.getElementById('csHistGrid');
+        histGrid.innerHTML = '';
+        if (!history.length) {
+          histGrid.innerHTML = '<div class="cs-hist-empty" style="grid-column:1/-1">尚無祈月記錄</div>';
+        } else {
+          history.slice(0,18).forEach(card => {
+            const d = document.createElement('div');
+            d.className = `cs-htc tc-${card.rarity}`;
+            d.style.border = `1.5px solid`;
+            d.onclick = () => openCardModal(card);
+            if (card.img) {
+              d.innerHTML = `<img src="${card.img}">`;
+            } else {
+              const HIST_GLYPH = {R:'❄',SR:'❅',SSR:'✧',UR:'◉',SSS:'☽'};
+              const HIST_COLORS = {R:'rgba(40,55,70,1)',SR:'rgba(14,42,88,1)',SSR:'rgba(42,24,64,1)',UR:'rgba(8,46,64,1)',SSS:'linear-gradient(135deg,#c8d9f0,#fff)'};
+              const grad = document.createElement('div');
+              grad.className = 'cs-htc-grad';
+              grad.style.background = HIST_COLORS[card.rarity] || '#1a2a3a';
+              grad.textContent = HIST_GLYPH[card.rarity]||'☽';
+              d.appendChild(grad);
+            }
+            // rarity glyph badge
+            const rb = document.createElement('div');
+            rb.className = `cs-htc-r r-${card.rarity}`;
+            if (card.rarity === 'SSS') { rb.textContent = '✦'; rb.style.fontFamily = 'serif'; }
+            else { rb.textContent = RARITY_GLYPH[card.rarity]||card.rarity; }
+            d.appendChild(rb);
+            histGrid.appendChild(d);
+          });
+        }
+
+        // Owned cards list
+        const ownedGrid = document.getElementById('csOwnedGrid');
+        ownedGrid.innerHTML = '';
+        if (!ownedCards.length) {
+          ownedGrid.innerHTML = '<div class="cs-no-owned">此角色尚未擁有任何命軌</div>';
+        } else {
+          // Sort by most recently drawn (latest draw time first)
+          const lastDrawnTime = card => {
+            const hist = charDrawHistory[ch.id] || [];
+            const found = hist.find(h => h.identity===card.identity && h.rarity===card.rarity);
+            return found ? found.drawnAt : 0;
+          };
+          [...ownedCards].sort((a,b) => lastDrawnTime(b) - lastDrawnTime(a)).forEach(card => {
+            const row = document.createElement('div');
+            row.className = 'cs-owned-row';
+            row.onclick = () => openCardModal(card);
+            // Thumbnail
+            const thumb = document.createElement('div');
+            thumb.className = 'cs-owned-thumb';
+            if (card.img) {
+              thumb.innerHTML = `<img src="${card.img}">`;
+            } else {
+              const OWNED_GLYPH = {R:'❄',SR:'❅',SSR:'✧',UR:'◉',SSS:'☽'};
+              const OWNED_BG = {R:'rgba(40,55,70,1)',SR:'rgba(14,42,88,1)',SSR:'rgba(42,24,64,1)',UR:'rgba(8,46,64,1)',SSS:'linear-gradient(135deg,#c8d9f0,#fff)'};
+              thumb.innerHTML = `<div class="cs-owned-thumb-empty" style="background:${OWNED_BG[card.rarity]||'#1a2a3a'};font-size:${card.rarity==='SSS'?'11':'13'}px;color:${card.rarity==='SSS'?'rgba(20,28,40,0.7)':'rgba(200,220,255,0.6)'}">${OWNED_GLYPH[card.rarity]||'☽'}</div>`;
+            }
+            row.appendChild(thumb);
+            // Meta
+            const meta = document.createElement('div');
+            meta.className = 'cs-owned-meta';
+            meta.innerHTML = `<div class="cs-owned-name">${card.identity||'—'}</div>
+              <div class="cs-owned-rarity rb-${card.rarity}">${card.rarity}</div>`;
+            row.appendChild(meta);
+            // How many times drawn
+            const drawCount = history.filter(h=>h.identity===card.identity&&h.rarity===card.rarity).length;
+            if (drawCount > 0) {
+              const cnt = document.createElement('div');
+              cnt.className = 'cs-owned-count';
+              cnt.textContent = `×${drawCount}`;
+              row.appendChild(cnt);
+            }
+            ownedGrid.appendChild(row);
+          });
+        }
+
+        document.getElementById('charSlide').classList.add('open');
+        document.getElementById('csDismiss').classList.add('on');
         document.getElementById('backdrop').classList.add('on');
       }
       function closeCharSlide() {
         document.getElementById('charSlide').classList.remove('open');
+        document.getElementById('csDismiss').classList.remove('on');
         document.getElementById('backdrop').classList.remove('on');
       }
 
@@ -3054,6 +4178,17 @@
       }
       function bindUser() {
         boundUserId = document.getElementById('ubpSel').value || null;
+        const boundUser = users.find(u => u.id === boundUserId);
+        // Try to find a matching char for this user
+        const matchChar = boundUser && chars.find(c => c.userId === boundUser.id);
+        if (matchChar) {
+          saveCurrentCharState();
+          currentChar = matchChar;
+          loadCharState(matchChar);
+          renderGachaChar();
+          document.getElementById('pullCount').textContent = pullCount;
+          buildTraySlots();
+        }
         saveState();
         renderUserPage();
         toast('✦ 締結成功');
@@ -3106,10 +4241,19 @@
             const g = document.createElement('div');
             g.className = 'uc-no-img';
             g.style.background = RARITY_BG[card.rarity];
-            g.innerHTML = `<span style="font-family:'Cinzel Decorative';font-size:24px;color:rgba(255,255,255,0.4)">${card.rarity}</span>`;
+            const glyph = RARITY_GLYPH[card.rarity];
+            if (glyph) {
+              g.innerHTML = `<span class="tc-art-icon r-${card.rarity}" style="font-size:36px">${glyph}</span><span class="tc-art-sub" style="font-size:8px;margin-top:5px">${RARITY_ART_LBL[card.rarity]}</span>`;
+            } else {
+              g.innerHTML = `<span style="font-size:26px;color:rgba(15,23,40,0.65);text-shadow:0 0 12px rgba(15,23,40,0.3)">☽</span><span style="font-family:'Cinzel Decorative',serif;font-size:8px;letter-spacing:0.22em;color:rgba(15,23,40,0.55);margin-top:4px">S·S·S</span>`;
+            }
             el.appendChild(g);
           }
-          el.innerHTML += `<div class="uc-veil"></div><div class="uc-rbadge rb-${card.rarity}">${card.rarity}</div><div class="uc-id">${card.identity || '—'}</div>`;
+          const rarityGlyph2 = RARITY_GLYPH[card.rarity];
+          const rarityLabel = rarityGlyph2
+            ? `<span style="font-size:9px">${rarityGlyph2}</span>`
+            : `<span style="font-size:9px">✦</span>`;
+          el.innerHTML += `<div class="uc-veil"></div><div class="uc-rbadge rb-${card.rarity}">${rarityLabel} ${RARITY_ART_LBL[card.rarity]}</div><div class="uc-id">${card.identity || '—'}</div>`;
           grid.appendChild(el);
         });
       }
@@ -3135,7 +4279,7 @@
         document.getElementById(id).classList.remove('on');
       }
       function closeAllSheets() {
-        ['previewSheet', 'charSwitchSheet', 'addCardSheet', 'genSheet'].forEach(closeSheet);
+        ['previewSheet', 'charSwitchSheet', 'addCardSheet', 'genSheet', 'lunarSettingsSheet', 'quickEditSheet'].forEach(closeSheet);
         closeCharSlide();
         closeCardModal();
         document.getElementById('backdrop').classList.remove('on');
@@ -3172,25 +4316,48 @@
       function openCharSwitch() {
         const list = document.getElementById('charSelList');
         list.innerHTML = '';
-        chars.forEach(ch => {
+
+        // Build char list: Tsuki always first, then chars related to bound user, then all others
+        const boundUser = users.find(u => u.id === boundUserId);
+        const tsuki = getTsukiChar();
+        const charList = [tsuki, ...chars];
+
+        charList.forEach(ch => {
+          const isBuiltin = ch._isBuiltin;
+          const isCurrent = currentChar?.id === ch.id;
+          const st = getCharState(ch.id);
           const item = document.createElement('div');
-          item.className = `csl-item${currentChar?.id === ch.id ? ' sel' : ''}`;
+          item.className = `csl-item${isCurrent ? ' sel' : ''}`;
           item.onclick = () => {
+            saveCurrentCharState();
             currentChar = ch;
+            loadCharState(ch);
             renderGachaChar();
+            document.getElementById('pullCount').textContent = pullCount;
+            buildTraySlots();
+            renderUserPage();
             closeAllSheets();
             toast('轮回已切换至 ' + (ch.name || '溯源者'));
           };
-          if (ch.avatar) {
-            item.innerHTML = `<img class="csl-av" src="${ch.avatar}"><div class="csl-name">${ch.name || '未命名'}</div>`;
-          } else {
-            item.innerHTML = `<div class="csl-av-ph">◈</div><div class="csl-name">${ch.name || '未命名'}</div>`;
-          }
+          const avEl = ch.avatar
+            ? `<img class="csl-av" src="${ch.avatar}">`
+            : `<div class="csl-av-ph">${isBuiltin ? '☾' : '◈'}</div>`;
+          const tagEl = isBuiltin
+            ? `<div class="csl-tag csl-tag-debug">built-in · debug</div>`
+            : (boundUser && ch.userId === boundUser.id
+                ? `<div class="csl-tag csl-tag-bound">绑定角色</div>`
+                : '');
+          item.innerHTML = `${avEl}<div class="csl-info-wrap"><div class="csl-name">${ch.name||'未命名'}</div>${tagEl}</div><div class="csl-pulls">${st.pullCount}<span class="csl-pulls-l">祈</span></div>`;
           list.appendChild(item);
         });
-        if (!chars.length)
-          list.innerHTML =
-            '<div style="font-family:Geist Mono,monospace;font-size:9px;color:var(--mute);padding:20px">尚无溯源者，请先新增</div>';
+
+        if (charList.length === 1) {
+          // Only Tsuki
+          const hint = document.createElement('div');
+          hint.style.cssText = 'font-family:Geist Mono,monospace;font-size:9px;color:var(--mute);padding:8px 0 0;letter-spacing:0.08em';
+          hint.textContent = '在星图中创建角色后将出现于此';
+          list.appendChild(hint);
+        }
         openSheet('charSwitchSheet');
       }
 
@@ -3234,6 +4401,7 @@
         await saveState();
         closeAllSheets();
         renderUserPage();
+        renderTrayRarityBar();
         toast('✦ 命轨已凝刻');
       }
 
@@ -3279,9 +4447,22 @@
           const div = document.createElement('div');
           div.className = 'rl-item';
           const cfg = rarityDist[r];
-          div.innerHTML = `<div class="rl-check${cfg.on ? ' checked' : ''}" id="rlchk-${r}" onclick="toggleRarity('${r}')"></div><div class="rl-label" style="color:var(--${r.toLowerCase() + 'c'})">${r}</div><div class="rl-pct"><input type="range" min="0" max="100" value="${cfg.pct}" oninput="updatePct('${r}',this.value)" id="rlrange-${r}"></div><div class="rl-val" id="rlval-${r}">${cfg.pct}%</div>`;
+          div.innerHTML = `<div class="rl-check${cfg.on ? ' checked' : ''}" id="rlchk-${r}" onclick="toggleRarity('${r}')"></div><div class="rl-label" style="color:var(--${r.toLowerCase() + 'c'})">${r}</div><div class="rl-pct"><input type="range" min="0" max="100" value="${cfg.pct}" id="rlrange-${r}"></div><div class="rl-val" id="rlval-${r}">${cfg.pct}%</div><div class="rl-cnt" id="rlcnt-${r}" style="font-family:'Geist Mono',monospace;font-size:9px;color:var(--mute);min-width:24px;text-align:right"></div>`;
           row.appendChild(div);
         });
+        // Expose globals needed by gacha-gen.js
+        window.RARITIES     = RARITIES;
+        window.rarityDist   = rarityDist;
+        window.selThemes    = selThemes;
+        window.getConfig    = getConfig;
+        window.boundUserId  = boundUserId;
+        window.users        = users;
+        window.userCards    = userCards;
+        window.saveState    = saveState;
+        window.renderUserPage     = renderUserPage;
+        window.renderTrayRarityBar = renderTrayRarityBar;
+        window.closeAllSheets     = closeAllSheets;
+        window.toast              = toast;
       }
       function toggleRarity(r) {
         rarityDist[r].on = !rarityDist[r].on;
@@ -3294,6 +4475,8 @@
 
       function openGenSheet() {
         openSheet('genSheet');
+        if (typeof initGenSliders === 'function') initGenSliders();
+        if (typeof _renderPerspectiveChips === 'function') _renderPerspectiveChips();
       }
       async function startGenerate() {
         const count = parseInt(document.getElementById('genCount').value) || 10;
@@ -3328,6 +4511,7 @@
         userCards.push(...generated);
         await saveState();
         renderUserPage();
+        renderTrayRarityBar();
         toast(`✦ 已衍化 ${count} 道命轨`);
       }
 
@@ -3357,15 +4541,40 @@
         // Owners
         const ownersList = document.getElementById('cmBackOwners');
         ownersList.innerHTML = '';
+        document.getElementById('enterWorldBtn').classList.remove('on');
+        let selectedOwnerId = null;
         const ownerChars = chars.filter(ch => (card.owners || []).includes(ch.id));
+        // Also always include Tsuki if she's the current char and not already listed
+        const tsukiChar = getTsukiChar();
+        if (tsukiChar && !ownerChars.find(c => c.id === tsukiChar.id) && (card.owners||[]).includes(tsukiChar.id)) {
+          ownerChars.push(tsukiChar);
+        }
         if (!ownerChars.length) {
           ownersList.innerHTML = '<div class="no-owners">尚未有缔结者寻得</div>';
         } else {
           ownerChars.forEach(ch => {
             const chip = document.createElement('div');
             chip.className = 'owner-chip';
+            chip.dataset.charId = ch.id;
             chip.innerHTML = `${ch.avatar ? `<img class="owner-av" src="${ch.avatar}">` : '<div class="owner-av" style="background:var(--paper2);display:flex;align-items:center;justify-content:center;font-size:8px;color:rgba(0,0,0,0.5)">◈</div>'}
         <span class="owner-name">${ch.name || '未命名'}</span>`;
+            chip.onclick = () => {
+              if (selectedOwnerId === ch.id) {
+                // deselect
+                selectedOwnerId = null;
+                chip.classList.remove('selected');
+                document.getElementById('enterWorldBtn').classList.remove('on');
+                document.getElementById('enterWorldBtn').dataset.charId = '';
+              } else {
+                selectedOwnerId = ch.id;
+                ownersList.querySelectorAll('.owner-chip').forEach(c => c.classList.remove('selected'));
+                chip.classList.add('selected');
+                document.getElementById('enterWorldBtn').dataset.charId = ch.id;
+                document.getElementById('enterWorldBtn').dataset.cardId = card.id;
+                document.getElementById('enterWorldBtn').textContent = `☾ 與 ${ch.name||'溯源者'} 踏入命軌小世界`;
+                document.getElementById('enterWorldBtn').classList.add('on');
+              }
+            };
             ownersList.appendChild(chip);
           });
         }
@@ -3388,6 +4597,503 @@
         toast('此功能待接入灵魂之海');
       }
 
+      function enterWorld() {
+        const btn = document.getElementById('enterWorldBtn');
+        const charId = btn.dataset.charId;
+        const cardId = btn.dataset.cardId;
+        const ch = charId === 'tsuki_builtin' ? getTsukiChar() : chars.find(c => c.id === charId);
+        const card = userCards.find(c => c.id === cardId);
+        if (!ch || !card) { toast('命軌数据丢失'); return; }
+        toast(`☾ 正在踏入「${card.identity}」的小世界…`);
+        // Future: navigate to chat/world page with ch & card context
+      }
+
+      /* ═══════════════════════════════════════════════
+   GACHA LOG SETTINGS
+   Two-tier architecture:
+     Tier 1 (Tsuki / master): gachaLogMasterCharIds — Set<charId>
+       Which chars are "allowed" to write at all.
+       Empty = nobody writes (global off).
+     Tier 2 (per-char): gachaLogCharChats — { charId: null | string[] }
+       null  = all chats for that char
+       []    = none
+       [ids] = specific chats
+   Write only happens when charId ∈ masterCharIds AND tier-2 allows it.
+════════════════════════════════════════════════ */
+      let gachaLogMasterCharIds = new Set(); // empty = all off
+      let gachaLogCharChats = {};            // per-char chat selection
+      let allChats = [];
+
+      /* ── IDB helpers for chats / messages ── */
+      async function getAllChats() {
+        return getAllFrom('chats');
+      }
+
+      async function getNextFloor(chatId) {
+        const db = await initDB();
+        return new Promise(resolve => {
+          const tx = db.transaction('messages', 'readonly');
+          const store = tx.objectStore('messages');
+          const range = IDBKeyRange.bound([chatId, 0], [chatId, Infinity]);
+          const req = store.openCursor(range, 'prev');
+          req.onsuccess = e => {
+            const cursor = e.target.result;
+            resolve(cursor ? cursor.value.floor + 1 : 1);
+          };
+          req.onerror = () => resolve(1);
+        });
+      }
+
+      async function insertGachaMessage(chatId, charName, card) {
+        const db = await initDB();
+        const floor = await getNextFloor(chatId);
+        const ts = Date.now();
+        const msg = {
+          id: `${chatId}_${floor}`,
+          chatId,
+          floor,
+          senderRole: 'system',
+          type: 'gacha_pull',
+          content: {
+            text: `${charName} 在祈月台抽到 ${card.rarity}「${card.identity}」`,
+            charName,
+            cardId:       card.id,
+            cardIdentity: card.identity,
+            cardRarity:   card.rarity,
+            cardOutfit:   card.outfit  || '',
+            cardProp:     card.prop    || '',
+            cardWorld:    card.world   || '',
+            cardStory:    card.story   || '',
+            cardImg:      card.img     || '',
+          },
+          timestamp: ts,
+        };
+        await new Promise((res, rej) => {
+          const tx = db.transaction('messages', 'readwrite');
+          tx.objectStore('messages').put(msg);
+          tx.oncomplete = res;
+          tx.onerror = e => rej(e.target.error);
+        });
+        await new Promise((res, rej) => {
+          const tx2 = db.transaction('chats', 'readwrite');
+          const store = tx2.objectStore('chats');
+          const req = store.get(chatId);
+          req.onsuccess = () => {
+            const chat = req.result;
+            if (chat) {
+              chat.lastMessage = `[祈月] ${charName} 抽到 ${card.rarity}「${card.identity}」`;
+              chat.updatedAt = ts;
+              store.put(chat);
+            }
+            res();
+          };
+          tx2.onerror = e => rej(e.target.error);
+        });
+      }
+
+      async function writeGachaLogToChats(charId, charName, card) {
+        // Tier-1 gate: char must be in master list
+        if (!gachaLogMasterCharIds.has(charId)) return;
+        try {
+          const freshChats = allChats.length ? allChats : await getAllChats();
+          // Tier-2: which chats for this char
+          const charChats = charId === TSUKI_ID
+            ? [...freshChats]
+            : freshChats.filter(c => (c.charIds || []).includes(charId));
+          const sel = gachaLogCharChats[charId];
+          let targets;
+          if (sel === null || sel === undefined) {
+            targets = charChats;
+          } else if (Array.isArray(sel) && sel.length === 0) {
+            targets = [];
+          } else {
+            const selSet = new Set(sel);
+            targets = charChats.filter(c => selSet.has(c.id));
+          }
+          await Promise.all(targets.map(c => insertGachaMessage(c.id, charName, card)));
+        } catch (e) {
+          console.warn('[GachaLog] write failed:', e);
+        }
+      }
+
+      /* ── Ensure all userCards have stable IDs ── */
+      function ensureCardIds(cards) {
+        let changed = false;
+        cards.forEach((c, i) => {
+          if (!c.id || c.id === '') {
+            c.id = 'uc_' + (Date.now() + i);
+            changed = true;
+          }
+        });
+        return changed;
+      }
+
+      /* ── Open lunar settings sheet ── */
+      async function openLunarSettings() {
+        gachaLogMasterCharIds = new Set(config.gachaLogMasterCharIds || []);
+        gachaLogCharChats     = config.gachaLogCharChats || {};
+
+        // Sync toggle: on if master set is non-empty
+        const hasAny = gachaLogMasterCharIds.size > 0;
+        document.getElementById('lssGachaLogToggle').checked = hasAny;
+        document.getElementById('lssChatWrap').classList.toggle('on', hasAny);
+
+        allChats = await getAllChats();
+        renderLssMasterChars();
+        renderLssChatList();
+        openSheet('lunarSettingsSheet');
+      }
+
+      /* ── Tier-1: render char selector (Tsuki master panel) ── */
+      function renderLssMasterChars() {
+        const el = document.getElementById('lssMasterCharList');
+        if (!el) return;
+        el.innerHTML = '';
+        const allCharList = [getTsukiChar(), ...chars];
+        allCharList.forEach(ch => {
+          const isSel = gachaLogMasterCharIds.has(ch.id);
+          const isCur = currentChar?.id === ch.id;
+          const item = document.createElement('div');
+          item.className = `lss-master-char${isSel ? ' sel' : ''}`;
+          item.title = ch.name || '未命名';
+
+          const avHtml = ch.avatar
+            ? `<img src="${ch.avatar}" class="lss-master-av">`
+            : `<div class="lss-master-av lss-master-av-ph">${ch._isBuiltin ? '☾' : '◈'}</div>`;
+
+          item.innerHTML = `
+            ${avHtml}
+            <div class="lss-master-name">${ch.name || '未命名'}</div>
+            ${isCur ? '<div class="lss-master-cur"></div>' : ''}
+            <div class="lss-master-ck">${isSel ? '✓' : ''}</div>`;
+
+          item.onclick = () => {
+            if (gachaLogMasterCharIds.has(ch.id)) {
+              gachaLogMasterCharIds.delete(ch.id);
+            } else {
+              gachaLogMasterCharIds.add(ch.id);
+            }
+            // Sync outer toggle
+            const hasAny = gachaLogMasterCharIds.size > 0;
+            document.getElementById('lssGachaLogToggle').checked = hasAny;
+            document.getElementById('lssChatWrap').classList.toggle('on', hasAny);
+            saveLssState();
+            renderLssMasterChars();
+          };
+          el.appendChild(item);
+        });
+      }
+
+      /* ── Tier-2: render per-char chat accordion ── */
+      function renderLssChatList() {
+        const list = document.getElementById('lssChatList');
+        list.innerHTML = '';
+
+        if (!allChats.length) {
+          list.innerHTML = '<div class="lss-empty-chats">尚无聊天会话<br>请先在聊天页面创建会话</div>';
+          return;
+        }
+
+        // Only show chars that are enabled in master
+        const activeChars = [getTsukiChar(), ...chars].filter(ch =>
+          gachaLogMasterCharIds.has(ch.id)
+        );
+
+        if (!activeChars.length) {
+          list.innerHTML = '<div class="lss-empty-chats" style="padding:12px 0">请先在上方选择角色以启用写入</div>';
+          return;
+        }
+
+        activeChars.forEach(ch => {
+          const charChats = ch._isBuiltin
+            ? [...allChats]
+            : allChats.filter(c => (c.charIds || []).includes(ch.id));
+          if (!charChats.length) return;
+
+          const sel = gachaLogCharChats[ch.id];
+          const isAllMode = (sel === null || sel === undefined);
+          const selSet = new Set(isAllMode ? [] : (sel || []));
+          const selCount = isAllMode ? charChats.length : selSet.size;
+          const groupId = 'lss-grp-' + ch.id.replace(/[^a-z0-9]/gi, '_');
+
+          const group = document.createElement('div');
+
+          // Header
+          const hdr = document.createElement('div');
+          hdr.className = 'lss-char-hdr';
+          const avHtml = ch.avatar
+            ? `<img src="${ch.avatar}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:1.5px solid rgba(165,188,227,0.3);flex-shrink:0">`
+            : `<div style="width:28px;height:28px;border-radius:50%;background:rgba(165,188,227,0.12);border:1.5px solid rgba(165,188,227,0.22);display:flex;align-items:center;justify-content:center;font-size:13px;color:rgba(165,188,227,0.65);flex-shrink:0">${ch._isBuiltin ? '☾' : '◈'}</div>`;
+
+          hdr.innerHTML = `
+            ${avHtml}
+            <div class="lss-char-hdr-meta">
+              <div class="lss-char-hdr-name">${ch.name || '未命名'}</div>
+              <div class="lss-char-hdr-sub">写入会话 · ${isAllMode ? '全部' : selCount + ' / ' + charChats.length}</div>
+            </div>
+            <div class="lss-char-hdr-arrow" id="${groupId}-arrow">▾</div>`;
+
+          hdr.onclick = () => {
+            const body = document.getElementById(groupId);
+            const arrow = document.getElementById(groupId + '-arrow');
+            body.classList.toggle('open');
+            arrow.classList.toggle('open');
+          };
+          group.appendChild(hdr);
+
+          // Body
+          const body = document.createElement('div');
+          body.className = 'lss-char-body';
+          body.id = groupId;
+          const inner = document.createElement('div');
+          inner.className = 'lss-char-body-inner';
+
+          // "全部" sentinel
+          const allItem = document.createElement('div');
+          allItem.className = `lss-chat-item${isAllMode ? ' sel' : ''}`;
+          allItem.innerHTML = `
+            <div class="lss-chat-av" style="background:rgba(165,188,227,0.08);border-color:rgba(165,188,227,0.18)">
+              <span style="font-size:13px;opacity:0.65">☽</span>
+            </div>
+            <div class="lss-chat-meta">
+              <div class="lss-chat-name">全部会话</div>
+              <div class="lss-chat-sub">写入 ${ch.name || '此角色'} 的所有关联聊天</div>
+            </div>
+            <div class="lss-chat-ck">${isAllMode ? '✓' : ''}</div>`;
+          allItem.onclick = () => {
+            gachaLogCharChats[ch.id] = null;
+            saveLssState();
+            renderLssChatList();
+            requestAnimationFrame(() => {
+              const b = document.getElementById(groupId);
+              const a = document.getElementById(groupId + '-arrow');
+              if (b) b.classList.add('open');
+              if (a) a.classList.add('open');
+            });
+          };
+          inner.appendChild(allItem);
+
+          // Individual chats
+          const sorted = [...charChats].sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+          sorted.forEach(chat => {
+            const isSel = !isAllMode && selSet.has(chat.id);
+            const item = document.createElement('div');
+            item.className = `lss-chat-item${isSel ? ' sel' : ''}`;
+
+            let chatAvHtml;
+            if (chat.avatar) {
+              chatAvHtml = `<div class="lss-chat-av"><img src="${chat.avatar}"></div>`;
+            } else {
+              const firstCharId = (chat.charIds || []).find(id => id !== ch.id) || (chat.charIds || [])[0];
+              const fc = chars.find(c => c.id === firstCharId);
+              chatAvHtml = fc?.avatar
+                ? `<div class="lss-chat-av"><img src="${fc.avatar}"></div>`
+                : `<div class="lss-chat-av">${chat.type === 'group' ? '◈' : '◐'}</div>`;
+            }
+
+            const chatTitle = chat.customName || chat.title || chat.name || 'Untitled';
+            item.innerHTML = `
+              ${chatAvHtml}
+              <div class="lss-chat-meta">
+                <div class="lss-chat-name">${chatTitle}</div>
+                <div class="lss-chat-sub">${chat.type === 'group' ? '群聊' : '单聊'}</div>
+              </div>
+              <div class="lss-chat-ck">${isSel ? '✓' : ''}</div>`;
+
+            item.onclick = () => {
+              let cur = gachaLogCharChats[ch.id];
+              if (cur === null || cur === undefined) {
+                cur = sorted.map(c => c.id).filter(id => id !== chat.id);
+              } else {
+                const idx = cur.indexOf(chat.id);
+                cur = idx >= 0
+                  ? cur.filter(id => id !== chat.id)
+                  : [...cur, chat.id];
+                if (cur.length === sorted.length) cur = null;
+              }
+              gachaLogCharChats[ch.id] = cur;
+              saveLssState();
+              renderLssChatList();
+              requestAnimationFrame(() => {
+                const b = document.getElementById(groupId);
+                const a = document.getElementById(groupId + '-arrow');
+                if (b) b.classList.add('open');
+                if (a) a.classList.add('open');
+              });
+            };
+            inner.appendChild(item);
+          });
+
+          body.appendChild(inner);
+          group.appendChild(body);
+          list.appendChild(group);
+        });
+
+        if (!list.children.length) {
+          list.innerHTML = '<div class="lss-empty-chats">尚无包含已启用角色的聊天会话</div>';
+        }
+      }
+
+      function onGachaLogToggle() {
+        const on = document.getElementById('lssGachaLogToggle').checked;
+        if (on) {
+          // Enable all chars at once as a shortcut
+          [getTsukiChar(), ...chars].forEach(ch => gachaLogMasterCharIds.add(ch.id));
+        } else {
+          gachaLogMasterCharIds.clear();
+        }
+        document.getElementById('lssChatWrap').classList.toggle('on', on);
+        saveLssState();
+        renderLssMasterChars();
+        renderLssChatList();
+      }
+
+      function saveLssState() {
+        config.gachaLogMasterCharIds = [...gachaLogMasterCharIds];
+        config.gachaLogCharChats     = gachaLogCharChats;
+        putConfig(config);
+      }
+
+      /* ═══════════════════════════════════════════════
+   QUICK EDIT PANEL
+════════════════════════════════════════════════ */
+      let _qeActiveTab = 'user';
+      const _qeSelected = new Set(); // card ids currently checked
+
+      function openQuickEdit() {
+        _qeSelected.clear();
+        _qeActiveTab = 'user';
+        _qeRenderAll();
+        openSheet('quickEditSheet');
+      }
+
+      /** Split userCards into the four buckets by perspective tag */
+      function _qeBuckets() {
+        return {
+          user:  userCards.filter(c => c.perspective === 'user'),
+          char:  userCards.filter(c => c.perspective === 'char'),
+          duo:   userCards.filter(c => c.perspective === 'duo'),
+          other: userCards.filter(c => !c.perspective || !['user','char','duo'].includes(c.perspective)),
+        };
+      }
+
+      function _qeRenderAll() {
+        // Sync tab active state
+        ['user', 'char', 'duo', 'other'].forEach(t => {
+          document.getElementById('qeTab-' + t)?.classList.toggle('on', t === _qeActiveTab);
+          document.getElementById('qeBody-' + t)?.classList.toggle('on', t === _qeActiveTab);
+        });
+        const buckets = _qeBuckets();
+        ['user', 'char', 'duo', 'other'].forEach(t => _qeRenderTab(t, buckets[t]));
+        _qeRefreshDeleteBtn();
+      }
+
+      function _qeRenderTab(tab, cards) {
+        const listEl  = document.getElementById('qeList-' + tab);
+        const countEl = document.getElementById('qeCount-' + tab);
+        if (!listEl) return;
+
+        countEl.textContent = cards.length + ' 张';
+        listEl.innerHTML = '';
+
+        if (!cards.length) {
+          listEl.innerHTML = '<div class="qe-empty">此分类暂无命轨</div>';
+          return;
+        }
+
+        cards.forEach(card => {
+          const isSel = _qeSelected.has(card.id);
+          const row = document.createElement('div');
+          row.className = `qe-card-row${isSel ? ' sel' : ''}`;
+
+          // Rarity badge color inline
+          const RC = { R:'#94a3b8', SR:'#7dd3fc', SSR:'#c084fc', UR:'#38bdf8', SSS:'#e2eaf8' };
+          const rarityColor = RC[card.rarity] || '#94a3b8';
+
+          row.innerHTML = `
+            <div class="qe-card-check">${isSel ? '✓' : ''}</div>
+            <div class="qe-card-info">
+              <div class="qe-card-name">${card.identity || '—'}</div>
+              <div class="qe-card-meta">
+                <span style="color:${rarityColor}">${card.rarity}</span>
+                ${card.genAt ? ' · ' + new Date(card.genAt).toLocaleDateString('zh-CN', {month:'numeric',day:'numeric'}) : ''}
+              </div>
+            </div>
+            <div class="qe-card-preview" onclick="event.stopPropagation(); openCardModal(window._qeCardById('${card.id}'))">查看</div>`;
+
+          row.onclick = () => {
+            if (_qeSelected.has(card.id)) {
+              _qeSelected.delete(card.id);
+              row.classList.remove('sel');
+              row.querySelector('.qe-card-check').textContent = '';
+            } else {
+              _qeSelected.add(card.id);
+              row.classList.add('sel');
+              row.querySelector('.qe-card-check').textContent = '✓';
+            }
+            _qeRefreshDeleteBtn();
+          };
+          listEl.appendChild(row);
+        });
+      }
+
+      function _qeRefreshDeleteBtn() {
+        const btn = document.getElementById('qeDeleteBtn');
+        if (!btn) return;
+        const n = _qeSelected.size;
+        btn.disabled = n === 0;
+        btn.textContent = n > 0 ? `删除选中命轨 (${n} 张)` : '删除选中命轨';
+      }
+
+      // Expose for inline onclick in _qeRenderTab
+      window._qeCardById = id => userCards.find(c => c.id === id);
+
+      function qeSwitchTab(tab) {
+        _qeActiveTab = tab;
+        _qeRenderAll();
+      }
+
+      async function qeDeleteSelected() {
+        if (!_qeSelected.size) return;
+        const ids = new Set(_qeSelected);
+        userCards = userCards.filter(c => !ids.has(c.id));
+        window.userCards = userCards; // keep global in sync
+        _qeSelected.clear();
+        await saveState();
+        renderUserPage();
+        renderTrayRarityBar();
+        _qeRenderAll();
+        toast(`✦ 已清除 ${ids.size} 道命轨`);
+      }
+
+      async function qeClearTab(tab) {
+        const buckets = _qeBuckets();
+        const toRemove = new Set(buckets[tab].map(c => c.id));
+        if (!toRemove.size) return;
+        userCards = userCards.filter(c => !toRemove.has(c.id));
+        window.userCards = userCards;
+        // Deselect any that were checked
+        toRemove.forEach(id => _qeSelected.delete(id));
+        await saveState();
+        renderUserPage();
+        renderTrayRarityBar();
+        _qeRenderAll();
+        toast(`✦ 已清空 ${tab.toUpperCase()} 视角 ${toRemove.size} 道命轨`);
+      }
+
+      async function qeClearAll() {
+        if (!userCards.length) return;
+        const n = userCards.length;
+        userCards = [];
+        window.userCards = userCards;
+        _qeSelected.clear();
+        await saveState();
+        renderUserPage();
+        renderTrayRarityBar();
+        closeAllSheets();
+        toast(`✦ 已清空全部 ${n} 道命轨`);
+      }
+
       /* ═══════════════════════════════════════════════
    TOAST
 ════════════════════════════════════════════════ */
@@ -3402,5 +5108,6 @@
 
       init().catch(console.error);
     </script>
+    <script src="TsukiBridge.js"></script>
   </body>
 </html>

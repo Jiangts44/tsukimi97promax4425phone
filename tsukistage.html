@@ -2014,6 +2014,87 @@
         background: rgba(250, 91, 213, 0.12);
         color: var(--accent-pink);
       }
+      .ss-chat-badge.type-private {
+        background: rgba(91, 124, 250, 0.12);
+        color: var(--accent-blue);
+        font-size: 7px;
+      }
+      .ss-chat-badge.type-group {
+        background: rgba(67, 217, 160, 0.12);
+        color: var(--accent-mint);
+        font-size: 7px;
+      }
+
+      /* offline card in history bubble */
+      .offline-card {
+        background: rgba(91, 124, 250, 0.06);
+        border: 1px solid rgba(91, 124, 250, 0.18);
+        border-radius: 10px 6px 10px 6px;
+        padding: 10px 12px;
+        margin: 2px 0;
+        font-family: 'Geist Mono', monospace;
+        position: relative;
+      }
+      .offline-card-tag {
+        font-size: 8px;
+        color: var(--accent-blue);
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        margin-bottom: 5px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      .offline-card-title {
+        font-size: 11px;
+        color: rgba(255,255,255,0.82);
+        font-weight: 600;
+        margin-bottom: 3px;
+      }
+      .offline-card-meta {
+        font-size: 8.5px;
+        color: var(--s-mute);
+        letter-spacing: 0.05em;
+      }
+      .offline-card-del {
+        position: absolute;
+        bottom: 8px;
+        right: 10px;
+        background: rgba(255,107,107,0.1);
+        color: rgba(255,107,107,0.6);
+        border: none;
+        border-radius: 6px;
+        font-family: 'Geist Mono', monospace;
+        font-size: 7.5px;
+        padding: 2px 7px;
+        cursor: pointer;
+        transition: 0.15s;
+        letter-spacing: 0.05em;
+      }
+      .offline-card-del:hover {
+        background: rgba(255,107,107,0.2);
+        color: #ff6b6b;
+      }
+      .offline-del-btn {
+        display: inline-flex;
+        align-items: center;
+        background: rgba(255,107,107,0.1);
+        color: rgba(255,107,107,0.7);
+        border: none;
+        border-radius: 5px;
+        font-family: 'Geist Mono', monospace;
+        font-size: 7px;
+        padding: 2px 6px;
+        cursor: pointer;
+        margin-left: 6px;
+        vertical-align: middle;
+        transition: 0.15s;
+        letter-spacing: 0.05em;
+      }
+      .offline-del-btn:hover {
+        background: rgba(255,107,107,0.22);
+        color: #ff6b6b;
+      }
       .ss-chat-av {
         width: 36px;
         height: 36px;
@@ -2216,6 +2297,16 @@
       .stage-settings-bg.day .ss-chat-av {
         background: linear-gradient(135deg, #d4d4d8, #e8e8ec);
         color: var(--ink-3);
+      }
+      .stage-settings-bg.day .offline-card {
+        background: rgba(91, 124, 250, 0.04);
+        border-color: rgba(91, 124, 250, 0.14);
+      }
+      .stage-settings-bg.day .offline-card-title {
+        color: var(--ink);
+      }
+      .stage-settings-bg.day .offline-card-meta {
+        color: var(--mute);
       }
       .stage-settings-bg.day .ss-stepper-btn {
         background: rgba(10, 10, 10, 0.06);
@@ -3865,8 +3956,9 @@
               <div class="ss-chat-check"><i class="fa-solid fa-check"></i></div>
               <div class="ss-chat-av" style="${avStyle}">${avIcon}</div>
               <div class="ss-chat-info">
-                <div class="ss-chat-name">${chat.name || chat.title || char.name || '聊天记录'}</div>
+                <div class="ss-chat-name">${chat.customName || chat.title || chat.name || char.name || '聊天记录'}</div>
                 <div class="ss-chat-meta">
+                  <span class="ss-chat-badge ${chat.type === 'group' ? 'type-group' : 'type-private'}">${chat.type === 'group' ? '群聊' : '私聊'}</span>
                   <span>F·${totalFloor} 共${msgs.length}条</span>
                   ${
                     syncedFloor > 0
@@ -3900,7 +3992,155 @@
         document.getElementById('ssInsertBtn').disabled = n === 0;
       }
 
-      // ── insert history bubble ──
+      // ── helpers: get all theater_messages for a theater sorted by floor ──
+      async function getAllTheaterMsgs(theaterId) {
+        const msgs = await dbGetByIndex('theater_messages', 'by_theater', theaterId);
+        return msgs.sort((a, b) => a.floor - b.floor);
+      }
+
+      // ── write offline record into online chat messages ──
+      async function writeOfflineRecord(chatId, offlineData) {
+        const db = await openDb();
+        return new Promise((resolve, reject) => {
+          const tx = db.transaction('messages', 'readwrite');
+          const store = tx.objectStore('messages');
+          const range = IDBKeyRange.bound([chatId, 0], [chatId, Infinity]);
+          const req = store.openCursor(range, 'prev');
+          req.onsuccess = e => {
+            const cursor = e.target.result;
+            const nextFloor = cursor ? cursor.value.floor + 1 : 1;
+            const record = {
+              ...offlineData,
+              chatId,
+              floor: nextFloor,
+              id: `${chatId}_${nextFloor}`,
+              senderRole: 'system',
+            };
+            const putReq = store.put(record);
+            putReq.onsuccess = () => resolve(record);
+            putReq.onerror = e2 => reject(e2.target.error);
+          };
+          req.onerror = e => reject(e.target.error);
+        });
+      }
+
+      // ── update stageFloorRange[1] of a previous offline record ──
+      async function updateOfflineRecordEnd(chatId, onlineFloor, newEnd) {
+        const db = await openDb();
+        return new Promise((resolve, reject) => {
+          const tx = db.transaction('messages', 'readwrite');
+          const store = tx.objectStore('messages');
+          const req = store.get([chatId, onlineFloor]);
+          req.onsuccess = () => {
+            const rec = req.result;
+            if (rec && rec.type === 'offline') {
+              const oldEnd = rec.stageFloorRange[1];
+              rec.stageFloorRange[1] = newEnd;
+              // also update content mirror
+              if (rec.content && typeof rec.content === 'object') {
+                rec.content.stageFloorRange[1] = newEnd;
+                const start = rec.stageFloorRange[0];
+                rec.content.displayRange = start === 'prologue'
+                  ? `开场白 → F·${newEnd}`
+                  : `F·${start} → F·${newEnd}`;
+              }
+              console.log('%c[offline更新] chatId=' + chatId + ' onlineFloor=' + onlineFloor + ' stageFloorRange[1]: ' + oldEnd + ' → ' + newEnd, 'color:#5b7cfa;font-weight:bold');
+              store.put(rec);
+            }
+            resolve();
+          };
+          req.onerror = e => reject(e.target.error);
+        });
+      }
+
+      // ── find previous history bubble for same chatId in theater ──
+      async function findPrevOfflineInsert(theaterId, chatId, beforeFloor) {
+        const allMsgs = await getAllTheaterMsgs(theaterId);
+        for (let i = allMsgs.length - 1; i >= 0; i--) {
+          const m = allMsgs[i];
+          if (m.floor >= beforeFloor) continue;
+          if (m.type === 'history' && m.linkedChatId === chatId) return m;
+        }
+        return null;
+      }
+
+      // ── delete offline record from online chat ──
+      // ── delete both theater history bubble AND online offline record ──
+      async function deleteHistoryLink(theaterId, theaterFloor, chatId, onlineFloor) {
+        const db = await openDb();
+
+        // 1. 删线下 theater_messages 里的 history bubble
+        await new Promise((resolve, reject) => {
+          const tx = db.transaction('theater_messages', 'readwrite');
+          const store = tx.objectStore('theater_messages');
+          store.delete([theaterId, theaterFloor]);
+          tx.oncomplete = resolve;
+          tx.onerror = e => reject(e.target.error);
+        });
+        console.log('%c[删除] 线下 theater_messages[' + theaterId + ',' + theaterFloor + '] ✓', 'color:#ff6b6b;font-weight:bold');
+
+        // 2. 删线上 messages 里的 offline 记录
+        if (chatId && !isNaN(onlineFloor)) {
+          await new Promise((resolve, reject) => {
+            const tx = db.transaction('messages', 'readwrite');
+            const store = tx.objectStore('messages');
+            store.delete([chatId, onlineFloor]);
+            tx.oncomplete = resolve;
+            tx.onerror = e => reject(e.target.error);
+          });
+          console.log('%c[删除] 线上 messages[' + chatId + ',' + onlineFloor + '] ✓', 'color:#ff6b6b;font-weight:bold');
+        }
+      }
+
+      function buildHistoryBubble(msg) {
+        const el = document.createElement('div');
+        el.className = 'history-bubble';
+        el.dataset.theaterId = msg.theaterId;
+        el.dataset.floor = msg.floor;
+        el.innerHTML = `<div class="history-bubble-inner">${msg.content}</div>`;
+
+        // bind delete button — 线下主控，同时删线下bubble和线上offline记录
+        const delBtn = el.querySelector('.offline-del-btn');
+        if (delBtn) {
+          delBtn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const foot = delBtn.closest('.history-foot');
+            const chatId = foot?.dataset?.offlineChat || null;
+            const onlineFloor = parseInt(foot?.dataset?.onlineFloor);
+            const theaterId = msg.theaterId;
+            const theaterFloor = msg.floor;
+
+            if (!confirm('确定同时删除线下剧场的关联记录和线上聊天的离线卡片？')) return;
+
+            try {
+              console.log('%c[offline删除] 线下 floor=' + theaterFloor + ' 线上 chatId=' + chatId + ' floor=' + onlineFloor, 'color:#ff6b6b;font-weight:bold;font-size:12px');
+              await deleteHistoryLink(theaterId, theaterFloor, chatId, onlineFloor);
+
+              // 从DOM移除这个bubble
+              el.style.transition = 'opacity 0.25s, transform 0.25s';
+              el.style.opacity = '0';
+              el.style.transform = 'scale(0.95)';
+              setTimeout(() => el.remove(), 260);
+
+              // 更新theater的linkedChats（移除或降低同步楼层记录）
+              if (S.theater && chatId) {
+                const linkedInfo = S.theater.linkedChats || {};
+                // 找到这个chatId上一次的linkedFloor，重置为上一次插入的floor
+                // 简单处理：直接删掉这个chatId的同步记录，让它下次重新读取
+                delete linkedInfo[chatId];
+                S.theater.linkedChats = linkedInfo;
+                S.theater.updatedAt = Date.now();
+                await dbPut('theaters', S.theater);
+                console.log('%c[offline删除] linkedChats[' + chatId + '] 已重置', 'color:#ff9f43;font-weight:bold');
+              }
+            } catch (err) {
+              console.error('删除失败', err);
+              alert('删除失败: ' + err.message);
+            }
+          });
+        }
+        return el;
+      }
       document.getElementById('ssInsertBtn').addEventListener('click', async () => {
         if (!S.theater || !SS.selectedChats.size) return;
         const btn = document.getElementById('ssInsertBtn');
@@ -3914,15 +4154,15 @@
 
           for (const item of items) {
             const { chat, msgs, char, chatUser, syncedFloor } = item._chatData;
-            // only messages after last synced floor
             const toInsert = msgs
-              .filter(m => (m.floor || 0) > syncedFloor)
+              .filter(m => (m.floor || 0) > syncedFloor && m.type !== 'offline')
               .sort((a, b) => (a.floor || 0) - (b.floor || 0));
             if (!toInsert.length) continue;
 
+            const insertedChatFloorStart = toInsert[0].floor || syncedFloor + 1;
             const lastFloor = Math.max(...toInsert.map(m => m.floor || 0));
+            const chatLabel = chat.customName || chat.title || chat.name || char?.name || '聊天';
 
-            // tsukiphone1_1: field is `senderRole` ('user'|'char'), no per-msg charId
             const entries = toInsert
               .slice(-30)
               .map(m => {
@@ -3940,49 +4180,159 @@
               })
               .join('');
 
-            const chatLabel = chat.name || chat.title || char?.name || '聊天';
+            // ── Determine insertion position ──
+            const allTheaterMsgs = await getAllTheaterMsgs(S.theater.id);
+            const prologueMsg = allTheaterMsgs.find(m => m.type === 'prologue');
+            const nonPrologueMsgs = allTheaterMsgs.filter(m => m.type !== 'prologue');
+            const insertBeforePrologue = !!(prologueMsg && nonPrologueMsgs.length === 0);
+
+            // Current next theater floor (before this insert)
+            const currentNextFloor = await getNextFloor(S.theater.id);
+            const insertStageFloor = currentNextFloor; // floor this history bubble will occupy
+
+            // stageFloorRange start
+            const stageFloorStart = insertBeforePrologue ? 'prologue' : insertStageFloor + 1;
+            const insertOnlineFloorInOffline = stageFloorStart === 'prologue' ? 1 : insertStageFloor;
+
+            // ── Find and update previous offline record for same chatId ──
+            const prevInsert = await findPrevOfflineInsert(S.theater.id, chat.id, insertStageFloor);
+            if (prevInsert && prevInsert.offlineRecordFloor != null) {
+              const newEnd = insertStageFloor - 1;
+              await updateOfflineRecordEnd(chat.id, prevInsert.offlineRecordFloor, newEnd);
+              console.log('%c[offline] 更新 chatId=' + chat.id + ' 上一条offline记录(onlineFloor=' + prevInsert.offlineRecordFloor + ') stageFloorRange[1] → ' + newEnd, 'color:#43d9a0;font-weight:bold');
+            }
+
+            // ── Write offline record into online chat ──
+            const floorRangeLabel = stageFloorStart === 'prologue'
+              ? `开场白 → ∞`
+              : `F·${stageFloorStart} → ∞`;
+            const offlineData = {
+              type: 'offline',
+              senderRole: 'system',
+              stageId: S.theater.id,
+              stageTitle: S.theater.title || chatLabel,
+              stageFloorRange: [stageFloorStart, null],
+              insertedChatFloors: [insertedChatFloorStart, lastFloor],
+              insertOnlineFloorInOffline,
+              content: {
+                text: `【线下剧场】${S.theater.title || chatLabel} · 起始楼层 F·${insertedChatFloorStart} · 共置入 ${toInsert.length} 条`,
+                stageId: S.theater.id,
+                stageTitle: S.theater.title || chatLabel,
+                stageFloorRange: [stageFloorStart, null],
+                insertedChatFloors: [insertedChatFloorStart, lastFloor],
+                insertOnlineFloorInOffline,
+                displayTitle: S.theater.title || chatLabel,
+                displayRange: floorRangeLabel,
+                insertCount: toInsert.length,
+              },
+              timestamp: Date.now(),
+            };
+            const writtenRecord = await writeOfflineRecord(chat.id, offlineData);
+
+            // ── 同步更新线上聊天列表的 lastMessage ──
+            const chatRecord = await new Promise((res, rej) => {
+              const db2 = openDb().then(db => {
+                const tx = db.transaction('chats', 'readwrite');
+                const req = tx.objectStore('chats').get(chat.id);
+                req.onsuccess = () => {
+                  const rec = req.result;
+                  if (rec) {
+                    rec.lastMessage = `[线下剧场] ${offlineData.stageTitle}`;
+                    rec.updatedAt = Date.now();
+                    tx.objectStore('chats').put(rec);
+                  }
+                  tx.oncomplete = () => res(rec);
+                  tx.onerror = e => rej(e.target.error);
+                };
+                req.onerror = e => rej(e.target.error);
+              });
+            }).catch(() => null);
+
+            console.log('%c[offline写入] 线上聊天 ' + chat.id + ' (' + chatLabel + ')', 'color:#fa5bd5;font-weight:bold;font-size:12px');
+            console.log({
+              stageId: S.theater.id,
+              stageTitle: offlineData.stageTitle,
+              chatId: chat.id,
+              stageFloorRange: offlineData.stageFloorRange,
+              insertedChatFloors: offlineData.insertedChatFloors,
+              insertOnlineFloorInOffline,
+              onlineChatFloor: writtenRecord.floor,
+              insertBeforePrologue,
+            });
+
+            // ── Build history bubble content ──
             const historyContent = `
               <div class="history-tag">
                 <i class="fa-solid fa-link" style="font-size:8px"></i>
-                前置剧情 · ${chatLabel} · F·${syncedFloor + 1}→F·${lastFloor}
+                前置剧情 · ${chatLabel} · F·${insertedChatFloorStart}→F·${lastFloor}
               </div>
               <div class="history-entries">${entries}</div>
-              <div class="history-foot">— 共置入 ${toInsert.length} 条 · 截至 F·${lastFloor}</div>`;
+              <div class="history-foot" data-offline-chat="${chat.id}" data-online-floor="${writtenRecord.floor}">— 共置入 ${toInsert.length} 条 · 截至 F·${lastFloor} <button class="offline-del-btn" title="删除线上聊天记录">删除</button></div>`;
 
-            // create theater message for history bubble
-            const floor = await getNextFloor(S.theater.id);
-            const histMsg = {
-              theaterId: S.theater.id,
-              floor,
-              type: 'history',
-              sender: 'system',
-              charId: null,
-              content: historyContent,
-              linkedChatId: chat.id,
-              linkedFloor: lastFloor,
-              timestamp: Date.now(),
-            };
-            await dbPut('theater_messages', histMsg);
+            let histMsg;
 
-            // update theater's linkedChats
+            if (insertBeforePrologue && prologueMsg) {
+              // Shift prologue floor up and insert before it
+              const pFloor = prologueMsg.floor;
+              const db2 = await openDb();
+              await new Promise((res, rej) => {
+                const tx = db2.transaction('theater_messages', 'readwrite');
+                const store = tx.objectStore('theater_messages');
+                store.delete([S.theater.id, pFloor]);
+                tx.oncomplete = res;
+                tx.onerror = e => rej(e.target.error);
+              });
+              const newPrologue = { ...prologueMsg, floor: pFloor + 1 };
+              await dbPut('theater_messages', newPrologue);
+
+              histMsg = {
+                theaterId: S.theater.id,
+                floor: pFloor,
+                type: 'history',
+                sender: 'system',
+                charId: null,
+                content: historyContent,
+                linkedChatId: chat.id,
+                linkedFloor: lastFloor,
+                offlineRecordFloor: writtenRecord.floor,
+                insertedKey: 'hist_' + chat.id + '_' + Date.now(),
+                timestamp: Date.now(),
+              };
+              await dbPut('theater_messages', histMsg);
+              updateFloor(newPrologue.floor);
+              await renderMessages();
+            } else {
+              const histFloor = await getNextFloor(S.theater.id);
+              histMsg = {
+                theaterId: S.theater.id,
+                floor: histFloor,
+                type: 'history',
+                sender: 'system',
+                charId: null,
+                content: historyContent,
+                linkedChatId: chat.id,
+                linkedFloor: lastFloor,
+                offlineRecordFloor: writtenRecord.floor,
+                insertedKey: 'hist_' + chat.id + '_' + Date.now(),
+                timestamp: Date.now(),
+              };
+              await dbPut('theater_messages', histMsg);
+
+              const area = document.getElementById('sArea');
+              area.querySelector('.s-empty')?.remove();
+              const el = buildHistoryBubble(histMsg);
+              area.appendChild(el);
+              area.scrollTop = area.scrollHeight;
+              updateFloor(histFloor);
+            }
+
             linkedInfo[chat.id] = lastFloor;
-
-            // render in area (append at current position in timeline)
-            const area = document.getElementById('sArea');
-            area.querySelector('.s-empty')?.remove();
-            const el = buildHistoryBubble(histMsg);
-            area.appendChild(el);
-            area.scrollTop = area.scrollHeight;
-
-            updateFloor(floor);
           }
 
-          // save linkedChats state
           S.theater.linkedChats = linkedInfo;
           S.theater.updatedAt = Date.now();
           await dbPut('theaters', S.theater);
 
-          // refresh list
           await loadChatLinks();
           SS.selectedChats.clear();
           syncInsertBar();
@@ -3994,13 +4344,6 @@
           btn.innerHTML = '<i class="fa-solid fa-layer-plus"></i> 置入前置剧情';
         }
       });
-
-      function buildHistoryBubble(msg) {
-        const el = document.createElement('div');
-        el.className = 'history-bubble';
-        el.innerHTML = `<div class="history-bubble-inner">${msg.content}</div>`;
-        return el;
-      }
 
       /* ══════════════════════════════════════════════════════════
        10. INIT

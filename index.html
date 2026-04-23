@@ -2200,9 +2200,9 @@
       <div class="home-bar" id="homeBar"></div>
 
       <!-- Chat iframe overlay — slides in from right, covers all below status bar -->
+      <!-- ⚠️ chatFrame 已移除，iframe 由 JS 动态创建管理 -->
       <div class="chat-overlay" id="chatOverlay">
         <button class="chat-back-btn" id="chatBackBtn"><i class="fa-solid fa-chevron-left"></i> Home</button>
-        <iframe src="" id="chatFrame" class="chat-iframe"></iframe>
       </div>
       <div class="gallery-overlay" id="galleryOverlay">
         <div class="gallery-header">
@@ -2514,47 +2514,82 @@
         window.addEventListener('resize', posDecos);
       })();
 
-      /* APP OVERLAY (通用 APP 容器逻辑) */
+      /* APP OVERLAY — 动态多 iframe 版
+         原理：每个 App 第一次打开时动态创建专属 iframe 并缓存，
+         之后切换只改 display，不重新加载，状态永久保留。
+         id 自动从文件名提取：char.html → appFrame-char
+                              tsukiphone1.1.html → appFrame-tsukiphone1-1  */
       (function () {
         const overlay = document.getElementById('chatOverlay');
-        const frame = document.getElementById('chatFrame');
         const backBtn = document.getElementById('chatBackBtn');
-        let currentApp = ''; // 记录当前加载的 APP 路径
 
-        // 核心：通用打开 APP 函数
+        // 缓存表：url → iframe 元素
+        const frameCache = new Map();
+        let activeFrame = null;
+
+        // 从文件名生成合法 id
+        function getFrameId(url) {
+          return 'appFrame-' + url.replace(/\.html$/i, '').replace(/[^a-zA-Z0-9]/g, '-');
+        }
+
+        // 动态创建 iframe 并挂载到 overlay
+        function createFrame(url) {
+          const iframe = document.createElement('iframe');
+          iframe.id = getFrameId(url);
+          iframe.src = url;
+          iframe.className = 'chat-iframe';
+          iframe.style.display = 'none';
+          overlay.appendChild(iframe);
+
+          // 拦截 App 内部跳回 index.html 的行为 → 改为关闭 overlay
+          iframe.addEventListener('load', async function () {
+            try {
+              const u = iframe.contentWindow.location.href;
+              if (u && (u.includes('index.html') || u.endsWith('/'))) {
+                iframe.src = url; // 重置回 App 自身，避免下次白屏
+                overlay.classList.remove('open');
+                await applyGlobalTheme();
+              }
+            } catch (_) {
+              // 忽略跨域报错
+            }
+          });
+
+          console.log('%c[AppOverlay] 创建 iframe: ' + iframe.id, 'color:#5b7cfa;font-weight:600');
+          return iframe;
+        }
+
+        // 核心：通用打开 App 函数
         window.openApp = function (url) {
-          // 如果当前 iframe 里的链接和要打开的不一样，就重新加载
-          if (currentApp !== url) {
-            frame.src = url;
-            currentApp = url;
+          // 隐藏当前显示的 iframe
+          if (activeFrame) activeFrame.style.display = 'none';
+
+          // 取缓存，没有则新建
+          if (!frameCache.has(url)) {
+            frameCache.set(url, createFrame(url));
           }
+
+          const frame = frameCache.get(url);
+          frame.style.display = 'block';
+          activeFrame = frame;
+
           overlay.classList.add('open');
         };
 
-        // 兼容原有的 Chat 点击按钮
+        // 兼容原有的 openChat 调用
         window.openChat = function () {
-          openApp('tsukiphone1.1.html'); // 这里填你聊天页面的真实文件名
+          openApp('tsukiphone1.1.html');
+        };
+
+        // 供 diary bridge 等外部代码查找 chat iframe（替代原来的 chatFrame id）
+        window.getChatFrame = function () {
+          return frameCache.get('tsukiphone1.1.html') || null;
         };
 
         // 点击左上角 Home 返回
         backBtn.addEventListener('click', async function () {
           overlay.classList.remove('open');
-          await applyGlobalTheme(); // 🚀 新增：每次退回桌面时，强制重新渲染皮肤和壁纸！
-        });
-
-        /* 核心修复：当 App 内部通过底部小黑条上滑，尝试跳转回 index.html 时，
-           拦截它的跳转，改为直接关闭 Overlay，实现丝滑的“退回桌面”效果 */
-        frame.addEventListener('load', async function () {
-          try {
-            const u = frame.contentWindow.location.href;
-            if (u && (u.includes('index.html') || u.endsWith('/'))) {
-              frame.src = currentApp; // 把路径重置回当前 APP，免得下次打开是白屏
-              overlay.classList.remove('open');
-              await applyGlobalTheme(); // 🚀 新增：通过上滑手势退回桌面时，也强制重新渲染！
-            }
-          } catch (e) {
-            // 忽略跨域等报错
-          }
+          await applyGlobalTheme();
         });
       })();
     </script>
@@ -2977,7 +3012,7 @@
 
     if (t === 'DIARY_STATUS_BANNER') {
       showIndexBanner(e.data.msg, e.data.level || 'warn');
-      const cf = document.getElementById('chatFrame');
+      const cf = window.getChatFrame?.();
       if (cf?.contentWindow) try { cf.contentWindow.postMessage(e.data, '*'); } catch (_) {}
     }
     if (t === 'DIARY_FLOOR_RESULT') {
@@ -2985,7 +3020,7 @@
         ? '✅ 日记已生成（' + (e.data.written || '?') + ' 篇）'
         : '❌ 日记生成失败: ' + (e.data.error || '未知');
       showIndexBanner(msg2, e.data.success ? 'success' : 'err');
-      const cf = document.getElementById('chatFrame');
+      const cf = window.getChatFrame?.();
       if (cf?.contentWindow) try { cf.contentWindow.postMessage(e.data, '*'); } catch (_) {}
     }
     if (t === 'TSUKI_CHAT_ACTIVE') {
