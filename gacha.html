@@ -3020,6 +3020,7 @@
       }
     </style>
     <script src="gacha-gen.js"></script>
+  <style id="tsuki-dynamic-style"></style>
   </head>
   <body>
     <!-- ═══════════════════════ NAV -->
@@ -3531,6 +3532,11 @@
           req.onerror = e => rej(e.target.error);
         });
       }
+
+      // ── TsukiTheme.js bridge ──
+      // TsukiTheme.js calls getDbAsync() — map it to this page's getConfig()
+      async function getDbAsync() { return getConfig(); }
+
       async function putConfig(data) {
         const db = await initDB();
         return new Promise((res, rej) => {
@@ -5108,6 +5114,7 @@
 
       init().catch(console.error);
     </script>
+    <script src="TsukiTheme.js"></script>
     <script src="TsukiBridge.js"></script>
   </body>
 </html>

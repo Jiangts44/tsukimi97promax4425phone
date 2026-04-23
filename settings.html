@@ -580,6 +580,42 @@
       .tsuki-toast.success { background: #1c1c1e; }
       .tsuki-toast.error { background: var(--setting-coral); }
       .tsuki-toast.loading { background: var(--setting-blue); }
+
+      /* ── 字体 URL 历史列表 ── */
+      .font-history-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 10px;
+        border-radius: 10px;
+        background: var(--setting-paper);
+        margin-bottom: 5px;
+        transition: 0.15s;
+      }
+      .font-history-item:last-child { margin-bottom: 0; }
+      .font-history-url {
+        flex: 1;
+        font-size: 10px;
+        color: var(--setting-ink);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        cursor: pointer;
+        font-family: inherit;
+      }
+      .font-history-url:hover { color: var(--setting-blue); }
+      .font-history-del {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--setting-mute);
+        font-size: 10px;
+        padding: 2px 4px;
+        flex-shrink: 0;
+        transition: 0.15s;
+      }
+      .font-history-del:hover { color: var(--setting-coral); }
+
     </style>
     <style id="tsuki-dynamic-style"></style>
   </head>
@@ -725,8 +761,15 @@
             </div>
 
             <div class="setting-row">
-              <div class="setting-label">字体文件直链 (.ttf / .otf ...)</div>
-              <input type="text" class="setting-input" id="fontUrl" placeholder="https://..." />
+              <div class="setting-label">字体文件直链 (.ttf / .otf / .woff ...)</div>
+              <div style="display:flex;gap:6px;align-items:center;">
+                <input type="text" class="setting-input" id="fontUrl" placeholder="https://..." style="flex:1;" />
+                <button class="setting-btn setting-btn-icon" id="fontUrlAddHistoryBtn" title="保存到历史" style="color:var(--setting-blue);flex-shrink:0;">
+                  <i class="fa-solid fa-clock-rotate-left"></i>
+                </button>
+              </div>
+              <!-- 历史 URL 列表 -->
+              <div id="fontUrlHistoryList" style="margin-top:8px;display:none;"></div>
             </div>
 
             <div class="setting-label" style="margin-top: 16px">组合应用预设 (勾选并叠加)</div>
@@ -907,8 +950,9 @@ body::before {
             }, // 新增：将全屏配置加入默认预设中
           },
           activePresets: [],
-          temp: { css: '', wallpaper: '' },
+          temp: { css: '', wallpaper: '', fontUrl: '' },
           global: { css: '', wallpaper: '' },
+          fontUrlHistory: [],
         },
       };
 
@@ -1002,9 +1046,11 @@ body::before {
 
             parsed.theme = { ...defaultDb.theme, ...(parsed.theme || {}) };
             parsed.theme.temp = { ...defaultDb.theme.temp, ...(parsed.theme.temp || {}) };
+
             parsed.theme.presets = { ...defaultDb.theme.presets, ...(parsed.theme.presets || {}) };
             parsed.theme.fonts = { ...defaultDb.theme.fonts, ...(parsed.theme.fonts || {}) };
-            parsed.theme.activePresets = parsed.theme.activePresets || [];
+            parsed.theme.activePresets  = parsed.theme.activePresets  || [];
+            parsed.theme.fontUrlHistory = parsed.theme.fontUrlHistory || [];
 
             if (!parsed.theme.presets['全屏无手机壳模式']) {
               parsed.theme.presets['全屏无手机壳模式'] = { css: FULLSCREEN_CSS, wallpaper: '' };
@@ -1027,9 +1073,13 @@ body::before {
           data.id = 'main_config';
           const req = store.put(data);
           req.onsuccess = () => {
-            tsukiChannel.postMessage('update_theme'); // 通知主页实时变色
-            // 同步镜像到 localStorage，数据库清空后仍可快速恢复
-            try { localStorage.setItem(CONFIG_LS_KEY, JSON.stringify(data)); } catch(e) {}
+            tsukiChannel.postMessage('update_theme');
+            // localStorage 镜像：global.css 可能很大，不存入以防爆限额
+            try {
+              const mirror = JSON.parse(JSON.stringify(data));
+              if (mirror.theme?.global) mirror.theme.global = { css: '', wallpaper: mirror.theme.global.wallpaper || '' };
+              localStorage.setItem(CONFIG_LS_KEY, JSON.stringify(mirror));
+            } catch(e) {}
             resolve();
           };
           req.onerror = e => reject(e.target.error);
@@ -1041,17 +1091,20 @@ body::before {
       // ==========================================
       document.addEventListener('DOMContentLoaded', async () => {
         try {
-          // 1. 死死等住数据库，拿到完整数据后再赋值给 db
           db = await getDbAsync();
-
-          // 2. 此时 db 绝对不可能为 null 了，再去渲染 UI
-          initApiModule();
-          initThemeModule();
-          loadSupabaseConfig();
-          restoreMonitorLog();
         } catch (e) {
-          console.error('初始化配置数据失败:', e);
+          // DB 读取失败（清空缓存 / 首次访问）→ 用 defaultDb 兜底写入
+          console.warn('[TSUKI] getDbAsync 失败，写入默认配置:', e);
+          db = JSON.parse(JSON.stringify(defaultDb));
+          db.id = 'main_config';
+          try { await saveDb(db); } catch(_) {}
         }
+
+        // 无论如何 db 此时都不是 null，安全初始化 UI
+        try { initApiModule(); }    catch(e) { console.error('initApiModule:', e); }
+        try { initThemeModule(); }  catch(e) { console.error('initThemeModule:', e); }
+        try { loadSupabaseConfig(); } catch(e) {}
+        try { restoreMonitorLog(); }  catch(e) {}
       });
 
       // 折叠展开函数
@@ -1101,6 +1154,7 @@ body::before {
         // 保存预设
         // API 预设保存/更新逻辑
         document.getElementById('apiSaveBtn').addEventListener('click', async () => {
+          if (!db) return;
           const select = document.getElementById('apiPresetSelect');
           let name = select.value;
 
@@ -1125,6 +1179,7 @@ body::before {
 
         // 删除预设
         document.getElementById('apiDelBtn').addEventListener('click', () => {
+          if (!db) return;
           const name = select.value;
           if (name === 'default') return alert('默认预设不可删除');
           if (confirm(`确定删除节点 [${name}] 吗？`)) {
@@ -1294,43 +1349,92 @@ body::before {
       }
 
       /* ================= 2. 美化模块逻辑 ================= */
-      function initThemeModule() {
-        // 核心修复：强制初始化 fonts 结构，防止 Cannot set properties of undefined 报错
-        db.theme.fonts = db.theme.fonts || { default: { url: '' } };
-        db.theme.temp.fontUrl = db.theme.temp.fontUrl || '';
 
-        const fontSelect = document.getElementById('fontPresetSelect');
+      /* ── 字体 URL 历史列表渲染 ── */
+      function renderFontUrlHistory() {
+        db.theme.fontUrlHistory = db.theme.fontUrlHistory || [];
+        const list = document.getElementById('fontUrlHistoryList');
+        if (db.theme.fontUrlHistory.length === 0) {
+          list.style.display = 'none';
+          return;
+        }
+        list.style.display = 'block';
+        list.innerHTML = '';
+        db.theme.fontUrlHistory.forEach((url, idx) => {
+          const item = document.createElement('div');
+          item.className = 'font-history-item';
+          item.innerHTML = `
+            <span class="font-history-url" title="${url}">${url}</span>
+            <button class="font-history-del" title="删除"><i class="fa-solid fa-xmark"></i></button>
+          `;
+          // 点击 URL 文字 → 填入输入框（不清空其他已填内容）
+          item.querySelector('.font-history-url').addEventListener('click', () => {
+            document.getElementById('fontUrl').value = url;
+            db.theme.temp.fontUrl = url;
+            saveDb(db);
+          });
+          // 点击删除
+          item.querySelector('.font-history-del').addEventListener('click', () => {
+            db.theme.fontUrlHistory.splice(idx, 1);
+            saveDb(db);
+            renderFontUrlHistory();
+          });
+          list.appendChild(item);
+        });
+      }
+
+      function initThemeModule() {
+        // 核心修复：强制初始化 fonts 结构
+        db.theme.fonts = db.theme.fonts || { default: { url: '' } };
+        db.theme.temp.fontUrl   = db.theme.temp.fontUrl || '';
+        db.theme.fontUrlHistory = db.theme.fontUrlHistory || [];
+
+        const fontSelect   = document.getElementById('fontPresetSelect');
         const fontUrlInput = document.getElementById('fontUrl');
 
-        // 回显临时字体配置
         fontUrlInput.value = db.theme.temp.fontUrl;
-
-        // 渲染预设下拉框
         renderSelect('fontPresetSelect', db.theme.fonts, db.theme.activeFontPreset || 'default');
+        renderFontUrlHistory();
 
-        // 监听输入保存到临时区
+        // URL 输入实时保存
         fontUrlInput.addEventListener('input', () => {
           db.theme.temp.fontUrl = fontUrlInput.value;
           saveDb(db);
         });
 
-        // 保存预设按钮
+        // URL 加入历史按钮
+        document.getElementById('fontUrlAddHistoryBtn').addEventListener('click', () => {
+          const url = fontUrlInput.value.trim();
+          if (!url) return;
+          db.theme.fontUrlHistory = db.theme.fontUrlHistory || [];
+          // 去重：已有的先移除再置顶
+          db.theme.fontUrlHistory = db.theme.fontUrlHistory.filter(u => u !== url);
+          db.theme.fontUrlHistory.unshift(url);
+          // 最多保留 20 条
+          if (db.theme.fontUrlHistory.length > 20) db.theme.fontUrlHistory.length = 20;
+          saveDb(db);
+          renderFontUrlHistory();
+          showTsukiToast('URL 已保存到历史', 'success', 1500);
+        });
+
+        // 预设保存
         document.getElementById('fontSaveBtn').addEventListener('click', () => {
+          if (!db) return;
           let name = fontSelect.value;
           if (name === 'default' || !name) {
             name = prompt('请输入新字体预设名称：', 'MyFont_01');
             if (!name) return;
           }
-          // 再次确保结构安全
           db.theme.fonts = db.theme.fonts || {};
           db.theme.fonts[name] = { url: db.theme.temp.fontUrl };
           saveDb(db);
           renderSelect('fontPresetSelect', db.theme.fonts, name);
-          alert('字体预设保存成功！');
+          showTsukiToast('字体预设保存成功', 'success', 1500);
         });
 
-        // 删除预设按钮
+        // 预设删除
         document.getElementById('fontDelBtn').addEventListener('click', () => {
+          if (!db) return;
           const name = fontSelect.value;
           if (name === 'default') return alert('默认配置不可删除');
           if (confirm(`确定删除字体预设 [${name}] 吗？`)) {
@@ -1346,7 +1450,7 @@ body::before {
           if (data) {
             fontUrlInput.value = data.url || '';
             db.theme.temp.fontUrl = data.url || '';
-            db.theme.activeFontPreset = fontSelect.value; // 记录当前激活的字体下拉选项
+            db.theme.activeFontPreset = fontSelect.value;
             saveDb(db);
           }
         });
@@ -1389,6 +1493,7 @@ body::before {
 
         // 保存新预设 (从临时库保存)
         document.getElementById('themeSaveBtn').addEventListener('click', () => {
+          if (!db) return;
           let name = select.value;
           if (name === 'default' || !name) {
             name = prompt('请输入新美化预设的名称：', 'Theme_Cyberpunk');
@@ -1403,6 +1508,7 @@ body::before {
 
         // 删除预设
         document.getElementById('themeDelBtn').addEventListener('click', () => {
+          if (!db) return;
           const name = select.value;
           if (name === 'default') return alert('默认预设不可删除');
           if (confirm(`确定删除美化配置 [${name}] 吗？`)) {
@@ -1435,7 +1541,14 @@ body::before {
         });
 
         // 全局注入按钮逻辑 (叠加勾选的预设 + 临时输入)
-        document.getElementById('themeApplyBtn').addEventListener('click', () => {
+        // 改为 async：字体直链需要 fetch 转 base64 绕过 CORS
+        document.getElementById('themeApplyBtn').addEventListener('click', async () => {
+          if (!db) { showTsukiToast('配置尚未加载，请稍候重试', 'error'); return; }
+          const btn = document.getElementById('themeApplyBtn');
+          const oldHtml = btn.innerHTML;
+          btn.disabled = true;
+
+          try {
           let combinedCss = '';
           let finalWallpaper = '';
 
@@ -1448,19 +1561,26 @@ body::before {
             }
           });
 
-          // 【新增】：处理直接字体文件注入
+          // 字体注入：直链写入 @font-face，不做任何 fetch/base64 转换
           if (db.theme.temp.fontUrl) {
             const fontCss = `
-      @font-face {
-        font-family: 'TsukimiCustomFont';
-        src: url('${db.theme.temp.fontUrl}');
-      }
-      * { 
-        font-family: 'TsukimiCustomFont', 'Geist', sans-serif !important; 
-      }
-    `;
-            // 将字体样式置于最顶层
+/* ── TsukimiCustomFont ── */
+@font-face {
+  font-family: 'TsukimiCustomFont';
+  src: url('${db.theme.temp.fontUrl}');
+  font-display: swap;
+}
+body *:not(i):not([class*="fa"]):not([class*="fontawesome"]):not(.material-icons) {
+  font-family: 'TsukimiCustomFont', 'Geist', 'PingFang SC', sans-serif;
+}
+i[class*="fa-"], .fa-solid, .fa-regular, .fa-brands,
+.fa, .fas, .far, .fal, .fab,
+[class^="fa-"], [class*=" fa-"] {
+  font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands", "Font Awesome 6 Pro" !important;
+}
+`;
             combinedCss = fontCss + combinedCss;
+            logMonitor(`<span style="color:var(--setting-mint);">[Font] 已注入直链: ${db.theme.temp.fontUrl}</span>`);
           }
 
           // 2. 最后检查临时区。只要你在当前面板上传了新壁纸，就强制覆盖掉预设的壁纸！
@@ -1472,20 +1592,31 @@ body::before {
             combinedCss += `\n/* --- 临时输入框 --- */\n${db.theme.temp.css}\n`;
           }
 
-          // 3. 存入全局对象
+          // 3. 存入全局对象（await 确保写完再通知 index 刷新）
           db.theme.global = { css: combinedCss, wallpaper: finalWallpaper };
-          saveDb(db);
+          await saveDb(db);
+
+          // BroadcastChannel 不回传给自身，所以这里手动刷新当前页面样式
+          applyGlobalTheme();
 
           // 视觉反馈
-          const btn = document.getElementById('themeApplyBtn');
-          const oldHtml = btn.innerHTML;
           btn.innerHTML = `<i class="fa-solid fa-check"></i> 样式已注入神经束！`;
           btn.style.background = 'var(--setting-mint)';
 
           setTimeout(() => {
             btn.innerHTML = oldHtml;
             btn.style.background = 'var(--setting-ink)';
+            btn.disabled = false;
           }, 2000);
+
+          } catch(err) {
+            // 任何环节出错都能恢复按钮
+            console.error('[ThemeApply] 注入失败:', err);
+            logMonitor(`<span style="color:var(--setting-coral);">[ERROR] 注入失败: ${err.message}</span>`);
+            btn.innerHTML = oldHtml;
+            btn.style.background = 'var(--setting-ink)';
+            btn.disabled = false;
+          }
         });
       }
 
@@ -2099,6 +2230,7 @@ body::before {
         }
       });
     </script>
+    <script src="TsukiTheme.js"></script>
     <script src="TsukiBridge.js"></script>
   </body>
 </html>

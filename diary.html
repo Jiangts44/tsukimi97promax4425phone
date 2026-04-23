@@ -3284,6 +3284,7 @@
         display: none !important;
       }
     </style>
+  <style id="tsuki-dynamic-style"></style>
   </head>
   <body>
     <!-- NAV -->
@@ -4102,6 +4103,18 @@
           // Also check chat.userId
           if (chat.userId === userId) return true;
           return false;
+        });
+      }
+
+      // ── TsukiTheme.js bridge ──
+      // TsukiTheme.js calls getDbAsync() — wrap openDb() to read main_config
+      async function getDbAsync() {
+        const idb = await openDb();
+        return new Promise((res, rej) => {
+          const tx = idb.transaction('config', 'readonly');
+          const req = tx.objectStore('config').get('main_config');
+          req.onsuccess = () => res(req.result || { id: 'main_config' });
+          req.onerror = e => rej(e.target.error);
         });
       }
 
@@ -7261,6 +7274,7 @@
         }
       }, 2000);
     </script>
-
+    <script src="TsukiTheme.js"></script>
+    
   </body>
 </html>

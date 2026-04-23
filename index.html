@@ -2688,45 +2688,10 @@
       }
 
       // ==========================================
-      // 2. 主题与全局样式渲染
+      // 2. 主题与全局样式渲染 → 已抽离至 TsukiTheme.js
+      //    applyGlobalTheme() 由 TsukiTheme.js 自动挂载并执行，
+      //    此处无需任何额外代码。
       // ==========================================
-      async function applyGlobalTheme() {
-        try {
-          const db = await getDbAsync();
-          // 核心修复：防止 db.theme 不存在时报错
-          const globalTheme = db.theme?.global || { css: '', wallpaper: '' };
-
-          const homeScreen = document.querySelector('.screen-home');
-          const homesecondScreen = document.querySelector('.screen-music');
-          const styleTag = document.getElementById('tsuki-dynamic-style');
-
-          if (homeScreen) {
-            homeScreen.style.backgroundImage = globalTheme.wallpaper ? `url(${globalTheme.wallpaper})` : 'none';
-            if (globalTheme.wallpaper) {
-              homeScreen.style.backgroundSize = 'cover';
-              homeScreen.style.backgroundPosition = 'center';
-            }
-          }
-          if (homesecondScreen) {
-            homesecondScreen.style.backgroundImage = globalTheme.wallpaper ? `url(${globalTheme.wallpaper})` : 'none';
-            if (globalTheme.wallpaper) {
-              homesecondScreen.style.backgroundSize = 'cover';
-              homesecondScreen.style.backgroundPosition = 'center';
-            }
-          }
-          if (styleTag) {
-            styleTag.innerHTML = globalTheme.css || '';
-          }
-          console.log('TSUKIMI 系统：视觉引擎注入成功 (IndexedDB)');
-        } catch (e) {
-          console.error('TSUKIMI 系统：读取配置失败', e);
-        }
-      }
-
-      // 监听 settings.html 发来的刷新通知
-      tsukiChannel.onmessage = e => {
-        if (e.data === 'update_theme') applyGlobalTheme();
-      };
 
       // ==========================================
       // 3. Home 数据与交互 (图片、文本、图库)
@@ -3038,6 +3003,8 @@
 })();
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vConsole/3.15.1/vconsole.min.js"></script>
+    <!-- 视觉引擎：data-listen="true" 表示同时开启 BroadcastChannel/storage 监听 -->
+    <script src="TsukiTheme.js" data-listen="true"></script>
     <script src="TsukiDebug.js"></script>
   </body>
 </html>
