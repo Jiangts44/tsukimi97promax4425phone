@@ -2747,20 +2747,34 @@
           if (!file || !currentUploadTarget) return;
           const reader = new FileReader();
           reader.onload = async event => {
-            const base64Data = event.target.result;
             const { el, item } = currentUploadTarget;
 
-            if (item.type === 'src') {
-              el.src = base64Data;
-              el.style.display = 'block';
-            } else {
-              el.style.background = `url(${base64Data}) center/cover no-repeat`;
-            }
+            // ✅ 压缩图片后再存库，防止原图过大导致数据丢失
+            const img = new Image();
+            img.src = event.target.result;
+            img.onload = async () => {
+              const canvas = document.createElement('canvas');
+              const maxWidth = 400;
+              const ratio = maxWidth / img.width;
+              const width = img.width > maxWidth ? maxWidth : img.width;
+              const height = img.width > maxWidth ? img.height * ratio : img.height;
+              canvas.width = width;
+              canvas.height = height;
+              canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+              const base64Data = canvas.toDataURL('image/jpeg', 0.7);
 
-            const currentDb = await getDbAsync();
-            currentDb.homeData.images[item.key] = base64Data;
-            await saveDbAsync(currentDb);
-            fileInput.value = '';
+              if (item.type === 'src') {
+                el.src = base64Data;
+                el.style.display = 'block';
+              } else {
+                el.style.background = `url(${base64Data}) center/cover no-repeat`;
+              }
+
+              const currentDb = await getDbAsync();
+              currentDb.homeData.images[item.key] = base64Data;
+              await saveDbAsync(currentDb);
+              fileInput.value = '';
+            };
           };
           reader.readAsDataURL(file);
         });
