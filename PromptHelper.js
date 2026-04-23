@@ -670,6 +670,57 @@ async function buildChatHistoryPrompt(chatId, historyCount = 0) {
         content = `${content.amount || '0.00'}|${content.note || ''}`;
       } else if (msgType === 'location') {
         content = content.location || '';
+      } else if (msgType === 'gacha_pull') {
+        // 🌟 祈月台抽卡记录 — 展开完整卡面详情 + char 视角叙事提示
+        const c = content;
+        const rarity      = c.cardRarity    || '?';
+        const identity    = c.cardIdentity  || '未知命轨';
+        const outfit      = c.cardOutfit    || '';
+        const prop        = c.cardProp      || '';
+        const world       = c.cardWorld     || '';
+        const story       = c.cardStory     || '';
+        const whoDrawn    = c.charName      || senderName;
+
+        // ── 判断卡面归属，给 AI 角色视角提示 ──
+        //   如果 identity / outfit / story 含有 char 自己的名字 → 自画像卡
+        //   如果含有常见 user 指代词            → user 卡
+        //   否则                               → 普通卡
+        const selfKeywords = [charName, '自己', '本体'];
+        const userKeywords = ['user', 'User', userName, '主人', '你'];
+        const textToCheck  = `${identity} ${outfit} ${story}`;
+
+        let perspectiveHint = '';
+        if (selfKeywords.some(k => k && textToCheck.includes(k))) {
+          perspectiveHint = `\n[叙事视角提示] 这张卡描绘的是 ${whoDrawn} 自身形象/处境。${whoDrawn} 看到这张卡时可能感到荒诞、难以置信或情绪复杂（如抗拒、尴尬、自嘲），可在后续对话中自然流露，但无需过度渲染，抽卡只是引子，生活仍在继续。`;
+        } else if (userKeywords.some(k => k && textToCheck.includes(k))) {
+          perspectiveHint = `\n[叙事视角提示] 这张卡与 ${userName}（user）相关。${whoDrawn} 看到时可能产生联想、心绪微动或想起某件事，可以在后续对话中不经意提及，但不必专门解释，保持自然即可。`;
+        } else {
+          const rarityReaction = {
+            'SSS': `意外之喜，可能忍不住小小得意一下`,
+            'UR':  `还不错，算是今日运气不差`,
+            'SSR': `勉强满意，但也不至于大惊小怪`,
+            'SR':  `平平无奇，接受现实`,
+            'R':   `有点无语，可以悄悄吐槽一句`,
+          };
+          const react = rarityReaction[rarity] || '反应平淡，无特别感想';
+          perspectiveHint = `\n[叙事视角提示] 这是一张 ${rarity} 卡，${whoDrawn} 的心理反应参考：${react}。可在后续对话中自然带过，无需专门讨论抽卡。`;
+        }
+
+        // ── 拼接完整卡面信息 ──
+        const lines = [
+          `${whoDrawn} 在祈月台抽到了一张命轨卡`,
+          `【稀有度】${rarity}`,
+          `【命轨身份】${identity}`,
+        ];
+        if (outfit) lines.push(`【服装/状态】${outfit}`);
+        if (prop)   lines.push(`【持有道具】${prop}`);
+        if (world)  lines.push(`【所在世界/时代背景】${world}`);
+        if (story)  lines.push(`【命轨故事片段】${story}`);
+        lines.push(perspectiveHint);
+
+        content  = lines.join('\n');
+        senderName = '系统';
+        console.log(`%c[buildChatHistoryPrompt] 🎴 gacha_pull floor=${msg.floor} rarity=${rarity} identity=${identity}`, 'color:#f6c90e');
       } else if (msgType === 'gift') {
         content = `${content.item || ''}|${content.note || ''}`;
       } else if (msgType === 'sticker') {

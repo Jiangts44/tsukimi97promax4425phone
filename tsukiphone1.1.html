@@ -2602,6 +2602,278 @@
         padding: 3px 7px;
       }
 
+      /* ══ gacha pull card ══ */
+      .gacha-card {
+        display: flex;
+        flex-direction: column;
+        width: 230px;
+        min-width: 230px;
+        flex-shrink: 0;
+        background: var(--card);
+        border-radius: 18px;
+        box-shadow: 0 2px 16px -4px rgba(10,10,10,0.13), 0 1px 0 rgba(255,255,255,0.8) inset;
+        align-self: center;
+        margin: 4px auto;
+        overflow: hidden;
+        cursor: pointer;
+        transition: transform 0.18s ease, box-shadow 0.18s ease;
+      }
+      .gacha-card:active { transform: scale(0.97); }
+      .gacha-card-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 9px 12px 7px;
+        border-bottom: 1px solid var(--line);
+      }
+      .gacha-card-head-label {
+        font-family: 'Geist Mono', monospace;
+        font-size: 8px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--mute);
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+      .gacha-card-head-label i { font-size: 7px; }
+      .gacha-card-rarity {
+        font-family: 'Geist Mono', monospace;
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        padding: 2px 7px;
+        border-radius: 6px;
+      }
+      .gacha-card-rarity.R  { color: #8a8a8e; background: rgba(138,138,142,0.1); }
+      .gacha-card-rarity.SR { color: var(--accent-blue); background: rgba(91,124,250,0.12); }
+      .gacha-card-rarity.SSR{ color: var(--accent-amber); background: rgba(255,159,67,0.13); }
+      .gacha-card-rarity.UR { color: var(--accent-pink); background: rgba(250,91,213,0.13); }
+      .gacha-card-rarity.SSS{ color: var(--accent-lime); background: rgba(212,255,77,0.15); }
+      .gacha-card-img {
+        width: 100%;
+        flex-shrink: 0;
+        height: 110px;
+        object-fit: cover;
+        display: block;
+        background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2e 100%);
+      }
+      .gacha-card-img-placeholder {
+        width: 100%;
+        flex-shrink: 0;
+        height: 90px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #1a1a1a 0%, #2e2e35 100%);
+        font-size: 28px;
+        opacity: 0.35;
+      }
+      .gacha-card-body {
+        padding: 10px 12px 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+      }
+      .gacha-card-identity {
+        font-family: 'Fraunces', serif;
+        font-style: italic;
+        font-size: 15px;
+        line-height: 1.25;
+        color: var(--ink);
+        letter-spacing: -0.01em;
+      }
+      .gacha-card-world {
+        font-family: 'Geist Mono', monospace;
+        font-size: 8px;
+        color: var(--mute);
+        letter-spacing: 0.04em;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .gacha-card-foot {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 6px 12px 9px;
+        border-top: 1px solid var(--line);
+      }
+      .gacha-card-tap-hint {
+        font-family: 'Geist Mono', monospace;
+        font-size: 7.5px;
+        color: var(--mute);
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        letter-spacing: 0.06em;
+      }
+      .gacha-card-tap-hint i { font-size: 7px; color: var(--accent-blue); }
+      .gacha-card-who {
+        font-family: 'Geist Mono', monospace;
+        font-size: 8px;
+        color: var(--ink-3);
+        background: var(--paper-2);
+        border-radius: 7px;
+        padding: 2px 7px;
+      }
+
+      /* ── gacha detail modal ── */
+      .gacha-detail-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(10,10,10,0.55);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        z-index: 9800;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.22s ease;
+      }
+      .gacha-detail-overlay.on {
+        opacity: 1;
+        pointer-events: all;
+      }
+      .gacha-detail-sheet {
+        width: 100%;
+        max-width: 420px;
+        background: var(--paper);
+        border-radius: 24px 24px 0 0;
+        padding: 0 0 env(safe-area-inset-bottom, 16px);
+        transform: translateY(100%);
+        transition: transform 0.3s cubic-bezier(0.34,1.26,0.64,1);
+        display: flex;
+        flex-direction: column;
+        max-height: 88vh;
+        overflow: hidden;
+      }
+      .gacha-detail-overlay.on .gacha-detail-sheet {
+        transform: translateY(0);
+      }
+      .gacha-detail-drag {
+        width: 36px; height: 4px;
+        border-radius: 2px;
+        background: var(--line);
+        margin: 10px auto 0;
+        flex-shrink: 0;
+      }
+      .gacha-detail-img {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        display: block;
+        flex-shrink: 0;
+        background: linear-gradient(135deg, #1a1a1a 0%, #2e2e35 100%);
+      }
+      .gacha-detail-img-ph {
+        width: 100%;
+        height: 140px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 48px;
+        background: linear-gradient(135deg, #1a1a1a 0%, #2e2e35 100%);
+        flex-shrink: 0;
+      }
+      .gacha-detail-scroll {
+        flex: 1;
+        overflow-y: auto;
+        padding: 16px 20px 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+      .gacha-detail-scroll::-webkit-scrollbar { display: none; }
+      .gacha-detail-hd {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 8px;
+      }
+      .gacha-detail-title {
+        font-family: 'Fraunces', serif;
+        font-style: italic;
+        font-size: 22px;
+        line-height: 1.2;
+        color: var(--ink);
+        flex: 1;
+      }
+      .gacha-detail-rarity {
+        font-family: 'Geist Mono', monospace;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        padding: 3px 9px;
+        border-radius: 8px;
+        flex-shrink: 0;
+        margin-top: 4px;
+      }
+      .gacha-detail-rarity.R  { color: #8a8a8e; background: rgba(138,138,142,0.12); }
+      .gacha-detail-rarity.SR { color: var(--accent-blue); background: rgba(91,124,250,0.13); }
+      .gacha-detail-rarity.SSR{ color: var(--accent-amber); background: rgba(255,159,67,0.14); }
+      .gacha-detail-rarity.UR { color: var(--accent-pink); background: rgba(250,91,213,0.14); }
+      .gacha-detail-rarity.SSS{ color: var(--accent-lime); background: rgba(212,255,77,0.17); }
+      .gacha-detail-row {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .gacha-detail-label {
+        font-family: 'Geist Mono', monospace;
+        font-size: 8px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--mute);
+      }
+      .gacha-detail-val {
+        font-size: 13px;
+        line-height: 1.55;
+        color: var(--ink-2);
+      }
+      /* typewriter story */
+      .gacha-detail-story-wrap {
+        background: var(--paper-2);
+        border-radius: 12px;
+        padding: 12px 14px;
+        position: relative;
+        overflow: hidden;
+      }
+      .gacha-detail-story-label {
+        font-family: 'Geist Mono', monospace;
+        font-size: 8px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--mute);
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+      .gacha-detail-story-label i { font-size: 7px; color: var(--accent-coral); }
+      .gacha-detail-story-text {
+        font-size: 13px;
+        line-height: 1.7;
+        color: var(--ink-2);
+        white-space: pre-wrap;
+        font-family: inherit;
+      }
+      .gacha-detail-story-cursor {
+        display: inline-block;
+        width: 2px;
+        height: 14px;
+        background: var(--accent-lime);
+        vertical-align: middle;
+        margin-left: 1px;
+        border-radius: 1px;
+        animation: blink-cur 0.8s step-end infinite;
+      }
+      @keyframes blink-cur {
+        0%,100% { opacity: 1; } 50% { opacity: 0; }
+      }
+
       /* ④ location hint text */
       .location-hint {
         font-family: 'Geist Mono', monospace;
@@ -6322,7 +6594,59 @@
           return;
         }
 
-        // 0-A. 日记转发卡片 (diary)
+        // 0-1. 祈月台抽卡记录 (gacha_pull)
+        if (msg.type === 'gacha_pull') {
+          const gc = (typeof c === 'object' && c !== null) ? c : {};
+          const rarity   = gc.cardRarity    || '?';
+          const identity = gc.cardIdentity  || '命轨未知';
+          const outfit   = gc.cardOutfit    || '';
+          const prop     = gc.cardProp      || '';
+          const world    = gc.cardWorld     || '';
+          const story    = gc.cardStory     || '';
+          const imgUrl   = gc.cardImg       || '';
+          const whoDrawn = gc.charName      || '溯源者';
+
+          // rarity safe class name
+          const rarityClass = ['R','SR','SSR','UR','SSS'].includes(rarity) ? rarity : 'R';
+
+          const b = document.createElement('div');
+          b.className = 'gacha-card';
+
+          const imgHtml = imgUrl
+            ? `<img class="gacha-card-img" src="${imgUrl}" alt="${identity}" loading="lazy" />`
+            : `<div class="gacha-card-img-placeholder">☾</div>`;
+
+          b.innerHTML = `
+            <div class="gacha-card-head">
+              <div class="gacha-card-head-label">
+                <i class="fa-solid fa-moon" style="color:var(--accent-amber)"></i> LUNAR PULL
+              </div>
+              <div class="gacha-card-rarity ${rarityClass}">${rarity}</div>
+            </div>
+            ${imgHtml}
+            <div class="gacha-card-body">
+              <div class="gacha-card-identity">${identity}</div>
+              ${world ? `<div class="gacha-card-world"><i class="fa-solid fa-earth-asia" style="margin-right:3px;font-size:7px"></i>${world}</div>` : ''}
+            </div>
+            <div class="gacha-card-foot">
+              <div class="gacha-card-tap-hint"><i class="fa-solid fa-expand"></i> 点击查看卡面详情</div>
+              <div class="gacha-card-who">${whoDrawn}</div>
+            </div>`;
+
+          // click → open detail modal with typewriter
+          b.addEventListener('click', () => {
+            openGachaDetail({ rarity, rarityClass, identity, outfit, prop, world, story, imgUrl, whoDrawn });
+          });
+
+          const chatArea = document.getElementById('chatArea');
+          if (options.floor) b.dataset.floor = options.floor;
+          chatArea.appendChild(b);
+          if (window.bindLongPress) window.bindLongPress(b, 'system');
+          chatArea.scrollTop = chatArea.scrollHeight;
+          return;
+        }
+
+
         if (msg.type === 'diary') {
           window.renderDiaryBubble(msg, options);
           return;
@@ -9993,6 +10317,128 @@
       
       window.parent.postMessage({ type:'DIARY_STATUS_BANNER', msg:'訴月記·诉说月亮心事❅·°', level:'success' }, '*');
     </script>
+    <!-- ══ Gacha Detail Modal ══ -->
+    <div class="gacha-detail-overlay" id="gachaDetailOverlay" onclick="closeGachaDetail(event)">
+      <div class="gacha-detail-sheet" id="gachaDetailSheet">
+        <div class="gacha-detail-drag"></div>
+        <div id="gachaDetailImgWrap"></div>
+        <div class="gacha-detail-scroll" id="gachaDetailScroll">
+          <div class="gacha-detail-hd">
+            <div class="gacha-detail-title" id="gachaDetailTitle"></div>
+            <div class="gacha-detail-rarity" id="gachaDetailRarity"></div>
+          </div>
+          <div id="gachaDetailRows"></div>
+          <div class="gacha-detail-story-wrap" id="gachaDetailStoryWrap" style="display:none">
+            <div class="gacha-detail-story-label"><i class="fa-solid fa-scroll"></i> STORY FRAGMENT</div>
+            <div class="gacha-detail-story-text" id="gachaDetailStoryText"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      /* ── Gacha Detail Modal ── */
+      let _gachaTypeTimer = null;
+
+      function openGachaDetail(card) {
+        const overlay = document.getElementById('gachaDetailOverlay');
+        const imgWrap = document.getElementById('gachaDetailImgWrap');
+        const title   = document.getElementById('gachaDetailTitle');
+        const rarEl   = document.getElementById('gachaDetailRarity');
+        const rows    = document.getElementById('gachaDetailRows');
+        const storyWrap = document.getElementById('gachaDetailStoryWrap');
+        const storyText = document.getElementById('gachaDetailStoryText');
+
+        // reset typewriter timer
+        if (_gachaTypeTimer) { clearTimeout(_gachaTypeTimer); _gachaTypeTimer = null; }
+
+        // image
+        imgWrap.innerHTML = card.imgUrl
+          ? `<img class="gacha-detail-img" src="${card.imgUrl}" alt="${card.identity}" />`
+          : `<div class="gacha-detail-img-ph">☾</div>`;
+
+        // title + rarity
+        title.textContent = card.identity;
+        rarEl.textContent = card.rarity;
+        rarEl.className = `gacha-detail-rarity ${card.rarityClass}`;
+
+        // detail rows
+        const fieldDefs = [
+          { label: 'OUTFIT · 服装状态', val: card.outfit },
+          { label: 'PROP · 持有道具',   val: card.prop   },
+          { label: 'WORLD · 世界背景',  val: card.world  },
+        ];
+        rows.innerHTML = fieldDefs
+          .filter(f => f.val && f.val.trim())
+          .map(f => `
+            <div class="gacha-detail-row">
+              <div class="gacha-detail-label">${f.label}</div>
+              <div class="gacha-detail-val">${f.val}</div>
+            </div>`)
+          .join('');
+
+        // story typewriter
+        if (card.story && card.story.trim()) {
+          storyWrap.style.display = '';
+          storyText.innerHTML = '';
+          const cursor = document.createElement('span');
+          cursor.className = 'gacha-detail-story-cursor';
+          storyText.appendChild(cursor);
+          _typewriterPlay(storyText, cursor, card.story.trim(), 0);
+        } else {
+          storyWrap.style.display = 'none';
+          storyText.innerHTML = '';
+        }
+
+        overlay.classList.add('on');
+      }
+
+      function _typewriterPlay(container, cursor, text, idx) {
+        if (idx >= text.length) {
+          // done — remove cursor after brief pause
+          _gachaTypeTimer = setTimeout(() => {
+            cursor.style.animation = 'none';
+            cursor.style.opacity   = '0';
+          }, 1200);
+          return;
+        }
+        // insert text node before cursor
+        const chunk = text[idx];
+        const tn = document.createTextNode(chunk);
+        container.insertBefore(tn, cursor);
+        // scroll sheet to bottom as text grows
+        const scroll = document.getElementById('gachaDetailScroll');
+        if (scroll) scroll.scrollTop = scroll.scrollHeight;
+
+        // speed: punctuation pauses longer, normal chars fast
+        const isPunct = /[，。！？、…：；\n]/.test(chunk);
+        const delay   = isPunct ? 120 : 28;
+        _gachaTypeTimer = setTimeout(() => _typewriterPlay(container, cursor, text, idx + 1), delay);
+      }
+
+      function closeGachaDetail(e) {
+        // only close if clicking the overlay backdrop itself
+        if (e && e.target !== document.getElementById('gachaDetailOverlay')) return;
+        _doCloseGachaDetail();
+      }
+
+      function _doCloseGachaDetail() {
+        if (_gachaTypeTimer) { clearTimeout(_gachaTypeTimer); _gachaTypeTimer = null; }
+        document.getElementById('gachaDetailOverlay').classList.remove('on');
+      }
+
+      // swipe down to close
+      (function() {
+        const sheet = document.getElementById('gachaDetailSheet');
+        let startY = 0;
+        sheet.addEventListener('touchstart', e => { startY = e.touches[0].clientY; }, { passive: true });
+        sheet.addEventListener('touchend', e => {
+          const dy = e.changedTouches[0].clientY - startY;
+          if (dy > 60) _doCloseGachaDetail();
+        }, { passive: true });
+      })();
+    </script>
+
     <script src="PromptHelper.js"></script>
     <script src="TsukiSend.js"></script>
     <script src="DiaryFloorListener.js"></script>

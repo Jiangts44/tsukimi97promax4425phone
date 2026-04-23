@@ -782,22 +782,30 @@ Rules:
       let stickerName = content;
       let stickerUrl = '';
 
-      // 1. 🌟 智能抓取：直接寻找 http 或 // 提取 URL，无视冒号或竖线
-      const urlMatch = content.match(/(https?:)?\/\/[^\s]+/i);
-      if (urlMatch) {
-        stickerUrl = urlMatch[0];
-        // 名字就是剔除 URL 后剩下的部分
-        stickerName = content.replace(stickerUrl, '').trim();
-      } else if (content.includes('|')) {
-        // 兼容没有任何 http 前缀，纯靠竖线分割的旧格式
-        const parts = content.split('|');
-        stickerName = parts[0];
-        stickerUrl = parts.slice(1).join('|').trim();
+      // 1. 解析两种格式：
+      //    格式A（带URL）: 坏心思|https://i.postimg.cc/xxx/yyy.jpg
+      //    格式B（纯名）:  委屈猫猫
+      if (content.includes('|')) {
+        const pipeIdx = content.indexOf('|');
+        const left  = content.slice(0, pipeIdx).trim();
+        const right = content.slice(pipeIdx + 1).trim();
+        // 竖线右侧是 URL（http:// 或 //）才拆分，否则整段当名字
+        if (/^(https?:)?\/\//i.test(right)) {
+          stickerName = left;
+          stickerUrl  = /^https?:/i.test(right) ? right : 'https:' + right;
+        }
+        // 右侧不像 URL：stickerName 保持 content 原值，不拆
+      } else {
+        // 没有竖线：整段都是名字，兜底检查裸 URL（理论上不该出现）
+        const urlMatch = content.match(/https?:\/\/\S+/i);
+        if (urlMatch) {
+          stickerUrl  = urlMatch[0];
+          stickerName = content.replace(stickerUrl, '').trim();
+        }
       }
 
-      // 2. 🌟 终极清洗：以 http 为界限彻底截断名字，砍掉残留的冒号及后缀
+      // 2. 清洗名字：去掉末尾冒号/竖线、图片后缀
       stickerName = stickerName
-        .split(/http/i)[0]
         .replace(/[:：|]\s*$/, '')
         .replace(/\.(jpg|jpeg|gif|png|webp)$/i, '')
         .trim();

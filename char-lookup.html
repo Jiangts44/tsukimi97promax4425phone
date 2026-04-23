@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
+<title>Char · 角色图鉴</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --ink:#0a0a0a;--ink2:#1f1f20;--ink3:#4a4a4d;
+  --mute:#8a8a8e;--line:rgba(10,10,10,0.07);
+  --paper:#fafaf7;--paper2:#f1f0ea;--card:#fff;
+  --lime:#d4ff4d;--blue:#5b7cfa;--coral:#ff6b6b;
+  --amber:#ff9f43;--mint:#43d9a0;--rose:#ff6b8a;--purple:#a78bfa;
+}
+html,body{font-family:'Geist',-apple-system,'PingFang SC',sans-serif;background:radial-gradient(1200px 600px at 10% 10%,#eae7df,transparent 50%),radial-gradient(800px 500px at 90% 90%,#e8eadd,transparent 50%),#eeece4;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:4px;color:var(--ink);-webkit-font-smoothing:antialiased;width:100%}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/><feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.08 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");pointer-events:none;mix-blend-mode:multiply;opacity:0.5;z-index:0}
+
+/* PHONE */
+.phone{width:94%;max-width:410px;height:min(880px,calc(100vh - 36px));max-height:100%;background:var(--paper);border-radius:52px;overflow:hidden;position:relative;display:flex;flex-direction:column;box-shadow:0 0 0 11px #1a1a1c,0 0 0 12px #2a2a2c,0 5px 10px -2px rgba(0,0,0,0.35),0 3px 6px -3px rgba(0,0,0,0.25);z-index:1}
+.phone::before{content:'';position:absolute;top:12px;left:50%;transform:translateX(-50%);width:110px;height:27px;background:#000;border-radius:20px;z-index:50;pointer-events:none}
+.status-bar{height:44px;display:flex;align-items:center;justify-content:space-between;padding:11px 29px 0;font-size:14px;font-weight:600;font-family:'Geist Mono',monospace;flex-shrink:0;position:relative;z-index:10}
+.status-bar .right{display:flex;gap:6px;align-items:center;font-size:13px}
+.view-wrap{flex:1;position:relative;overflow:hidden}
+
+/* BUBBLE SCREEN */
+#bubbleScreen{position:absolute;inset:0;background:var(--paper);overflow:hidden}
+.bs-label{position:absolute;top:14px;left:18px;z-index:10}
+.bs-ey{font-family:'Geist Mono',monospace;font-size:8px;letter-spacing:0.2em;color:var(--mute);text-transform:uppercase}
+.bs-ti{font-family:'Fraunces',serif;font-size:22px;font-weight:300;font-style:italic;color:var(--ink);margin-top:1px}
+.bs-ct{position:absolute;top:18px;right:18px;z-index:10;font-family:'Geist Mono',monospace;font-size:9px;color:var(--mute);letter-spacing:0.1em}
+.bs-ct span{color:var(--ink);font-weight:600}
+#bubbleField{position:absolute;inset:0;z-index:1}
+
+/* BUBBLES */
+.char-bubble{position:absolute;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;user-select:none;opacity:0;transition:transform 0.25s cubic-bezier(0.34,1.56,0.64,1);will-change:transform,opacity}
+.char-bubble:hover{transform:scale(1.13)!important}
+.char-bubble:active{transform:scale(0.91)!important}
+.bsph{position:absolute;inset:0;border-radius:50%;overflow:hidden}
+.bsph::before{content:'';position:absolute;top:7%;left:10%;width:44%;height:40%;background:radial-gradient(ellipse,rgba(255,255,255,0.78) 0%,rgba(255,255,255,0) 68%);border-radius:50%;transform:rotate(-20deg);filter:blur(0.5px)}
+.bsph::after{content:'';position:absolute;bottom:14%;right:16%;width:25%;height:23%;background:radial-gradient(circle,rgba(255,255,255,0.38) 0%,transparent 70%);border-radius:50%}
+.tb-rose .bsph{background:radial-gradient(ellipse at 40% 35%,rgba(255,200,210,0.45) 0%,rgba(255,130,155,0.12) 55%,transparent 80%);border:1.5px solid rgba(255,107,138,0.28)}
+.tb-blue .bsph{background:radial-gradient(ellipse at 40% 35%,rgba(195,215,255,0.45) 0%,rgba(91,124,250,0.12) 55%,transparent 80%);border:1.5px solid rgba(91,124,250,0.28)}
+.tb-mint .bsph{background:radial-gradient(ellipse at 40% 35%,rgba(190,255,235,0.42) 0%,rgba(67,217,160,0.11) 55%,transparent 80%);border:1.5px solid rgba(67,217,160,0.28)}
+.tb-amber .bsph{background:radial-gradient(ellipse at 40% 35%,rgba(255,235,185,0.45) 0%,rgba(255,159,67,0.12) 55%,transparent 80%);border:1.5px solid rgba(255,159,67,0.28)}
+.tb-purple .bsph{background:radial-gradient(ellipse at 40% 35%,rgba(225,210,255,0.43) 0%,rgba(167,139,250,0.11) 55%,transparent 80%);border:1.5px solid rgba(167,139,250,0.28)}
+.tb-lime .bsph{background:radial-gradient(ellipse at 40% 35%,rgba(235,255,185,0.42) 0%,rgba(180,220,0,0.1) 55%,transparent 80%);border:1.5px solid rgba(180,220,0,0.28)}
+.bav{position:relative;z-index:2;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;color:rgba(10,10,10,0.4);flex-shrink:0;box-shadow:0 0 0 1.5px rgba(255,255,255,0.5) inset}
+.bav img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:block}
+.bav i{font-size:0.5em}
+.bname{position:absolute;bottom:-19px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:9px;font-weight:500;color:var(--ink3);letter-spacing:0.02em;pointer-events:none;font-family:'Geist Mono',monospace}
+@keyframes fa{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-10px) rotate(2.5deg)}}
+@keyframes fb{0%,100%{transform:translateY(0) rotate(0)}33%{transform:translateY(-7px) rotate(-2deg)}66%{transform:translateY(6px) rotate(1.5deg)}}
+@keyframes fc{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(8px) rotate(-2.5deg)}}
+@keyframes fd{0%,100%{transform:translateY(0) rotate(0)}25%{transform:translateY(-6px) rotate(2deg)}75%{transform:translateY(5px) rotate(-1.5deg)}}
+.fa{animation:fa var(--dur,6s) ease-in-out infinite var(--dly,0s)}.fb{animation:fb var(--dur,7s) ease-in-out infinite var(--dly,0s)}.fc{animation:fc var(--dur,5.5s) ease-in-out infinite var(--dly,0s)}.fd{animation:fd var(--dur,8s) ease-in-out infinite var(--dly,0s)}
+@keyframes bEnter{0%{transform:scale(0) translateY(14px);opacity:0}65%{transform:scale(1.08) translateY(-3px);opacity:1}100%{transform:scale(1) translateY(0);opacity:1}}
+.char-bubble.entered{animation:bEnter 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards;animation-delay:var(--edl,0s)}
+@keyframes popBurst{0%{transform:scale(1);opacity:1}45%{transform:scale(1.42);opacity:0.6}100%{transform:scale(0.1);opacity:0}}
+.char-bubble.popping{animation:popBurst 0.3s cubic-bezier(0.22,1,0.36,1) forwards!important}
+.pop-ring{position:absolute;border-radius:50%;border:1.5px solid;pointer-events:none;z-index:8;animation:ringOut 0.55s ease-out forwards}
+@keyframes ringOut{0%{transform:scale(0.7);opacity:0.65}100%{transform:scale(2.5);opacity:0}}
+
+/* PHONE INNER */
+#phoneScreen{position:absolute;inset:0;z-index:20;background:var(--paper);transform:translateX(100%);transition:transform 0.42s cubic-bezier(0.22,1,0.36,1);display:flex;flex-direction:column;overflow:hidden}
+#phoneScreen.open{transform:translateX(0)}
+.inner-status{height:44px;display:flex;align-items:center;justify-content:space-between;padding:11px 20px 0;font-size:12px;font-weight:600;font-family:'Geist Mono',monospace;flex-shrink:0;border-bottom:1px solid var(--line)}
+.inner-status .left{display:flex;align-items:center;gap:8px}
+.inner-status .right{display:flex;gap:5px;align-items:center;font-size:11px}
+.back-btn{display:flex;align-items:center;gap:4px;cursor:pointer;padding:3px 6px 3px 2px;border-radius:6px;transition:0.15s;font-family:'Geist',sans-serif;font-size:11px;font-weight:500;color:var(--blue)}
+.back-btn:hover{background:rgba(91,124,250,0.08)}.back-btn i{font-size:9px}
+.icn{font-family:'Fraunces',serif;font-style:italic;font-size:13px;color:var(--ink2);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cstrip{padding:14px 18px 12px;display:flex;gap:13px;align-items:flex-start;flex-shrink:0;background:var(--card);border-bottom:1px solid var(--line)}
+.csav{width:56px;height:56px;border-radius:18px;overflow:hidden;flex-shrink:0;background:linear-gradient(135deg,#e8e4d9,#d5d0c5);display:flex;align-items:center;justify-content:center;color:var(--mute);font-size:22px;box-shadow:0 3px 12px -4px rgba(0,0,0,0.12)}
+.csav img{width:100%;height:100%;object-fit:cover;display:block}
+.csi{flex:1;min-width:0;padding-top:2px}
+.csname{font-family:'Fraunces',serif;font-size:20px;font-weight:400;font-style:italic;color:var(--ink);line-height:1.1}
+.csrm{font-family:'Geist Mono',monospace;font-size:9px;color:var(--mute);margin-top:3px;letter-spacing:0.07em}
+.csid{display:inline-flex;align-items:center;gap:3px;margin-top:6px;padding:3px 7px;background:var(--paper2);border-radius:6px;font-family:'Geist Mono',monospace;font-size:8px;color:var(--ink3);letter-spacing:0.06em}
+.csid i{font-size:7px;opacity:0.6}
+.persona-blurb{margin:10px 16px;padding:10px 12px;background:rgba(212,255,77,0.09);border:1px solid rgba(180,220,0,0.22);border-radius:10px;font-size:11px;color:var(--ink3);line-height:1.65;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+#innerHome{flex:1;overflow-y:auto;padding:0 0 82px}
+#innerHome::-webkit-scrollbar{display:none}
+.asl{padding:16px 18px 6px;font-family:'Geist Mono',monospace;font-size:8.5px;font-weight:600;color:var(--mute);letter-spacing:0.16em;text-transform:uppercase;display:flex;align-items:center;gap:6px}
+.asl::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--line),transparent)}
+.asl i{font-size:7px;opacity:0.4}
+.string-row{position:relative;padding:0 10px;flex-shrink:0}
+.string-line{height:1.5px;margin:0 8px;background:linear-gradient(90deg,transparent 2%,rgba(10,10,10,0.13) 18%,rgba(10,10,10,0.13) 82%,transparent 98%)}
+.pendants-row{display:flex;justify-content:space-around;align-items:flex-start;padding:0 2px}
+@keyframes pendSway{0%,100%{transform:rotate(calc(var(--amp,3)*1deg))}50%{transform:rotate(calc(var(--amp,3)*-1deg))}}
+.pendant{display:flex;flex-direction:column;align-items:center;transform-origin:top center;animation:pendSway var(--dur,3s) ease-in-out infinite var(--dly,0s);cursor:pointer}
+.pend-thread{width:1px;height:var(--tlen,24px);background:linear-gradient(180deg,rgba(10,10,10,0.18),rgba(10,10,10,0.05))}
+.pend-icon{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:17px;background:var(--card);border:1px solid rgba(10,10,10,0.07);box-shadow:0 2px 8px -3px rgba(0,0,0,0.09);transition:transform 0.2s;flex-shrink:0}
+.pendant:hover .pend-icon{transform:scale(1.1)}
+.pend-label{font-family:'Geist Mono',monospace;font-size:7.5px;font-weight:500;color:var(--mute);margin-top:4px;letter-spacing:0.04em;text-align:center}
+.ai-chat{background:var(--ink)!important;border-color:transparent!important}.ai-chat i{color:var(--lime)}
+.ai-diary i{color:var(--rose)}.ai-mem i{color:var(--amber)}.ai-mood i{color:#818cf8}
+.ai-secret i{color:var(--coral)}.ai-letter i{color:var(--blue)}
+.ai-dream i{color:#6ee7b7}.ai-feel i{color:#f9a8d4}
+.ai-cart i{color:#fb7185}.ai-calls i{color:var(--mint)}
+.ai-photo i{color:#c084fc}.ai-note i{color:#fbbf24}
+.inner-dock{position:absolute;bottom:17px;left:14px;right:14px;background:rgba(255,255,255,0.82);backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);border-radius:28px;padding:10px 18px;display:flex;justify-content:space-around;align-items:center;box-shadow:0 4px 28px -8px rgba(0,0,0,0.11),0 0 0 1px rgba(255,255,255,0.9),inset 0 1px 0 rgba(255,255,255,0.95);z-index:10}
+.dock-item{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer}
+.dock-icon{width:44px;height:44px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:20px;background:var(--card);border:1px solid rgba(10,10,10,0.06);box-shadow:0 2px 10px -3px rgba(0,0,0,0.09);transition:transform 0.2s cubic-bezier(0.22,1,0.36,1)}
+.dock-item:hover .dock-icon{transform:scale(1.12) translateY(-4px)}
+.dock-label{font-family:'Geist Mono',monospace;font-size:8px;color:var(--mute);letter-spacing:0.04em}
+.home-bar{height:4px;width:110px;background:var(--ink);border-radius:10px;position:absolute;bottom:8px;left:50%;transform:translateX(-50%);opacity:0.55;z-index:50;pointer-events:none}
+
+/* APP SCREEN BASE */
+.app-screen{position:absolute;inset:0;z-index:30;background:var(--paper);transform:translateX(100%);transition:transform 0.38s cubic-bezier(0.22,1,0.36,1);display:flex;flex-direction:column;overflow:hidden}
+.app-screen.open{transform:translateX(0)}
+.app-tb{padding:10px 16px 8px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--line);flex-shrink:0;background:var(--card)}
+.app-back{width:28px;height:28px;border-radius:9px;background:var(--paper2);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--blue);transition:0.15s}
+.app-back:hover{background:rgba(91,124,250,0.12)}
+.app-ti{font-family:'Fraunces',serif;font-size:16px;font-style:italic;color:var(--ink)}
+.app-ti i{font-size:12px;margin-right:5px;opacity:0.65}
+.app-sub{font-family:'Geist Mono',monospace;font-size:8px;color:var(--mute);letter-spacing:0.1em;margin-top:1px}
+.abody{flex:1;overflow-y:auto;padding:12px 14px 20px}
+.abody::-webkit-scrollbar{display:none}
+.empty-state{text-align:center;padding:44px 0;color:var(--mute)}
+.empty-state i{font-size:24px;margin-bottom:8px;display:block;opacity:0.3}
+.empty-state p{font-size:12px}
+.empty-state small{font-family:'Geist Mono',monospace;font-size:9px;opacity:0.7;margin-top:4px;display:block}
+.section-sep{display:flex;align-items:center;gap:7px;padding:10px 0 6px}
+.ss-line{flex:1;height:1px;background:var(--line)}
+.ss-label{font-family:'Geist Mono',monospace;font-size:8px;color:var(--mute);letter-spacing:0.12em;text-transform:uppercase}
+.tag-pill{padding:2px 7px;background:var(--paper2);border-radius:20px;font-family:'Geist Mono',monospace;font-size:8px;color:var(--ink3)}
+
+/* ═══ CHAT ═══ */
+.chat-row{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:14px;cursor:pointer;transition:background 0.15s;margin-bottom:2px}
+.chat-row:hover{background:rgba(10,10,10,0.04)}
+.cr-ico{width:40px;height:40px;border-radius:13px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;background:var(--paper2);border:1px solid var(--line);position:relative}
+.cr-ico .cridx{position:absolute;bottom:-3px;right:-3px;width:14px;height:14px;border-radius:5px;background:var(--card);border:1px solid var(--line);font-family:'Geist Mono',monospace;font-size:7px;color:var(--mute);display:flex;align-items:center;justify-content:center}
+.cr-bd{flex:1;min-width:0}.cr-nm{font-size:12.5px;font-weight:500;color:var(--ink);margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cr-ls{font-size:11px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cr-mt{text-align:right;flex-shrink:0}.cr-ti{font-family:'Geist Mono',monospace;font-size:8.5px;color:var(--mute)}
+
+/* ═══ DIARY ═══ */
+.d-hero{background:var(--ink);border-radius:18px;padding:18px;margin-bottom:12px;position:relative;overflow:hidden}
+.d-hero::before{content:'';position:absolute;top:-30px;right:-20px;width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(212,255,77,0.22),transparent 60%)}
+.dh-tag{font-family:'Geist Mono',monospace;font-size:8px;letter-spacing:0.18em;color:rgba(255,255,255,0.35);text-transform:uppercase}
+.dh-ti{font-family:'Fraunces',serif;font-size:22px;font-style:italic;color:white;line-height:1.2;margin-top:4px}
+.dh-mt{font-family:'Geist Mono',monospace;font-size:8.5px;color:rgba(255,255,255,0.3);margin-top:8px}
+.d-entry{background:var(--card);border-radius:14px;padding:13px 14px;margin-bottom:8px;border:1px solid var(--line);cursor:pointer;transition:box-shadow 0.2s}
+.d-entry:hover{box-shadow:0 4px 16px -6px rgba(0,0,0,0.1)}
+.de-dt{font-family:'Geist Mono',monospace;font-size:8px;color:var(--mute);letter-spacing:0.1em;margin-bottom:5px}
+.de-ti{font-family:'Fraunces',serif;font-size:14px;font-style:italic;color:var(--ink);margin-bottom:4px}
+.de-ex{font-size:11px;color:var(--mute);line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.de-tags{margin-top:7px;display:flex;gap:4px;flex-wrap:wrap}
+/* static diary entries (fallback) */
+.d-static{background:var(--card);border-radius:14px;padding:13px 14px;margin-bottom:8px;border:1px solid var(--line)}
+.ds-dt{font-family:'Geist Mono',monospace;font-size:8px;color:var(--mute);letter-spacing:0.1em;margin-bottom:5px}
+.ds-ti{font-family:'Fraunces',serif;font-size:14px;font-style:italic;color:var(--ink);margin-bottom:4px}
+.ds-ex{font-size:11px;color:var(--mute);line-height:1.6}
+.ds-tags{margin-top:7px;display:flex;gap:4px}
+
+/* ═══ MEMORY ═══ */
+.mem-e{background:var(--card);border-radius:12px;padding:11px 13px;margin-bottom:7px;border:1px solid var(--line);position:relative;overflow:hidden}
+.mem-e::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:0 2px 2px 0;background:var(--lime)}
+.mem-e.dis{opacity:0.4}.mem-e.dis::before{background:var(--line)}
+.me-ti{font-size:12px;font-weight:600;color:var(--ink);margin-bottom:3px}
+.me-ct{font-size:11px;color:var(--mute);line-height:1.6;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.me-keys{margin-top:6px;display:flex;gap:3px;flex-wrap:wrap}
+.me-key{padding:2px 6px;background:rgba(212,255,77,0.15);border:1px solid rgba(180,220,0,0.25);border-radius:5px;font-family:'Geist Mono',monospace;font-size:7.5px;color:#5a7000}
+/* static memory entries (fallback) */
+.mem-static{background:var(--card);border-radius:12px;padding:11px 13px;margin-bottom:7px;border:1px solid var(--line);position:relative;overflow:hidden}
+.mem-static::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:0 2px 2px 0;background:var(--purple)}
+
+/* ═══ MOOD — cool palette ═══ */
+.mood-today{background:linear-gradient(135deg,#eef2ff,#f5f3ff);border-radius:16px;padding:14px 16px;border:1px solid rgba(129,140,248,0.18);margin-bottom:12px}
+.mt-lbl{font-family:'Geist Mono',monospace;font-size:8px;color:#818cf8;letter-spacing:0.1em}
+.mt-mood{font-family:'Fraunces',serif;font-size:28px;font-style:italic;color:#312e81;margin-top:3px}
+.mt-note{font-size:11px;color:#6366f1;margin-top:6px;line-height:1.6;font-style:italic;opacity:0.8}
+.mood-label{font-family:'Geist Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:0.14em;color:var(--mute);margin-bottom:7px}
+.mood-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:14px}
+.mood-day{aspect-ratio:1;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:13px;border:1px solid rgba(129,140,248,0.12);cursor:pointer;transition:transform 0.18s,box-shadow 0.18s;background:rgba(238,242,255,0.5)}
+.mood-day.num{font-family:'Geist Mono',monospace;font-size:8px!important;color:#a5b4fc}
+.mood-day:hover{transform:scale(1.1);box-shadow:0 2px 8px -2px rgba(99,102,241,0.25)}
+.mood-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:4px}
+.ms-card{background:linear-gradient(135deg,#f5f3ff,#eef2ff);border:1px solid rgba(129,140,248,0.18);border-radius:12px;padding:10px;text-align:center}
+.ms-val{font-family:'Fraunces',serif;font-size:20px;font-style:italic;color:#4f46e5}
+.ms-label{font-family:'Geist Mono',monospace;font-size:7.5px;color:#818cf8;margin-top:2px;letter-spacing:0.08em}
+
+/* ═══ SECRETS ═══ */
+.s-lock{text-align:center;padding:22px 20px;background:linear-gradient(135deg,#fff7ed,#fef3c7);border-radius:18px;border:1px solid rgba(245,158,11,0.2);margin-bottom:12px}
+.sl-ico{font-size:26px;color:var(--amber);margin-bottom:10px;display:block}
+.sl-ti{font-family:'Fraunces',serif;font-size:17px;font-style:italic;color:var(--ink);margin-bottom:5px}
+.sl-su{font-family:'Geist Mono',monospace;font-size:9px;color:var(--mute);letter-spacing:0.1em}
+.s-entry{background:var(--card);border-radius:12px;padding:12px 14px;margin-bottom:7px;border:1px solid var(--line)}
+.se-bar{display:flex;align-items:center;gap:6px;font-family:'Geist Mono',monospace;font-size:9px;color:var(--mute);margin-bottom:5px}
+.se-bar i{font-size:8px;color:var(--amber)}.se-ti{font-size:12px;font-weight:500;color:var(--ink);margin-bottom:3px}
+.se-prev{font-size:11px;color:var(--mute);filter:blur(3.5px);user-select:none;line-height:1.6}
+
+/* ═══ LETTERS ═══ */
+.l-card{background:var(--card);border-radius:14px;padding:14px 16px;margin-bottom:9px;border:1px solid var(--line);cursor:pointer;transition:0.2s;position:relative;overflow:hidden}
+.l-card::after{content:'';position:absolute;top:0;right:0;width:40px;height:40px;background:linear-gradient(225deg,var(--paper2) 50%,transparent 50%);pointer-events:none}
+.l-card:hover{box-shadow:0 4px 18px -6px rgba(0,0,0,0.1)}
+.lc-fr{font-family:'Geist Mono',monospace;font-size:8px;color:var(--mute);letter-spacing:0.1em;margin-bottom:5px}
+.lc-su{font-family:'Fraunces',serif;font-size:14px;font-style:italic;color:var(--ink);margin-bottom:5px}
+.lc-pr{font-size:11px;color:var(--mute);line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.lc-mt{display:flex;align-items:center;justify-content:space-between;margin-top:8px}
+.lc-dt{font-family:'Geist Mono',monospace;font-size:8px;color:var(--mute)}
+.lc-st{padding:2px 7px;border-radius:20px;font-family:'Geist Mono',monospace;font-size:7.5px}
+.lc-st.unread{background:rgba(91,124,250,0.12);color:var(--blue)}.lc-st.read{background:var(--paper2);color:var(--mute)}
+
+/* ═══ DREAMS ═══ */
+.dream-hero{background:linear-gradient(135deg,#1a1035,#2d1b5e);border-radius:18px;padding:18px;margin-bottom:12px;position:relative;overflow:hidden}
+.dream-hero::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><circle cx='20' cy='30' r='1.5' fill='rgba(255,255,255,0.4)'/><circle cx='60' cy='20' r='1' fill='rgba(255,255,255,0.3)'/><circle cx='80' cy='60' r='2' fill='rgba(255,255,255,0.2)'/><circle cx='40' cy='75' r='1' fill='rgba(255,255,255,0.35)'/><circle cx='90' cy='40' r='1.5' fill='rgba(255,255,255,0.25)'/></svg>")}
+.dre-tag{font-family:'Geist Mono',monospace;font-size:8px;letter-spacing:0.18em;color:rgba(255,255,255,0.35)}
+.dre-ti{font-family:'Fraunces',serif;font-size:18px;font-style:italic;color:white;line-height:1.2;margin-top:4px}
+.dre-mt{font-family:'Geist Mono',monospace;font-size:8px;color:rgba(255,255,255,0.3);margin-top:8px}
+.dream-card{background:var(--card);border-radius:14px;padding:13px 14px;margin-bottom:8px;border:1px solid var(--line)}
+.dc-date{font-family:'Geist Mono',monospace;font-size:8px;color:var(--mute);letter-spacing:0.1em;margin-bottom:5px}
+.dc-ti{font-family:'Fraunces',serif;font-size:14px;font-style:italic;color:var(--ink);margin-bottom:4px}
+.dc-body{font-size:11px;color:var(--mute);line-height:1.7;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.dc-tag{display:inline-block;margin-top:7px;padding:2px 7px;background:rgba(45,27,94,0.07);border:1px solid rgba(45,27,94,0.14);border-radius:20px;font-family:'Geist Mono',monospace;font-size:8px;color:#4a2a9a}
+
+/* ═══ FEELINGS ═══ */
+.feel-card{background:var(--card);border-radius:14px;padding:14px;margin-bottom:8px;border:1px solid var(--line)}
+.feel-val{font-family:'Fraunces',serif;font-size:26px;font-style:italic;color:var(--ink)}
+.feel-bar-wrap{margin-top:10px}
+.feel-bar-label{display:flex;justify-content:space-between;font-family:'Geist Mono',monospace;font-size:8px;color:var(--mute);margin-bottom:4px}
+.feel-bar{height:5px;border-radius:3px;background:var(--paper2);overflow:hidden}
+.feel-bar-fill{height:100%;border-radius:3px}
+.feel-log-item{display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid var(--line)}
+.feel-log-item:last-child{border-bottom:none}
+.fli-time{font-family:'Geist Mono',monospace;font-size:8px;color:var(--mute);white-space:nowrap;margin-top:1px;min-width:36px}
+.fli-text{font-size:11px;color:var(--ink3);line-height:1.55}
+
+/* ═══ CART ═══ */
+.cart-hero{background:linear-gradient(135deg,#fff0f3,#ffe4ec);border-radius:16px;padding:14px 16px;margin-bottom:12px;border:1px solid rgba(255,107,138,0.15);display:flex;align-items:center;gap:12px}
+.ch-icon{width:40px;height:40px;border-radius:14px;background:rgba(255,107,138,0.1);display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--rose);flex-shrink:0}
+.ch-text{flex:1}.ch-ti{font-family:'Fraunces',serif;font-size:16px;font-style:italic;color:var(--ink)}
+.ch-sub{font-family:'Geist Mono',monospace;font-size:8px;color:var(--mute);margin-top:2px;letter-spacing:0.08em}
+.ch-total{font-family:'Fraunces',serif;font-size:18px;font-style:italic;color:var(--rose);flex-shrink:0}
+.cart-item{background:var(--card);border-radius:14px;padding:12px 14px;margin-bottom:8px;border:1px solid var(--line);display:flex;gap:12px;align-items:flex-start}
+.ci-img{width:52px;height:52px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:22px}
+.ci-info{flex:1;min-width:0}.ci-name{font-size:12px;font-weight:500;color:var(--ink);margin-bottom:2px}
+.ci-shop{font-family:'Geist Mono',monospace;font-size:8.5px;color:var(--mute);margin-bottom:5px}
+.ci-price{font-family:'Fraunces',serif;font-size:16px;font-style:italic;color:var(--rose)}
+.ci-old{font-family:'Geist Mono',monospace;font-size:9px;color:var(--mute);text-decoration:line-through;margin-left:4px}
+.ci-note{font-size:10px;color:var(--mute);margin-top:4px;line-height:1.5;font-style:italic}
+.ci-badge{display:inline-block;padding:1px 6px;border-radius:4px;font-family:'Geist Mono',monospace;font-size:7.5px;margin-top:5px}
+.ci-badge.sale{background:rgba(255,107,138,0.1);color:var(--rose)}.ci-badge.new{background:rgba(91,124,250,0.1);color:var(--blue)}.ci-badge.rare{background:rgba(212,255,77,0.2);border:1px solid rgba(180,220,0,0.3);color:#5a7000}
+
+/* ═══ BROWSER ═══ */
+.browser-bar{background:var(--card);border-radius:12px;padding:9px 12px;margin-bottom:10px;border:1px solid var(--line);display:flex;align-items:center;gap:8px}
+.bb-icon{color:var(--mute);font-size:11px}
+.bb-url{font-family:'Geist Mono',monospace;font-size:9px;color:var(--ink3);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hist-item{background:var(--card);border-radius:12px;padding:10px 12px;margin-bottom:6px;border:1px solid var(--line);cursor:pointer;transition:0.15s}
+.hist-item:hover{background:var(--paper2)}
+.hi-site{font-family:'Geist Mono',monospace;font-size:8px;color:var(--mute);letter-spacing:0.06em;margin-bottom:3px;display:flex;align-items:center;gap:4px}
+.hi-site i{font-size:7px}.hi-ti{font-size:12px;color:var(--ink);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hi-url{font-family:'Geist Mono',monospace;font-size:8.5px;color:var(--blue);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hi-time{font-family:'Geist Mono',monospace;font-size:7.5px;color:var(--mute);margin-top:4px}
+.incognito-banner{background:rgba(10,10,10,0.04);border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin-bottom:6px;display:flex;align-items:center;gap:7px;font-family:'Geist Mono',monospace;font-size:9px;color:var(--mute)}
+
+/* ═══ CALLS ═══ */
+.call-item{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:14px;cursor:pointer;transition:0.15s;margin-bottom:3px}
+.call-item:hover{background:rgba(10,10,10,0.04)}
+.call-av{width:42px;height:42px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:var(--ink3)}
+.call-info{flex:1;min-width:0}.call-name{font-size:13px;font-weight:500;color:var(--ink);margin-bottom:2px}
+.call-meta{font-family:'Geist Mono',monospace;font-size:8.5px;color:var(--mute);display:flex;align-items:center;gap:5px}
+.call-ico{font-size:10px;flex-shrink:0}.call-ico.missed{color:var(--rose)}.call-ico.out{color:var(--blue)}.call-ico.in{color:var(--mint)}
+.call-dur{font-family:'Geist Mono',monospace;font-size:9px;color:var(--mute);text-align:right}
+
+/* ═══ PHOTOS ═══ */
+.album-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:12px}
+.album-item{aspect-ratio:1;border-radius:8px;overflow:hidden;position:relative;cursor:pointer}
+.album-item .ai-bg{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:22px;transition:0.2s}
+.album-item:hover .ai-bg{transform:scale(1.06)}
+.album-item .ai-caption{position:absolute;bottom:0;left:0;right:0;padding:4px 6px;background:linear-gradient(transparent,rgba(0,0,0,0.4));font-size:8.5px;color:white;font-family:'Geist Mono',monospace;letter-spacing:0.04em;opacity:0;transition:opacity 0.2s}
+.album-item:hover .ai-caption{opacity:1}
+.album-special{grid-column:span 2;aspect-ratio:2/1}
+
+/* ═══ VAULT (DOCK APP) ═══ */
+.vault-hero{background:linear-gradient(135deg,#0f172a,#1e293b);border-radius:18px;padding:18px;margin-bottom:14px;position:relative;overflow:hidden}
+.vault-hero::after{content:'';position:absolute;top:-40px;right:-30px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(99,102,241,0.25),transparent 60%)}
+.vh-tag{font-family:'Geist Mono',monospace;font-size:8px;letter-spacing:0.18em;color:rgba(255,255,255,0.3);text-transform:uppercase}
+.vh-ti{font-family:'Fraunces',serif;font-size:20px;font-style:italic;color:white;margin-top:4px;line-height:1.2}
+.vh-sub{font-family:'Geist Mono',monospace;font-size:8.5px;color:rgba(255,255,255,0.28);margin-top:7px;display:flex;align-items:center;gap:8px}
+.vh-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;background:rgba(99,102,241,0.2);border:1px solid rgba(99,102,241,0.35);border-radius:20px;font-size:8px;font-family:'Geist Mono',monospace;color:rgba(165,180,252,0.9)}
+.vault-tabs{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;scrollbar-width:none}
+.vault-tabs::-webkit-scrollbar{display:none}
+.vtab{padding:5px 12px;border-radius:20px;font-family:'Geist Mono',monospace;font-size:9px;cursor:pointer;border:1px solid var(--line);color:var(--mute);background:var(--card);transition:0.18s;white-space:nowrap}
+.vtab.active{background:var(--ink);color:white;border-color:transparent}
+.vault-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.vault-item{border-radius:14px;overflow:hidden;cursor:pointer;position:relative;transition:transform 0.18s}
+.vault-item:hover{transform:scale(1.03)}
+.vi-thumb{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;font-size:22px;position:relative}
+.vi-thumb.span2{grid-column:span 2;aspect-ratio:2/1}
+.vi-lock{position:absolute;top:6px;right:6px;width:16px;height:16px;border-radius:5px;background:rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center;font-size:8px;color:rgba(255,255,255,0.8)}
+.vi-info{padding:6px 8px;background:var(--card);border:1px solid var(--line);border-top:none;border-radius:0 0 14px 14px}
+.vi-name{font-size:10px;font-weight:500;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vi-meta{font-family:'Geist Mono',monospace;font-size:7.5px;color:var(--mute);margin-top:1px}
+.vault-list-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;cursor:pointer;transition:0.15s;border:1px solid var(--line);background:var(--card);margin-bottom:6px}
+.vault-list-item:hover{background:var(--paper2)}
+.vli-icon{width:38px;height:38px;border-radius:11px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:16px}
+.vli-info{flex:1;min-width:0}.vli-name{font-size:12px;font-weight:500;color:var(--ink);margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vli-meta{font-family:'Geist Mono',monospace;font-size:8px;color:var(--mute)}
+.vli-right{font-family:'Geist Mono',monospace;font-size:8px;color:var(--mute);flex-shrink:0}
+.vault-detail-overlay{position:absolute;inset:0;z-index:40;background:var(--paper);transform:translateX(100%);transition:transform 0.35s cubic-bezier(0.22,1,0.36,1);display:flex;flex-direction:column;overflow:hidden}
+.vault-detail-overlay.open{transform:translateX(0)}
+.vdo-tb{padding:10px 16px 8px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--line);flex-shrink:0;background:var(--card)}
+.vdo-back{width:28px;height:28px;border-radius:9px;background:var(--paper2);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--blue)}
+.vdo-ti{font-family:'Fraunces',serif;font-size:15px;font-style:italic;color:var(--ink)}
+.vdo-body{flex:1;overflow-y:auto;padding:14px 16px 20px}
+.vdo-body::-webkit-scrollbar{display:none}
+.vdo-preview{border-radius:18px;overflow:hidden;margin-bottom:14px;display:flex;align-items:center;justify-content:center;font-size:48px;position:relative}
+.vdo-locked-notice{position:absolute;inset:0;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;background:rgba(255,255,255,0.15)}
+.vdo-locked-notice i{font-size:22px;color:white}
+.vdo-locked-notice span{font-family:'Geist Mono',monospace;font-size:9px;color:rgba(255,255,255,0.8);letter-spacing:0.12em}
+.vdo-meta-row{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.vdo-meta-chip{padding:4px 10px;border-radius:20px;background:var(--paper2);font-family:'Geist Mono',monospace;font-size:8px;color:var(--ink3)}
+.vdo-desc{font-size:12px;color:var(--ink3);line-height:1.7}
+.vdo-transcript{background:var(--card);border-radius:12px;padding:12px 14px;border:1px solid var(--line);margin-top:12px}
+.vdt-label{font-family:'Geist Mono',monospace;font-size:8px;color:var(--mute);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:7px}
+.vdt-line{display:flex;gap:8px;margin-bottom:6px;font-size:11px;color:var(--ink3);line-height:1.6}
+.vdt-ts{font-family:'Geist Mono',monospace;font-size:8px;color:var(--mute);white-space:nowrap;margin-top:1px;min-width:34px}
+
+/* LOADING */
+#loadState{position:absolute;inset:0;z-index:100;background:var(--paper);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;transition:opacity 0.5s}
+#loadState.hide{opacity:0;pointer-events:none}
+.loader-ring{width:40px;height:40px;border-radius:50%;border:2px solid var(--line);border-top-color:var(--ink);animation:spin 0.9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.load-txt{font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:0.2em;color:var(--mute)}
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="status-bar">
+    <span id="sbTime">9:41</span>
+    <div class="right"><i class="fa-solid fa-signal"></i><i class="fa-solid fa-wifi"></i><i class="fa-solid fa-battery-three-quarters" style="font-size:15px"></i></div>
+  </div>
+  <div class="view-wrap">
+
+    <div id="bubbleScreen">
+      <div class="bs-label"><div class="bs-ey"><i class="fa-solid fa-circle-nodes" style="font-size:7px"></i> &nbsp;角色索引</div><div class="bs-ti">Characters</div></div>
+      <div class="bs-ct">共 <span id="charCount">—</span> 位</div>
+      <div id="bubbleField"></div>
+    </div>
+
+    <div id="phoneScreen">
+      <div class="inner-status">
+        <div class="left"><span class="back-btn" onclick="closePhone()"><i class="fa-solid fa-chevron-left"></i> 返回</span><span class="icn" id="innerCN">—</span></div>
+        <div class="right"><i class="fa-solid fa-signal"></i><i class="fa-solid fa-wifi"></i><i class="fa-solid fa-battery-three-quarters" style="font-size:13px"></i></div>
+      </div>
+      <div class="cstrip">
+        <div class="csav" id="csAv"><i class="fa-solid fa-user-astronaut"></i></div>
+        <div class="csi">
+          <div class="csname" id="csName">—</div>
+          <div class="csrm" id="csRm"></div>
+          <div class="csid" id="csId"><i class="fa-solid fa-fingerprint"></i> —</div>
+        </div>
+      </div>
+      <div class="persona-blurb" id="pBlurb" style="display:none"></div>
+      <div id="innerHome">
+        <div class="asl"><i class="fa-solid fa-grip"></i> APPS</div>
+        <div class="string-row" style="margin-top:2px">
+          <div class="string-line"></div>
+          <div class="pendants-row">
+            <div class="pendant" style="--dly:0s;--dur:3.2s;--amp:3;--tlen:24px" onclick="openApp('chat')"><div class="pend-thread"></div><div class="pend-icon ai-chat"><i class="fa-solid fa-comment-dots"></i></div><div class="pend-label">Chat</div></div>
+            <div class="pendant" style="--dly:0.4s;--dur:2.9s;--amp:4;--tlen:30px" onclick="openApp('diary')"><div class="pend-thread"></div><div class="pend-icon ai-diary"><i class="fa-solid fa-book-open-reader"></i></div><div class="pend-label">Diary</div></div>
+            <div class="pendant" style="--dly:0.9s;--dur:3.4s;--amp:2.5;--tlen:22px" onclick="openApp('mem')"><div class="pend-thread"></div><div class="pend-icon ai-mem"><i class="fa-solid fa-brain"></i></div><div class="pend-label">Memory</div></div>
+            <div class="pendant" style="--dly:1.3s;--dur:2.7s;--amp:4.5;--tlen:28px" onclick="openApp('photo')"><div class="pend-thread"></div><div class="pend-icon ai-photo"><i class="fa-solid fa-images"></i></div><div class="pend-label">Photos</div></div>
+          </div>
+        </div>
+        <div class="string-row" style="margin-top:22px">
+          <div class="string-line"></div>
+          <div class="pendants-row">
+            <div class="pendant" style="--dly:0.2s;--dur:3.1s;--amp:3.5;--tlen:26px" onclick="openApp('secret')"><div class="pend-thread"></div><div class="pend-icon ai-secret"><i class="fa-solid fa-lock"></i></div><div class="pend-label">Secrets</div></div>
+            <div class="pendant" style="--dly:0.6s;--dur:3.5s;--amp:4;--tlen:32px" onclick="openApp('letter')"><div class="pend-thread"></div><div class="pend-icon ai-letter"><i class="fa-solid fa-envelope-open-text"></i></div><div class="pend-label">Letters</div></div>
+            <div class="pendant" style="--dly:1.1s;--dur:2.8s;--amp:2;--tlen:20px" onclick="openApp('dream')"><div class="pend-thread"></div><div class="pend-icon ai-dream"><i class="fa-solid fa-moon"></i></div><div class="pend-label">Dreams</div></div>
+            <div class="pendant" style="--dly:1.5s;--dur:3.3s;--amp:5;--tlen:25px" onclick="openApp('feel')"><div class="pend-thread"></div><div class="pend-icon ai-feel"><i class="fa-solid fa-heart-pulse"></i></div><div class="pend-label">Feelings</div></div>
+          </div>
+        </div>
+        <div class="string-row" style="margin-top:22px">
+          <div class="string-line"></div>
+          <div class="pendants-row">
+            <div class="pendant" style="--dly:0s;--dur:3.2s;--amp:4;--tlen:28px" onclick="openApp('cart')"><div class="pend-thread"></div><div class="pend-icon ai-cart"><i class="fa-solid fa-bag-shopping"></i></div><div class="pend-label">Wishlist</div></div>
+            <div class="pendant" style="--dly:0.5s;--dur:2.9s;--amp:3;--tlen:22px" onclick="openApp('browser')"><div class="pend-thread"></div><div class="pend-icon ai-note" style="background:var(--paper2)"><i class="fa-solid fa-globe" style="color:#38bdf8"></i></div><div class="pend-label">Browser</div></div>
+            <div class="pendant" style="--dly:1s;--dur:3.6s;--amp:2.5;--tlen:30px" onclick="openApp('calls')"><div class="pend-thread"></div><div class="pend-icon ai-calls"><i class="fa-solid fa-phone-volume"></i></div><div class="pend-label">Calls</div></div>
+            <div class="pendant" style="--dly:1.4s;--dur:2.7s;--amp:4;--tlen:24px" onclick="openApp('mood')"><div class="pend-thread"></div><div class="pend-icon ai-mood"><i class="fa-solid fa-face-smile-wink"></i></div><div class="pend-label">Mood</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DOCK: Chat · Vault · Home (no repeats with grid) -->
+      <div class="inner-dock">
+        <div class="dock-item" onclick="openApp('chat')">
+          <div class="dock-icon" style="background:var(--ink)"><i class="fa-solid fa-comment-dots" style="color:var(--lime)"></i></div>
+          <div class="dock-label">Chat</div>
+        </div>
+        <div class="dock-item" onclick="openApp('vault')">
+          <div class="dock-icon" style="background:linear-gradient(135deg,#0f172a,#1e293b)">
+            <i class="fa-solid fa-shield-halved" style="color:#818cf8;font-size:19px"></i>
+          </div>
+          <div class="dock-label">Vault</div>
+        </div>
+        <div class="dock-item" onclick="closePhone()">
+          <div class="dock-icon"><i class="fa-solid fa-house" style="color:var(--amber)"></i></div>
+          <div class="dock-label">Exit</div>
+        </div>
+      </div>
+      <div class="home-bar"></div>
+
+      <!-- ═══ CHAT ═══ -->
+      <div class="app-screen" id="appChat">
+        <div class="app-tb"><button class="app-back" onclick="closeApp('appChat')"><i class="fa-solid fa-chevron-left"></i></button><div><div class="app-ti"><i class="fa-solid fa-comment-dots"></i>Chat</div><div class="app-sub">MESSAGE HISTORY</div></div></div>
+        <div class="abody" id="chatListBody"><div class="empty-state"><i class="fa-regular fa-comment-dots"></i><p>暂无聊天记录</p></div></div>
+      </div>
+
+      <!-- ═══ DIARY ═══ -->
+      <div class="app-screen" id="appDiary">
+        <div class="app-tb"><button class="app-back" onclick="closeApp('appDiary')"><i class="fa-solid fa-chevron-left"></i></button><div><div class="app-ti"><i class="fa-solid fa-book-open-reader"></i>Diary</div><div class="app-sub">PRIVATE JOURNAL</div></div></div>
+        <div class="abody" id="diaryBody">
+          <div class="d-hero"><div class="dh-tag"><i class="fa-solid fa-feather" style="font-size:8px;margin-right:4px"></i> PERSONAL DIARY</div><div class="dh-ti" id="diaryHeroName">—的日记</div><div class="dh-mt" id="diaryHeroId">ID · —</div></div>
+          <div id="diaryEntries"></div>
+          <div id="diaryFallback" style="display:none"></div>
+        </div>
+      </div>
+
+      <!-- ═══ MEMORY ═══ -->
+      <div class="app-screen" id="appMem">
+        <div class="app-tb"><button class="app-back" onclick="closeApp('appMem')"><i class="fa-solid fa-chevron-left"></i></button><div><div class="app-ti"><i class="fa-solid fa-brain"></i>Memory</div><div class="app-sub">WORLDBOOK FRAGMENTS</div></div></div>
+        <div class="abody" id="memBody"></div>
+      </div>
+
+      <!-- ═══ MOOD ═══ -->
+      <div class="app-screen" id="appMood">
+        <div class="app-tb"><button class="app-back" onclick="closeApp('appMood')"><i class="fa-solid fa-chevron-left"></i></button><div><div class="app-ti"><i class="fa-solid fa-face-smile-wink"></i>Mood</div><div class="app-sub">EMOTIONAL LOG</div></div></div>
+        <div class="abody" id="moodBody">
+          <div class="mood-today"><div class="mt-lbl"><i class="fa-regular fa-calendar" style="font-size:8px;margin-right:4px"></i> TODAY</div><div class="mt-mood" id="moodTodayVal">—</div><div class="mt-note" id="moodTodayNote">…</div></div>
+          <div class="mood-label"><i class="fa-solid fa-chart-line" style="font-size:8px;margin-right:4px"></i> THIS MONTH</div>
+          <div class="mood-grid" id="moodGrid"></div>
+          <div class="mood-stats" id="moodStats"></div>
+        </div>
+      </div>
+
+      <!-- ═══ SECRETS ═══ -->
+      <div class="app-screen" id="appSecret">
+        <div class="app-tb"><button class="app-back" onclick="closeApp('appSecret')"><i class="fa-solid fa-chevron-left"></i></button><div><div class="app-ti"><i class="fa-solid fa-lock"></i>Secrets</div><div class="app-sub">PRIVATE ARCHIVE · ENCRYPTED</div></div></div>
+        <div class="abody" id="secretBody"></div>
+      </div>
+
+      <!-- ═══ LETTERS ═══ -->
+      <div class="app-screen" id="appLetter">
+        <div class="app-tb"><button class="app-back" onclick="closeApp('appLetter')"><i class="fa-solid fa-chevron-left"></i></button><div><div class="app-ti"><i class="fa-solid fa-envelope-open-text"></i>Letters</div><div class="app-sub">CORRESPONDENCE</div></div></div>
+        <div class="abody" id="letterBody"></div>
+      </div>
+
+      <!-- ═══ DREAMS ═══ -->
+      <div class="app-screen" id="appDream">
+        <div class="app-tb"><button class="app-back" onclick="closeApp('appDream')"><i class="fa-solid fa-chevron-left"></i></button><div><div class="app-ti"><i class="fa-solid fa-moon"></i>Dreams</div><div class="app-sub">DREAM JOURNAL</div></div></div>
+        <div class="abody" id="dreamBody"></div>
+      </div>
+
+      <!-- ═══ FEELINGS ═══ -->
+      <div class="app-screen" id="appFeel">
+        <div class="app-tb"><button class="app-back" onclick="closeApp('appFeel')"><i class="fa-solid fa-chevron-left"></i></button><div><div class="app-ti"><i class="fa-solid fa-heart-pulse"></i>Feelings</div><div class="app-sub">EMOTIONAL TRACKER</div></div></div>
+        <div class="abody" id="feelBody"></div>
+      </div>
+
+      <!-- ═══ CART ═══ -->
+      <div class="app-screen" id="appCart">
+        <div class="app-tb"><button class="app-back" onclick="closeApp('appCart')"><i class="fa-solid fa-chevron-left"></i></button><div><div class="app-ti"><i class="fa-solid fa-bag-shopping"></i>Wishlist</div><div class="app-sub">SAVED ITEMS</div></div></div>
+        <div class="abody" id="cartBody"></div>
+      </div>
+
+      <!-- ═══ BROWSER ═══ -->
+      <div class="app-screen" id="appBrowser">
+        <div class="app-tb"><button class="app-back" onclick="closeApp('appBrowser')"><i class="fa-solid fa-chevron-left"></i></button><div><div class="app-ti"><i class="fa-solid fa-globe"></i>Browser</div><div class="app-sub">HISTORY &amp; BOOKMARKS</div></div></div>
+        <div class="abody" id="browserBody"></div>
+      </div>
+
+      <!-- ═══ CALLS ═══ -->
+      <div class="app-screen" id="appCalls">
+        <div class="app-tb"><button class="app-back" onclick="closeApp('appCalls')"><i class="fa-solid fa-chevron-left"></i></button><div><div class="app-ti"><i class="fa-solid fa-phone-volume"></i>Calls</div><div class="app-sub">RECENT CALLS</div></div></div>
+        <div class="abody" id="callsBody"></div>
+      </div>
+
+      <!-- ═══ PHOTOS ═══ -->
+      <div class="app-screen" id="appPhoto">
+        <div class="app-tb"><button class="app-back" onclick="closeApp('appPhoto')"><i class="fa-solid fa-chevron-left"></i></button><div><div class="app-ti"><i class="fa-solid fa-images"></i>Photos</div><div class="app-sub">PRIVATE ALBUM</div></div></div>
+        <div class="abody" id="photoBody"></div>
+      </div>
+
+      <!-- ═══ VAULT ═══ -->
+      <div class="app-screen" id="appVault">
+        <div class="app-tb"><button class="app-back" onclick="closeApp('appVault')"><i class="fa-solid fa-chevron-left"></i></button><div><div class="app-ti"><i class="fa-solid fa-shield-halved"></i>Vault</div><div class="app-sub">ENCRYPTED MEDIA ARCHIVE</div></div></div>
+        <div class="abody" id="vaultBody"></div>
+        <!-- detail overlay inside vault -->
+        <div class="vault-detail-overlay" id="vaultDetail">
+          <div class="vdo-tb"><button class="vdo-back" onclick="closeVaultDetail()"><i class="fa-solid fa-chevron-left"></i></button><div class="vdo-ti" id="vdoTitle">—</div></div>
+          <div class="vdo-body" id="vdoBody"></div>
+        </div>
+      </div>
+
+    </div><!-- /phoneScreen -->
+
+    <div id="loadState"><div class="loader-ring"></div><div class="load-txt">读取角色数据</div></div>
+  </div>
+</div>
+
+<script>
+/* ─── DB ─── */
+const IDB='tsukiphonepromax';
+const SCH={config:{keyPath:'id'},chars:{keyPath:'id'},users:{keyPath:'id'},worldbook:null,chats:{keyPath:'id'},messages:{keyPath:['chatId','floor']}};
+let _db=null;
+function openDb(){if(_db)return Promise.resolve(_db);return new Promise((res,rej)=>{const p=indexedDB.open(IDB);p.onsuccess=e=>{const db=e.target.result;const miss=Object.keys(SCH).filter(s=>!db.objectStoreNames.contains(s));if(!miss.length){_db=db;res(_db);return}const v=db.version;db.close();const up=indexedDB.open(IDB,v+1);up.onupgradeneeded=ev=>{const d=ev.target.result;for(const[n,o]of Object.entries(SCH)){if(!d.objectStoreNames.contains(n)){o?d.createObjectStore(n,o):d.createObjectStore(n)}}};up.onsuccess=ev=>{_db=ev.target.result;res(_db)};up.onerror=ev=>rej(ev.target.error)};p.onerror=e=>rej(e.target.error)})}
+function dbAll(s){return openDb().then(db=>new Promise((res,rej)=>{const tx=db.transaction(s,'readonly');const r=tx.objectStore(s).getAll();r.onsuccess=()=>res(r.result||[]);r.onerror=e=>rej(e.target.error)}))}
+
+/* ─── CLOCK ─── */
+function tick(){const n=new Date();document.getElementById('sbTime').textContent=n.getHours().toString().padStart(2,'0')+':'+n.getMinutes().toString().padStart(2,'0')}
+tick();setInterval(tick,30000);
+
+/* ─── BUBBLES ─── */
+const TINTS=['tb-rose','tb-blue','tb-mint','tb-amber','tb-purple','tb-lime'],FLOATS=['fa','fb','fc','fd'];
+function rand(a,b){return a+Math.random()*(b-a)}
+function noOvlp(x,y,r,pl){for(const p of pl){const dx=x-p.x,dy=y-p.y;if(Math.sqrt(dx*dx+dy*dy)<r+p.r+10)return false}return true}
+let allChars=[],curChar=null;
+function buildBubbles(chars){
+  const field=document.getElementById('bubbleField');field.innerHTML='';
+  const W=field.offsetWidth||360,H=field.offsetHeight||680,placed=[];
+  chars.forEach((ch,i)=>{
+    const sz=Math.round(rand(56,90)),r=sz/2;let x,y,t=0;
+    do{x=rand(14+r,W-14-r);y=rand(78+r,H-24-r);t++}while(!noOvlp(x,y,r,placed)&&t<400);
+    placed.push({x,y,r});
+    const b=document.createElement('div');
+    b.className=`char-bubble ${FLOATS[i%4]} ${TINTS[i%6]}`;
+    b.style.cssText=`width:${sz}px;height:${sz}px;left:${x-r}px;top:${y-r}px;--dur:${(5+Math.random()*4).toFixed(1)}s;--dly:-${(Math.random()*4).toFixed(1)}s;--edl:${(i*0.085).toFixed(2)}s`;
+    b.dataset.cid=ch.id;
+    const sp=document.createElement('div');sp.className='bsph';b.appendChild(sp);
+    const av=document.createElement('div');av.className='bav';av.style.cssText=`width:${Math.round(sz*0.56)}px;height:${Math.round(sz*0.56)}px`;
+    if(ch.avatar){const img=document.createElement('img');img.src=ch.avatar;img.onerror=()=>{img.remove();av.innerHTML='<i class="fa-solid fa-user-astronaut"></i>'};av.appendChild(img)}
+    else av.innerHTML='<i class="fa-solid fa-user-astronaut"></i>';
+    b.appendChild(av);
+    const nl=document.createElement('div');nl.className='bname';nl.textContent=ch.remark||ch.name||'角色';b.appendChild(nl);
+    b.addEventListener('click',e=>onBubClick(e,b,ch));
+    field.appendChild(b);setTimeout(()=>b.classList.add('entered'),10);
+  });
+}
+function onBubClick(e,bub,ch){
+  if(bub.classList.contains('popping'))return;
+  const rect=bub.getBoundingClientRect(),fr=document.getElementById('bubbleField').getBoundingClientRect();
+  const cx=rect.left+rect.width/2-fr.left,cy=rect.top+rect.height/2-fr.top;
+  const cm={'tb-rose':'rgba(255,107,138,0.45)','tb-blue':'rgba(91,124,250,0.45)','tb-mint':'rgba(67,217,160,0.45)','tb-amber':'rgba(255,159,67,0.45)','tb-purple':'rgba(167,139,250,0.45)','tb-lime':'rgba(180,220,0,0.45)'};
+  const tc=TINTS.find(t=>bub.classList.contains(t));
+  for(let i=0;i<3;i++){const ring=document.createElement('div');ring.className='pop-ring';const s=bub.offsetWidth*0.72;ring.style.cssText=`width:${s}px;height:${s}px;left:${cx-s/2}px;top:${cy-s/2}px;border-color:${cm[tc]||'rgba(10,10,10,0.25)'};animation-delay:${i*0.07}s`;document.getElementById('bubbleField').appendChild(ring);setTimeout(()=>ring.remove(),700)}
+  bub.classList.add('popping');setTimeout(()=>openPhone(ch),200);
+}
+
+/* ─── PHONE ─── */
+async function openPhone(ch){
+  curChar=ch;
+  document.getElementById('innerCN').textContent=ch.name||'角色';
+  document.getElementById('csName').textContent=ch.name||'未命名';
+  document.getElementById('csRm').textContent=ch.remark||'';
+  document.getElementById('csId').innerHTML=`<i class="fa-solid fa-fingerprint"></i> ${ch.id}`;
+  const av=document.getElementById('csAv');av.innerHTML='';
+  if(ch.avatar){const img=document.createElement('img');img.src=ch.avatar;img.onerror=()=>{img.remove();av.innerHTML='<i class="fa-solid fa-user-astronaut"></i>'};av.appendChild(img)}
+  else av.innerHTML='<i class="fa-solid fa-user-astronaut"></i>';
+  const pb=document.getElementById('pBlurb');
+  if(ch.persona&&ch.persona.length>10){pb.style.display='block';pb.textContent=ch.persona.substring(0,200)+(ch.persona.length>200?'…':'')}
+  else pb.style.display='none';
+  document.getElementById('diaryHeroName').textContent=(ch.name||'角色')+'的日记';
+  document.getElementById('diaryHeroId').textContent='ID · '+ch.id;
+  renderMoodApp(ch);renderSecrets(ch);renderLetters(ch);renderDreams(ch);renderFeelings(ch);renderCart(ch);renderBrowser(ch);renderCalls(ch);renderPhotos(ch);renderVault(ch);
+  await loadChats(ch.id);
+  document.getElementById('phoneScreen').classList.add('open');
+  setTimeout(()=>{const b=document.querySelector(`.char-bubble[data-cid="${ch.id}"]`);if(b){b.classList.remove('popping');b.style.opacity='1'}},120);
+}
+function closePhone(){document.getElementById('phoneScreen').classList.remove('open');document.querySelectorAll('.app-screen.open').forEach(a=>a.classList.remove('open'));curChar=null}
+const APP_MAP={chat:'appChat',diary:'appDiary',mem:'appMem',mood:'appMood',secret:'appSecret',letter:'appLetter',dream:'appDream',feel:'appFeel',cart:'appCart',browser:'appBrowser',calls:'appCalls',photo:'appPhoto',vault:'appVault'};
+function openApp(id){const el=document.getElementById(APP_MAP[id]);if(el)el.classList.add('open')}
+function closeApp(id){document.getElementById(id).classList.remove('open')}
+
+/* ─── HELPERS ─── */
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function ftime(ts){if(!ts)return'';const d=new Date(ts),n=new Date(),diff=Math.floor((n-d)/86400000);if(diff===0)return d.toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'});if(diff===1)return'昨天';if(diff<7)return['日','一','二','三','四','五','六'][d.getDay()]+'曜';return(d.getMonth()+1)+'/'+(d.getDate())}
+function seed(s){let h=0;for(let i=0;i<s.length;i++)h=Math.imul(31,h)+s.charCodeAt(i)|0;return(h>>>0)/4294967296}
+function sr(s,a,b,o=0){return a+(b-a)*seed(s+o)}
+
+/* ─── CHAT + DIARY ─── */
+async function loadChats(charId){
+  const body=document.getElementById('chatListBody');
+  body.innerHTML='<div class="empty-state"><i class="fa-solid fa-spinner fa-spin" style="opacity:0.4"></i><p style="font-size:11px">加载中…</p></div>';
+  try{
+    const all=await dbAll('chats');
+    const cs=all.filter(c=>c.charId===charId||c.char_id===charId||c.char===charId||(c.participants&&c.participants.includes&&c.participants.includes(charId)));
+    renderChatList(cs,charId);renderDiaryEntries(cs,charId);
+  }catch(err){body.innerHTML=`<div class="empty-state"><i class="fa-solid fa-circle-exclamation" style="color:var(--coral)"></i><p>加载失败</p><small>${err.message}</small></div>`}
+}
+function renderChatList(chats,charId){
+  const body=document.getElementById('chatListBody');
+  if(!chats.length){
+    /* ── fallback static data ── */
+    const n=curChar?curChar.name||'角色':'角色';const s=curChar?curChar.id:'x';
+    const fallback=[
+      {id:'f1',name:`与${n}的第一次相遇`,last:'你好，我叫'+n+'，很高兴认识你。',time:'昨天',bg:'rgba(212,255,77,0.16)',icon:'fa-comment'},
+      {id:'f2',name:'深夜的长谈',last:'那件事……我一直没告诉过别人。',time:'3天前',bg:'rgba(167,139,250,0.12)',icon:'fa-moon'},
+      {id:'f3',name:'某个平常的午后',last:'你今天有什么打算？',time:'上周',bg:'rgba(91,124,250,0.12)',icon:'fa-sun'},
+    ];
+    body.innerHTML=fallback.map((f,i)=>`<div class="chat-row">
+      <div class="cr-ico" style="background:${f.bg}"><i class="fa-solid ${f.icon}"></i><div class="cridx">${i+1}</div></div>
+      <div class="cr-bd"><div class="cr-nm">${esc(f.name)}</div><div class="cr-ls">${esc(f.last)}</div></div>
+      <div class="cr-mt"><div class="cr-ti">${f.time}</div></div>
+    </div>`).join('');
+    return;
+  }
+  const sorted=[...chats].sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
+  const bgs=['rgba(212,255,77,0.16)','rgba(255,107,138,0.12)','rgba(91,124,250,0.12)','rgba(67,217,160,0.1)','rgba(255,159,67,0.12)'];
+  const ti={voice:'fa-microphone',image:'fa-image',sticker:'fa-face-smile',transfer:'fa-wallet',gift:'fa-gift',call:'fa-phone',location:'fa-location-dot'};
+  body.innerHTML=sorted.map((c,i)=>`<div class="chat-row" onclick="gotoChat('${c.id}')">
+    <div class="cr-ico" style="background:${bgs[i%bgs.length]}"><i class="fa-solid ${ti[c.lastMessageType]||'fa-comment'}"></i><div class="cridx">${i+1}</div></div>
+    <div class="cr-bd"><div class="cr-nm">${esc(c.customName||c.name||'对话 '+(i+1))}</div><div class="cr-ls">${esc(c.lastMessage||'—')}</div></div>
+    <div class="cr-mt"><div class="cr-ti">${ftime(c.updatedAt||c.createdAt)}</div></div>
+  </div>`).join('');
+}
+function renderDiaryEntries(chats,charId){
+  const el=document.getElementById('diaryEntries');
+  const fb=document.getElementById('diaryFallback');
+  const tagSets=[['对话','记录'],['章节','私密'],['回忆','心情'],['日常','随想']];
+  if(chats.length){
+    fb.style.display='none';el.style.display='';
+    const sorted=[...chats].sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
+    el.innerHTML=sorted.map((c,i)=>{
+      const d=c.updatedAt?new Date(c.updatedAt):new Date();
+      const ds=d.toLocaleDateString('zh-CN',{year:'numeric',month:'2-digit',day:'2-digit'});
+      return`<div class="d-entry" onclick="gotoChat('${c.id}')">
+        <div class="de-dt"><i class="fa-regular fa-calendar" style="font-size:7px;margin-right:3px"></i>${ds}</div>
+        <div class="de-ti">${esc(c.customName||c.name||'对话 '+(i+1))}</div>
+        <div class="de-ex">${esc(c.lastMessage||'开始了一段对话…')}</div>
+        <div class="de-tags">${tagSets[i%tagSets.length].map(t=>`<span class="tag-pill">${t}</span>`).join('')}</div>
+      </div>`;
+    }).join('');
+  } else {
+    el.style.display='none';fb.style.display='';
+    const n=curChar?curChar.name||'角色':'角色';
+    const s=curChar?curChar.id:'x';
+    const entries=[
+      {date:`${new Date().getFullYear()}.04.18`,title:`关于${n}的第一篇`,excerpt:`那天阳光很好，${n}笑着说了一句话，我把它记下来，怕自己哪天忘了那种感觉。`,tags:['记录','第一次']},
+      {date:`${new Date().getFullYear()}.03.27`,title:'某次争吵之后',excerpt:'沉默了很久。不是因为无话可说，而是因为太多话不知道从哪里开始说起。',tags:['情绪','反思']},
+      {date:`${new Date().getFullYear()}.03.05`,title:'深夜的坦白',excerpt:`${n}说了一件以前从来没提过的事，我听完了，没有说话，只是拉了一下他的手。`,tags:['深夜','私密']},
+      {date:`${new Date().getFullYear()}.02.14`,title:'情人节纪念',excerpt:'收到了一朵很小的花，看起来是路边随手摘的，但我觉得比任何礼物都好。',tags:['纪念','温柔']},
+    ];
+    fb.innerHTML=entries.map(e=>`<div class="d-static">
+      <div class="ds-dt"><i class="fa-regular fa-calendar" style="font-size:7px;margin-right:3px"></i>${e.date}</div>
+      <div class="ds-ti">${e.title}</div>
+      <div class="ds-ex">${e.excerpt}</div>
+      <div class="ds-tags">${e.tags.map(t=>`<span class="tag-pill">${t}</span>`).join('')}</div>
+    </div>`).join('');
+  }
+}
+function gotoChat(chatId){window.open(`tsukiphone1_1.html?chatId=${chatId}`,'_blank')}
+
+/* ─── MEMORY ─── */
+function renderMem(ch){
+  const body=document.getElementById('memBody');
+  const wb=ch.worldbook||[];
+  if(wb.length){
+    body.innerHTML=wb.map(m=>`<div class="mem-e${m.enabled===false?' dis':''}">
+      <div class="me-ti"><i class="fa-solid fa-bookmark" style="font-size:9px;opacity:0.5;margin-right:5px"></i>${esc(m.title||'片段')}</div>
+      <div class="me-ct">${esc(m.content||'（无内容）')}</div>
+      ${m.keys&&m.keys.length?`<div class="me-keys">${m.keys.slice(0,4).map(k=>`<span class="me-key">${esc(k)}</span>`).join('')}</div>`:''}
+    </div>`).join('');
+  } else {
+    /* fallback */
+    const n=ch.name||'角色';
+    const entries=[
+      {title:'性格特征',content:`${n}外表冷淡，实则情感细腻。对熟悉的人会展示出完全不同的面貌——温柔，甚至有些小任性。不擅长直接表达感情，更倾向于用行动代替语言。`,keys:['性格','冷淡','温柔'],on:true},
+      {title:'过去的伤口',content:'曾经历过一段被辜负的关系，此后对"信任"这件事格外谨慎。不是不想信任别人，只是需要更长的时间确认对方值得被托付。',keys:['背景','创伤','信任'],on:true},
+      {title:'喜好与习惯',content:`喜欢深夜一个人听音乐，有整理笔记的习惯。对咖啡有执念，每天至少一杯。不喜欢嘈杂的地方，偏爱角落里的小桌子。`,keys:['喜好','习惯','咖啡'],on:true},
+      {title:'口头禅与语气',content:'说话偏简洁，喜欢用反问句。情绪激动时会沉默代替争辩。偶尔会说一些让人摸不准是认真还是在开玩笑的话。',keys:['说话方式','口癖'],on:true},
+      {title:'【禁区】不触碰的话题',content:'关于家人的事不要主动问。某年某月某日之后的事，${n}从不主动提及，问了也只会说"忘了"。',keys:['禁忌','家人'],on:false},
+    ];
+    body.innerHTML=entries.map(e=>`<div class="mem-static${e.on?'':' dis'}" style="${e.on?'':'opacity:0.4'}">
+      <div class="me-ti"><i class="fa-solid fa-bookmark" style="font-size:9px;opacity:0.5;margin-right:5px"></i>${e.title}</div>
+      <div class="me-ct">${e.content}</div>
+      <div class="me-keys">${e.keys.map(k=>`<span class="me-key">${k}</span>`).join('')}</div>
+    </div>`).join('');
+  }
+}
+
+/* ─── MOOD ─── */
+const MOODS_DATA=[
+  {val:'怀念',note:'"有些时刻，只有沉默才配得上这份心情。"'},
+  {val:'平静',note:'"今天的阳光落在窗台上，一切都很安静。"'},
+  {val:'雀跃',note:'"好像第一次感受到某种久违的期待。"'},
+  {val:'忧郁',note:'"窗外的雨声是今天最好的陪伴。"'},
+  {val:'迷茫',note:'"站在路口太久，忘了自己要去哪里。"'},
+  {val:'温柔',note:'"今天想把所有温柔都留给那个人。"'},
+];
+/* cool-toned mood emoji & color palette */
+const MOOD_EMOJIS=['🌙','🌧️','🫧','🌊','🪷','❄️','🌫️','🩵','🦋','🫐'];
+const MOOD_COLORS=['#818cf8','#93c5fd','#c4b5fd','#a5f3fc','#f0abfc','#bfdbfe','#ddd6fe','#99f6e4','#e0e7ff','#fce7f3'];
+function renderMoodApp(ch){
+  const s=ch.id;
+  const todayMood=MOODS_DATA[Math.floor(seed(s)*MOODS_DATA.length)];
+  document.getElementById('moodTodayVal').textContent=todayMood.val;
+  document.getElementById('moodTodayNote').textContent=todayMood.note;
+  const g=document.getElementById('moodGrid');g.innerHTML='';
+  for(let i=0;i<28;i++){
+    const hasMood=seed(s+'m'+i)>0.38;
+    const d=document.createElement('div');
+    if(hasMood){
+      d.className='mood-day';
+      const mc=MOOD_COLORS[i%MOOD_COLORS.length];
+      d.style.background=mc;d.style.border='none';
+      d.textContent=MOOD_EMOJIS[Math.floor(seed(s+'e'+i)*MOOD_EMOJIS.length)];
+    }else{d.className='mood-day num';d.textContent=(i+1).toString()}
+    g.appendChild(d);
+  }
+  const hd=Math.round(sr(s+'h',12,22)),streak=Math.round(sr(s+'st',3,9));
+  document.getElementById('moodStats').innerHTML=`
+    <div class="ms-card"><div class="ms-val">${hd}</div><div class="ms-label">好心情天数</div></div>
+    <div class="ms-card"><div class="ms-val">${streak}</div><div class="ms-label">连续记录</div></div>
+    <div class="ms-card"><div class="ms-val">${todayMood.val}</div><div class="ms-label">本月主基调</div></div>`;
+}
+
+/* ─── SECRETS ─── */
+function renderSecrets(ch){
+  const n=ch.name||'角色';
+  const entries=[
+    {date:'04.12',type:'PRIVATE NOTE',title:`写给未来${n}的信`,prev:'如果你还记得那个下午，我们在河边坐了很久，没有说话，只是看着水流。那时候我以为一切都会改变，没想到…'},
+    {date:'03.28',type:'VOICE MEMO',title:'不能说出口的名字',prev:'有时候夜深人静的时候，我会想起那段时光，那些说过和没说过的话，还有那个人离开前最后说的那句话…'},
+    {date:'03.14',type:'PRIVATE NOTE',title:'关于那件事的真相',prev:'我从来没有告诉任何人，那天真正发生了什么。所有人都以为我是无辜的，但其实我知道那是我的错…'},
+    {date:'02.14',type:'VOICE MEMO',title:'情人节独白',prev:'今天的天空是灰色的，恰好适合把这些话录下来。声音会比文字更诚实，也更难假装平静…'},
+    {date:'01.01',type:'PHOTO',title:`${n}的第一张照片`,prev:'元旦那天，光线很好，我拍了很多，但只有这一张值得留下来，因为眼神里有一种说不清楚的东西…'},
+  ];
+  document.getElementById('secretBody').innerHTML=`
+    <div class="s-lock"><i class="fa-solid fa-vault sl-ico"></i><div class="sl-ti">私密存档</div><div class="sl-su">${entries.length} ITEMS · END-TO-END ENCRYPTED</div></div>
+    ${entries.map(e=>`<div class="s-entry"><div class="se-bar"><i class="fa-solid fa-lock"></i> ${e.type} · ${e.date}</div><div class="se-ti">${e.title}</div><div class="se-prev">${e.prev}</div></div>`).join('')}`;
+}
+
+/* ─── LETTERS ─── */
+function renderLetters(ch){
+  const n=ch.name||'角色';
+  const letters=[
+    {from:'ANONYMOUS',subj:'关于那天没有说完的话',prev:'我一直想找机会跟你讲，但每次开口又咽了回去。或许以信代替见面，才能说得更清楚一些…',date:'APR 02',status:'unread'},
+    {from:'春日',subj:'再见，或许不是再见',prev:'写这封信的时候，外面正下着小雨。我不知道你收到这封信的时候，会是什么天气…',date:'MAR 15',status:'read'},
+    {from:n,subj:'写给过去那个天真的自己',prev:'你以为的勇敢，在多年后看来，不过是无知者无畏。但那又有什么关系呢，那时候你很快乐…',date:'JAN 01',status:'read'},
+    {from:'深夜',subj:'三点钟的胡思乱想',prev:'睡不着，想起很多事情。想起那年夏天，那条街，那碗冰粉，还有那个人说的那句话…',date:'DEC 24',status:'read'},
+    {from:'SYSTEM',subj:'你有一条未读的消息',prev:'有人想对你说一些事，但他们选择了沉默。这封信是替他们写的，请你认真读完它…',date:'NOV 11',status:'unread'},
+  ];
+  document.getElementById('letterBody').innerHTML=letters.map(l=>`<div class="l-card"><div class="lc-fr"><i class="fa-solid fa-paper-plane"></i> FROM · ${l.from}</div><div class="lc-su">${l.subj}</div><div class="lc-pr">${l.prev}</div><div class="lc-mt"><span class="lc-dt">${l.date}, 2025</span><span class="lc-st ${l.status}">${l.status==='unread'?'UNREAD':'READ'}</span></div></div>`).join('');
+}
+
+/* ─── DREAMS ─── */
+function renderDreams(ch){
+  const s=ch.id,n=ch.name||'角色';
+  const dreams=[
+    {date:'04.19',title:'那座从未存在的城市',body:`梦见自己走在一座陌生的城市，街道很窄，全是拱形的门洞。${n}走在前面，我叫他名字却没有声音。醒来后窗外刚好天亮，有种说不清的失落感。`,tag:'迷失型'},
+    {date:'04.11',title:'红色楼梯',body:'梦见一栋无限延伸的楼梯，越往上越窄，扶手是红色的，触摸上去是温热的。到达顶端时视野突然开阔，是一片无边的海。',tag:'象征型'},
+    {date:'03.27',title:'重复出现的那个房间',body:'又梦见那个房间了，这已经是第三次了。白色的墙，窗户朝向一片什么都没有的空地。窗台上有一杯水，从来不会凉。',tag:'循环型'},
+    {date:'03.05',title:`在机场遇见${n}`,body:'梦见在一个很大的机场，人很多但每个人都是模糊的。只有他的脸很清晰，他拉着行李箱，看了我一眼，说了一句听不清楚的话，然后转身走进人群。',tag:'人物型'},
+    {date:'02.20',title:'漫长的下午',body:'梦见一个很长很长的下午，光线是橘黄色的，时间好像被拉长了。没有什么特别的事情发生，但醒来后很久心里都很平静。',tag:'氛围型'},
+  ];
+  document.getElementById('dreamBody').innerHTML=`
+    <div class="dream-hero"><div class="dre-tag"><i class="fa-solid fa-moon" style="font-size:8px;margin-right:4px"></i> DREAM JOURNAL</div><div class="dre-ti">${Math.round(sr(s+'dr',42,87))} 个梦境已记录</div><div class="dre-mt">最近活跃 · 平均每周 ${Math.round(sr(s+'dw',2,5))} 条</div></div>
+    ${dreams.map(d=>`<div class="dream-card"><div class="dc-date"><i class="fa-solid fa-moon" style="font-size:7px;margin-right:3px"></i>${d.date}</div><div class="dc-ti">${d.title}</div><div class="dc-body">${d.body}</div><span class="dc-tag">${d.tag}</span></div>`).join('')}`;
+}
+
+/* ─── FEELINGS ─── */
+function renderFeelings(ch){
+  const s=ch.id,n=ch.name||'角色';
+  const f1=Math.round(sr(s+'f1',55,92)),f2=Math.round(sr(s+'f2',30,75)),f3=Math.round(sr(s+'f3',60,95));
+  const logs=[
+    {time:'昨晚',text:`在看到那条消息之前心跳一直很正常，看完之后坐了很久，不知道该回复还是装作没看见。`},
+    {time:'前天',text:'和朋友吃饭，聊到一半突然很想哭，又说不清楚为什么，只能借口去洗手间缓了一下。'},
+    {time:'3天前',text:`${n}很久没联系了，反而觉得平静，不知道是释怀了还是只是麻木了。`},
+    {time:'5天前',text:'路过一家花店，闻到了茉莉花的香味，心里突然非常安静。这种感觉很罕见，很珍贵。'},
+    {time:'一周前',text:'深夜翻出来一段旧对话，发现自己已经不难受了，只是觉得那个时候的自己很可爱。'},
+  ];
+  document.getElementById('feelBody').innerHTML=`
+    <div class="feel-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><div style="width:36px;height:36px;border-radius:12px;background:rgba(255,107,138,0.1);display:flex;align-items:center;justify-content:center"><i class="fa-solid fa-heart-pulse" style="color:var(--rose)"></i></div><div><div style="font-size:12px;font-weight:600;color:var(--ink)">情绪指数</div><div style="font-family:'Geist Mono',monospace;font-size:8px;color:var(--mute);margin-top:1px">本周综合评估</div></div></div>
+      <div class="feel-val">${f1}<span style="font-size:14px;opacity:0.5"> / 100</span></div>
+      <div class="feel-bar-wrap"><div class="feel-bar-label"><span>稳定度</span><span>${f1}%</span></div><div class="feel-bar"><div class="feel-bar-fill" style="width:${f1}%;background:linear-gradient(90deg,var(--rose),var(--amber))"></div></div></div>
+      <div class="feel-bar-wrap" style="margin-top:7px"><div class="feel-bar-label"><span>共情深度</span><span>${f2}%</span></div><div class="feel-bar"><div class="feel-bar-fill" style="width:${f2}%;background:linear-gradient(90deg,var(--purple),var(--blue))"></div></div></div>
+      <div class="feel-bar-wrap" style="margin-top:7px"><div class="feel-bar-label"><span>表达意愿</span><span>${f3}%</span></div><div class="feel-bar"><div class="feel-bar-fill" style="width:${f3}%;background:linear-gradient(90deg,var(--mint),var(--lime))"></div></div></div>
+    </div>
+    <div class="section-sep"><div class="ss-line"></div><div class="ss-label">近期日志</div><div class="ss-line"></div></div>
+    <div>${logs.map(l=>`<div class="feel-log-item"><div class="fli-time">${l.time}</div><div class="fli-text">${l.text}</div></div>`).join('')}</div>`;
+}
+
+/* ─── CART ─── */
+function renderCart(ch){
+  const n=ch.name||'角色';
+  const items=[
+    {emoji:'🌸',name:'山茶花耳环·珍珠款',shop:'轻奢手工饰品',price:'¥268',old:'¥380',badge:'sale',note:'看了三次了，一直在犹豫，但总觉得戴上会很好看。'},
+    {emoji:'📔',name:'空白皮面日记本 A6',shop:'旧物文具店',price:'¥89',old:'',badge:'new',note:'专门用来写那些不能发出去的话。'},
+    {emoji:'🕯️',name:'无花果&雪松香氛蜡烛',shop:'独立香氛品牌',price:'¥198',old:'¥230',badge:'sale',note:'朋友送过一根，用完了，味道是那种很安静的感觉。'},
+    {emoji:'🎞️',name:'复古一次性胶卷相机',shop:'胶片摄影社',price:'¥145',old:'',badge:'rare',note:`想用它记录一些不想用手机拍的瞬间，留给只有${n}才知道的时刻。`},
+    {emoji:'🧣',name:'羊驼绒围巾·烟灰色',shop:'慢生活工坊',price:'¥356',old:'¥480',badge:'sale',note:'冬天的时候想送出去，但最后还是没有。'},
+  ];
+  const total=items.reduce((sum,it)=>sum+parseFloat(it.price.replace('¥','')),0).toFixed(0);
+  document.getElementById('cartBody').innerHTML=`
+    <div class="cart-hero"><div class="ch-icon"><i class="fa-solid fa-bag-shopping"></i></div><div class="ch-text"><div class="ch-ti">心愿清单</div><div class="ch-sub">${items.length} 件 · 持续更新中</div></div><div class="ch-total">¥${total}</div></div>
+    ${items.map(it=>`<div class="cart-item"><div class="ci-img" style="background:var(--paper2)">${it.emoji}</div><div class="ci-info"><div class="ci-name">${it.name}</div><div class="ci-shop"><i class="fa-solid fa-store" style="font-size:8px;margin-right:3px"></i>${it.shop}</div><div><span class="ci-price">${it.price}</span>${it.old?`<span class="ci-old">${it.old}</span>`:''}</div><div class="ci-note">${it.note}</div><span class="ci-badge ${it.badge}">${it.badge==='sale'?'SALE':it.badge==='new'?'NEW':'LIMITED'}</span></div></div>`).join('')}`;
+}
+
+/* ─── BROWSER ─── */
+function renderBrowser(ch){
+  const n=ch.name||'角色';
+  const history=[
+    {site:'小红书',url:'xiaohongshu.com/explore',title:'「失眠的人都在想什么」合辑',time:'今天 02:14',icon:'fa-seedling',incognito:false},
+    {site:'Bilibili',url:'bilibili.com/video/...',title:'【治愈向】深夜适合看的安静视频合集',time:'今天 01:48',icon:'fa-play',incognito:false},
+    {site:'豆瓣',url:'douban.com/subject/...',title:'《请回答1988》——那时候的温柔还没有名字',time:'昨天 23:31',icon:'fa-star',incognito:false},
+    {site:'隐身模式',url:'搜索已隐藏',title:'',time:'昨天 22:07',icon:'fa-eye-slash',incognito:true},
+    {site:'知乎',url:'zhihu.com/question/...',title:'喜欢一个人但什么都不说是什么感受？',time:'昨天 20:55',icon:'fa-question',incognito:false},
+    {site:'网易云音乐',url:'music.163.com',title:'失眠飞行 · 隔壁老樊',time:'前天 03:22',icon:'fa-music',incognito:false},
+    {site:'微博',url:'weibo.com/search',title:`搜索：「${n} 最近怎么了」`,time:'前天 01:09',icon:'fa-magnifying-glass',incognito:false},
+    {site:'隐身模式',url:'搜索已隐藏',title:'',time:'3天前 23:44',icon:'fa-eye-slash',incognito:true},
+    {site:'Spotify',url:'open.spotify.com',title:'Late Night Feelings · playlist',time:'4天前 00:12',icon:'fa-headphones',incognito:false},
+    {site:'Google',url:'google.com',title:'搜索：「如何假装已经不在乎了」',time:'5天前 02:31',icon:'fa-magnifying-glass',incognito:false},
+  ];
+  const bookmarks=[
+    {site:'Pinterest',url:'pinterest.com',title:'心情板 · 颜色与孤独',icon:'fa-image'},
+    {site:'豆瓣',url:'douban.com',title:'想看的书单（不断更新）',icon:'fa-book'},
+    {site:'Bilibili',url:'bilibili.com',title:'雨天适合一个人看的纪录片',icon:'fa-play'},
+  ];
+  document.getElementById('browserBody').innerHTML=`
+    <div class="browser-bar"><i class="fa-solid fa-magnifying-glass bb-icon"></i><span class="bb-url">搜索或输入网址…</span></div>
+    <div class="section-sep"><div class="ss-line"></div><div class="ss-label">书签</div><div class="ss-line"></div></div>
+    ${bookmarks.map(b=>`<div class="hist-item"><div class="hi-site"><i class="fa-solid ${b.icon}"></i> ${b.site}</div><div class="hi-ti">${b.title}</div><div class="hi-url">${b.url}</div></div>`).join('')}
+    <div class="section-sep"><div class="ss-line"></div><div class="ss-label">历史记录</div><div class="ss-line"></div></div>
+    ${history.map(h=>h.incognito?`<div class="incognito-banner"><i class="fa-solid ${h.icon}"></i> 无痕浏览 · ${h.time} · 内容已加密</div>`:
+    `<div class="hist-item"><div class="hi-site"><i class="fa-solid ${h.icon}"></i> ${h.site}</div><div class="hi-ti">${h.title}</div><div class="hi-url">${h.url}</div><div class="hi-time">${h.time}</div></div>`).join('')}`;
+}
+
+/* ─── CALLS ─── */
+function renderCalls(ch){
+  const n=ch.name||'角色';
+  const calls=[
+    {name:'妈妈',type:'out',dur:'12:34',time:'今天 09:15',initials:'妈',bg:'linear-gradient(135deg,#fce7f3,#fbcfe8)'},
+    {name:'未接来电',type:'missed',dur:'—',time:'昨天 23:47',initials:'?',bg:'linear-gradient(135deg,#fee2e2,#fecaca)'},
+    {name:'林知夏',type:'in',dur:'47:02',time:'昨天 21:30',initials:'林',bg:'linear-gradient(135deg,#e0f2fe,#bae6fd)'},
+    {name:'外卖小哥',type:'in',dur:'00:43',time:'前天 12:08',initials:'外',bg:'linear-gradient(135deg,#f0fdf4,#dcfce7)'},
+    {name:'未知号码',type:'missed',dur:'—',time:'3天前 02:11',initials:'?',bg:'linear-gradient(135deg,#fee2e2,#fecaca)'},
+    {name:'陈以安',type:'out',dur:'03:21',time:'4天前 19:55',initials:'陈',bg:'linear-gradient(135deg,#ede9fe,#ddd6fe)'},
+    {name:'快递站',type:'in',dur:'01:12',time:'5天前 14:20',initials:'快',bg:'linear-gradient(135deg,#fef9c3,#fef08a)'},
+    {name:`${n}·旧号`,type:'missed',dur:'—',time:'上周 22:33',initials:'旧',bg:'linear-gradient(135deg,#f1f5f9,#e2e8f0)'},
+  ];
+  const iconMap={out:'fa-phone-arrow-up-right out',missed:'fa-phone-missed missed',in:'fa-phone-arrow-down-left in'};
+  const labelMap={out:'已拨出',missed:'未接来电',in:'已接听'};
+  document.getElementById('callsBody').innerHTML=calls.map(c=>`<div class="call-item">
+    <div class="call-av" style="background:${c.bg}">${c.initials}</div>
+    <div class="call-info"><div class="call-name">${c.name}</div><div class="call-meta"><i class="fa-solid ${iconMap[c.type]} call-ico"></i>${labelMap[c.type]} · ${c.time}</div></div>
+    <div class="call-dur">${c.dur}</div>
+  </div>`).join('');
+}
+
+/* ─── PHOTOS ─── */
+function renderPhotos(ch){
+  const recents=[
+    {emoji:'🌸',caption:'四月',bg:'#ffe4ec'},{emoji:'☁️',caption:'某天',bg:'#f0f5ff'},
+    {emoji:'🍵',caption:'下午茶',bg:'#fff8e7'},{emoji:'🌙',caption:'深夜',bg:'#e8e4f0'},
+    {emoji:'🐱',caption:'邻居猫',bg:'#f0f5ff'},{emoji:'📮',caption:'旧邮筒',bg:'#ffe4d9'},
+    {emoji:'🪞',caption:'镜中人',bg:'#f1f0ea'},{emoji:'🌿',caption:'阳台绿植',bg:'#e4f0e8'},
+    {emoji:'🔑',caption:'旧钥匙',bg:'#fff8e7'},
+  ];
+  const albums=[
+    {label:'春日碎片',emoji:'🌸',bg:'linear-gradient(135deg,#ffe4ec,#ffd6cc)'},
+    {label:'深夜时光',emoji:'🌙',bg:'linear-gradient(135deg,#1a1035,#2d1b5e)'},
+    {label:'街道漫游',emoji:'🚶',bg:'linear-gradient(135deg,#e8f4f8,#d0e8f0)'},
+    {label:'食物日记',emoji:'🍜',bg:'linear-gradient(135deg,#fff8e7,#ffe4b5)'},
+    {label:'与猫的日子',emoji:'🐱',bg:'linear-gradient(135deg,#f0f5ff,#e4eaff)'},
+    {label:'私人收藏',emoji:'🔒',bg:'linear-gradient(135deg,#f1f0ea,#e8e4d9)'},
+  ];
+  document.getElementById('photoBody').innerHTML=`
+    <div class="section-sep"><div class="ss-line"></div><div class="ss-label">最近</div><div class="ss-line"></div></div>
+    <div class="album-grid">
+      ${recents.slice(0,6).map((r,i)=>`<div class="album-item ${i===0?'album-special':''}"><div class="ai-bg" style="background:${r.bg}">${r.emoji}</div><div class="ai-caption">${r.caption}</div></div>`).join('')}
+      ${recents.slice(6).map(r=>`<div class="album-item"><div class="ai-bg" style="background:${r.bg}">${r.emoji}</div><div class="ai-caption">${r.caption}</div></div>`).join('')}
+    </div>
+    <div class="section-sep"><div class="ss-line"></div><div class="ss-label">相册</div><div class="ss-line"></div></div>
+    <div style="display:flex;overflow-x:auto;gap:10px;padding-bottom:4px;scrollbar-width:none">
+      ${albums.map(a=>`<div style="flex-shrink:0;text-align:center;cursor:pointer"><div style="width:76px;height:76px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;background:${a.bg}">${a.emoji}</div><div style="font-family:'Geist Mono',monospace;font-size:8px;color:var(--mute);margin-top:5px;letter-spacing:0.04em">${a.label}</div></div>`).join('')}
+    </div>`;
+}
+
+/* ─── VAULT ─── */
+const VAULT_ITEMS=[
+  {id:'v1',type:'video',thumb:'🎥',thumbBg:'linear-gradient(135deg,#0f172a,#1e1b4b)',name:'2024年10月的傍晚',meta:'视频 · 00:47 · 加密',date:'OCT 2024',desc:'那天他站在河边，光线刚好打在侧脸上。我没有说话，拿出手机拍了下来，他没有发现。',transcript:[{ts:'00:00',text:'[风声，水流声]'},{ts:'00:08',text:'他：「今天的云很好看。」'},{ts:'00:12',text:'[沉默]'},{ts:'00:18',text:'他：「你在拍我？」'},{ts:'00:21',text:'我：「……没有。」'},{ts:'00:24',text:'他：「明明有。」'},{ts:'00:28',text:'[笑声，视频结束]'}]},
+  {id:'v2',type:'video',thumb:'🌙',thumbBg:'linear-gradient(135deg,#1a1035,#312e81)',name:'深夜的屋顶',meta:'视频 · 02:13 · 加密',date:'AUG 2024',desc:'两个人坐在屋顶上，他讲了一个很长的故事，结尾是一句「我以前从来没有跟别人说过这件事」。',transcript:[{ts:'00:00',text:'[城市夜晚的远景声音]'},{ts:'00:15',text:'他：「那年我十六岁，做了一件……」'},{ts:'00:22',text:'[他停顿了很长时间]'},{ts:'01:30',text:'他：「……我以为这件事我会带进坟墓里。」'},{ts:'02:05',text:'我：「谢谢你告诉我。」'},{ts:'02:10',text:'[又是沉默，但是不一样的沉默]'}]},
+  {id:'a1',type:'audio',thumb:'🎙️',thumbBg:'linear-gradient(135deg,#064e3b,#065f46)',name:'凌晨三点的通话',meta:'音频 · 11:32 · 加密',date:'JUL 2024',desc:'那晚他主动打来的电话，说「睡不着，随便聊聊」，结果聊了将近十二分钟，最后挂电话时他说了一句我没太听清的话。',transcript:[{ts:'00:00',text:'他：「……你还没睡？」'},{ts:'00:14',text:'我：「睡不着。你呢？」'},{ts:'00:18',text:'他：「也睡不着。」'},{ts:'03:44',text:'[聊到了小时候的事情]'},{ts:'08:20',text:'他：「你好像很了解我。」'},{ts:'11:18',text:'他：「……晚安。还有，我……」'},{ts:'11:32',text:'[通话结束]'}]},
+  {id:'a2',type:'audio',thumb:'🌧️',thumbBg:'linear-gradient(135deg,#1e3a5f,#1e40af)',name:'下雨天的那段录音',meta:'音频 · 04:58 · 加密',date:'MAR 2024',desc:'他在我手机里留的录音，说是「等某一天」再听，我等了三个月，昨天才点开。',transcript:[{ts:'00:00',text:'[雨声]'},{ts:'00:05',text:'他：「我知道你现在可能很难受——或者也许不难受，我不确定。」'},{ts:'01:12',text:'他：「但我想让你知道一件事……」'},{ts:'02:40',text:'[他的声音有点低，有点小，像是对着空气说话]'},{ts:'04:45',text:'他：「……好了，就这样吧。雨停了就出去走走。」'}]},
+  {id:'p1',type:'photo',thumb:'📸',thumbBg:'linear-gradient(135deg,#3b0764,#5b21b6)',name:'他睡着的样子',meta:'照片 · 1 张 · 加密',date:'FEB 2024',desc:'他坐在沙发上，抱着一本书睡着了，书还开着。我看了很久，后来才拍下来。光线是午后的，有点暖，有点灰。'},
+  {id:'p2',type:'photo',thumb:'🌿',thumbBg:'linear-gradient(135deg,#14532d,#166534)',name:'书桌角落',meta:'照片 · 3 张 · 加密',date:'JAN 2024',desc:'他的书桌，角落里叠着几本书，其中一本有折痕的地方是我们讨论过的章节。他不知道我拍了。'},
+];
+let currentVaultTab='all';
+function renderVault(ch){
+  const n=ch.name||'角色';
+  const videos=VAULT_ITEMS.filter(v=>v.type==='video');
+  const audios=VAULT_ITEMS.filter(v=>v.type==='audio');
+  const photos=VAULT_ITEMS.filter(v=>v.type==='photo');
+  document.getElementById('vaultBody').innerHTML=`
+    <div class="vault-hero">
+      <div class="vh-tag"><i class="fa-solid fa-shield-halved" style="font-size:8px;margin-right:4px"></i> ENCRYPTED VAULT</div>
+      <div class="vh-ti">${n}的私密档案库</div>
+      <div class="vh-sub">
+        <span class="vh-badge"><i class="fa-solid fa-video"></i> ${videos.length} 视频</span>
+        <span class="vh-badge"><i class="fa-solid fa-headphones"></i> ${audios.length} 音频</span>
+        <span class="vh-badge"><i class="fa-solid fa-image"></i> ${photos.length} 照片</span>
+      </div>
+    </div>
+    <div class="vault-tabs">
+      <div class="vtab active" data-tab="all" onclick="switchVaultTab('all',this)">全部</div>
+      <div class="vtab" data-tab="video" onclick="switchVaultTab('video',this)"><i class="fa-solid fa-video" style="margin-right:4px"></i>视频</div>
+      <div class="vtab" data-tab="audio" onclick="switchVaultTab('audio',this)"><i class="fa-solid fa-headphones" style="margin-right:4px"></i>音频</div>
+      <div class="vtab" data-tab="photo" onclick="switchVaultTab('photo',this)"><i class="fa-solid fa-image" style="margin-right:4px"></i>照片</div>
+    </div>
+    <div id="vaultItemsWrap"></div>`;
+  renderVaultItems('all');
+}
+function switchVaultTab(tab,el){
+  currentVaultTab=tab;
+  document.querySelectorAll('.vtab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderVaultItems(tab);
+}
+function renderVaultItems(tab){
+  const items=tab==='all'?VAULT_ITEMS:VAULT_ITEMS.filter(v=>v.type===tab);
+  const wrap=document.getElementById('vaultItemsWrap');
+  if(!wrap)return;
+  wrap.innerHTML=`<div class="vault-grid">${items.map(item=>`
+    <div class="vault-item ${item.type==='video'&&items.indexOf(item)===0?'span2':''}" onclick="openVaultDetail('${item.id}')">
+      <div class="vi-thumb ${item.type==='video'&&items.indexOf(item)===0?'span2':''}" style="background:${item.thumbBg}">
+        <span style="font-size:28px">${item.thumb}</span>
+        <span style="font-family:'Geist Mono',monospace;font-size:8px;color:rgba(255,255,255,0.5)">${item.meta.split('·')[0].trim()}</span>
+        <div class="vi-lock"><i class="fa-solid fa-lock"></i></div>
+        ${item.type==='video'?'<div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)"><i class="fa-solid fa-play" style="color:white;font-size:9px;margin-left:1px"></i></div>':''}
+      </div>
+      <div class="vi-info"><div class="vi-name">${item.name}</div><div class="vi-meta">${item.meta}</div></div>
+    </div>`).join('')}</div>`;
+}
+function openVaultDetail(id){
+  const item=VAULT_ITEMS.find(v=>v.id===id);if(!item)return;
+  document.getElementById('vdoTitle').textContent=item.name;
+  const hasTranscript=item.transcript&&item.transcript.length>0;
+  document.getElementById('vdoBody').innerHTML=`
+    <div class="vdo-preview" style="height:180px;background:${item.thumbBg}">
+      <span style="font-size:56px">${item.thumb}</span>
+      <div class="vdo-locked-notice">
+        <i class="fa-solid fa-lock"></i>
+        <span>${item.type==='video'?'VIDEO ENCRYPTED':item.type==='audio'?'AUDIO ENCRYPTED':'PHOTO ENCRYPTED'}</span>
+      </div>
+    </div>
+    <div class="vdo-meta-row">
+      <span class="vdo-meta-chip"><i class="fa-regular fa-calendar" style="font-size:8px;margin-right:3px"></i>${item.date}</span>
+      <span class="vdo-meta-chip">${item.meta}</span>
+    </div>
+    <div class="vdo-desc">${item.desc}</div>
+    ${hasTranscript?`<div class="vdo-transcript">
+      <div class="vdt-label"><i class="fa-solid fa-align-left" style="font-size:7px;margin-right:4px"></i>${item.type==='photo'?'备注':'转录文本'}</div>
+      ${item.transcript.map(l=>`<div class="vdt-line"><span class="vdt-ts">${l.ts}</span><span>${l.text}</span></div>`).join('')}
+    </div>`:''}`;
+  document.getElementById('vaultDetail').classList.add('open');
+}
+function closeVaultDetail(){document.getElementById('vaultDetail').classList.remove('open')}
+
+/* ─── INIT ─── */
+async function init(){
+  const ls=document.getElementById('loadState');
+  try{
+    await openDb();
+    allChars=await dbAll('chars');
+    document.getElementById('charCount').textContent=allChars.length;
+    ls.classList.add('hide');setTimeout(()=>ls.style.display='none',600);
+    if(!allChars.length){
+      document.getElementById('bubbleField').innerHTML=`<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--mute);text-align:center;padding:40px"><i class="fa-solid fa-users-slash" style="font-size:28px;opacity:0.3"></i><div style="font-size:13px;margin-top:4px">还没有任何角色</div><div style="font-family:'Geist Mono',monospace;font-size:9px;opacity:0.6;margin-top:2px">在主应用中创建角色后返回</div></div>`;
+      return;
+    }
+    buildBubbles(allChars);window.addEventListener('resize',()=>buildBubbles(allChars));
+  }catch(err){
+    ls.innerHTML=`<div style="text-align:center;padding:30px"><i class="fa-solid fa-circle-exclamation" style="font-size:28px;color:var(--coral);margin-bottom:10px;display:block"></i><div style="font-family:'Fraunces',serif;font-size:18px;font-style:italic;margin-bottom:6px">无法连接数据库</div><div style="font-size:11px;color:var(--mute);line-height:1.7">请先打开主应用初始化数据<br><span style="font-family:'Geist Mono',monospace;font-size:9px;opacity:0.7">${err.message||'未知错误'}</span></div></div>`;
+  }
+}
+/* 在 openPhone 里补上 renderMem 调用 */
+const _origOpenPhone=openPhone;
+async function openPhone(ch){
+  curChar=ch;
+  document.getElementById('innerCN').textContent=ch.name||'角色';
+  document.getElementById('csName').textContent=ch.name||'未命名';
+  document.getElementById('csRm').textContent=ch.remark||'';
+  document.getElementById('csId').innerHTML=`<i class="fa-solid fa-fingerprint"></i> ${ch.id}`;
+  const av=document.getElementById('csAv');av.innerHTML='';
+  if(ch.avatar){const img=document.createElement('img');img.src=ch.avatar;img.onerror=()=>{img.remove();av.innerHTML='<i class="fa-solid fa-user-astronaut"></i>'};av.appendChild(img)}
+  else av.innerHTML='<i class="fa-solid fa-user-astronaut"></i>';
+  const pb=document.getElementById('pBlurb');
+  if(ch.persona&&ch.persona.length>10){pb.style.display='block';pb.textContent=ch.persona.substring(0,200)+(ch.persona.length>200?'…':'')}
+  else pb.style.display='none';
+  document.getElementById('diaryHeroName').textContent=(ch.name||'角色')+'的日记';
+  document.getElementById('diaryHeroId').textContent='ID · '+ch.id;
+  renderMem(ch);renderMoodApp(ch);renderSecrets(ch);renderLetters(ch);renderDreams(ch);renderFeelings(ch);renderCart(ch);renderBrowser(ch);renderCalls(ch);renderPhotos(ch);renderVault(ch);
+  await loadChats(ch.id);
+  document.getElementById('phoneScreen').classList.add('open');
+  setTimeout(()=>{const b=document.querySelector(`.char-bubble[data-cid="${ch.id}"]`);if(b){b.classList.remove('popping');b.style.opacity='1'}},120);
+}
+document.addEventListener('DOMContentLoaded',init);
+</script>
+<script src="TsukiTheme.js"></script>
+    
+</body>
+</html>
