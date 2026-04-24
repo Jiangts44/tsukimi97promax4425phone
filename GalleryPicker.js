@@ -227,6 +227,119 @@
     .gp-empty p { font-size: 11px; color: var(--mute,#8a8a8e); letter-spacing: .06em; line-height: 1.7; }
     @keyframes gp-flash { 0%,100%{opacity:1} 50%{opacity:.3} }
     .gp-selecting { animation: gp-flash .38s ease; }
+
+    /* ── URL 库入口小字 ── */
+    #gp-url-entry {
+      margin-top: 18px; text-align: center;
+      font-size: 10px; color: var(--mute,#8a8a8e);
+      letter-spacing: .06em; cursor: pointer;
+      text-decoration: underline; text-underline-offset: 3px;
+      transition: color .15s;
+    }
+    #gp-url-entry:hover { color: var(--ink,#0a0a0a); }
+
+    /* ── URL 库面板 ── */
+    #gp-url-panel {
+      position: fixed; inset: 0; z-index: 2147483642;
+      display: flex; align-items: flex-end; justify-content: center;
+      pointer-events: none; opacity: 0; transition: opacity .22s ease;
+    }
+    #gp-url-panel.gp-open { pointer-events: auto; opacity: 1; }
+    #gp-url-backdrop {
+      position: absolute; inset: 0;
+      background: rgba(255,255,255,.55);
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); cursor: pointer;
+    }
+    #gp-url-card {
+      position: relative; z-index: 1;
+      width: 100%; height: min(600px,86vh);
+      background: var(--paper,#fafaf7); border-radius: 28px 28px 0 0;
+      display: flex; flex-direction: column;
+      transform: translateY(100%);
+      transition: transform .36s cubic-bezier(.22,1,.36,1);
+      box-shadow: 0 -10px 50px rgba(0,0,0,.18); overflow: hidden;
+    }
+    #gp-url-panel.gp-open #gp-url-card { transform: translateY(0); }
+    #gp-url-handle {
+      width: 36px; height: 4px; border-radius: 2px;
+      background: rgba(10,10,10,.12); margin: 10px auto 0; flex-shrink: 0;
+    }
+    #gp-url-hdr {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 18px 12px; flex-shrink: 0;
+      border-bottom: 1px solid var(--line,rgba(10,10,10,.07));
+    }
+    #gp-url-hdr-title { font-size: 22px; font-style: italic; color: var(--ink,#0a0a0a); }
+    #gp-url-hdr-sub   { font-size: 9px; color: var(--mute,#8a8a8e); letter-spacing: .08em; margin-top: 2px; }
+    #gp-url-close-btn {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: var(--paper-2,#f1f0ea); border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; color: var(--ink,#0a0a0a); flex-shrink: 0; transition: background .15s;
+    }
+    #gp-url-close-btn:hover { background: rgba(10,10,10,.08); }
+    #gp-url-list {
+      flex: 1; overflow-y: auto; padding: 10px 16px 6px;
+    }
+    #gp-url-list::-webkit-scrollbar { display: none; }
+    .gp-url-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 0; border-bottom: 1px solid var(--line,rgba(10,10,10,.06));
+    }
+    .gp-url-row:last-child { border-bottom: none; }
+    .gp-url-preview {
+      width: 72px; flex-shrink: 0;
+      background: var(--paper-2,#f1f0ea); border-radius: 10px; overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+      min-height: 48px; max-height: 120px;
+    }
+    .gp-url-preview img { width: 100%; height: auto; display: block; object-fit: contain; border-radius: 8px; }
+    .gp-url-preview-empty {
+      width: 72px; min-height: 56px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--mute,#8a8a8e); font-size: 20px; opacity: .35;
+      background: var(--paper-2,#f1f0ea); border-radius: 10px; flex-shrink: 0;
+    }
+    .gp-url-input-wrap { flex: 1; min-width: 0; }
+    .gp-url-input {
+      width: 100%; padding: 9px 12px;
+      border: 1.5px solid var(--line,rgba(10,10,10,.09));
+      border-radius: 12px; background: var(--card,#fff);
+      font-size: 11px; color: var(--ink,#0a0a0a);
+      outline: none; transition: border-color .18s; box-sizing: border-box;
+    }
+    .gp-url-input::placeholder { color: var(--mute,#8a8a8e); }
+    .gp-url-input:focus { border-color: var(--ink,#0a0a0a); }
+    .gp-url-input-hint {
+      font-size: 9px; color: var(--mute,#8a8a8e); letter-spacing: .04em; margin-top: 4px; padding-left: 2px;
+    }
+    .gp-url-actions { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
+    .gp-url-btn {
+      width: 34px; height: 34px; border-radius: 10px; border: none;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      font-size: 13px; transition: all .15s;
+    }
+    .gp-url-btn.check { background: var(--ink,#0a0a0a); color: #fff; }
+    .gp-url-btn.check:hover { opacity: .8; transform: scale(1.06); }
+    .gp-url-btn.del   { background: var(--paper-2,#f1f0ea); color: var(--mute,#8a8a8e); }
+    .gp-url-btn.del:hover { background: #ffe0e0; color: #e05555; }
+    #gp-url-footer {
+      display: flex; gap: 10px; padding: 12px 16px 32px; flex-shrink: 0;
+      border-top: 1px solid var(--line,rgba(10,10,10,.07));
+    }
+    .gp-url-footer-btn {
+      flex: 1; padding: 12px 0; border-radius: 14px; border: none;
+      cursor: pointer; font-size: 12px; font-weight: 600;
+      transition: all .18s; display: flex; align-items: center; justify-content: center; gap: 7px;
+    }
+    .gp-url-footer-btn.add {
+      background: var(--paper-2,#f1f0ea); color: var(--ink,#0a0a0a);
+      border: 1.5px dashed rgba(10,10,10,.18);
+    }
+    .gp-url-footer-btn.add:hover { border-color: var(--ink,#0a0a0a); }
+    .gp-url-footer-btn.save { background: var(--ink,#0a0a0a); color: #fff; }
+    .gp-url-footer-btn.save:hover { opacity: .85; }
+    .gp-url-save-ok { background: #43d9a0 !important; }
   `;
   var _styleEl = document.createElement('style');
   _styleEl.textContent = _CSS;
@@ -259,6 +372,7 @@
           </div>
         </button>
       </div>
+      <div id="gp-url-entry">或从 URL 库选择图片</div>
     </div>`;
   document.body.appendChild(_srcSheet);
 
@@ -280,11 +394,37 @@
     </div>`;
   document.body.appendChild(_galPanel);
 
+  var _urlPanel = document.createElement('div');
+  _urlPanel.id = 'gp-url-panel';
+  _urlPanel.innerHTML = `
+    <div id="gp-url-backdrop"></div>
+    <div id="gp-url-card">
+      <div id="gp-url-handle"></div>
+      <div id="gp-url-hdr">
+        <div>
+          <div id="gp-url-hdr-title">URL 库</div>
+          <div id="gp-url-hdr-sub">PASTE URL · PREVIEW · APPLY ✦</div>
+        </div>
+        <button id="gp-url-close-btn"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div id="gp-url-list"></div>
+      <div id="gp-url-footer">
+        <button class="gp-url-footer-btn add" id="gp-url-add-btn">
+          <i class="fa-solid fa-plus"></i> 新增一行
+        </button>
+        <button class="gp-url-footer-btn save" id="gp-url-save-btn">
+          <i class="fa-solid fa-floppy-disk"></i> 保存到库
+        </button>
+      </div>
+    </div>`;
+  document.body.appendChild(_urlPanel);
+
   /* ═══════════════════════════════════════════════════════
      §5  状态
   ═══════════════════════════════════════════════════════ */
   var _pendingInput   = null;
   var _activeCategory = null;
+  var _urlRows        = [];   // [{ url: string }]
 
   /* ═══════════════════════════════════════════════════════
      §6  面板开关
@@ -293,6 +433,8 @@
   function _closeSource()   { _srcSheet.classList.remove('gp-open'); }
   function _openGallery()   { _galPanel.classList.add('gp-open'); _renderGallery(); }
   function _closeGallery()  { _galPanel.classList.remove('gp-open'); _pendingInput = null; }
+  function _openUrl()       { _urlPanel.classList.add('gp-open'); _loadAndRenderUrl(); }
+  function _closeUrl()      { _urlPanel.classList.remove('gp-open'); _pendingInput = null; }
 
   /* ═══════════════════════════════════════════════════════
      §7  渲染 Gallery
@@ -341,8 +483,163 @@
   }
 
   /* ═══════════════════════════════════════════════════════
-     §8  将 Gallery 图片注入 input 并触发 change
+     §7b  URL 库 DB 读写
   ═══════════════════════════════════════════════════════ */
+  async function _gpReadUrlLib() {
+    try {
+      var db = await _gpOpenDB();
+      return new Promise(function (resolve) {
+        if (!db.objectStoreNames.contains('config')) { db.close(); resolve([]); return; }
+        var tx  = db.transaction('config', 'readonly');
+        var req = tx.objectStore('config').get('main_config');
+        req.onsuccess = function () {
+          db.close();
+          var urls = req.result && req.result.urlLib ? req.result.urlLib : [];
+          resolve(urls);
+        };
+        req.onerror = function () { db.close(); resolve([]); };
+      });
+    } catch (e) { return []; }
+  }
+
+  async function _gpSaveUrlLib(urls) {
+    try {
+      var db = await _gpOpenDB();
+      return new Promise(function (resolve) {
+        if (!db.objectStoreNames.contains('config')) { db.close(); resolve(); return; }
+        var tx      = db.transaction('config', 'readwrite');
+        var store   = tx.objectStore('config');
+        var getReq  = store.get('main_config');
+        getReq.onsuccess = function () {
+          var rec = getReq.result || { id: 'main_config' };
+          rec.urlLib = urls;
+          store.put(rec).onsuccess = function () { db.close(); resolve(); };
+        };
+        getReq.onerror = function () { db.close(); resolve(); };
+      });
+    } catch (e) {}
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     §7c  URL 面板渲染
+  ═══════════════════════════════════════════════════════ */
+  async function _loadAndRenderUrl() {
+    _urlRows = await _gpReadUrlLib();
+    if (_urlRows.length === 0) _urlRows = [{ url: '' }];
+    _renderUrlList();
+  }
+
+  function _renderUrlList() {
+    var listEl = document.getElementById('gp-url-list');
+    listEl.innerHTML = '';
+    _urlRows.forEach(function (row, idx) {
+      var rowEl = document.createElement('div');
+      rowEl.className = 'gp-url-row';
+
+      // 预览区
+      var previewEl;
+      if (row.url && row.url.trim()) {
+        previewEl = document.createElement('div');
+        previewEl.className = 'gp-url-preview';
+        var img = document.createElement('img');
+        img.src = row.url.trim();
+        img.alt = '';
+        img.onerror = function () {
+          previewEl.innerHTML = '';
+          previewEl.className = 'gp-url-preview-empty';
+          previewEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
+        };
+        previewEl.appendChild(img);
+      } else {
+        previewEl = document.createElement('div');
+        previewEl.className = 'gp-url-preview-empty';
+        previewEl.innerHTML = '<i class="fa-regular fa-image"></i>';
+      }
+
+      // 输入框
+      var wrapEl = document.createElement('div');
+      wrapEl.className = 'gp-url-input-wrap';
+      var inputEl = document.createElement('input');
+      inputEl.className = 'gp-url-input';
+      inputEl.type = 'text';
+      inputEl.placeholder = '粘贴图片 URL…';
+      inputEl.value = row.url || '';
+
+      // 输入完成后刷新预览（失焦或回车）
+      function _refreshPreview() {
+        _urlRows[idx].url = inputEl.value.trim();
+        _renderUrlList();
+      }
+      inputEl.addEventListener('blur', _refreshPreview);
+      inputEl.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') { e.preventDefault(); _refreshPreview(); }
+      });
+
+      var hintEl = document.createElement('div');
+      hintEl.className = 'gp-url-input-hint';
+      hintEl.textContent = '输入后失焦或回车可预览';
+      wrapEl.appendChild(inputEl);
+      wrapEl.appendChild(hintEl);
+
+      // 右侧按钮组
+      var actEl = document.createElement('div');
+      actEl.className = 'gp-url-actions';
+
+      // ✓ 应用按钮
+      var checkBtn = document.createElement('button');
+      checkBtn.className = 'gp-url-btn check';
+      checkBtn.title = '使用此图片';
+      checkBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
+      checkBtn.addEventListener('click', function () {
+        var url = (_urlRows[idx].url || '').trim();
+        if (!url) return;
+        _applyUrlImage(url);
+      });
+
+      // ✕ 删除按钮
+      var delBtn = document.createElement('button');
+      delBtn.className = 'gp-url-btn del';
+      delBtn.title = '删除此行';
+      delBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+      delBtn.addEventListener('click', function () {
+        _urlRows.splice(idx, 1);
+        if (_urlRows.length === 0) _urlRows = [{ url: '' }];
+        _renderUrlList();
+      });
+
+      actEl.appendChild(checkBtn);
+      actEl.appendChild(delBtn);
+
+      rowEl.appendChild(previewEl);
+      rowEl.appendChild(wrapEl);
+      rowEl.appendChild(actEl);
+      listEl.appendChild(rowEl);
+    });
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     §7d  将 URL 图片转为 File 并应用
+  ═══════════════════════════════════════════════════════ */
+  async function _applyUrlImage(url) {
+    if (!_pendingInput) return;
+    var target = _pendingInput;
+    try {
+      var res  = await fetch(url);
+      var blob = await res.blob();
+      var ext  = (blob.type || 'image/jpeg').split('/')[1] || 'jpg';
+      var file = new File([blob], 'url-image.' + ext, { type: blob.type || 'image/jpeg' });
+      var dt = new DataTransfer();
+      dt.items.add(file);
+      try { Object.defineProperty(target, 'files', { value: dt.files, configurable: true, writable: true }); } catch (_) {}
+      target.dispatchEvent(new Event('change', { bubbles: true }));
+      setTimeout(_closeUrl, 300);
+    } catch (err) {
+      console.error('[GalleryPicker] URL fetch failed:', err);
+      alert('图片加载失败，请检查 URL 是否正确或允许跨域访问');
+    }
+  }
+
+
   async function _applyImage(src, itemEl) {
     if (!_pendingInput) return;
     var target = _pendingInput;
@@ -403,6 +700,43 @@
   document.getElementById('gp-gallery-backdrop').addEventListener('click', _closeGallery);
   document.getElementById('gp-gallery-close-btn').addEventListener('click', _closeGallery);
 
+  // URL 库入口
+  document.getElementById('gp-url-entry').addEventListener('click', function () {
+    _closeSource();
+    _openUrl();
+  });
+
+  // URL 面板关闭
+  document.getElementById('gp-url-backdrop').addEventListener('click', _closeUrl);
+  document.getElementById('gp-url-close-btn').addEventListener('click', _closeUrl);
+
+  // 新增一行
+  document.getElementById('gp-url-add-btn').addEventListener('click', function () {
+    _urlRows.push({ url: '' });
+    _renderUrlList();
+    // 滚到底让用户看到新行
+    var list = document.getElementById('gp-url-list');
+    setTimeout(function () { list.scrollTop = list.scrollHeight; }, 50);
+  });
+
+  // 保存到库
+  document.getElementById('gp-url-save-btn').addEventListener('click', async function () {
+    var btn = this;
+    // 同步一次当前所有输入框的值（防止用户没失焦）
+    var inputs = document.querySelectorAll('.gp-url-input');
+    inputs.forEach(function (inp, i) { if (_urlRows[i]) _urlRows[i].url = inp.value.trim(); });
+    // 只保存非空行
+    var toSave = _urlRows.filter(function (r) { return r.url; });
+    await _gpSaveUrlLib(toSave);
+    // 保存成功动画
+    btn.classList.add('gp-url-save-ok');
+    btn.innerHTML = '<i class="fa-solid fa-check"></i> 已保存';
+    setTimeout(function () {
+      btn.classList.remove('gp-url-save-ok');
+      btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> 保存到库';
+    }, 1800);
+  });
+
   /* ═══════════════════════════════════════════════════════
      §10  Hook 所有图片 input 的 click（捕获阶段）
   ═══════════════════════════════════════════════════════ */
@@ -429,5 +763,5 @@
     });
   }).observe(document.body, { childList: true, subtree: true });
 
-  console.log('%c[GalleryPicker v2.1] ✓ 已启动', 'color:#43d9a0;font-weight:700;font-family:monospace');
+  console.log('%c[GalleryPicker v2.2] ✓ 已启动', 'color:#43d9a0;font-weight:700;font-family:monospace');
 })();
