@@ -473,7 +473,7 @@
         padding: 0 6px;
         display: flex;
         align-items: center;
-        gap: 6px;
+        gap: 2px;
       }
       .bubble-meta i {
         font-size: 8px;
@@ -4020,6 +4020,45 @@
       .setting-tab-content {
         animation: fadeIn 0.25s ease;
       }
+      /* --- Toggle 开关样式 --- */
+      .ts-toggle {
+        position: relative;
+        display: inline-block;
+        width: 40px;
+        height: 22px;
+        flex-shrink: 0;
+      }
+      .ts-toggle input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+        position: absolute;
+      }
+      .ts-toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        inset: 0;
+        background: var(--line);
+        border-radius: 22px;
+        transition: 0.25s;
+      }
+      .ts-toggle-slider::before {
+        content: '';
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        left: 3px;
+        top: 3px;
+        background: white;
+        border-radius: 50%;
+        transition: 0.25s;
+      }
+      .ts-toggle input:checked + .ts-toggle-slider {
+        background: var(--accent, #7c6af7);
+      }
+      .ts-toggle input:checked + .ts-toggle-slider::before {
+        transform: translateX(18px);
+      }
       .bg-preview-box {
         width: 100%;
         height: 160px;
@@ -5417,6 +5456,30 @@
           </div>
 
           <div style="margin-top: 10px">
+            <div class="si-sec-label"><i class="fa-solid fa-clock"></i> 时间感知</div>
+            <div
+              class="si-fmt-row"
+              style="
+                align-items: center;
+                justify-content: space-between;
+                padding: 12px;
+                background: var(--card);
+                border: 1px solid var(--line);
+                border-radius: 12px;
+              "
+            >
+              <div style="display: flex; flex-direction: column; gap: 2px">
+                <span style="font-size: 11px; font-weight: 600; color: var(--ink)">历史消息携带时间戳</span>
+                <span style="font-size: 10px; color: var(--ink-3)">关闭后提示词中不附带消息时间</span>
+              </div>
+              <label class="ts-toggle" style="flex-shrink: 0">
+                <input type="checkbox" id="settingTimestampEnabled" checked />
+                <span class="ts-toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <div style="margin-top: 10px">
             <div class="si-sec-label"><i class="fa-solid fa-eye"></i> 视图渲染</div>
             <div
               class="si-fmt-row"
@@ -5635,6 +5698,7 @@
         </div>
       </div>
     </div>
+    <script src="db-schema.js"></script>
     <script>
       /* =========================================================
          全局绑定函数（必须放在最顶部，防止 undefined 报错）
@@ -5974,6 +6038,9 @@
       const IDB_NAME = 'tsukiphonepromax';
 
       // 新增了 chats 和 messages 两个 store
+      // ⚙️ SCHEMA 格式说明：
+      //   每个 store 值为 null（无 keyPath）或对象：
+      //   { keyPath, indexes?: [{ name, keyPath, unique? }] }
       const SCHEMA = {
         config: { keyPath: 'id' },
         chars: { keyPath: 'id' },
@@ -5982,6 +6049,23 @@
         chats: { keyPath: 'id' },
         // 👉 核心修改：使用数组作为复合主键，[聊天ID, 楼层]
         messages: { keyPath: ['chatId', 'floor'] },
+        // 🎭 线下剧场相关三张表（与 TsukiSummary.js 保持一致）
+        theaters: {
+          keyPath: 'id',
+          indexes: [{ name: 'by_created', keyPath: 'createdAt' }],
+        },
+        theater_messages: {
+          keyPath: ['theaterId', 'floor'],
+          indexes: [{ name: 'by_theater', keyPath: 'theaterId' }],
+        },
+        theater_summaries: {
+          keyPath: 'id',
+          indexes: [{ name: 'by_theater', keyPath: 'theaterId' }],
+        },
+        // 📓 日记相关
+        diaries: {
+          keyPath: 'id',
+        },
       };
 
       let _idb = null;
@@ -6012,15 +6096,29 @@
 
               upgradeReq.onupgradeneeded = event => {
                 const upgradeDb = event.target.result;
-                // 遍历 SCHEMA 自动建表
+                // 遍历 SCHEMA 自动建表（含索引）
                 for (const [storeName, options] of Object.entries(SCHEMA)) {
+                  let store;
                   if (!upgradeDb.objectStoreNames.contains(storeName)) {
                     if (options) {
-                      upgradeDb.createObjectStore(storeName, options);
+                      // 只把 keyPath 传给 createObjectStore，其余选项另行处理
+                      store = upgradeDb.createObjectStore(storeName, { keyPath: options.keyPath });
                     } else {
-                      upgradeDb.createObjectStore(storeName);
+                      store = upgradeDb.createObjectStore(storeName);
                     }
                     console.log(`[DB] 成功创建数据表: ${storeName}`);
+                  } else {
+                    // 表已存在，通过事务拿到 store 以便补建缺失的索引
+                    store = event.target.transaction.objectStore(storeName);
+                  }
+                  // 建索引（幂等：已存在则跳过）
+                  if (options && options.indexes) {
+                    for (const idx of options.indexes) {
+                      if (!store.indexNames.contains(idx.name)) {
+                        store.createIndex(idx.name, idx.keyPath, { unique: idx.unique || false });
+                        console.log(`[DB]   └─ 索引: ${storeName}.${idx.name}`);
+                      }
+                    }
                   }
                 }
               };
@@ -6036,6 +6134,8 @@
           probeReq.onerror = e => reject(e.target.error);
         });
       }
+      // 🌟 暴露到 window，供 PromptHelper.js 等外部脚本复用完整 SCHEMA 连接
+      window.openDb = openDb;
 
       // 封装简单的数据库操作辅助函数
       async function dbGetAll(storeName) {
@@ -6393,42 +6493,32 @@
           }
         }
 
-        // 2. 【核心优化】获取渲染限制条数
+        // 2. 只渲染气泡（复用 reloadBubbles）
+        await reloadBubbles(chatId, db);
+      }
+
+      // 只重渲染气泡区，不动头部 UI —— 供时间感知开关刷新使用
+      async function reloadBubbles(chatId, db) {
+        if (!chatId) return;
+        if (!db) db = await openDb();
+        const chatArea = document.getElementById('chatArea');
+        chatArea.innerHTML = '';
         const settings = await dbGet('config', 'chat_settings');
-        // 【关键修复】：必须用 !== undefined 来判断，防止 0 被当作 false 从而变成 44
         const renderLimit = settings && settings.renderCount !== undefined ? parseInt(settings.renderCount) : 44;
-        // 2. 路径查找：只获取主键以当前 chatId 开头的消息
         const tx = db.transaction('messages', 'readonly');
         const store = tx.objectStore('messages');
-
-        // 使用 KeyRange 锁定“路径”：从 [chatId, 0] 到 [chatId, 无穷大]
         const range = IDBKeyRange.bound([chatId, 0], [chatId, Infinity]);
-
-        // 3. 使用 'prev' 方向，从最新的一条消息开始回溯
         const request = store.openCursor(range, 'prev');
         const messagesToRender = [];
-
         request.onsuccess = event => {
           const cursor = event.target.result;
-
-          // 【关键修复】：如果游标存在，且 (渲染限制为0(无限制) 或者 还没凑够 renderLimit 条)
           if (cursor && (renderLimit === 0 || messagesToRender.length < renderLimit)) {
             messagesToRender.push(cursor.value);
-            cursor.continue(); // 继续找上一条
+            cursor.continue();
           } else {
-            // 4. 渲染阶段：
-            // 因为我们是倒序找的，渲染时需要 .reverse() 回正序
-            messagesToRender.reverse().forEach(msg => {
-              renderHistoryBubble(msg);
-            });
-
-            // 渲染完成后置底
+            messagesToRender.reverse().forEach(msg => renderHistoryBubble(msg));
             scrollChatToBottom();
-
-            // 【关键修复】：更新控制台的打印日志，让你清楚看到 0 生效了
-            console.log(
-              `[Performance] 渲染了 ${messagesToRender.length} 条消息 (限制设置: ${renderLimit === 0 ? '全部渲染 (0)' : renderLimit})`,
-            );
+            console.log(`[Performance] 渲染了 ${messagesToRender.length} 条消息 (限制设置: ${renderLimit === 0 ? '全部渲染 (0)' : renderLimit})`);
           }
         };
       }
@@ -6533,12 +6623,18 @@
         const role = msg.senderRole;
         const c = msg.content; // 原始数据内容
 
+        // 读取时间感知开关（同步读缓存，避免异步阻塞渲染）
+        const _tsEnabled = window.__timestampEnabled !== false;
+        const _defaultMeta = _tsEnabled
+          ? `<i class="fa-regular fa-clock"></i> ${timeStr}`
+          : `<i class="fa-solid fa-check-double" style="color:var(--accent-mint)"></i> 已读`;
+
         let bubble = document.createElement('div');
-        let metaHtml = `<i class="fa-regular fa-clock"></i> ${timeStr}`;
+        let metaHtml = _defaultMeta;
 
         // 统一选项
         const options = {
-          meta: `<i class="fa-regular fa-clock"></i> ${timeStr}`,
+          meta: _defaultMeta,
           floor: msg.floor, // 将楼层号传入渲染引擎
         };
 
@@ -7659,7 +7755,7 @@
 
               // 渲染时交给 renderHistoryBubble 处理解析
               const textEl = window.renderMessage(window.currentSender, finalTxt, {
-                meta: window.currentSender === 'system' ? '' : `<i class="fa-regular fa-clock"></i> ${timeStr}`,
+                meta: window.currentSender === 'system' ? '' : (window.__timestampEnabled !== false ? `<i class="fa-regular fa-clock"></i> ${timeStr}` : `<i class="fa-solid fa-check-double" style="color:var(--accent-mint)"></i> 已读`),
               });
 
               // 存入数据库的是带引用格式的字符串
@@ -9565,6 +9661,8 @@
         const historyInput = document.getElementById('settingHistoryCount');
         // 【新增】：获取渲染条数输入框
         const renderInput = document.getElementById('settingRenderCount');
+        // 【新增】：获取时间戳开关
+        const timestampToggle = document.getElementById('settingTimestampEnabled');
 
         // 初始化：打开页面时从数据库读取当前设置
         async function loadChatSettings() {
@@ -9579,6 +9677,12 @@
             if (renderInput) {
               renderInput.value = settings.renderCount !== undefined ? settings.renderCount : 44;
             }
+            // 【新增】：读取时间戳开关（默认 true）
+            if (timestampToggle) {
+              timestampToggle.checked = settings.timestampEnabled !== false;
+            }
+            // 同步写入全局缓存，供气泡渲染同步读取
+            window.__timestampEnabled = settings.timestampEnabled !== false;
           } catch (e) {
             console.error('[Settings] 读取设置失败', e);
           }
@@ -9600,6 +9704,10 @@
             const existingConfig = (await dbGet('config', 'chat_settings')) || { id: 'chat_settings' };
             existingConfig.historyCount = hVal;
             existingConfig.renderCount = rVal; // 把渲染条数一起存进去
+            // 【新增】：保存时间戳开关
+            existingConfig.timestampEnabled = timestampToggle ? timestampToggle.checked : true;
+            // 同步更新全局缓存
+            window.__timestampEnabled = existingConfig.timestampEnabled;
             await dbPut('config', existingConfig);
             console.log('[Settings] 聊天设置已保存:', existingConfig);
           } catch (err) {
@@ -9613,6 +9721,15 @@
         }
         if (renderInput) {
           renderInput.addEventListener('blur', saveSettings);
+        }
+        // 【新增】：时间戳开关 change 时立即保存，并刷新当前聊天气泡
+        if (timestampToggle) {
+          timestampToggle.addEventListener('change', async () => {
+            await saveSettings();
+            if (typeof currentChatId !== 'undefined' && currentChatId) {
+              reloadBubbles(currentChatId);
+            }
+          });
         }
 
         // ==========================================
@@ -10443,5 +10560,6 @@
     <script src="TsukiSend.js"></script>
     <script src="DiaryFloorListener.js"></script>
     <script src="TsukiBridge.js"></script>
+    <script src="GalleryPicker.js"></script>
   </body>
 </html>

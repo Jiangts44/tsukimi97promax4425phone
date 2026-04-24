@@ -28,16 +28,68 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 /* BUBBLE SCREEN */
 #bubbleScreen{position:absolute;inset:0;background:var(--paper);overflow:hidden}
 .bs-label{position:absolute;top:14px;left:18px;z-index:10}
+.bs-back{display:inline-flex;align-items:center;gap:4px;font-family:'Geist',sans-serif;font-size:10px;font-weight:500;color:var(--mute);cursor:pointer;padding:3px 6px 3px 2px;border-radius:6px;transition:0.15s;margin-bottom:2px;user-select:none}
+.bs-back:hover{background:rgba(10,10,10,0.06);color:var(--ink)}
+.bs-back i{font-size:9px}
 .bs-ey{font-family:'Geist Mono',monospace;font-size:8px;letter-spacing:0.2em;color:var(--mute);text-transform:uppercase}
-.bs-ti{font-family:'Fraunces',serif;font-size:22px;font-weight:300;font-style:italic;color:var(--ink);margin-top:1px}
+.bs-ti{font-family:'Fraunces',serif;font-size:22px;font-weight:300;font-style:italic;color:var(--ink);margin-top:1px;cursor:default}
 .bs-ct{position:absolute;top:18px;right:18px;z-index:10;font-family:'Geist Mono',monospace;font-size:9px;color:var(--mute);letter-spacing:0.1em}
 .bs-ct span{color:var(--ink);font-weight:600}
 #bubbleField{position:absolute;inset:0;z-index:1}
 
+/* ── CHAT PREVIEW PANEL (slides up from bottom on bubble click) ── */
+#chatPreviewPanel{
+  position:absolute;bottom:0;left:0;right:0;z-index:15;
+  background:var(--card);
+  border-radius:26px 26px 0 0;
+  border-top:1px solid var(--line);
+  box-shadow:0 -4px 32px -8px rgba(0,0,0,0.13);
+  transform:translateY(100%);
+  transition:transform 0.42s cubic-bezier(0.22,1,0.36,1);
+  max-height:72%;
+  display:flex;flex-direction:column;
+  overflow:hidden;
+}
+#chatPreviewPanel.open{transform:translateY(0)}
+.cpp-handle{width:36px;height:4px;background:var(--line);border-radius:2px;margin:12px auto 0;flex-shrink:0}
+.cpp-header{padding:12px 18px 10px;display:flex;align-items:center;gap:12px;flex-shrink:0;border-bottom:1px solid var(--line)}
+.cpp-av{width:44px;height:44px;border-radius:15px;overflow:hidden;flex-shrink:0;background:linear-gradient(135deg,#e8e4d9,#d5d0c5);display:flex;align-items:center;justify-content:center;color:var(--mute);font-size:18px}
+.cpp-av img{width:100%;height:100%;object-fit:cover;display:block}
+.cpp-info{flex:1;min-width:0}
+.cpp-name{font-family:'Fraunces',serif;font-size:18px;font-style:italic;color:var(--ink);line-height:1.1}
+.cpp-id{font-family:'Geist Mono',monospace;font-size:8px;color:var(--mute);margin-top:3px;letter-spacing:0.06em}
+.cpp-close{width:30px;height:30px;border-radius:10px;background:var(--paper2);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--mute);flex-shrink:0;transition:0.15s}
+.cpp-close:hover{background:rgba(10,10,10,0.08);color:var(--ink)}
+.cpp-enter-btn{
+  margin:0 18px 0;padding:9px 14px;
+  background:var(--ink);color:white;
+  border:none;border-radius:12px;cursor:pointer;
+  font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.1em;
+  display:flex;align-items:center;justify-content:center;gap:7px;
+  transition:opacity 0.15s;flex-shrink:0;
+}
+.cpp-enter-btn:hover{opacity:0.85}
+.cpp-enter-btn i{font-size:10px;color:var(--lime)}
+.cpp-sep{padding:10px 18px 6px;font-family:'Geist Mono',monospace;font-size:8px;color:var(--mute);letter-spacing:0.14em;text-transform:uppercase;flex-shrink:0}
+.cpp-list{flex:1;overflow-y:auto;padding:0 12px 20px}
+.cpp-list::-webkit-scrollbar{display:none}
+.cpp-chat-row{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:14px;cursor:pointer;transition:background 0.15s;margin-bottom:2px}
+.cpp-chat-row:hover{background:rgba(10,10,10,0.04)}
+.cpp-chat-row:active{background:rgba(10,10,10,0.07)}
+.cpp-ci{width:38px;height:38px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;position:relative}
+.cpp-ci .cpp-idx{position:absolute;bottom:-3px;right:-3px;width:13px;height:13px;border-radius:4px;background:var(--card);border:1px solid var(--line);font-family:'Geist Mono',monospace;font-size:7px;color:var(--mute);display:flex;align-items:center;justify-content:center}
+.cpp-cb{flex:1;min-width:0}
+.cpp-cn{font-size:12px;font-weight:500;color:var(--ink);margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cpp-cl{font-size:10.5px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cpp-ct{font-family:'Geist Mono',monospace;font-size:8px;color:var(--mute);flex-shrink:0}
+.cpp-arrow{font-size:9px;color:var(--mute);flex-shrink:0;margin-left:2px}
+/* overlay behind panel */
+#chatPreviewOverlay{position:absolute;inset:0;z-index:14;background:rgba(250,250,247,0.5);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);opacity:0;pointer-events:none;transition:opacity 0.3s}
+#chatPreviewOverlay.open{opacity:1;pointer-events:all}
+
 /* BUBBLES */
 .char-bubble{position:absolute;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;user-select:none;opacity:0;transition:transform 0.25s cubic-bezier(0.34,1.56,0.64,1);will-change:transform,opacity}
-.char-bubble:hover{transform:scale(1.13)!important}
-.char-bubble:active{transform:scale(0.91)!important}
+.char-bubble:hover{transform:scale(1.13)!important}.char-bubble:active{transform:scale(0.91)!important}
 .bsph{position:absolute;inset:0;border-radius:50%;overflow:hidden}
 .bsph::before{content:'';position:absolute;top:7%;left:10%;width:44%;height:40%;background:radial-gradient(ellipse,rgba(255,255,255,0.78) 0%,rgba(255,255,255,0) 68%);border-radius:50%;transform:rotate(-20deg);filter:blur(0.5px)}
 .bsph::after{content:'';position:absolute;bottom:14%;right:16%;width:25%;height:23%;background:radial-gradient(circle,rgba(255,255,255,0.38) 0%,transparent 70%);border-radius:50%}
@@ -48,8 +100,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .tb-purple .bsph{background:radial-gradient(ellipse at 40% 35%,rgba(225,210,255,0.43) 0%,rgba(167,139,250,0.11) 55%,transparent 80%);border:1.5px solid rgba(167,139,250,0.28)}
 .tb-lime .bsph{background:radial-gradient(ellipse at 40% 35%,rgba(235,255,185,0.42) 0%,rgba(180,220,0,0.1) 55%,transparent 80%);border:1.5px solid rgba(180,220,0,0.28)}
 .bav{position:relative;z-index:2;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;color:rgba(10,10,10,0.4);flex-shrink:0;box-shadow:0 0 0 1.5px rgba(255,255,255,0.5) inset}
-.bav img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:block}
-.bav i{font-size:0.5em}
+.bav img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:block}.bav i{font-size:0.5em}
 .bname{position:absolute;bottom:-19px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:9px;font-weight:500;color:var(--ink3);letter-spacing:0.02em;pointer-events:none;font-family:'Geist Mono',monospace}
 @keyframes fa{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-10px) rotate(2.5deg)}}
 @keyframes fb{0%,100%{transform:translateY(0) rotate(0)}33%{transform:translateY(-7px) rotate(-2deg)}66%{transform:translateY(6px) rotate(1.5deg)}}
@@ -67,8 +118,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 #phoneScreen{position:absolute;inset:0;z-index:20;background:var(--paper);transform:translateX(100%);transition:transform 0.42s cubic-bezier(0.22,1,0.36,1);display:flex;flex-direction:column;overflow:hidden}
 #phoneScreen.open{transform:translateX(0)}
 .inner-status{height:44px;display:flex;align-items:center;justify-content:space-between;padding:11px 20px 0;font-size:12px;font-weight:600;font-family:'Geist Mono',monospace;flex-shrink:0;border-bottom:1px solid var(--line)}
-.inner-status .left{display:flex;align-items:center;gap:8px}
-.inner-status .right{display:flex;gap:5px;align-items:center;font-size:11px}
+.inner-status .left{display:flex;align-items:center;gap:8px}.inner-status .right{display:flex;gap:5px;align-items:center;font-size:11px}
 .back-btn{display:flex;align-items:center;gap:4px;cursor:pointer;padding:3px 6px 3px 2px;border-radius:6px;transition:0.15s;font-family:'Geist',sans-serif;font-size:11px;font-weight:500;color:var(--blue)}
 .back-btn:hover{background:rgba(91,124,250,0.08)}.back-btn i{font-size:9px}
 .icn{font-family:'Fraunces',serif;font-style:italic;font-size:13px;color:var(--ink2);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -80,10 +130,28 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .csrm{font-family:'Geist Mono',monospace;font-size:9px;color:var(--mute);margin-top:3px;letter-spacing:0.07em}
 .csid{display:inline-flex;align-items:center;gap:3px;margin-top:6px;padding:3px 7px;background:var(--paper2);border-radius:6px;font-family:'Geist Mono',monospace;font-size:8px;color:var(--ink3);letter-spacing:0.06em}
 .csid i{font-size:7px;opacity:0.6}
-.persona-blurb{margin:10px 16px;padding:10px 12px;background:rgba(212,255,77,0.09);border:1px solid rgba(180,220,0,0.22);border-radius:10px;font-size:11px;color:var(--ink3);line-height:1.65;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+
+/* ── QUOTE STRIP (replaces persona-blurb) ── */
+.quote-strip{margin:10px 16px 0;padding:10px 14px 10px 16px;background:var(--card);border-radius:10px;border:1px solid var(--line);border-left:3px solid var(--ink);position:relative;overflow:hidden}
+.quote-strip::before{content:'\201C';position:absolute;top:-4px;right:10px;font-family:'Fraunces',serif;font-size:42px;color:rgba(10,10,10,0.06);line-height:1;pointer-events:none}
+.qs-text{font-family:'Fraunces',serif;font-size:12px;font-style:italic;color:var(--ink2);line-height:1.65}
+.qs-attr{font-family:'Geist Mono',monospace;font-size:8px;color:var(--mute);margin-top:5px;letter-spacing:0.08em}
+
+/* ── QUICK WIDGETS ROW (todo + memo) ── */
+.quick-row{display:flex;gap:8px;margin:10px 16px 0;flex-shrink:0}
+.quick-card{flex:1;background:var(--card);border-radius:12px;border:1px solid var(--line);padding:10px 11px;min-width:0;cursor:pointer;transition:box-shadow 0.18s}
+.quick-card:hover{box-shadow:0 3px 12px -4px rgba(0,0,0,0.1)}
+.qc-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}
+.qc-title{font-family:'Geist Mono',monospace;font-size:8px;font-weight:600;letter-spacing:0.14em;color:var(--mute);text-transform:uppercase}
+.qc-icon{font-size:10px;color:var(--mute);opacity:0.6}
+.todo-item{display:flex;align-items:flex-start;gap:6px;margin-bottom:5px;font-size:10.5px;color:var(--ink3);line-height:1.4}
+.todo-item.done{color:var(--mute);text-decoration:line-through;opacity:0.5}
+.todo-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:3px}
+.memo-line{font-size:10.5px;color:var(--ink3);line-height:1.55;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+
 #innerHome{flex:1;overflow-y:auto;padding:0 0 82px}
 #innerHome::-webkit-scrollbar{display:none}
-.asl{padding:16px 18px 6px;font-family:'Geist Mono',monospace;font-size:8.5px;font-weight:600;color:var(--mute);letter-spacing:0.16em;text-transform:uppercase;display:flex;align-items:center;gap:6px}
+.asl{padding:14px 18px 6px;font-family:'Geist Mono',monospace;font-size:8.5px;font-weight:600;color:var(--mute);letter-spacing:0.16em;text-transform:uppercase;display:flex;align-items:center;gap:6px}
 .asl::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--line),transparent)}
 .asl i{font-size:7px;opacity:0.4}
 .string-row{position:relative;padding:0 10px;flex-shrink:0}
@@ -100,7 +168,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .ai-secret i{color:var(--coral)}.ai-letter i{color:var(--blue)}
 .ai-dream i{color:#6ee7b7}.ai-feel i{color:#f9a8d4}
 .ai-cart i{color:#fb7185}.ai-calls i{color:var(--mint)}
-.ai-photo i{color:#c084fc}.ai-note i{color:#fbbf24}
+.ai-photo i{color:#c084fc}
 .inner-dock{position:absolute;bottom:17px;left:14px;right:14px;background:rgba(255,255,255,0.82);backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);border-radius:28px;padding:10px 18px;display:flex;justify-content:space-around;align-items:center;box-shadow:0 4px 28px -8px rgba(0,0,0,0.11),0 0 0 1px rgba(255,255,255,0.9),inset 0 1px 0 rgba(255,255,255,0.95);z-index:10}
 .dock-item{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer}
 .dock-icon{width:44px;height:44px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:20px;background:var(--card);border:1px solid rgba(10,10,10,0.06);box-shadow:0 2px 10px -3px rgba(0,0,0,0.09);transition:transform 0.2s cubic-bezier(0.22,1,0.36,1)}
@@ -114,19 +182,53 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .app-tb{padding:10px 16px 8px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--line);flex-shrink:0;background:var(--card)}
 .app-back{width:28px;height:28px;border-radius:9px;background:var(--paper2);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--blue);transition:0.15s}
 .app-back:hover{background:rgba(91,124,250,0.12)}
-.app-ti{font-family:'Fraunces',serif;font-size:16px;font-style:italic;color:var(--ink)}
-.app-ti i{font-size:12px;margin-right:5px;opacity:0.65}
+.app-ti{font-family:'Fraunces',serif;font-size:16px;font-style:italic;color:var(--ink)}.app-ti i{font-size:12px;margin-right:5px;opacity:0.65}
 .app-sub{font-family:'Geist Mono',monospace;font-size:8px;color:var(--mute);letter-spacing:0.1em;margin-top:1px}
-.abody{flex:1;overflow-y:auto;padding:12px 14px 20px}
-.abody::-webkit-scrollbar{display:none}
+.abody{flex:1;overflow-y:auto;padding:12px 14px 20px}.abody::-webkit-scrollbar{display:none}
 .empty-state{text-align:center;padding:44px 0;color:var(--mute)}
 .empty-state i{font-size:24px;margin-bottom:8px;display:block;opacity:0.3}
-.empty-state p{font-size:12px}
-.empty-state small{font-family:'Geist Mono',monospace;font-size:9px;opacity:0.7;margin-top:4px;display:block}
+.empty-state p{font-size:12px}.empty-state small{font-family:'Geist Mono',monospace;font-size:9px;opacity:0.7;margin-top:4px;display:block}
 .section-sep{display:flex;align-items:center;gap:7px;padding:10px 0 6px}
-.ss-line{flex:1;height:1px;background:var(--line)}
-.ss-label{font-family:'Geist Mono',monospace;font-size:8px;color:var(--mute);letter-spacing:0.12em;text-transform:uppercase}
+.ss-line{flex:1;height:1px;background:var(--line)}.ss-label{font-family:'Geist Mono',monospace;font-size:8px;color:var(--mute);letter-spacing:0.12em;text-transform:uppercase}
 .tag-pill{padding:2px 7px;background:var(--paper2);border-radius:20px;font-family:'Geist Mono',monospace;font-size:8px;color:var(--ink3)}
+
+/* ── DETAIL OVERLAY (shared by Chat/Diary) ── */
+.detail-overlay{position:absolute;inset:0;z-index:35;background:var(--paper);transform:translateX(100%);transition:transform 0.35s cubic-bezier(0.22,1,0.36,1);display:flex;flex-direction:column;overflow:hidden}
+.detail-overlay.open{transform:translateX(0)}
+.do-tb{padding:10px 16px 8px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--line);flex-shrink:0;background:var(--card)}
+.do-back{width:28px;height:28px;border-radius:9px;background:var(--paper2);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--blue);transition:0.15s}
+.do-back:hover{background:rgba(91,124,250,0.12)}
+.do-title-wrap{flex:1;min-width:0}
+.do-ti{font-family:'Fraunces',serif;font-size:15px;font-style:italic;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.do-sub{font-family:'Geist Mono',monospace;font-size:8px;color:var(--mute);margin-top:1px;letter-spacing:0.08em}
+.do-body{flex:1;overflow-y:auto;padding:14px 16px 20px}.do-body::-webkit-scrollbar{display:none}
+/* chat detail */
+.cd-msg-row{display:flex;align-items:flex-start;gap:8px;margin-bottom:10px}
+.cd-msg-row.user{flex-direction:row-reverse}
+.cd-av{width:28px;height:28px;border-radius:9px;background:linear-gradient(135deg,#e8e4d9,#d5d0c5);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--mute);overflow:hidden}
+.cd-av img{width:100%;height:100%;object-fit:cover;display:block}
+.cd-bubble{padding:8px 11px;border-radius:16px 16px 16px 5px;background:var(--card);border:1px solid var(--line);font-size:12px;color:var(--ink);line-height:1.6;max-width:200px;word-break:break-word}
+.cd-msg-row.user .cd-bubble{background:var(--ink);color:#f5f5f0;border-radius:16px 16px 5px 16px;border-color:transparent}
+.cd-time{font-family:'Geist Mono',monospace;font-size:8px;color:var(--mute);margin-top:3px;padding:0 2px}
+.cd-sys{text-align:center;font-family:'Geist Mono',monospace;font-size:9px;color:var(--mute);padding:6px 0;letter-spacing:0.06em}
+/* diary detail */
+.diary-full-entry{background:var(--card);border-radius:14px;border:1px solid var(--line);overflow:hidden;margin-bottom:14px}
+.dfe-hd{padding:14px 16px 10px;border-bottom:1px solid var(--line)}
+.dfe-date{font-family:'Geist Mono',monospace;font-size:8px;color:var(--mute);letter-spacing:0.1em;margin-bottom:4px}
+.dfe-title{font-family:'Fraunces',serif;font-size:18px;font-style:italic;color:var(--ink)}
+.dfe-tags{display:flex;gap:4px;margin-top:6px;flex-wrap:wrap}
+.dfe-body{padding:12px 16px;font-size:12px;color:var(--ink3);line-height:1.8}
+/* annotation area */
+.ann-area{padding:0 16px 16px}
+.ann-label{font-family:'Geist Mono',monospace;font-size:8px;color:var(--mute);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:5px}
+.ann-item{background:rgba(212,255,77,0.08);border:1px solid rgba(180,220,0,0.18);border-radius:10px;padding:8px 11px;margin-bottom:6px}
+.ann-item-text{font-size:11px;color:var(--ink3);line-height:1.6;font-style:italic}
+.ann-item-meta{font-family:'Geist Mono',monospace;font-size:8px;color:var(--mute);margin-top:4px}
+.ann-input-row{display:flex;gap:6px;margin-top:8px}
+.ann-input{flex:1;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:11px;color:var(--ink);font-family:'Geist',sans-serif;outline:none;transition:border-color 0.15s}
+.ann-input:focus{border-color:rgba(180,220,0,0.5)}
+.ann-send{width:32px;height:32px;border-radius:10px;background:var(--ink);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--lime);font-size:11px;flex-shrink:0;transition:0.15s}
+.ann-send:hover{opacity:0.85}
 
 /* ═══ CHAT ═══ */
 .chat-row{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:14px;cursor:pointer;transition:background 0.15s;margin-bottom:2px}
@@ -149,12 +251,11 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .de-ti{font-family:'Fraunces',serif;font-size:14px;font-style:italic;color:var(--ink);margin-bottom:4px}
 .de-ex{font-size:11px;color:var(--mute);line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .de-tags{margin-top:7px;display:flex;gap:4px;flex-wrap:wrap}
-/* static diary entries (fallback) */
-.d-static{background:var(--card);border-radius:14px;padding:13px 14px;margin-bottom:8px;border:1px solid var(--line)}
+.d-static{background:var(--card);border-radius:14px;padding:13px 14px;margin-bottom:8px;border:1px solid var(--line);cursor:pointer;transition:box-shadow 0.2s}
+.d-static:hover{box-shadow:0 4px 16px -6px rgba(0,0,0,0.1)}
 .ds-dt{font-family:'Geist Mono',monospace;font-size:8px;color:var(--mute);letter-spacing:0.1em;margin-bottom:5px}
 .ds-ti{font-family:'Fraunces',serif;font-size:14px;font-style:italic;color:var(--ink);margin-bottom:4px}
-.ds-ex{font-size:11px;color:var(--mute);line-height:1.6}
-.ds-tags{margin-top:7px;display:flex;gap:4px}
+.ds-ex{font-size:11px;color:var(--mute);line-height:1.6}.ds-tags{margin-top:7px;display:flex;gap:4px}
 
 /* ═══ MEMORY ═══ */
 .mem-e{background:var(--card);border-radius:12px;padding:11px 13px;margin-bottom:7px;border:1px solid var(--line);position:relative;overflow:hidden}
@@ -164,7 +265,6 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .me-ct{font-size:11px;color:var(--mute);line-height:1.6;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .me-keys{margin-top:6px;display:flex;gap:3px;flex-wrap:wrap}
 .me-key{padding:2px 6px;background:rgba(212,255,77,0.15);border:1px solid rgba(180,220,0,0.25);border-radius:5px;font-family:'Geist Mono',monospace;font-size:7.5px;color:#5a7000}
-/* static memory entries (fallback) */
 .mem-static{background:var(--card);border-radius:12px;padding:11px 13px;margin-bottom:7px;border:1px solid var(--line);position:relative;overflow:hidden}
 .mem-static::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:0 2px 2px 0;background:var(--purple)}
 
@@ -175,9 +275,23 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .mt-note{font-size:11px;color:#6366f1;margin-top:6px;line-height:1.6;font-style:italic;opacity:0.8}
 .mood-label{font-family:'Geist Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:0.14em;color:var(--mute);margin-bottom:7px}
 .mood-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:14px}
-.mood-day{aspect-ratio:1;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:13px;border:1px solid rgba(129,140,248,0.12);cursor:pointer;transition:transform 0.18s,box-shadow 0.18s;background:rgba(238,242,255,0.5)}
+.mood-day{aspect-ratio:1;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:13px;border:1px solid rgba(129,140,248,0.12);cursor:pointer;transition:transform 0.18s,box-shadow 0.18s;background:rgba(238,242,255,0.5);position:relative}
 .mood-day.num{font-family:'Geist Mono',monospace;font-size:8px!important;color:#a5b4fc}
 .mood-day:hover{transform:scale(1.1);box-shadow:0 2px 8px -2px rgba(99,102,241,0.25)}
+.mood-day.has-note::after{content:'';position:absolute;top:2px;right:2px;width:4px;height:4px;border-radius:50%;background:#818cf8}
+.mood-note-panel{background:var(--card);border-radius:14px;padding:14px 16px;border:1px solid rgba(129,140,248,0.2);margin-bottom:12px;display:none}
+.mood-note-panel.open{display:block}
+.mnp-title{font-family:'Geist Mono',monospace;font-size:9px;color:#818cf8;letter-spacing:0.1em;margin-bottom:8px}
+.mnp-textarea{width:100%;background:rgba(238,242,255,0.5);border:1px solid rgba(129,140,248,0.2);border-radius:9px;padding:9px 10px;font-size:11.5px;color:var(--ink);font-family:'Geist',sans-serif;outline:none;resize:none;height:72px;transition:border-color 0.15s}
+.mnp-textarea:focus{border-color:rgba(99,102,241,0.4)}
+.mnp-actions{display:flex;justify-content:flex-end;gap:6px;margin-top:7px}
+.mnp-cancel{padding:4px 12px;border-radius:8px;background:var(--paper2);border:none;cursor:pointer;font-family:'Geist Mono',monospace;font-size:9px;color:var(--mute)}
+.mnp-save{padding:4px 12px;border-radius:8px;background:#4f46e5;border:none;cursor:pointer;font-family:'Geist Mono',monospace;font-size:9px;color:white}
+.mood-notes-list{margin-top:4px}
+.mnl-item{display:flex;gap:8px;padding:7px 0;border-bottom:1px solid rgba(129,140,248,0.1)}
+.mnl-item:last-child{border-bottom:none}
+.mnl-day{font-family:'Geist Mono',monospace;font-size:9px;color:#818cf8;flex-shrink:0;min-width:24px}
+.mnl-text{font-size:11px;color:var(--ink3);line-height:1.55}
 .mood-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:4px}
 .ms-card{background:linear-gradient(135deg,#f5f3ff,#eef2ff);border:1px solid rgba(129,140,248,0.18);border-radius:12px;padding:10px;text-align:center}
 .ms-val{font-family:'Fraunces',serif;font-size:20px;font-style:italic;color:#4f46e5}
@@ -188,10 +302,16 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .sl-ico{font-size:26px;color:var(--amber);margin-bottom:10px;display:block}
 .sl-ti{font-family:'Fraunces',serif;font-size:17px;font-style:italic;color:var(--ink);margin-bottom:5px}
 .sl-su{font-family:'Geist Mono',monospace;font-size:9px;color:var(--mute);letter-spacing:0.1em}
-.s-entry{background:var(--card);border-radius:12px;padding:12px 14px;margin-bottom:7px;border:1px solid var(--line)}
+.s-entry{background:var(--card);border-radius:12px;padding:12px 14px;margin-bottom:7px;border:1px solid var(--line);cursor:pointer;transition:box-shadow 0.15s}
+.s-entry:hover{box-shadow:0 3px 12px -4px rgba(0,0,0,0.1)}
 .se-bar{display:flex;align-items:center;gap:6px;font-family:'Geist Mono',monospace;font-size:9px;color:var(--mute);margin-bottom:5px}
 .se-bar i{font-size:8px;color:var(--amber)}.se-ti{font-size:12px;font-weight:500;color:var(--ink);margin-bottom:3px}
-.se-prev{font-size:11px;color:var(--mute);filter:blur(3.5px);user-select:none;line-height:1.6}
+.se-prev-wrap{position:relative;cursor:pointer}
+.se-prev{font-size:11px;color:var(--mute);filter:blur(3.5px);user-select:none;line-height:1.6;transition:filter 0.4s}
+.se-prev.revealed{filter:none;user-select:text}
+.se-reveal-btn{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:5px;font-family:'Geist Mono',monospace;font-size:8.5px;color:var(--amber);letter-spacing:0.08em;transition:opacity 0.3s}
+.se-reveal-btn.hidden{opacity:0;pointer-events:none}
+.se-reveal-btn i{font-size:10px}
 
 /* ═══ LETTERS ═══ */
 .l-card{background:var(--card);border-radius:14px;padding:14px 16px;margin-bottom:9px;border:1px solid var(--line);cursor:pointer;transition:0.2s;position:relative;overflow:hidden}
@@ -245,17 +365,25 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .ci-badge{display:inline-block;padding:1px 6px;border-radius:4px;font-family:'Geist Mono',monospace;font-size:7.5px;margin-top:5px}
 .ci-badge.sale{background:rgba(255,107,138,0.1);color:var(--rose)}.ci-badge.new{background:rgba(91,124,250,0.1);color:var(--blue)}.ci-badge.rare{background:rgba(212,255,77,0.2);border:1px solid rgba(180,220,0,0.3);color:#5a7000}
 
-/* ═══ BROWSER ═══ */
-.browser-bar{background:var(--card);border-radius:12px;padding:9px 12px;margin-bottom:10px;border:1px solid var(--line);display:flex;align-items:center;gap:8px}
+/* ═══ BROWSER — white bg fixed ═══ */
+.browser-bar{background:var(--card);border-radius:12px;padding:9px 12px;margin-bottom:10px;border:1px solid var(--line);display:flex;align-items:center;gap:8px;box-shadow:0 1px 4px -2px rgba(0,0,0,0.06)}
 .bb-icon{color:var(--mute);font-size:11px}
 .bb-url{font-family:'Geist Mono',monospace;font-size:9px;color:var(--ink3);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.hist-item{background:var(--card);border-radius:12px;padding:10px 12px;margin-bottom:6px;border:1px solid var(--line);cursor:pointer;transition:0.15s}
+.hist-item{background:var(--card);border-radius:12px;padding:10px 12px;margin-bottom:6px;border:1px solid var(--line);cursor:pointer;transition:0.15s;box-shadow:0 1px 4px -2px rgba(0,0,0,0.04)}
 .hist-item:hover{background:var(--paper2)}
 .hi-site{font-family:'Geist Mono',monospace;font-size:8px;color:var(--mute);letter-spacing:0.06em;margin-bottom:3px;display:flex;align-items:center;gap:4px}
 .hi-site i{font-size:7px}.hi-ti{font-size:12px;color:var(--ink);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hi-url{font-family:'Geist Mono',monospace;font-size:8.5px;color:var(--blue);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .hi-time{font-family:'Geist Mono',monospace;font-size:7.5px;color:var(--mute);margin-top:4px}
-.incognito-banner{background:rgba(10,10,10,0.04);border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin-bottom:6px;display:flex;align-items:center;gap:7px;font-family:'Geist Mono',monospace;font-size:9px;color:var(--mute)}
+.incognito-banner{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin-bottom:6px;display:flex;align-items:center;gap:7px;font-family:'Geist Mono',monospace;font-size:9px;color:var(--mute);box-shadow:0 1px 4px -2px rgba(0,0,0,0.04)}
+/* browser annotation */
+.browser-ann-area{background:var(--card);border-radius:12px;padding:12px 14px;border:1px solid var(--line);margin-top:10px}
+.baa-label{font-family:'Geist Mono',monospace;font-size:8px;color:var(--mute);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:8px}
+.baa-note{font-size:11px;color:var(--ink3);line-height:1.65;margin-bottom:8px;font-style:italic}
+.baa-input-row{display:flex;gap:6px}
+.baa-input{flex:1;background:var(--paper2);border:1px solid var(--line);border-radius:9px;padding:7px 10px;font-size:11px;color:var(--ink);font-family:'Geist',sans-serif;outline:none;transition:border-color 0.15s}
+.baa-input:focus{border-color:rgba(56,189,248,0.4)}
+.baa-send{width:32px;height:32px;border-radius:9px;background:var(--ink);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#38bdf8;font-size:11px;flex-shrink:0}
 
 /* ═══ CALLS ═══ */
 .call-item{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:14px;cursor:pointer;transition:0.15s;margin-bottom:3px}
@@ -272,10 +400,9 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .album-item .ai-bg{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:22px;transition:0.2s}
 .album-item:hover .ai-bg{transform:scale(1.06)}
 .album-item .ai-caption{position:absolute;bottom:0;left:0;right:0;padding:4px 6px;background:linear-gradient(transparent,rgba(0,0,0,0.4));font-size:8.5px;color:white;font-family:'Geist Mono',monospace;letter-spacing:0.04em;opacity:0;transition:opacity 0.2s}
-.album-item:hover .ai-caption{opacity:1}
-.album-special{grid-column:span 2;aspect-ratio:2/1}
+.album-item:hover .ai-caption{opacity:1}.album-special{grid-column:span 2;aspect-ratio:2/1}
 
-/* ═══ VAULT (DOCK APP) ═══ */
+/* ═══ VAULT ═══ */
 .vault-hero{background:linear-gradient(135deg,#0f172a,#1e293b);border-radius:18px;padding:18px;margin-bottom:14px;position:relative;overflow:hidden}
 .vault-hero::after{content:'';position:absolute;top:-40px;right:-30px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(99,102,241,0.25),transparent 60%)}
 .vh-tag{font-family:'Geist Mono',monospace;font-size:8px;letter-spacing:0.18em;color:rgba(255,255,255,0.3);text-transform:uppercase}
@@ -295,19 +422,12 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .vi-info{padding:6px 8px;background:var(--card);border:1px solid var(--line);border-top:none;border-radius:0 0 14px 14px}
 .vi-name{font-size:10px;font-weight:500;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .vi-meta{font-family:'Geist Mono',monospace;font-size:7.5px;color:var(--mute);margin-top:1px}
-.vault-list-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;cursor:pointer;transition:0.15s;border:1px solid var(--line);background:var(--card);margin-bottom:6px}
-.vault-list-item:hover{background:var(--paper2)}
-.vli-icon{width:38px;height:38px;border-radius:11px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:16px}
-.vli-info{flex:1;min-width:0}.vli-name{font-size:12px;font-weight:500;color:var(--ink);margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.vli-meta{font-family:'Geist Mono',monospace;font-size:8px;color:var(--mute)}
-.vli-right{font-family:'Geist Mono',monospace;font-size:8px;color:var(--mute);flex-shrink:0}
 .vault-detail-overlay{position:absolute;inset:0;z-index:40;background:var(--paper);transform:translateX(100%);transition:transform 0.35s cubic-bezier(0.22,1,0.36,1);display:flex;flex-direction:column;overflow:hidden}
 .vault-detail-overlay.open{transform:translateX(0)}
 .vdo-tb{padding:10px 16px 8px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--line);flex-shrink:0;background:var(--card)}
 .vdo-back{width:28px;height:28px;border-radius:9px;background:var(--paper2);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--blue)}
 .vdo-ti{font-family:'Fraunces',serif;font-size:15px;font-style:italic;color:var(--ink)}
-.vdo-body{flex:1;overflow-y:auto;padding:14px 16px 20px}
-.vdo-body::-webkit-scrollbar{display:none}
+.vdo-body{flex:1;overflow-y:auto;padding:14px 16px 20px}.vdo-body::-webkit-scrollbar{display:none}
 .vdo-preview{border-radius:18px;overflow:hidden;margin-bottom:14px;display:flex;align-items:center;justify-content:center;font-size:48px;position:relative}
 .vdo-locked-notice{position:absolute;inset:0;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;background:rgba(255,255,255,0.15)}
 .vdo-locked-notice i{font-size:22px;color:white}
@@ -335,11 +455,29 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     <div class="right"><i class="fa-solid fa-signal"></i><i class="fa-solid fa-wifi"></i><i class="fa-solid fa-battery-three-quarters" style="font-size:15px"></i></div>
   </div>
   <div class="view-wrap">
-
     <div id="bubbleScreen">
-      <div class="bs-label"><div class="bs-ey"><i class="fa-solid fa-circle-nodes" style="font-size:7px"></i> &nbsp;角色索引</div><div class="bs-ti">Characters</div></div>
+      <div class="bs-label">
+        <div class="bs-ey"><i class="fa-solid fa-circle-nodes" style="font-size:7px"></i> &nbsp;角色索引</div>
+        <div class="bs-ti" onclick="goBackToIndex()" style="cursor:pointer" title="点击返回">Characters</div>
+      </div>
       <div class="bs-ct">共 <span id="charCount">—</span> 位</div>
       <div id="bubbleField"></div>
+      <div id="chatPreviewOverlay" onclick="closeChatPreview()"></div>
+      <div id="chatPreviewPanel">
+        <div class="cpp-handle"></div>
+        <div class="cpp-header">
+          <div class="cpp-av" id="cppAv"><i class="fa-solid fa-user-astronaut"></i></div>
+          <div class="cpp-info">
+            <div class="cpp-name" id="cppName">—</div>
+            <div class="cpp-id" id="cppId">—</div>
+          </div>
+          <button class="cpp-close" onclick="closeChatPreview()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="cpp-sep"><i class="fa-solid fa-comment-dots" style="font-size:7px;margin-right:4px"></i> 选择聊天记录进入手机</div>
+        <div class="cpp-list" id="cppList">
+          <div style="text-align:center;padding:24px 0;color:var(--mute);font-size:11px">加载中…</div>
+        </div>
+      </div>
     </div>
 
     <div id="phoneScreen">
@@ -355,7 +493,23 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
           <div class="csid" id="csId"><i class="fa-solid fa-fingerprint"></i> —</div>
         </div>
       </div>
-      <div class="persona-blurb" id="pBlurb" style="display:none"></div>
+      <!-- Quote strip: signature phrase, NOT persona dump -->
+      <div class="quote-strip" id="quoteStrip" style="display:none">
+        <div class="qs-text" id="quoteText">—</div>
+        <div class="qs-attr" id="quoteAttr">—</div>
+      </div>
+      <!-- Quick widgets row -->
+      <div class="quick-row" id="quickRow">
+        <div class="quick-card" onclick="openApp('todo')">
+          <div class="qc-hd"><span class="qc-title"><i class="fa-solid fa-check-circle" style="margin-right:3px"></i>待办</span><i class="fa-solid fa-plus qc-icon"></i></div>
+          <div id="todoPreview"></div>
+        </div>
+        <div class="quick-card" onclick="openApp('memo')">
+          <div class="qc-hd"><span class="qc-title"><i class="fa-regular fa-sticky-note" style="margin-right:3px"></i>备忘</span><i class="fa-solid fa-ellipsis qc-icon"></i></div>
+          <div id="memoPreview"></div>
+        </div>
+      </div>
+
       <div id="innerHome">
         <div class="asl"><i class="fa-solid fa-grip"></i> APPS</div>
         <div class="string-row" style="margin-top:2px">
@@ -380,118 +534,106 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
           <div class="string-line"></div>
           <div class="pendants-row">
             <div class="pendant" style="--dly:0s;--dur:3.2s;--amp:4;--tlen:28px" onclick="openApp('cart')"><div class="pend-thread"></div><div class="pend-icon ai-cart"><i class="fa-solid fa-bag-shopping"></i></div><div class="pend-label">Wishlist</div></div>
-            <div class="pendant" style="--dly:0.5s;--dur:2.9s;--amp:3;--tlen:22px" onclick="openApp('browser')"><div class="pend-thread"></div><div class="pend-icon ai-note" style="background:var(--paper2)"><i class="fa-solid fa-globe" style="color:#38bdf8"></i></div><div class="pend-label">Browser</div></div>
+            <div class="pendant" style="--dly:0.5s;--dur:2.9s;--amp:3;--tlen:22px" onclick="openApp('browser')"><div class="pend-thread"></div><div class="pend-icon" style="background:var(--paper2)"><i class="fa-solid fa-globe" style="color:#38bdf8"></i></div><div class="pend-label">Browser</div></div>
             <div class="pendant" style="--dly:1s;--dur:3.6s;--amp:2.5;--tlen:30px" onclick="openApp('calls')"><div class="pend-thread"></div><div class="pend-icon ai-calls"><i class="fa-solid fa-phone-volume"></i></div><div class="pend-label">Calls</div></div>
             <div class="pendant" style="--dly:1.4s;--dur:2.7s;--amp:4;--tlen:24px" onclick="openApp('mood')"><div class="pend-thread"></div><div class="pend-icon ai-mood"><i class="fa-solid fa-face-smile-wink"></i></div><div class="pend-label">Mood</div></div>
           </div>
         </div>
       </div>
 
-      <!-- DOCK: Chat · Vault · Home (no repeats with grid) -->
       <div class="inner-dock">
-        <div class="dock-item" onclick="openApp('chat')">
-          <div class="dock-icon" style="background:var(--ink)"><i class="fa-solid fa-comment-dots" style="color:var(--lime)"></i></div>
-          <div class="dock-label">Chat</div>
-        </div>
-        <div class="dock-item" onclick="openApp('vault')">
-          <div class="dock-icon" style="background:linear-gradient(135deg,#0f172a,#1e293b)">
-            <i class="fa-solid fa-shield-halved" style="color:#818cf8;font-size:19px"></i>
-          </div>
-          <div class="dock-label">Vault</div>
-        </div>
-        <div class="dock-item" onclick="closePhone()">
-          <div class="dock-icon"><i class="fa-solid fa-house" style="color:var(--amber)"></i></div>
-          <div class="dock-label">Exit</div>
-        </div>
+        <div class="dock-item" onclick="openApp('chat')"><div class="dock-icon" style="background:var(--ink)"><i class="fa-solid fa-comment-dots" style="color:var(--lime)"></i></div><div class="dock-label">Chat</div></div>
+        <div class="dock-item" onclick="openApp('vault')"><div class="dock-icon" style="background:linear-gradient(135deg,#0f172a,#1e293b)"><i class="fa-solid fa-shield-halved" style="color:#818cf8;font-size:19px"></i></div><div class="dock-label">Vault</div></div>
+        <div class="dock-item" onclick="closePhone()"><div class="dock-icon"><i class="fa-solid fa-house" style="color:var(--amber)"></i></div><div class="dock-label">Exit</div></div>
       </div>
       <div class="home-bar"></div>
 
-      <!-- ═══ CHAT ═══ -->
+      <!-- ═══ CHAT APP ═══ -->
       <div class="app-screen" id="appChat">
         <div class="app-tb"><button class="app-back" onclick="closeApp('appChat')"><i class="fa-solid fa-chevron-left"></i></button><div><div class="app-ti"><i class="fa-solid fa-comment-dots"></i>Chat</div><div class="app-sub">MESSAGE HISTORY</div></div></div>
-        <div class="abody" id="chatListBody"><div class="empty-state"><i class="fa-regular fa-comment-dots"></i><p>暂无聊天记录</p></div></div>
+        <div class="abody" id="chatListBody"></div>
+        <!-- chat detail -->
+        <div class="detail-overlay" id="chatDetail">
+          <div class="do-tb"><button class="do-back" onclick="closeChatDetail()"><i class="fa-solid fa-chevron-left"></i></button><div class="do-title-wrap"><div class="do-ti" id="chatDetailTitle">—</div><div class="do-sub" id="chatDetailSub">—</div></div></div>
+          <div class="do-body" id="chatDetailBody"></div>
+        </div>
       </div>
 
-      <!-- ═══ DIARY ═══ -->
+      <!-- ═══ DIARY APP ═══ -->
       <div class="app-screen" id="appDiary">
         <div class="app-tb"><button class="app-back" onclick="closeApp('appDiary')"><i class="fa-solid fa-chevron-left"></i></button><div><div class="app-ti"><i class="fa-solid fa-book-open-reader"></i>Diary</div><div class="app-sub">PRIVATE JOURNAL</div></div></div>
         <div class="abody" id="diaryBody">
           <div class="d-hero"><div class="dh-tag"><i class="fa-solid fa-feather" style="font-size:8px;margin-right:4px"></i> PERSONAL DIARY</div><div class="dh-ti" id="diaryHeroName">—的日记</div><div class="dh-mt" id="diaryHeroId">ID · —</div></div>
-          <div id="diaryEntries"></div>
-          <div id="diaryFallback" style="display:none"></div>
+          <div id="diaryEntries"></div><div id="diaryFallback" style="display:none"></div>
+        </div>
+        <!-- diary entry detail -->
+        <div class="detail-overlay" id="diaryDetail">
+          <div class="do-tb"><button class="do-back" onclick="closeDiaryDetail()"><i class="fa-solid fa-chevron-left"></i></button><div class="do-title-wrap"><div class="do-ti" id="diaryDetailTitle">—</div><div class="do-sub">DIARY ENTRY</div></div></div>
+          <div class="do-body" id="diaryDetailBody"></div>
         </div>
       </div>
 
       <!-- ═══ MEMORY ═══ -->
-      <div class="app-screen" id="appMem">
-        <div class="app-tb"><button class="app-back" onclick="closeApp('appMem')"><i class="fa-solid fa-chevron-left"></i></button><div><div class="app-ti"><i class="fa-solid fa-brain"></i>Memory</div><div class="app-sub">WORLDBOOK FRAGMENTS</div></div></div>
-        <div class="abody" id="memBody"></div>
-      </div>
+      <div class="app-screen" id="appMem"><div class="app-tb"><button class="app-back" onclick="closeApp('appMem')"><i class="fa-solid fa-chevron-left"></i></button><div><div class="app-ti"><i class="fa-solid fa-brain"></i>Memory</div><div class="app-sub">WORLDBOOK FRAGMENTS</div></div></div><div class="abody" id="memBody"></div></div>
 
       <!-- ═══ MOOD ═══ -->
       <div class="app-screen" id="appMood">
         <div class="app-tb"><button class="app-back" onclick="closeApp('appMood')"><i class="fa-solid fa-chevron-left"></i></button><div><div class="app-ti"><i class="fa-solid fa-face-smile-wink"></i>Mood</div><div class="app-sub">EMOTIONAL LOG</div></div></div>
         <div class="abody" id="moodBody">
           <div class="mood-today"><div class="mt-lbl"><i class="fa-regular fa-calendar" style="font-size:8px;margin-right:4px"></i> TODAY</div><div class="mt-mood" id="moodTodayVal">—</div><div class="mt-note" id="moodTodayNote">…</div></div>
-          <div class="mood-label"><i class="fa-solid fa-chart-line" style="font-size:8px;margin-right:4px"></i> THIS MONTH</div>
+          <div class="mood-label"><i class="fa-solid fa-chart-line" style="font-size:8px;margin-right:4px"></i> THIS MONTH · <span style="color:#818cf8;font-size:8px">点击格子可添加备注</span></div>
           <div class="mood-grid" id="moodGrid"></div>
+          <div class="mood-note-panel" id="moodNotePanel">
+            <div class="mnp-title" id="moodNotePanelTitle">为第 — 天添加备注</div>
+            <textarea class="mnp-textarea" id="moodNoteInput" placeholder="今天的心情…"></textarea>
+            <div class="mnp-actions"><button class="mnp-cancel" onclick="closeMoodNote()">取消</button><button class="mnp-save" onclick="saveMoodNote()">保存</button></div>
+          </div>
+          <div class="mood-label" style="margin-top:4px"><i class="fa-solid fa-pen-nib" style="font-size:8px;margin-right:4px"></i> 日记备注</div>
+          <div class="mood-notes-list" id="moodNotesList"></div>
           <div class="mood-stats" id="moodStats"></div>
         </div>
       </div>
 
       <!-- ═══ SECRETS ═══ -->
-      <div class="app-screen" id="appSecret">
-        <div class="app-tb"><button class="app-back" onclick="closeApp('appSecret')"><i class="fa-solid fa-chevron-left"></i></button><div><div class="app-ti"><i class="fa-solid fa-lock"></i>Secrets</div><div class="app-sub">PRIVATE ARCHIVE · ENCRYPTED</div></div></div>
-        <div class="abody" id="secretBody"></div>
-      </div>
+      <div class="app-screen" id="appSecret"><div class="app-tb"><button class="app-back" onclick="closeApp('appSecret')"><i class="fa-solid fa-chevron-left"></i></button><div><div class="app-ti"><i class="fa-solid fa-lock"></i>Secrets</div><div class="app-sub">PRIVATE ARCHIVE · ENCRYPTED</div></div></div><div class="abody" id="secretBody"></div></div>
 
       <!-- ═══ LETTERS ═══ -->
-      <div class="app-screen" id="appLetter">
-        <div class="app-tb"><button class="app-back" onclick="closeApp('appLetter')"><i class="fa-solid fa-chevron-left"></i></button><div><div class="app-ti"><i class="fa-solid fa-envelope-open-text"></i>Letters</div><div class="app-sub">CORRESPONDENCE</div></div></div>
-        <div class="abody" id="letterBody"></div>
-      </div>
+      <div class="app-screen" id="appLetter"><div class="app-tb"><button class="app-back" onclick="closeApp('appLetter')"><i class="fa-solid fa-chevron-left"></i></button><div><div class="app-ti"><i class="fa-solid fa-envelope-open-text"></i>Letters</div><div class="app-sub">CORRESPONDENCE</div></div></div><div class="abody" id="letterBody"></div></div>
 
       <!-- ═══ DREAMS ═══ -->
-      <div class="app-screen" id="appDream">
-        <div class="app-tb"><button class="app-back" onclick="closeApp('appDream')"><i class="fa-solid fa-chevron-left"></i></button><div><div class="app-ti"><i class="fa-solid fa-moon"></i>Dreams</div><div class="app-sub">DREAM JOURNAL</div></div></div>
-        <div class="abody" id="dreamBody"></div>
-      </div>
+      <div class="app-screen" id="appDream"><div class="app-tb"><button class="app-back" onclick="closeApp('appDream')"><i class="fa-solid fa-chevron-left"></i></button><div><div class="app-ti"><i class="fa-solid fa-moon"></i>Dreams</div><div class="app-sub">DREAM JOURNAL</div></div></div><div class="abody" id="dreamBody"></div></div>
 
       <!-- ═══ FEELINGS ═══ -->
-      <div class="app-screen" id="appFeel">
-        <div class="app-tb"><button class="app-back" onclick="closeApp('appFeel')"><i class="fa-solid fa-chevron-left"></i></button><div><div class="app-ti"><i class="fa-solid fa-heart-pulse"></i>Feelings</div><div class="app-sub">EMOTIONAL TRACKER</div></div></div>
-        <div class="abody" id="feelBody"></div>
-      </div>
+      <div class="app-screen" id="appFeel"><div class="app-tb"><button class="app-back" onclick="closeApp('appFeel')"><i class="fa-solid fa-chevron-left"></i></button><div><div class="app-ti"><i class="fa-solid fa-heart-pulse"></i>Feelings</div><div class="app-sub">EMOTIONAL TRACKER</div></div></div><div class="abody" id="feelBody"></div></div>
 
       <!-- ═══ CART ═══ -->
-      <div class="app-screen" id="appCart">
-        <div class="app-tb"><button class="app-back" onclick="closeApp('appCart')"><i class="fa-solid fa-chevron-left"></i></button><div><div class="app-ti"><i class="fa-solid fa-bag-shopping"></i>Wishlist</div><div class="app-sub">SAVED ITEMS</div></div></div>
-        <div class="abody" id="cartBody"></div>
-      </div>
+      <div class="app-screen" id="appCart"><div class="app-tb"><button class="app-back" onclick="closeApp('appCart')"><i class="fa-solid fa-chevron-left"></i></button><div><div class="app-ti"><i class="fa-solid fa-bag-shopping"></i>Wishlist</div><div class="app-sub">SAVED ITEMS</div></div></div><div class="abody" id="cartBody"></div></div>
 
       <!-- ═══ BROWSER ═══ -->
-      <div class="app-screen" id="appBrowser">
-        <div class="app-tb"><button class="app-back" onclick="closeApp('appBrowser')"><i class="fa-solid fa-chevron-left"></i></button><div><div class="app-ti"><i class="fa-solid fa-globe"></i>Browser</div><div class="app-sub">HISTORY &amp; BOOKMARKS</div></div></div>
-        <div class="abody" id="browserBody"></div>
-      </div>
+      <div class="app-screen" id="appBrowser"><div class="app-tb"><button class="app-back" onclick="closeApp('appBrowser')"><i class="fa-solid fa-chevron-left"></i></button><div><div class="app-ti"><i class="fa-solid fa-globe"></i>Browser</div><div class="app-sub">HISTORY &amp; BOOKMARKS</div></div></div><div class="abody" id="browserBody"></div></div>
 
       <!-- ═══ CALLS ═══ -->
-      <div class="app-screen" id="appCalls">
-        <div class="app-tb"><button class="app-back" onclick="closeApp('appCalls')"><i class="fa-solid fa-chevron-left"></i></button><div><div class="app-ti"><i class="fa-solid fa-phone-volume"></i>Calls</div><div class="app-sub">RECENT CALLS</div></div></div>
-        <div class="abody" id="callsBody"></div>
-      </div>
+      <div class="app-screen" id="appCalls"><div class="app-tb"><button class="app-back" onclick="closeApp('appCalls')"><i class="fa-solid fa-chevron-left"></i></button><div><div class="app-ti"><i class="fa-solid fa-phone-volume"></i>Calls</div><div class="app-sub">RECENT CALLS</div></div></div><div class="abody" id="callsBody"></div></div>
 
       <!-- ═══ PHOTOS ═══ -->
-      <div class="app-screen" id="appPhoto">
-        <div class="app-tb"><button class="app-back" onclick="closeApp('appPhoto')"><i class="fa-solid fa-chevron-left"></i></button><div><div class="app-ti"><i class="fa-solid fa-images"></i>Photos</div><div class="app-sub">PRIVATE ALBUM</div></div></div>
-        <div class="abody" id="photoBody"></div>
+      <div class="app-screen" id="appPhoto"><div class="app-tb"><button class="app-back" onclick="closeApp('appPhoto')"><i class="fa-solid fa-chevron-left"></i></button><div><div class="app-ti"><i class="fa-solid fa-images"></i>Photos</div><div class="app-sub">PRIVATE ALBUM</div></div></div><div class="abody" id="photoBody"></div></div>
+
+      <!-- ═══ TODO ═══ -->
+      <div class="app-screen" id="appTodo">
+        <div class="app-tb"><button class="app-back" onclick="closeApp('appTodo')"><i class="fa-solid fa-chevron-left"></i></button><div><div class="app-ti"><i class="fa-solid fa-circle-check"></i>待办事项</div><div class="app-sub">TO-DO LIST</div></div></div>
+        <div class="abody" id="todoBody"></div>
+      </div>
+
+      <!-- ═══ MEMO ═══ -->
+      <div class="app-screen" id="appMemo">
+        <div class="app-tb"><button class="app-back" onclick="closeApp('appMemo')"><i class="fa-solid fa-chevron-left"></i></button><div><div class="app-ti"><i class="fa-regular fa-sticky-note"></i>备忘录</div><div class="app-sub">NOTES &amp; MEMOS</div></div></div>
+        <div class="abody" id="memoBody"></div>
       </div>
 
       <!-- ═══ VAULT ═══ -->
       <div class="app-screen" id="appVault">
         <div class="app-tb"><button class="app-back" onclick="closeApp('appVault')"><i class="fa-solid fa-chevron-left"></i></button><div><div class="app-ti"><i class="fa-solid fa-shield-halved"></i>Vault</div><div class="app-sub">ENCRYPTED MEDIA ARCHIVE</div></div></div>
         <div class="abody" id="vaultBody"></div>
-        <!-- detail overlay inside vault -->
         <div class="vault-detail-overlay" id="vaultDetail">
           <div class="vdo-tb"><button class="vdo-back" onclick="closeVaultDetail()"><i class="fa-solid fa-chevron-left"></i></button><div class="vdo-ti" id="vdoTitle">—</div></div>
           <div class="vdo-body" id="vdoBody"></div>
@@ -499,10 +641,12 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
       </div>
 
     </div><!-- /phoneScreen -->
-
     <div id="loadState"><div class="loader-ring"></div><div class="load-txt">读取角色数据</div></div>
   </div>
 </div>
+
+<script src="db-schema.js"></script>
+    
 
 <script>
 /* ─── DB ─── */
@@ -544,38 +688,213 @@ function buildBubbles(chars){
 }
 function onBubClick(e,bub,ch){
   if(bub.classList.contains('popping'))return;
+  // bubble pop rings
   const rect=bub.getBoundingClientRect(),fr=document.getElementById('bubbleField').getBoundingClientRect();
   const cx=rect.left+rect.width/2-fr.left,cy=rect.top+rect.height/2-fr.top;
   const cm={'tb-rose':'rgba(255,107,138,0.45)','tb-blue':'rgba(91,124,250,0.45)','tb-mint':'rgba(67,217,160,0.45)','tb-amber':'rgba(255,159,67,0.45)','tb-purple':'rgba(167,139,250,0.45)','tb-lime':'rgba(180,220,0,0.45)'};
   const tc=TINTS.find(t=>bub.classList.contains(t));
-  for(let i=0;i<3;i++){const ring=document.createElement('div');ring.className='pop-ring';const s=bub.offsetWidth*0.72;ring.style.cssText=`width:${s}px;height:${s}px;left:${cx-s/2}px;top:${cy-s/2}px;border-color:${cm[tc]||'rgba(10,10,10,0.25)'};animation-delay:${i*0.07}s`;document.getElementById('bubbleField').appendChild(ring);setTimeout(()=>ring.remove(),700)}
-  bub.classList.add('popping');setTimeout(()=>openPhone(ch),200);
+  for(let i=0;i<3;i++){
+    const ring=document.createElement('div');ring.className='pop-ring';
+    const s=bub.offsetWidth*0.72;
+    ring.style.cssText=`width:${s}px;height:${s}px;left:${cx-s/2}px;top:${cy-s/2}px;border-color:${cm[tc]||'rgba(10,10,10,0.25)'};animation-delay:${i*0.07}s`;
+    document.getElementById('bubbleField').appendChild(ring);setTimeout(()=>ring.remove(),700);
+  }
+  // pop animation then open preview panel (NOT phone directly)
+  bub.classList.add('popping');
+  setTimeout(()=>{
+    bub.classList.remove('popping');bub.style.opacity='1';
+    openChatPreview(ch);
+  },320);
+}
+
+/* ─── CHAT PREVIEW PANEL ─── */
+let _previewChar=null;
+
+async function openChatPreview(ch){
+  _previewChar=ch;
+  // fill header
+  const cppAv=document.getElementById('cppAv');cppAv.innerHTML='';
+  if(ch.avatar){const img=document.createElement('img');img.src=ch.avatar;img.onerror=()=>{img.remove();cppAv.innerHTML='<i class="fa-solid fa-user-astronaut"></i>'};cppAv.appendChild(img)}
+  else cppAv.innerHTML='<i class="fa-solid fa-user-astronaut"></i>';
+  document.getElementById('cppName').textContent=ch.name||'未命名';
+  document.getElementById('cppId').textContent=(ch.remark?ch.remark+' · ':'')+ch.id;
+  // show panel
+  document.getElementById('chatPreviewOverlay').classList.add('open');
+  document.getElementById('chatPreviewPanel').classList.add('open');
+  // load chats
+  await loadPreviewChats(ch);
+}
+
+async function loadPreviewChats(ch){
+  const list=document.getElementById('cppList');
+  list.innerHTML='<div style="text-align:center;padding:24px 0;color:var(--mute);font-size:11px"><i class="fa-solid fa-spinner fa-spin" style="opacity:0.4"></i></div>';
+  try{
+    const all=await dbAll('chats');
+    const cs=all.filter(c=>c.charId===ch.id||c.char_id===ch.id||c.char===ch.id||(c.participants&&c.participants.includes&&c.participants.includes(ch.id)));
+    renderPreviewChatList(cs,ch);
+  }catch(err){
+    list.innerHTML=`<div style="text-align:center;padding:20px;color:var(--mute);font-size:11px">加载失败</div>`;
+  }
+}
+
+function renderPreviewChatList(chats,ch){
+  const list=document.getElementById('cppList');
+  const useFallback=!chats.length;
+  const items=useFallback?FALLBACK_CHATS:([...chats].sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0)));
+  const bgs=['rgba(212,255,77,0.16)','rgba(255,107,138,0.12)','rgba(91,124,250,0.12)','rgba(67,217,160,0.1)','rgba(255,159,67,0.12)'];
+  const ti={voice:'fa-microphone',image:'fa-image',sticker:'fa-face-smile',transfer:'fa-wallet',gift:'fa-gift',call:'fa-phone',location:'fa-location-dot'};
+  if(!items.length){
+    list.innerHTML='<div style="text-align:center;padding:24px 0;color:var(--mute);font-size:11px">暂无聊天记录</div>';return;
+  }
+  list.innerHTML=items.map((c,i)=>`
+    <div class="cpp-chat-row" onclick="previewChatClick(${i},${useFallback})">
+      <div class="cpp-ci" style="background:${c.bg||bgs[i%bgs.length]}">
+        <i class="fa-solid ${c.icon||ti[c.lastMessageType]||'fa-comment'}"></i>
+        <div class="cpp-idx">${i+1}</div>
+      </div>
+      <div class="cpp-cb">
+        <div class="cpp-cn">${esc(c.customName||c.name||'对话 '+(i+1))}</div>
+        <div class="cpp-cl">${esc(c.last||c.lastMessage||'—')}</div>
+      </div>
+      <div class="cpp-ct">${c.time||ftime(c.updatedAt||c.createdAt)}</div>
+      <i class="fa-solid fa-chevron-right cpp-arrow"></i>
+    </div>`).join('');
+}
+
+// Click a chat row in the preview panel → open that chat's dedicated phone
+async function previewChatClick(idx, isFallback){
+  closeChatPreview();
+  if(!_previewChar) return;
+  if(isFallback){
+    // open phone using fallback chat data
+    const fc = FALLBACK_CHATS[idx];
+    await openPhone(_previewChar, null, fc);
+  } else {
+    // open phone using real chat from DB
+    const all = await dbAll('chats');
+    const cs = [...all.filter(c=>c.charId===_previewChar.id||c.char_id===_previewChar.id||c.char===_previewChar.id)]
+      .sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
+    const chat = cs[idx];
+    await openPhone(_previewChar, chat||null, null);
+  }
+}
+
+function closeChatPreview(){
+  document.getElementById('chatPreviewOverlay').classList.remove('open');
+  document.getElementById('chatPreviewPanel').classList.remove('open');
+}
+
+/* ─── BACK TO INDEX ─── */
+function goBackToIndex(){
+  try{
+    if(window.parent&&window.parent!==window){
+      window.parent.postMessage({type:'charLookupBack'},'*');
+      return;
+    }
+  }catch(e){}
+  window.location.href='index.html';
 }
 
 /* ─── PHONE ─── */
-async function openPhone(ch){
-  curChar=ch;
-  document.getElementById('innerCN').textContent=ch.name||'角色';
-  document.getElementById('csName').textContent=ch.name||'未命名';
-  document.getElementById('csRm').textContent=ch.remark||'';
-  document.getElementById('csId').innerHTML=`<i class="fa-solid fa-fingerprint"></i> ${ch.id}`;
-  const av=document.getElementById('csAv');av.innerHTML='';
-  if(ch.avatar){const img=document.createElement('img');img.src=ch.avatar;img.onerror=()=>{img.remove();av.innerHTML='<i class="fa-solid fa-user-astronaut"></i>'};av.appendChild(img)}
-  else av.innerHTML='<i class="fa-solid fa-user-astronaut"></i>';
-  const pb=document.getElementById('pBlurb');
-  if(ch.persona&&ch.persona.length>10){pb.style.display='block';pb.textContent=ch.persona.substring(0,200)+(ch.persona.length>200?'…':'')}
-  else pb.style.display='none';
-  document.getElementById('diaryHeroName').textContent=(ch.name||'角色')+'的日记';
-  document.getElementById('diaryHeroId').textContent='ID · '+ch.id;
-  renderMoodApp(ch);renderSecrets(ch);renderLetters(ch);renderDreams(ch);renderFeelings(ch);renderCart(ch);renderBrowser(ch);renderCalls(ch);renderPhotos(ch);renderVault(ch);
-  await loadChats(ch.id);
-  document.getElementById('phoneScreen').classList.add('open');
-  setTimeout(()=>{const b=document.querySelector(`.char-bubble[data-cid="${ch.id}"]`);if(b){b.classList.remove('popping');b.style.opacity='1'}},120);
-}
-function closePhone(){document.getElementById('phoneScreen').classList.remove('open');document.querySelectorAll('.app-screen.open').forEach(a=>a.classList.remove('open'));curChar=null}
-const APP_MAP={chat:'appChat',diary:'appDiary',mem:'appMem',mood:'appMood',secret:'appSecret',letter:'appLetter',dream:'appDream',feel:'appFeel',cart:'appCart',browser:'appBrowser',calls:'appCalls',photo:'appPhoto',vault:'appVault'};
+// ch      = char object
+// chat    = real chat object from DB (or null)
+// fbChat  = fallback chat object (or null)
+// All phone content is scoped to this specific chat
+
+const APP_MAP={chat:'appChat',diary:'appDiary',mem:'appMem',mood:'appMood',secret:'appSecret',letter:'appLetter',dream:'appDream',feel:'appFeel',cart:'appCart',browser:'appBrowser',calls:'appCalls',photo:'appPhoto',vault:'appVault',todo:'appTodo',memo:'appMemo'};
 function openApp(id){const el=document.getElementById(APP_MAP[id]);if(el)el.classList.add('open')}
 function closeApp(id){document.getElementById(id).classList.remove('open')}
+function closePhone(){
+  document.getElementById('phoneScreen').classList.remove('open');
+  document.querySelectorAll('.app-screen.open').forEach(a=>a.classList.remove('open'));
+  curChar=null; curChat=null;
+}
+
+let curChat=null; // the currently open chat object (real or fallback)
+
+async function openPhone(ch, chat, fbChat){
+  curChar=ch;
+  // chat context: real DB chat or fallback
+  curChat = chat || fbChat || null;
+  const chatName = chat
+    ? (chat.customName||chat.name||'对话')
+    : (fbChat ? fbChat.name : (ch.name||'角色'));
+  const chatId = chat ? chat.id : (fbChat ? fbChat.id : null);
+
+  // ── top bar ──
+  document.getElementById('innerCN').textContent = chatName;
+
+  // ── char strip ──
+  document.getElementById('csName').textContent = ch.name||'未命名';
+  document.getElementById('csRm').textContent = ch.remark||'';
+  document.getElementById('csId').innerHTML = `<i class="fa-solid fa-fingerprint"></i> ${ch.id}`;
+  const av=document.getElementById('csAv'); av.innerHTML='';
+  if(ch.avatar){const img=document.createElement('img');img.src=ch.avatar;img.onerror=()=>{img.remove();av.innerHTML='<i class="fa-solid fa-user-astronaut"></i>'};av.appendChild(img)}
+  else av.innerHTML='<i class="fa-solid fa-user-astronaut"></i>';
+
+  // ── quote strip ──
+  renderQuoteStrip(ch);
+
+  // ── diary header scoped to this chat ──
+  document.getElementById('diaryHeroName').textContent = chatName + ' · 日记';
+  document.getElementById('diaryHeroId').textContent = 'CHAT · ' + (chatId||'—');
+
+  // ── render all apps scoped to this char + this chat ──
+  renderMem(ch);
+  renderMoodApp(ch);
+  renderSecrets(ch);
+  renderLetters(ch);
+  renderDreams(ch);
+  renderFeelings(ch);
+  renderCart(ch);
+  renderBrowser(ch);
+  renderCalls(ch);
+  renderPhotos(ch);
+  renderVault(ch);
+  renderTodo(ch);
+  renderMemo(ch);
+
+  // ── Chat app: show messages of this specific chat ──
+  renderPhoneChatApp(ch, chat, fbChat);
+
+  // ── Diary app: show diary for this chat ──
+  renderPhoneDiaryApp(ch, chat, fbChat);
+
+  document.getElementById('phoneScreen').classList.add('open');
+}
+
+function renderQuoteStrip(ch){
+  const qs=document.getElementById('quoteStrip');
+  const n=ch.name||'角色';
+  // Signature quotes: try to extract from persona or use curated fallback
+  const FALLBACK_QUOTES=[
+    `"如果你问我害不害怕，其实我也不知道。"`,
+    `"有些话说出来就不一样了，所以我选择不说。"`,
+    `"我只是想要一个不需要解释的地方。"`,
+    `"沉默不是逃避，只是我不知道该从哪里开始。"`,
+    `"不是冷漠，只是习惯了把感情放在看不见的地方。"`,
+    `"我记性很好，但有些事我选择假装忘记。"`,
+    `"认识我的人都说我难懂，但你不一样。"`,
+  ];
+  let quote='';
+  if(ch.persona&&ch.persona.length>20){
+    // try to extract first quoted phrase or first sentence
+    const m=ch.persona.match(/[「"『"](.*?)[」"』"]/);
+    if(m&&m[1].length>8&&m[1].length<80){quote=`"${m[1]}"`;} 
+    else{
+      // take first sentence
+      const s=ch.persona.split(/[。！？\n]/)[0].trim();
+      if(s.length>8&&s.length<80)quote=`"${s}"`;
+    }
+  }
+  if(!quote){
+    const idx=Math.floor(seed(ch.id)*FALLBACK_QUOTES.length);
+    quote=FALLBACK_QUOTES[idx];
+  }
+  document.getElementById('quoteText').textContent=quote;
+  document.getElementById('quoteAttr').textContent=`— ${n}`;
+  qs.style.display='block';
+}
 
 /* ─── HELPERS ─── */
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
@@ -583,70 +902,106 @@ function ftime(ts){if(!ts)return'';const d=new Date(ts),n=new Date(),diff=Math.f
 function seed(s){let h=0;for(let i=0;i<s.length;i++)h=Math.imul(31,h)+s.charCodeAt(i)|0;return(h>>>0)/4294967296}
 function sr(s,a,b,o=0){return a+(b-a)*seed(s+o)}
 
-/* ─── CHAT + DIARY ─── */
-async function loadChats(charId){
-  const body=document.getElementById('chatListBody');
-  body.innerHTML='<div class="empty-state"><i class="fa-solid fa-spinner fa-spin" style="opacity:0.4"></i><p style="font-size:11px">加载中…</p></div>';
-  try{
-    const all=await dbAll('chats');
-    const cs=all.filter(c=>c.charId===charId||c.char_id===charId||c.char===charId||(c.participants&&c.participants.includes&&c.participants.includes(charId)));
-    renderChatList(cs,charId);renderDiaryEntries(cs,charId);
-  }catch(err){body.innerHTML=`<div class="empty-state"><i class="fa-solid fa-circle-exclamation" style="color:var(--coral)"></i><p>加载失败</p><small>${err.message}</small></div>`}
-}
-function renderChatList(chats,charId){
-  const body=document.getElementById('chatListBody');
-  if(!chats.length){
-    /* ── fallback static data ── */
-    const n=curChar?curChar.name||'角色':'角色';const s=curChar?curChar.id:'x';
-    const fallback=[
-      {id:'f1',name:`与${n}的第一次相遇`,last:'你好，我叫'+n+'，很高兴认识你。',time:'昨天',bg:'rgba(212,255,77,0.16)',icon:'fa-comment'},
-      {id:'f2',name:'深夜的长谈',last:'那件事……我一直没告诉过别人。',time:'3天前',bg:'rgba(167,139,250,0.12)',icon:'fa-moon'},
-      {id:'f3',name:'某个平常的午后',last:'你今天有什么打算？',time:'上周',bg:'rgba(91,124,250,0.12)',icon:'fa-sun'},
-    ];
-    body.innerHTML=fallback.map((f,i)=>`<div class="chat-row">
-      <div class="cr-ico" style="background:${f.bg}"><i class="fa-solid ${f.icon}"></i><div class="cridx">${i+1}</div></div>
-      <div class="cr-bd"><div class="cr-nm">${esc(f.name)}</div><div class="cr-ls">${esc(f.last)}</div></div>
-      <div class="cr-mt"><div class="cr-ti">${f.time}</div></div>
-    </div>`).join('');
-    return;
-  }
-  const sorted=[...chats].sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
-  const bgs=['rgba(212,255,77,0.16)','rgba(255,107,138,0.12)','rgba(91,124,250,0.12)','rgba(67,217,160,0.1)','rgba(255,159,67,0.12)'];
-  const ti={voice:'fa-microphone',image:'fa-image',sticker:'fa-face-smile',transfer:'fa-wallet',gift:'fa-gift',call:'fa-phone',location:'fa-location-dot'};
-  body.innerHTML=sorted.map((c,i)=>`<div class="chat-row" onclick="gotoChat('${c.id}')">
-    <div class="cr-ico" style="background:${bgs[i%bgs.length]}"><i class="fa-solid ${ti[c.lastMessageType]||'fa-comment'}"></i><div class="cridx">${i+1}</div></div>
-    <div class="cr-bd"><div class="cr-nm">${esc(c.customName||c.name||'对话 '+(i+1))}</div><div class="cr-ls">${esc(c.lastMessage||'—')}</div></div>
-    <div class="cr-mt"><div class="cr-ti">${ftime(c.updatedAt||c.createdAt)}</div></div>
-  </div>`).join('');
-}
-function renderDiaryEntries(chats,charId){
-  const el=document.getElementById('diaryEntries');
-  const fb=document.getElementById('diaryFallback');
-  const tagSets=[['对话','记录'],['章节','私密'],['回忆','心情'],['日常','随想']];
-  if(chats.length){
-    fb.style.display='none';el.style.display='';
-    const sorted=[...chats].sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
-    el.innerHTML=sorted.map((c,i)=>{
-      const d=c.updatedAt?new Date(c.updatedAt):new Date();
-      const ds=d.toLocaleDateString('zh-CN',{year:'numeric',month:'2-digit',day:'2-digit'});
-      return`<div class="d-entry" onclick="gotoChat('${c.id}')">
-        <div class="de-dt"><i class="fa-regular fa-calendar" style="font-size:7px;margin-right:3px"></i>${ds}</div>
-        <div class="de-ti">${esc(c.customName||c.name||'对话 '+(i+1))}</div>
-        <div class="de-ex">${esc(c.lastMessage||'开始了一段对话…')}</div>
-        <div class="de-tags">${tagSets[i%tagSets.length].map(t=>`<span class="tag-pill">${t}</span>`).join('')}</div>
-      </div>`;
-    }).join('');
+/* ─── CHAT APP (phone-scoped to one chat) ─── */
+// Static fallback chat data
+const FALLBACK_CHATS=[
+  {id:'f1',name:'第一次相遇',last:'很高兴认识你。',time:'昨天',bg:'rgba(212,255,77,0.16)',icon:'fa-comment',
+   msgs:[{role:'system',text:'对话开始 · 01.05'},{role:'char',text:'……你是新来的？'},{role:'user',text:'嗯，算是吧。'},{role:'char',text:'那就随便坐。我这里不讲规矩。'},{role:'user',text:'听起来挺自由的。'},{role:'char',text:'也说不上自由，只是懒得管别人。'},{role:'char',text:'对了，叫我什么都行，只要不叫我"大人"。'}]},
+  {id:'f2',name:'深夜的长谈',last:'那件事……我一直没告诉过别人。',time:'3天前',bg:'rgba(167,139,250,0.12)',icon:'fa-moon',
+   msgs:[{role:'system',text:'深夜 02:47'},{role:'user',text:'还没睡？'},{role:'char',text:'睡不着。你也是？'},{role:'user',text:'嗯。'},{role:'char',text:'……你有没有觉得，有些事说出来就会变质。'},{role:'user',text:'什么意思？'},{role:'char',text:'就是，明明是真的，但一旦变成语言，就感觉不那么真了。'},{role:'char',text:'那件事……我一直没告诉过别人。'},{role:'user',text:'如果你愿意说，我在。'},{role:'char',text:'……我知道。所以才说了这句话。'}]},
+  {id:'f3',name:'某个平常的午后',last:'你今天有什么打算？',time:'上周',bg:'rgba(91,124,250,0.12)',icon:'fa-sun',
+   msgs:[{role:'system',text:'午后 14:22'},{role:'char',text:'你今天有什么打算？'},{role:'user',text:'还没想好，就想发发呆。'},{role:'char',text:'发呆也是一种打算。'},{role:'user',text:'你今天呢？'},{role:'char',text:'我在看一本很无聊的书，但不知道为什么停不下来。'},{role:'user',text:'那说明其实不无聊。'},{role:'char',text:'……也许是。'}]},
+];
+
+// Render the Chat app for the specific open chat
+function renderPhoneChatApp(ch, realChat, fbChat){
+  const body = document.getElementById('chatListBody');
+  const chatDetailEl = document.getElementById('chatDetail');
+  chatDetailEl.classList.remove('open');
+  const chAv = ch.avatar
+    ? `<img src="${ch.avatar}" onerror="this.style.display='none'" />`
+    : '<i class="fa-solid fa-user-astronaut" style="font-size:10px"></i>';
+
+  if(realChat){
+    // Show loading, then fetch messages
+    body.innerHTML = '<div class="empty-state"><i class="fa-solid fa-spinner fa-spin" style="opacity:0.4"></i><p style="font-size:11px">加载中…</p></div>';
+    dbAll('messages').then(all=>{
+      const msgs = all.filter(m=>m.chatId===realChat.id).sort((a,b)=>a.floor-b.floor);
+      const name = realChat.customName||realChat.name||'聊天记录';
+      body.innerHTML = buildMsgHTML(msgs, name, chAv, `${msgs.length} 条消息`);
+      setTimeout(()=>{body.scrollTop=body.scrollHeight},80);
+    }).catch(err=>{
+      body.innerHTML=`<div class="empty-state"><i class="fa-solid fa-circle-exclamation" style="color:var(--coral)"></i><p>加载失败</p><small>${err.message}</small></div>`;
+    });
+  } else if(fbChat){
+    // Static fallback messages
+    const msgs = fbChat.msgs||[];
+    body.innerHTML = buildMsgHTML(msgs, fbChat.name, chAv, fbChat.time||'');
+    setTimeout(()=>{body.scrollTop=body.scrollHeight},80);
   } else {
-    el.style.display='none';fb.style.display='';
-    const n=curChar?curChar.name||'角色':'角色';
-    const s=curChar?curChar.id:'x';
-    const entries=[
-      {date:`${new Date().getFullYear()}.04.18`,title:`关于${n}的第一篇`,excerpt:`那天阳光很好，${n}笑着说了一句话，我把它记下来，怕自己哪天忘了那种感觉。`,tags:['记录','第一次']},
-      {date:`${new Date().getFullYear()}.03.27`,title:'某次争吵之后',excerpt:'沉默了很久。不是因为无话可说，而是因为太多话不知道从哪里开始说起。',tags:['情绪','反思']},
-      {date:`${new Date().getFullYear()}.03.05`,title:'深夜的坦白',excerpt:`${n}说了一件以前从来没提过的事，我听完了，没有说话，只是拉了一下他的手。`,tags:['深夜','私密']},
-      {date:`${new Date().getFullYear()}.02.14`,title:'情人节纪念',excerpt:'收到了一朵很小的花，看起来是路边随手摘的，但我觉得比任何礼物都好。',tags:['纪念','温柔']},
-    ];
-    fb.innerHTML=entries.map(e=>`<div class="d-static">
+    body.innerHTML='<div class="empty-state"><i class="fa-regular fa-comment-dots"></i><p>暂无聊天记录</p></div>';
+  }
+}
+
+function buildMsgHTML(msgs, title, chAv, sub){
+  if(!msgs||!msgs.length) return '<div class="empty-state"><i class="fa-regular fa-comment-dots"></i><p>暂无消息</p></div>';
+  const hdr = `<div class="cd-sys" style="margin-bottom:10px;font-size:10px;font-weight:600;color:var(--ink3)">${esc(title)} <span style="font-weight:400;color:var(--mute)">· ${sub}</span></div>`;
+  const rows = msgs.map(m=>{
+    if(m.role==='system'||m.senderRole==='system')
+      return `<div class="cd-sys">${esc(typeof m.content==='string'?m.content:(m.text||JSON.stringify(m.content||'')))}</div>`;
+    const isUser = (m.role||m.senderRole)==='user';
+    const txt = m.text || (typeof m.content==='string'?m.content:(m.content?.text||m.content?.transcript||JSON.stringify(m.content||'')));
+    return `<div class="cd-msg-row${isUser?' user':''}">
+      <div class="cd-av">${isUser?'<i class="fa-solid fa-feather" style="font-size:10px"></i>':chAv}</div>
+      <div><div class="cd-bubble">${esc(txt)}</div>${m.time?`<div class="cd-time">${m.time}</div>`:''}</div>
+    </div>`;
+  }).join('');
+  return hdr+rows;
+}
+function closeChatDetail(){document.getElementById('chatDetail').classList.remove('open')}
+
+/* ─── DIARY APP (phone-scoped to one chat) ─── */
+const FALLBACK_DIARY_ENTRIES=[
+  {date:'2025.04.18',title:'关于第一次相遇',excerpt:`那天阳光很好，他笑着说了一句话，我把它记下来，怕自己哪天忘了那种感觉。`,tags:['记录','第一次'],
+   full:`那天阳光很好，风也很轻，是那种让人想停下来的下午。\n\n他笑着说了一句话——我已经忘了是什么了，但我记得自己当时愣了一下，然后也笑了。\n\n有时候一个人在你心里占据的位置，是在某个不经意的瞬间决定的。你甚至没有察觉，等你发现的时候，他已经在那里很久了。\n\n我把这件事写下来，怕自己哪天忘了那种感觉。那种轻飘飘的、说不清楚是什么的感觉。`,
+   anns:[{text:'这段写得很好，"轻飘飘的"这个词用得特别准确。',date:'04.20'}]},
+  {date:'2025.03.27',title:'某次争吵之后',excerpt:'沉默了很久。不是因为无话可说，而是因为太多话不知道从哪里开始说起。',tags:['情绪','反思'],
+   full:`我们吵架了。\n\n说是"吵架"也不准确，更像是一场漫长的沉默。我们都说了一些话，然后都停下来了，谁也没有继续说下去。\n\n沉默了很久。不是因为无话可说，而是因为太多话不知道从哪里开始说起。\n\n后来他先打破了沉默，说了一句完全不相干的话，像是把刚才的事情从空气里清除掉了。我跟上去，我们聊了别的事。\n\n但我知道那些没说完的话还在。只是被我们都放到了某个看不见的抽屉里。`,anns:[]},
+  {date:'2025.03.05',title:'深夜的坦白',excerpt:'他说了一件以前从来没提过的事，我听完了，没有说话，只是拉了一下他的手。',tags:['深夜','私密'],
+   full:`凌晨两点多，他忽然说了一件事。\n\n不是随口一提的那种，是酝酿了很久、终于说出来的那种。我能感觉到。\n\n他说的时候声音很平稳，但手指动了一下。我不知道他有没有意识到。\n\n我没有说任何安慰他的话。因为那些话放在这里会显得太轻。我只是拉了一下他的手。\n\n他没有缩回去。\n\n我们就那样坐了一会儿，没再说话。有时候不说话比什么都重要。`,anns:[{text:'最后那句话真的戳到我了。',date:'03.10'}]},
+  {date:'2025.02.14',title:'情人节纪念',excerpt:'收到了一朵很小的花，看起来是路边随手摘的，但我觉得比任何礼物都好。',tags:['纪念','温柔'],
+   full:`今天是情人节。\n\n他递给我一朵花，很小，茎上还有点泥，明显是路边随手摘的。\n\n我差点笑出来，但我没有。因为他递过来的时候神情很认真，像是觉得这是一件很郑重的事。\n\n我接过来，放进了口袋。\n\n晚上回家，那朵花已经有点蔫了，但我还是把它夹进了书里。\n\n有些东西本身不值钱，但它代表的那个瞬间值很多。`,anns:[]},
+];
+
+// Render the Diary app for the specific open chat
+function renderPhoneDiaryApp(ch, realChat, fbChat){
+  const el = document.getElementById('diaryEntries');
+  const fb = document.getElementById('diaryFallback');
+  document.getElementById('diaryDetail').classList.remove('open');
+
+  if(realChat){
+    // Build a single diary entry from the real chat data
+    fb.style.display='none'; el.style.display='';
+    const d = realChat.updatedAt ? new Date(realChat.updatedAt) : new Date();
+    const ds = d.toLocaleDateString('zh-CN',{year:'numeric',month:'2-digit',day:'2-digit'});
+    const title = realChat.customName||realChat.name||'对话记录';
+    const excerpt = realChat.lastMessage||'开始了一段对话…';
+    const fullText = `这是「${title}」的聊天记录。\n\n最后一条消息：${excerpt}\n\n聊天 ID：${realChat.id}`;
+    const entry = {title, date:ds, tags:['对话','记录'], full:fullText, anns:[]};
+    el.innerHTML = `<div class="d-entry" onclick="openDiaryDetail('${esc(entry.title)}','${entry.date}',${JSON.stringify(entry.tags)},'${esc(fullText).replace(/'/g,"\\'")}',${JSON.stringify(entry.anns)})">
+      <div class="de-dt"><i class="fa-regular fa-calendar" style="font-size:7px;margin-right:3px"></i>${ds}</div>
+      <div class="de-ti">${esc(title)}</div>
+      <div class="de-ex">${esc(excerpt)}</div>
+      <div class="de-tags"><span class="tag-pill">对话</span><span class="tag-pill">记录</span></div>
+    </div>`;
+  } else {
+    // No real chat — use fallback diary, seeded by char so each char gets different entries
+    fb.style.display=''; el.style.display='none';
+    // pick 2 fallback entries based on char seed
+    const s = seed(ch.id);
+    const picks = [Math.floor(s*4), Math.floor(((s*7)%1)*4)];
+    const shown = [...new Set(picks)].slice(0,2).map(i=>FALLBACK_DIARY_ENTRIES[i]||FALLBACK_DIARY_ENTRIES[0]);
+    fb.innerHTML = shown.map((e,i)=>`<div class="d-static" onclick="openFallbackDiaryEntry(${FALLBACK_DIARY_ENTRIES.indexOf(e)})">
       <div class="ds-dt"><i class="fa-regular fa-calendar" style="font-size:7px;margin-right:3px"></i>${e.date}</div>
       <div class="ds-ti">${e.title}</div>
       <div class="ds-ex">${e.excerpt}</div>
@@ -654,7 +1009,41 @@ function renderDiaryEntries(chats,charId){
     </div>`).join('');
   }
 }
-function gotoChat(chatId){window.open(`tsukiphone1_1.html?chatId=${chatId}`,'_blank')}
+function openFallbackDiaryEntry(idx){
+  const e=FALLBACK_DIARY_ENTRIES[idx];
+  openDiaryDetail(e.title,e.date,e.tags,e.full,e.anns);
+}
+function openDiaryDetail(title,date,tags,full,anns){
+  document.getElementById('diaryDetailTitle').textContent=title;
+  const annHtml=anns&&anns.length?`<div class="ann-area">
+    <div class="ann-label"><i class="fa-solid fa-pen-nib" style="font-size:8px"></i> 批注 · ${anns.length} 条</div>
+    ${anns.map(a=>`<div class="ann-item"><div class="ann-item-text">${esc(a.text)}</div><div class="ann-item-meta"><i class="fa-regular fa-calendar" style="font-size:7px;margin-right:3px"></i>${a.date}</div></div>`).join('')}
+    <div class="ann-input-row"><input class="ann-input" placeholder="添加批注…" id="diaryAnnInput"/><button class="ann-send" onclick="addDiaryAnn()"><i class="fa-solid fa-paper-plane"></i></button></div>
+  </div>`:`<div class="ann-area">
+    <div class="ann-label"><i class="fa-solid fa-pen-nib" style="font-size:8px"></i> 批注</div>
+    <div class="ann-input-row"><input class="ann-input" placeholder="为这篇日记添加批注…" id="diaryAnnInput"/><button class="ann-send" onclick="addDiaryAnn()"><i class="fa-solid fa-paper-plane"></i></button></div>
+  </div>`;
+  document.getElementById('diaryDetailBody').innerHTML=`<div class="diary-full-entry">
+    <div class="dfe-hd">
+      <div class="dfe-date"><i class="fa-regular fa-calendar" style="font-size:7px;margin-right:3px"></i>${date}</div>
+      <div class="dfe-title">${title}</div>
+      <div class="dfe-tags">${tags.map(t=>`<span class="tag-pill">${t}</span>`).join('')}</div>
+    </div>
+    <div class="dfe-body">${esc(full||'').replace(/\n/g,'<br/>')}</div>
+  </div>${annHtml}`;
+  document.getElementById('diaryDetail').classList.add('open');
+}
+function addDiaryAnn(){
+  const inp=document.getElementById('diaryAnnInput');if(!inp||!inp.value.trim())return;
+  const text=inp.value.trim();inp.value='';
+  const list=document.querySelector('#diaryDetailBody .ann-area');
+  if(!list)return;
+  const today=new Date();const ds=`${String(today.getMonth()+1).padStart(2,'0')}.${String(today.getDate()).padStart(2,'0')}`;
+  const newAnn=document.createElement('div');newAnn.className='ann-item';
+  newAnn.innerHTML=`<div class="ann-item-text">${esc(text)}</div><div class="ann-item-meta"><i class="fa-regular fa-calendar" style="font-size:7px;margin-right:3px"></i>${ds}</div>`;
+  list.insertBefore(newAnn,list.querySelector('.ann-input-row'));
+}
+function closeDiaryDetail(){document.getElementById('diaryDetail').classList.remove('open')}
 
 /* ─── MEMORY ─── */
 function renderMem(ch){
@@ -667,57 +1056,76 @@ function renderMem(ch){
       ${m.keys&&m.keys.length?`<div class="me-keys">${m.keys.slice(0,4).map(k=>`<span class="me-key">${esc(k)}</span>`).join('')}</div>`:''}
     </div>`).join('');
   } else {
-    /* fallback */
     const n=ch.name||'角色';
     const entries=[
-      {title:'性格特征',content:`${n}外表冷淡，实则情感细腻。对熟悉的人会展示出完全不同的面貌——温柔，甚至有些小任性。不擅长直接表达感情，更倾向于用行动代替语言。`,keys:['性格','冷淡','温柔'],on:true},
-      {title:'过去的伤口',content:'曾经历过一段被辜负的关系，此后对"信任"这件事格外谨慎。不是不想信任别人，只是需要更长的时间确认对方值得被托付。',keys:['背景','创伤','信任'],on:true},
-      {title:'喜好与习惯',content:`喜欢深夜一个人听音乐，有整理笔记的习惯。对咖啡有执念，每天至少一杯。不喜欢嘈杂的地方，偏爱角落里的小桌子。`,keys:['喜好','习惯','咖啡'],on:true},
-      {title:'口头禅与语气',content:'说话偏简洁，喜欢用反问句。情绪激动时会沉默代替争辩。偶尔会说一些让人摸不准是认真还是在开玩笑的话。',keys:['说话方式','口癖'],on:true},
-      {title:'【禁区】不触碰的话题',content:'关于家人的事不要主动问。某年某月某日之后的事，${n}从不主动提及，问了也只会说"忘了"。',keys:['禁忌','家人'],on:false},
+      {t:'性格特征',c:`${n}外表冷淡，实则情感细腻。对熟悉的人会展示出完全不同的面貌——温柔，甚至有些小任性。不擅长直接表达感情，更倾向于用行动代替语言。`,k:['性格','冷淡','温柔'],on:true},
+      {t:'过去的伤口',c:'曾经历过一段被辜负的关系，此后对"信任"这件事格外谨慎。不是不想信任别人，只是需要更长的时间确认对方值得被托付。',k:['背景','创伤','信任'],on:true},
+      {t:'喜好与习惯',c:`喜欢深夜一个人听音乐，有整理笔记的习惯。对咖啡有执念，每天至少一杯。不喜欢嘈杂的地方，偏爱角落里的小桌子。`,k:['喜好','习惯','咖啡'],on:true},
+      {t:'口头禅与语气',c:'说话偏简洁，喜欢用反问句。情绪激动时会沉默代替争辩。偶尔会说一些让人摸不准是认真还是在开玩笑的话。',k:['说话方式','口癖'],on:true},
+      {t:'【禁区】不触碰的话题',c:`关于家人的事不要主动问。某年某月某日之后的事，${n}从不主动提及，问了也只会说"忘了"。`,k:['禁忌','家人'],on:false},
     ];
     body.innerHTML=entries.map(e=>`<div class="mem-static${e.on?'':' dis'}" style="${e.on?'':'opacity:0.4'}">
-      <div class="me-ti"><i class="fa-solid fa-bookmark" style="font-size:9px;opacity:0.5;margin-right:5px"></i>${e.title}</div>
-      <div class="me-ct">${e.content}</div>
-      <div class="me-keys">${e.keys.map(k=>`<span class="me-key">${k}</span>`).join('')}</div>
+      <div class="me-ti"><i class="fa-solid fa-bookmark" style="font-size:9px;opacity:0.5;margin-right:5px"></i>${e.t}</div>
+      <div class="me-ct">${e.c}</div>
+      <div class="me-keys">${e.k.map(k=>`<span class="me-key">${k}</span>`).join('')}</div>
     </div>`).join('');
   }
 }
 
 /* ─── MOOD ─── */
-const MOODS_DATA=[
-  {val:'怀念',note:'"有些时刻，只有沉默才配得上这份心情。"'},
-  {val:'平静',note:'"今天的阳光落在窗台上，一切都很安静。"'},
-  {val:'雀跃',note:'"好像第一次感受到某种久违的期待。"'},
-  {val:'忧郁',note:'"窗外的雨声是今天最好的陪伴。"'},
-  {val:'迷茫',note:'"站在路口太久，忘了自己要去哪里。"'},
-  {val:'温柔',note:'"今天想把所有温柔都留给那个人。"'},
-];
-/* cool-toned mood emoji & color palette */
+const MOODS_DATA=[{val:'怀念',note:'"有些时刻，只有沉默才配得上这份心情。"'},{val:'平静',note:'"今天的阳光落在窗台上，一切都很安静。"'},{val:'雀跃',note:'"好像第一次感受到某种久违的期待。"'},{val:'忧郁',note:'"窗外的雨声是今天最好的陪伴。"'},{val:'迷茫',note:'"站在路口太久，忘了自己要去哪里。"'},{val:'温柔',note:'"今天想把所有温柔都留给那个人。"'}];
 const MOOD_EMOJIS=['🌙','🌧️','🫧','🌊','🪷','❄️','🌫️','🩵','🦋','🫐'];
 const MOOD_COLORS=['#818cf8','#93c5fd','#c4b5fd','#a5f3fc','#f0abfc','#bfdbfe','#ddd6fe','#99f6e4','#e0e7ff','#fce7f3'];
+let moodNotes={},moodEditDay=null;
 function renderMoodApp(ch){
   const s=ch.id;
   const todayMood=MOODS_DATA[Math.floor(seed(s)*MOODS_DATA.length)];
   document.getElementById('moodTodayVal').textContent=todayMood.val;
   document.getElementById('moodTodayNote').textContent=todayMood.note;
+  moodNotes={};
   const g=document.getElementById('moodGrid');g.innerHTML='';
   for(let i=0;i<28;i++){
     const hasMood=seed(s+'m'+i)>0.38;
     const d=document.createElement('div');
-    if(hasMood){
-      d.className='mood-day';
-      const mc=MOOD_COLORS[i%MOOD_COLORS.length];
-      d.style.background=mc;d.style.border='none';
-      d.textContent=MOOD_EMOJIS[Math.floor(seed(s+'e'+i)*MOOD_EMOJIS.length)];
-    }else{d.className='mood-day num';d.textContent=(i+1).toString()}
+    if(hasMood){d.className='mood-day';d.style.background=MOOD_COLORS[i%MOOD_COLORS.length];d.style.border='none';d.textContent=MOOD_EMOJIS[Math.floor(seed(s+'e'+i)*MOOD_EMOJIS.length)];}
+    else{d.className='mood-day num';d.textContent=(i+1).toString()}
+    d.dataset.day=i+1;
+    d.addEventListener('click',()=>openMoodNote(i+1));
     g.appendChild(d);
   }
+  renderMoodNotesList();
   const hd=Math.round(sr(s+'h',12,22)),streak=Math.round(sr(s+'st',3,9));
   document.getElementById('moodStats').innerHTML=`
     <div class="ms-card"><div class="ms-val">${hd}</div><div class="ms-label">好心情天数</div></div>
     <div class="ms-card"><div class="ms-val">${streak}</div><div class="ms-label">连续记录</div></div>
-    <div class="ms-card"><div class="ms-val">${todayMood.val}</div><div class="ms-label">本月主基调</div></div>`;
+    <div class="ms-card"><div class="ms-val">${MOODS_DATA[Math.floor(seed((curChar?curChar.id:'x'))*MOODS_DATA.length)].val}</div><div class="ms-label">本月主基调</div></div>`;
+}
+function openMoodNote(day){
+  moodEditDay=day;
+  const panel=document.getElementById('moodNotePanel');
+  panel.classList.add('open');
+  document.getElementById('moodNotePanelTitle').textContent=`为第 ${day} 天添加备注`;
+  document.getElementById('moodNoteInput').value=moodNotes[day]||'';
+}
+function closeMoodNote(){moodEditDay=null;document.getElementById('moodNotePanel').classList.remove('open')}
+function saveMoodNote(){
+  if(!moodEditDay)return;
+  const val=document.getElementById('moodNoteInput').value.trim();
+  if(val)moodNotes[moodEditDay]=val;
+  else delete moodNotes[moodEditDay];
+  // update grid dot
+  document.querySelectorAll('.mood-day').forEach(d=>{
+    if(parseInt(d.dataset.day)===moodEditDay){
+      if(val)d.classList.add('has-note');else d.classList.remove('has-note');
+    }
+  });
+  renderMoodNotesList();closeMoodNote();
+}
+function renderMoodNotesList(){
+  const el=document.getElementById('moodNotesList');
+  const keys=Object.keys(moodNotes).sort((a,b)=>parseInt(a)-parseInt(b));
+  if(!keys.length){el.innerHTML='<div style="font-size:11px;color:var(--mute);font-style:italic;padding:4px 0 10px">点击格子可为某天添加备注…</div>';return}
+  el.innerHTML=keys.map(k=>`<div class="mnl-item"><div class="mnl-day">${k}日</div><div class="mnl-text">${esc(moodNotes[k])}</div></div>`).join('');
 }
 
 /* ─── SECRETS ─── */
@@ -732,7 +1140,24 @@ function renderSecrets(ch){
   ];
   document.getElementById('secretBody').innerHTML=`
     <div class="s-lock"><i class="fa-solid fa-vault sl-ico"></i><div class="sl-ti">私密存档</div><div class="sl-su">${entries.length} ITEMS · END-TO-END ENCRYPTED</div></div>
-    ${entries.map(e=>`<div class="s-entry"><div class="se-bar"><i class="fa-solid fa-lock"></i> ${e.type} · ${e.date}</div><div class="se-ti">${e.title}</div><div class="se-prev">${e.prev}</div></div>`).join('')}`;
+    ${entries.map((e,i)=>`<div class="s-entry" onclick="toggleSecret(${i})">
+      <div class="se-bar"><i class="fa-solid fa-lock" id="seLock${i}"></i> ${e.type} · ${e.date}</div>
+      <div class="se-ti">${e.title}</div>
+      <div class="se-prev-wrap">
+        <div class="se-prev" id="sePrev${i}">${e.prev}</div>
+        <div class="se-reveal-btn" id="seBtn${i}"><i class="fa-solid fa-eye"></i> 点击查看</div>
+      </div>
+    </div>`).join('')}`;
+}
+function toggleSecret(i){
+  const prev=document.getElementById('sePrev'+i);
+  const btn=document.getElementById('seBtn'+i);
+  const lock=document.getElementById('seLock'+i);
+  if(!prev||!btn)return;
+  const revealed=prev.classList.toggle('revealed');
+  btn.classList.toggle('hidden',revealed);
+  if(lock)lock.className=revealed?'fa-solid fa-lock-open':'fa-solid fa-lock';
+  if(lock)lock.style.color=revealed?'var(--mint)':'var(--amber)';
 }
 
 /* ─── LETTERS ─── */
@@ -768,7 +1193,7 @@ function renderFeelings(ch){
   const s=ch.id,n=ch.name||'角色';
   const f1=Math.round(sr(s+'f1',55,92)),f2=Math.round(sr(s+'f2',30,75)),f3=Math.round(sr(s+'f3',60,95));
   const logs=[
-    {time:'昨晚',text:`在看到那条消息之前心跳一直很正常，看完之后坐了很久，不知道该回复还是装作没看见。`},
+    {time:'昨晚',text:'在看到那条消息之前心跳一直很正常，看完之后坐了很久，不知道该回复还是装作没看见。'},
     {time:'前天',text:'和朋友吃饭，聊到一半突然很想哭，又说不清楚为什么，只能借口去洗手间缓了一下。'},
     {time:'3天前',text:`${n}很久没联系了，反而觉得平静，不知道是释怀了还是只是麻木了。`},
     {time:'5天前',text:'路过一家花店，闻到了茉莉花的香味，心里突然非常安静。这种感觉很罕见，很珍贵。'},
@@ -796,7 +1221,7 @@ function renderCart(ch){
     {emoji:'🎞️',name:'复古一次性胶卷相机',shop:'胶片摄影社',price:'¥145',old:'',badge:'rare',note:`想用它记录一些不想用手机拍的瞬间，留给只有${n}才知道的时刻。`},
     {emoji:'🧣',name:'羊驼绒围巾·烟灰色',shop:'慢生活工坊',price:'¥356',old:'¥480',badge:'sale',note:'冬天的时候想送出去，但最后还是没有。'},
   ];
-  const total=items.reduce((sum,it)=>sum+parseFloat(it.price.replace('¥','')),0).toFixed(0);
+  const total=items.reduce((s,it)=>s+parseFloat(it.price.replace('¥','')),0).toFixed(0);
   document.getElementById('cartBody').innerHTML=`
     <div class="cart-hero"><div class="ch-icon"><i class="fa-solid fa-bag-shopping"></i></div><div class="ch-text"><div class="ch-ti">心愿清单</div><div class="ch-sub">${items.length} 件 · 持续更新中</div></div><div class="ch-total">¥${total}</div></div>
     ${items.map(it=>`<div class="cart-item"><div class="ci-img" style="background:var(--paper2)">${it.emoji}</div><div class="ci-info"><div class="ci-name">${it.name}</div><div class="ci-shop"><i class="fa-solid fa-store" style="font-size:8px;margin-right:3px"></i>${it.shop}</div><div><span class="ci-price">${it.price}</span>${it.old?`<span class="ci-old">${it.old}</span>`:''}</div><div class="ci-note">${it.note}</div><span class="ci-badge ${it.badge}">${it.badge==='sale'?'SALE':it.badge==='new'?'NEW':'LIMITED'}</span></div></div>`).join('')}`;
@@ -809,11 +1234,11 @@ function renderBrowser(ch){
     {site:'小红书',url:'xiaohongshu.com/explore',title:'「失眠的人都在想什么」合辑',time:'今天 02:14',icon:'fa-seedling',incognito:false},
     {site:'Bilibili',url:'bilibili.com/video/...',title:'【治愈向】深夜适合看的安静视频合集',time:'今天 01:48',icon:'fa-play',incognito:false},
     {site:'豆瓣',url:'douban.com/subject/...',title:'《请回答1988》——那时候的温柔还没有名字',time:'昨天 23:31',icon:'fa-star',incognito:false},
-    {site:'隐身模式',url:'搜索已隐藏',title:'',time:'昨天 22:07',icon:'fa-eye-slash',incognito:true},
+    {site:'隐身模式',url:'',title:'',time:'昨天 22:07',icon:'fa-eye-slash',incognito:true},
     {site:'知乎',url:'zhihu.com/question/...',title:'喜欢一个人但什么都不说是什么感受？',time:'昨天 20:55',icon:'fa-question',incognito:false},
     {site:'网易云音乐',url:'music.163.com',title:'失眠飞行 · 隔壁老樊',time:'前天 03:22',icon:'fa-music',incognito:false},
     {site:'微博',url:'weibo.com/search',title:`搜索：「${n} 最近怎么了」`,time:'前天 01:09',icon:'fa-magnifying-glass',incognito:false},
-    {site:'隐身模式',url:'搜索已隐藏',title:'',time:'3天前 23:44',icon:'fa-eye-slash',incognito:true},
+    {site:'隐身模式',url:'',title:'',time:'3天前 23:44',icon:'fa-eye-slash',incognito:true},
     {site:'Spotify',url:'open.spotify.com',title:'Late Night Feelings · playlist',time:'4天前 00:12',icon:'fa-headphones',incognito:false},
     {site:'Google',url:'google.com',title:'搜索：「如何假装已经不在乎了」',time:'5天前 02:31',icon:'fa-magnifying-glass',incognito:false},
   ];
@@ -828,7 +1253,23 @@ function renderBrowser(ch){
     ${bookmarks.map(b=>`<div class="hist-item"><div class="hi-site"><i class="fa-solid ${b.icon}"></i> ${b.site}</div><div class="hi-ti">${b.title}</div><div class="hi-url">${b.url}</div></div>`).join('')}
     <div class="section-sep"><div class="ss-line"></div><div class="ss-label">历史记录</div><div class="ss-line"></div></div>
     ${history.map(h=>h.incognito?`<div class="incognito-banner"><i class="fa-solid ${h.icon}"></i> 无痕浏览 · ${h.time} · 内容已加密</div>`:
-    `<div class="hist-item"><div class="hi-site"><i class="fa-solid ${h.icon}"></i> ${h.site}</div><div class="hi-ti">${h.title}</div><div class="hi-url">${h.url}</div><div class="hi-time">${h.time}</div></div>`).join('')}`;
+    `<div class="hist-item"><div class="hi-site"><i class="fa-solid ${h.icon}"></i> ${h.site}</div><div class="hi-ti">${h.title}</div><div class="hi-url">${h.url}</div><div class="hi-time">${h.time}</div></div>`).join('')}
+    <div class="section-sep"><div class="ss-line"></div><div class="ss-label">备注</div><div class="ss-line"></div></div>
+    <div class="browser-ann-area">
+      <div class="baa-label"><i class="fa-solid fa-pen-nib" style="font-size:8px;margin-right:4px"></i> ANNOTATIONS</div>
+      <div class="baa-note" id="browserAnnNote">暂无批注，可以记录浏览这些页面时的感受…</div>
+      <div class="baa-input-row"><input class="baa-input" id="browserAnnInput" placeholder="添加批注…"/><button class="baa-send" onclick="addBrowserAnn()"><i class="fa-solid fa-paper-plane"></i></button></div>
+    </div>`;
+}
+function addBrowserAnn(){
+  const inp=document.getElementById('browserAnnInput');if(!inp||!inp.value.trim())return;
+  const text=inp.value.trim();inp.value='';
+  const note=document.getElementById('browserAnnNote');
+  if(note){
+    const today=new Date();const ds=`${today.getMonth()+1}.${today.getDate()}`;
+    if(note.textContent.startsWith('暂无'))note.textContent='';
+    note.innerHTML+=(note.innerHTML?'<br/>':'')+`<span style="font-family:'Geist Mono',monospace;font-size:8px;color:var(--mute)">${ds} · </span>${esc(text)}`;
+  }
 }
 
 /* ─── CALLS ─── */
@@ -855,21 +1296,8 @@ function renderCalls(ch){
 
 /* ─── PHOTOS ─── */
 function renderPhotos(ch){
-  const recents=[
-    {emoji:'🌸',caption:'四月',bg:'#ffe4ec'},{emoji:'☁️',caption:'某天',bg:'#f0f5ff'},
-    {emoji:'🍵',caption:'下午茶',bg:'#fff8e7'},{emoji:'🌙',caption:'深夜',bg:'#e8e4f0'},
-    {emoji:'🐱',caption:'邻居猫',bg:'#f0f5ff'},{emoji:'📮',caption:'旧邮筒',bg:'#ffe4d9'},
-    {emoji:'🪞',caption:'镜中人',bg:'#f1f0ea'},{emoji:'🌿',caption:'阳台绿植',bg:'#e4f0e8'},
-    {emoji:'🔑',caption:'旧钥匙',bg:'#fff8e7'},
-  ];
-  const albums=[
-    {label:'春日碎片',emoji:'🌸',bg:'linear-gradient(135deg,#ffe4ec,#ffd6cc)'},
-    {label:'深夜时光',emoji:'🌙',bg:'linear-gradient(135deg,#1a1035,#2d1b5e)'},
-    {label:'街道漫游',emoji:'🚶',bg:'linear-gradient(135deg,#e8f4f8,#d0e8f0)'},
-    {label:'食物日记',emoji:'🍜',bg:'linear-gradient(135deg,#fff8e7,#ffe4b5)'},
-    {label:'与猫的日子',emoji:'🐱',bg:'linear-gradient(135deg,#f0f5ff,#e4eaff)'},
-    {label:'私人收藏',emoji:'🔒',bg:'linear-gradient(135deg,#f1f0ea,#e8e4d9)'},
-  ];
+  const recents=[{emoji:'🌸',caption:'四月',bg:'#ffe4ec'},{emoji:'☁️',caption:'某天',bg:'#f0f5ff'},{emoji:'🍵',caption:'下午茶',bg:'#fff8e7'},{emoji:'🌙',caption:'深夜',bg:'#e8e4f0'},{emoji:'🐱',caption:'邻居猫',bg:'#f0f5ff'},{emoji:'📮',caption:'旧邮筒',bg:'#ffe4d9'},{emoji:'🪞',caption:'镜中人',bg:'#f1f0ea'},{emoji:'🌿',caption:'阳台绿植',bg:'#e4f0e8'},{emoji:'🔑',caption:'旧钥匙',bg:'#fff8e7'}];
+  const albums=[{label:'春日碎片',emoji:'🌸',bg:'linear-gradient(135deg,#ffe4ec,#ffd6cc)'},{label:'深夜时光',emoji:'🌙',bg:'linear-gradient(135deg,#1a1035,#2d1b5e)'},{label:'街道漫游',emoji:'🚶',bg:'linear-gradient(135deg,#e8f4f8,#d0e8f0)'},{label:'食物日记',emoji:'🍜',bg:'linear-gradient(135deg,#fff8e7,#ffe4b5)'},{label:'与猫的日子',emoji:'🐱',bg:'linear-gradient(135deg,#f0f5ff,#e4eaff)'},{label:'私人收藏',emoji:'🔒',bg:'linear-gradient(135deg,#f1f0ea,#e8e4d9)'}];
   document.getElementById('photoBody').innerHTML=`
     <div class="section-sep"><div class="ss-line"></div><div class="ss-label">最近</div><div class="ss-line"></div></div>
     <div class="album-grid">
@@ -877,9 +1305,44 @@ function renderPhotos(ch){
       ${recents.slice(6).map(r=>`<div class="album-item"><div class="ai-bg" style="background:${r.bg}">${r.emoji}</div><div class="ai-caption">${r.caption}</div></div>`).join('')}
     </div>
     <div class="section-sep"><div class="ss-line"></div><div class="ss-label">相册</div><div class="ss-line"></div></div>
-    <div style="display:flex;overflow-x:auto;gap:10px;padding-bottom:4px;scrollbar-width:none">
-      ${albums.map(a=>`<div style="flex-shrink:0;text-align:center;cursor:pointer"><div style="width:76px;height:76px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;background:${a.bg}">${a.emoji}</div><div style="font-family:'Geist Mono',monospace;font-size:8px;color:var(--mute);margin-top:5px;letter-spacing:0.04em">${a.label}</div></div>`).join('')}
+    <div style="display:flex;overflow-x:auto;gap:10px;padding-bottom:4px;scrollbar-width:none">${albums.map(a=>`<div style="flex-shrink:0;text-align:center;cursor:pointer"><div style="width:76px;height:76px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;background:${a.bg}">${a.emoji}</div><div style="font-family:'Geist Mono',monospace;font-size:8px;color:var(--mute);margin-top:5px;letter-spacing:0.04em">${a.label}</div></div>`).join('')}</div>`;
+}
+
+/* ─── TODO ─── */
+function renderTodo(ch){
+  const n=ch.name||'角色';
+  const todos=[
+    {text:`约${n}去那家咖啡店`,done:false,color:'#818cf8'},{text:'整理上周的照片',done:false,color:'#34d399'},{text:'回复那封等了很久的信',done:true,color:'#f87171'},{text:'买一本新日记本',done:false,color:'#fbbf24'},{text:`把${n}借的书还回去`,done:false,color:'#60a5fa'},{text:'睡前不看手机',done:true,color:'#a78bfa'},
+  ];
+  const pending=todos.filter(t=>!t.done);const done=todos.filter(t=>t.done);
+  document.getElementById('todoBody').innerHTML=`
+    <div style="background:var(--card);border-radius:14px;padding:12px 14px;margin-bottom:10px;border:1px solid var(--line)">
+      <div style="font-family:'Geist Mono',monospace;font-size:8px;color:var(--mute);letter-spacing:0.12em;margin-bottom:10px">PENDING · ${pending.length} 项</div>
+      ${pending.map(t=>`<div class="todo-item"><div class="todo-dot" style="background:${t.color}"></div><span>${t.text}</span></div>`).join('')}
+    </div>
+    <div style="background:var(--card);border-radius:14px;padding:12px 14px;border:1px solid var(--line)">
+      <div style="font-family:'Geist Mono',monospace;font-size:8px;color:var(--mute);letter-spacing:0.12em;margin-bottom:10px">COMPLETED · ${done.length} 项</div>
+      ${done.map(t=>`<div class="todo-item done"><div class="todo-dot" style="background:var(--mute)"></div><span>${t.text}</span></div>`).join('')}
     </div>`;
+  // preview in quick card
+  document.getElementById('todoPreview').innerHTML=pending.slice(0,3).map(t=>`<div class="todo-item" style="margin-bottom:4px"><div class="todo-dot" style="background:${t.color}"></div><span>${t.text}</span></div>`).join('');
+}
+
+/* ─── MEMO ─── */
+function renderMemo(ch){
+  const n=ch.name||'角色';
+  const memos=[
+    {title:'关于那次谈话',content:`他说的最后一句话：「我不是不想说，只是不知道怎么开口。」\n\n这句话我记了很久。`,color:'rgba(129,140,248,0.08)',border:'rgba(129,140,248,0.2)'},
+    {title:'待确认的事',content:`1. ${n}生日是哪天\n2. 他说的那本书的名字\n3. 他不喜欢什么颜色`,color:'rgba(251,191,36,0.08)',border:'rgba(251,191,36,0.22)'},
+    {title:'想说但没说',content:'有一次他问我有没有喜欢的人，我说没有。\n\n我撒谎了。',color:'rgba(255,107,138,0.07)',border:'rgba(255,107,138,0.2)'},
+    {title:'发现',content:`${n}把糖放在左边口袋，手机放在右边。习惯用左手拿杯子，右手拿笔。`,color:'rgba(52,211,153,0.08)',border:'rgba(52,211,153,0.22)'},
+  ];
+  document.getElementById('memoBody').innerHTML=memos.map(m=>`<div style="background:${m.color};border:1px solid ${m.border};border-radius:14px;padding:13px 14px;margin-bottom:9px">
+    <div style="font-size:12px;font-weight:600;color:var(--ink);margin-bottom:6px">${m.title}</div>
+    <div style="font-size:11px;color:var(--ink3);line-height:1.7">${esc(m.content).replace(/\n/g,'<br/>')}</div>
+  </div>`).join('');
+  // preview in quick card
+  document.getElementById('memoPreview').innerHTML=`<div class="memo-line">${esc(memos[0].content).replace(/\n/g,' ')}</div>`;
 }
 
 /* ─── VAULT ─── */
@@ -891,73 +1354,28 @@ const VAULT_ITEMS=[
   {id:'p1',type:'photo',thumb:'📸',thumbBg:'linear-gradient(135deg,#3b0764,#5b21b6)',name:'他睡着的样子',meta:'照片 · 1 张 · 加密',date:'FEB 2024',desc:'他坐在沙发上，抱着一本书睡着了，书还开着。我看了很久，后来才拍下来。光线是午后的，有点暖，有点灰。'},
   {id:'p2',type:'photo',thumb:'🌿',thumbBg:'linear-gradient(135deg,#14532d,#166534)',name:'书桌角落',meta:'照片 · 3 张 · 加密',date:'JAN 2024',desc:'他的书桌，角落里叠着几本书，其中一本有折痕的地方是我们讨论过的章节。他不知道我拍了。'},
 ];
-let currentVaultTab='all';
 function renderVault(ch){
-  const n=ch.name||'角色';
-  const videos=VAULT_ITEMS.filter(v=>v.type==='video');
-  const audios=VAULT_ITEMS.filter(v=>v.type==='audio');
-  const photos=VAULT_ITEMS.filter(v=>v.type==='photo');
+  const n=ch.name||'角色';const videos=VAULT_ITEMS.filter(v=>v.type==='video'),audios=VAULT_ITEMS.filter(v=>v.type==='audio'),photos=VAULT_ITEMS.filter(v=>v.type==='photo');
   document.getElementById('vaultBody').innerHTML=`
-    <div class="vault-hero">
-      <div class="vh-tag"><i class="fa-solid fa-shield-halved" style="font-size:8px;margin-right:4px"></i> ENCRYPTED VAULT</div>
-      <div class="vh-ti">${n}的私密档案库</div>
-      <div class="vh-sub">
-        <span class="vh-badge"><i class="fa-solid fa-video"></i> ${videos.length} 视频</span>
-        <span class="vh-badge"><i class="fa-solid fa-headphones"></i> ${audios.length} 音频</span>
-        <span class="vh-badge"><i class="fa-solid fa-image"></i> ${photos.length} 照片</span>
-      </div>
-    </div>
-    <div class="vault-tabs">
-      <div class="vtab active" data-tab="all" onclick="switchVaultTab('all',this)">全部</div>
-      <div class="vtab" data-tab="video" onclick="switchVaultTab('video',this)"><i class="fa-solid fa-video" style="margin-right:4px"></i>视频</div>
-      <div class="vtab" data-tab="audio" onclick="switchVaultTab('audio',this)"><i class="fa-solid fa-headphones" style="margin-right:4px"></i>音频</div>
-      <div class="vtab" data-tab="photo" onclick="switchVaultTab('photo',this)"><i class="fa-solid fa-image" style="margin-right:4px"></i>照片</div>
-    </div>
+    <div class="vault-hero"><div class="vh-tag"><i class="fa-solid fa-shield-halved" style="font-size:8px;margin-right:4px"></i> ENCRYPTED VAULT</div><div class="vh-ti">${n}的私密档案库</div><div class="vh-sub"><span class="vh-badge"><i class="fa-solid fa-video"></i> ${videos.length} 视频</span><span class="vh-badge"><i class="fa-solid fa-headphones"></i> ${audios.length} 音频</span><span class="vh-badge"><i class="fa-solid fa-image"></i> ${photos.length} 照片</span></div></div>
+    <div class="vault-tabs"><div class="vtab active" onclick="switchVaultTab('all',this)">全部</div><div class="vtab" onclick="switchVaultTab('video',this)"><i class="fa-solid fa-video" style="margin-right:4px"></i>视频</div><div class="vtab" onclick="switchVaultTab('audio',this)"><i class="fa-solid fa-headphones" style="margin-right:4px"></i>音频</div><div class="vtab" onclick="switchVaultTab('photo',this)"><i class="fa-solid fa-image" style="margin-right:4px"></i>照片</div></div>
     <div id="vaultItemsWrap"></div>`;
   renderVaultItems('all');
 }
-function switchVaultTab(tab,el){
-  currentVaultTab=tab;
-  document.querySelectorAll('.vtab').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');
-  renderVaultItems(tab);
-}
+function switchVaultTab(tab,el){document.querySelectorAll('.vtab').forEach(t=>t.classList.remove('active'));el.classList.add('active');renderVaultItems(tab)}
 function renderVaultItems(tab){
   const items=tab==='all'?VAULT_ITEMS:VAULT_ITEMS.filter(v=>v.type===tab);
-  const wrap=document.getElementById('vaultItemsWrap');
-  if(!wrap)return;
-  wrap.innerHTML=`<div class="vault-grid">${items.map(item=>`
-    <div class="vault-item ${item.type==='video'&&items.indexOf(item)===0?'span2':''}" onclick="openVaultDetail('${item.id}')">
-      <div class="vi-thumb ${item.type==='video'&&items.indexOf(item)===0?'span2':''}" style="background:${item.thumbBg}">
-        <span style="font-size:28px">${item.thumb}</span>
-        <span style="font-family:'Geist Mono',monospace;font-size:8px;color:rgba(255,255,255,0.5)">${item.meta.split('·')[0].trim()}</span>
-        <div class="vi-lock"><i class="fa-solid fa-lock"></i></div>
-        ${item.type==='video'?'<div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)"><i class="fa-solid fa-play" style="color:white;font-size:9px;margin-left:1px"></i></div>':''}
-      </div>
-      <div class="vi-info"><div class="vi-name">${item.name}</div><div class="vi-meta">${item.meta}</div></div>
-    </div>`).join('')}</div>`;
+  const wrap=document.getElementById('vaultItemsWrap');if(!wrap)return;
+  wrap.innerHTML=`<div class="vault-grid">${items.map((item,idx)=>`<div class="vault-item${item.type==='video'&&idx===0?' span2':''}" onclick="openVaultDetail('${item.id}')"><div class="vi-thumb${item.type==='video'&&idx===0?' span2':''}" style="background:${item.thumbBg}"><span style="font-size:28px">${item.thumb}</span><span style="font-family:'Geist Mono',monospace;font-size:8px;color:rgba(255,255,255,0.5)">${item.meta.split('·')[0].trim()}</span><div class="vi-lock"><i class="fa-solid fa-lock"></i></div>${item.type==='video'?'<div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)"><i class="fa-solid fa-play" style="color:white;font-size:9px;margin-left:1px"></i></div>':''}</div><div class="vi-info"><div class="vi-name">${item.name}</div><div class="vi-meta">${item.meta}</div></div></div>`).join('')}</div>`;
 }
 function openVaultDetail(id){
   const item=VAULT_ITEMS.find(v=>v.id===id);if(!item)return;
   document.getElementById('vdoTitle').textContent=item.name;
-  const hasTranscript=item.transcript&&item.transcript.length>0;
-  document.getElementById('vdoBody').innerHTML=`
-    <div class="vdo-preview" style="height:180px;background:${item.thumbBg}">
-      <span style="font-size:56px">${item.thumb}</span>
-      <div class="vdo-locked-notice">
-        <i class="fa-solid fa-lock"></i>
-        <span>${item.type==='video'?'VIDEO ENCRYPTED':item.type==='audio'?'AUDIO ENCRYPTED':'PHOTO ENCRYPTED'}</span>
-      </div>
-    </div>
-    <div class="vdo-meta-row">
-      <span class="vdo-meta-chip"><i class="fa-regular fa-calendar" style="font-size:8px;margin-right:3px"></i>${item.date}</span>
-      <span class="vdo-meta-chip">${item.meta}</span>
-    </div>
+  const hasT=item.transcript&&item.transcript.length>0;
+  document.getElementById('vdoBody').innerHTML=`<div class="vdo-preview" style="height:180px;background:${item.thumbBg}"><span style="font-size:56px">${item.thumb}</span><div class="vdo-locked-notice"><i class="fa-solid fa-lock"></i><span>${item.type==='video'?'VIDEO ENCRYPTED':item.type==='audio'?'AUDIO ENCRYPTED':'PHOTO ENCRYPTED'}</span></div></div>
+    <div class="vdo-meta-row"><span class="vdo-meta-chip"><i class="fa-regular fa-calendar" style="font-size:8px;margin-right:3px"></i>${item.date}</span><span class="vdo-meta-chip">${item.meta}</span></div>
     <div class="vdo-desc">${item.desc}</div>
-    ${hasTranscript?`<div class="vdo-transcript">
-      <div class="vdt-label"><i class="fa-solid fa-align-left" style="font-size:7px;margin-right:4px"></i>${item.type==='photo'?'备注':'转录文本'}</div>
-      ${item.transcript.map(l=>`<div class="vdt-line"><span class="vdt-ts">${l.ts}</span><span>${l.text}</span></div>`).join('')}
-    </div>`:''}`;
+    ${hasT?`<div class="vdo-transcript"><div class="vdt-label"><i class="fa-solid fa-align-left" style="font-size:7px;margin-right:4px"></i>${item.type==='photo'?'备注':'转录文本'}</div>${item.transcript.map(l=>`<div class="vdt-line"><span class="vdt-ts">${l.ts}</span><span>${l.text}</span></div>`).join('')}</div>`:''}`;
   document.getElementById('vaultDetail').classList.add('open');
 }
 function closeVaultDetail(){document.getElementById('vaultDetail').classList.remove('open')}
@@ -966,43 +1384,16 @@ function closeVaultDetail(){document.getElementById('vaultDetail').classList.rem
 async function init(){
   const ls=document.getElementById('loadState');
   try{
-    await openDb();
-    allChars=await dbAll('chars');
+    await openDb();allChars=await dbAll('chars');
     document.getElementById('charCount').textContent=allChars.length;
     ls.classList.add('hide');setTimeout(()=>ls.style.display='none',600);
-    if(!allChars.length){
-      document.getElementById('bubbleField').innerHTML=`<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--mute);text-align:center;padding:40px"><i class="fa-solid fa-users-slash" style="font-size:28px;opacity:0.3"></i><div style="font-size:13px;margin-top:4px">还没有任何角色</div><div style="font-family:'Geist Mono',monospace;font-size:9px;opacity:0.6;margin-top:2px">在主应用中创建角色后返回</div></div>`;
-      return;
-    }
+    if(!allChars.length){document.getElementById('bubbleField').innerHTML=`<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--mute);text-align:center;padding:40px"><i class="fa-solid fa-users-slash" style="font-size:28px;opacity:0.3"></i><div style="font-size:13px;margin-top:4px">还没有任何角色</div><div style="font-family:'Geist Mono',monospace;font-size:9px;opacity:0.6;margin-top:2px">在主应用中创建角色后返回</div></div>`;return}
     buildBubbles(allChars);window.addEventListener('resize',()=>buildBubbles(allChars));
   }catch(err){
     ls.innerHTML=`<div style="text-align:center;padding:30px"><i class="fa-solid fa-circle-exclamation" style="font-size:28px;color:var(--coral);margin-bottom:10px;display:block"></i><div style="font-family:'Fraunces',serif;font-size:18px;font-style:italic;margin-bottom:6px">无法连接数据库</div><div style="font-size:11px;color:var(--mute);line-height:1.7">请先打开主应用初始化数据<br><span style="font-family:'Geist Mono',monospace;font-size:9px;opacity:0.7">${err.message||'未知错误'}</span></div></div>`;
   }
 }
-/* 在 openPhone 里补上 renderMem 调用 */
-const _origOpenPhone=openPhone;
-async function openPhone(ch){
-  curChar=ch;
-  document.getElementById('innerCN').textContent=ch.name||'角色';
-  document.getElementById('csName').textContent=ch.name||'未命名';
-  document.getElementById('csRm').textContent=ch.remark||'';
-  document.getElementById('csId').innerHTML=`<i class="fa-solid fa-fingerprint"></i> ${ch.id}`;
-  const av=document.getElementById('csAv');av.innerHTML='';
-  if(ch.avatar){const img=document.createElement('img');img.src=ch.avatar;img.onerror=()=>{img.remove();av.innerHTML='<i class="fa-solid fa-user-astronaut"></i>'};av.appendChild(img)}
-  else av.innerHTML='<i class="fa-solid fa-user-astronaut"></i>';
-  const pb=document.getElementById('pBlurb');
-  if(ch.persona&&ch.persona.length>10){pb.style.display='block';pb.textContent=ch.persona.substring(0,200)+(ch.persona.length>200?'…':'')}
-  else pb.style.display='none';
-  document.getElementById('diaryHeroName').textContent=(ch.name||'角色')+'的日记';
-  document.getElementById('diaryHeroId').textContent='ID · '+ch.id;
-  renderMem(ch);renderMoodApp(ch);renderSecrets(ch);renderLetters(ch);renderDreams(ch);renderFeelings(ch);renderCart(ch);renderBrowser(ch);renderCalls(ch);renderPhotos(ch);renderVault(ch);
-  await loadChats(ch.id);
-  document.getElementById('phoneScreen').classList.add('open');
-  setTimeout(()=>{const b=document.querySelector(`.char-bubble[data-cid="${ch.id}"]`);if(b){b.classList.remove('popping');b.style.opacity='1'}},120);
-}
 document.addEventListener('DOMContentLoaded',init);
 </script>
-<script src="TsukiTheme.js"></script>
-    
 </body>
 </html>

@@ -11,15 +11,37 @@ const IDB_CONFIG = {
     chats: 'chats',
     messages: 'messages',
     worldbook: 'worldbook',
+    theaters: 'theaters',
+    theater_messages: 'theater_messages',
+    theater_summaries: 'theater_summaries',
+    diaries: 'diaries',
   },
 };
 
 // ---------------- 基础工具函数 ----------------
 
+/**
+ * 获取 DB 连接：优先用 window.openDb（主 HTML 注入的完整 SCHEMA 连接），
+ * 避免裸 indexedDB.open() 不带版本号导致拿到不含 theater_summaries 的旧连接。
+ */
 async function getDb() {
+  if (typeof window.openDb === 'function') {
+    const db = await window.openDb();
+    console.log(
+      `%c[PromptHelper] getDb → window.openDb ✅ ver=${db.version} stores=[${Array.from(db.objectStoreNames).join(', ')}]`,
+      'color:#43d9a0'
+    );
+    return db;
+  }
+  // 回退：裸连接（仅在 PromptHelper 单独调试时走到这里）
+  console.warn('[PromptHelper] getDb → window.openDb 不存在，走裸 indexedDB.open（⚠️ 可能缺 theater_summaries）');
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(IDB_CONFIG.name);
-    request.onsuccess = () => resolve(request.result);
+    request.onsuccess = () => {
+      const db = request.result;
+      console.warn(`  裸连接 ver=${db.version} stores=[${Array.from(db.objectStoreNames).join(', ')}]`);
+      resolve(db);
+    };
     request.onerror = () => reject(request.error);
   });
 }
@@ -178,32 +200,37 @@ function resolveLatestAnnotationText(msg, allMessages, diaryText, annotationText
  */
 async function fetchOfflineTheaterMessages(db, theaterId, floorStart, floorEnd) {
   try {
+    // ✅ 优先用 window.openDb（完整 SCHEMA），避免传入的残缺 db 不含 theater_messages
+    let theaterDb;
+    if (typeof window.openDb === 'function') {
+      theaterDb = await window.openDb();
+      console.log('%c  [fetchOfflineTheaterMessages] ✅ 使用 window.openDb 连接', 'color:#43d9a0');
+      console.log('  stores:', Array.from(theaterDb.objectStoreNames));
+    } else {
+      theaterDb = db;
+      console.warn('  [fetchOfflineTheaterMessages] ⚠️ window.openDb 不存在，回退到传入 db（可能缺表！）');
+      console.log('  传入 db stores:', Array.from(db.objectStoreNames));
+    }
     const allMsgs = await new Promise(resolve => {
       try {
-        const tx = db.transaction('theater_messages', 'readonly');
+        const tx = theaterDb.transaction('theater_messages', 'readonly');
         const store = tx.objectStore('theater_messages');
-
-        // theater_messages 的 keyPath 是 [theaterId, floor]
-        const lower = [theaterId, 0];
-        const upper = [theaterId, Infinity];
-        const range = IDBKeyRange.bound(lower, upper);
-        const req = store.openCursor(range);
-        const msgs = [];
-        req.onsuccess = e => {
-          const cursor = e.target.result;
-          if (cursor) { msgs.push(cursor.value); cursor.continue(); }
-          else resolve(msgs);
+        const req = store.index('by_theater').getAll(theaterId);
+        req.onsuccess = () => {
+          console.log(`  [fetchOfflineTheaterMessages] by_theater index getAll → ${(req.result||[]).length} 条`);
+          resolve(req.result || []);
         };
-        req.onerror = () => resolve([]);
+        req.onerror = () => { console.error('  [fetchOfflineTheaterMessages] index getAll 失败', req.error); resolve([]); };
       } catch (e) {
-        // 兜底：getAll 全量过滤
+        console.error('  [fetchOfflineTheaterMessages] 事务失败，走全量兜底:', e);
         try {
-          const tx2 = db.transaction('theater_messages', 'readonly');
+          const tx2 = theaterDb.transaction('theater_messages', 'readonly');
           const fallback = tx2.objectStore('theater_messages').getAll();
           fallback.onsuccess = () =>
             resolve((fallback.result || []).filter(m => m.theaterId === theaterId));
           fallback.onerror = () => resolve([]);
         } catch (e2) {
+          console.error('  [fetchOfflineTheaterMessages] 兜底也失败:', e2);
           resolve([]);
         }
       }
@@ -255,7 +282,8 @@ function formatOfflineMessages(msgs, chars, charNames, stageTitle, floorRangeLab
 
   for (const m of msgs) {
     // 跳过系统辅助型消息（history/summary 卡片本身不需要传给 AI）
-    if (m.type === 'history' || m.type === 'summary') continue;
+    if (m.type === 'history' || m.type === 'summary' || m.type === 'summary_bubble') continue;
+    if (m.isSummary || m.isSummarized === true) continue;
 
     let senderName = '系统';
     if (m.sender === 'user' || m.isUser) {
@@ -283,6 +311,56 @@ function formatOfflineMessages(msgs, chars, charNames, stageTitle, floorRangeLab
 }
 
 /**
+ * 将单条 theater_message 转为提示词行字符串。
+ * 对齐 StageSend.msgToLine 逻辑：
+ *   - history  → [system|前情剧情·来源线上聊天] 内容
+ *   - prologue → [narrator|序幕] 内容
+ *   - 普通消息 → [发送者|时间] 内容
+ * @param {object} m     单条 theater_message
+ * @param {Array}  chars 剧场参与的 chars 数组
+ * @returns {string|null}
+ */
+function msgToOfflineLine(m, chars) {
+  let content = m.content || '';
+  if (typeof content === 'object') {
+    content = content.transcript || content.text || content.name || JSON.stringify(content);
+  }
+
+  // history 气泡：前置剧情，格式对齐 StageSend
+  if (m.type === 'history' || m.type === 'summary') {
+    const cleaned = String(content)
+      .replace(/<button[^>]*>[\s\S]*?<\/button>/gi, '')
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+    return `[system|前情剧情·来源线上聊天] ${cleaned}`;
+  }
+
+  // prologue 序幕
+  if (m.type === 'prologue') {
+    const cleanContent = String(content).replace(/<[^>]+>/g, '').trim();
+    return `[narrator|序幕] ${cleanContent}`;
+  }
+
+  // summary_bubble / isSummary：不输出
+  if (m.type === 'summary_bubble' || m.isSummary) return null;
+
+  // 普通消息：确定发送者名
+  let senderName = '系统';
+  if (m.sender === 'user' || m.isUser) {
+    senderName = 'user';
+  } else if (m.charId) {
+    const c = chars.find(ch => ch.id === m.charId);
+    if (c) senderName = c.name;
+  } else if (m.sender === 'narrator' || m.isNarrator) {
+    senderName = 'narrator';
+  }
+
+  const typeLabel = m.type && m.type !== 'text' ? `|${m.type}` : '';
+  return `[${senderName}${typeLabel}] ${content}`;
+}
+
+/**
  * 主入口：解析一条 offline 类型消息，返回格式化的提示词字符串
  * 结构：
  *   【开头】剧场名 + 参与角色 + 楼层范围提示
@@ -305,8 +383,21 @@ async function buildOfflineSegment(db, msg) {
     return `[系统] 线下剧场记录（元数据不完整，无法展开）`;
   }
 
+  // ── 统一用 window.openDb 取完整 SCHEMA 连接 ──
+  let theaterDb;
+  if (typeof window.openDb === 'function') {
+    theaterDb = await window.openDb();
+    console.log('%c  [buildOfflineSegment] ✅ window.openDb 获取成功', 'color:#43d9a0');
+    console.log('  DB version:', theaterDb.version, '| stores:', Array.from(theaterDb.objectStoreNames).join(', '));
+  } else {
+    theaterDb = db;
+    console.warn('  [buildOfflineSegment] ⚠️ window.openDb 不存在！回退到传入 db');
+    console.log('  传入 db stores:', Array.from(db.objectStoreNames).join(', '));
+  }
+
   // ── 读取剧场信息 ──
-  const theater = await fetchTheaterInfo(db, stageId);
+  const theater = await fetchTheaterInfo(theaterDb, stageId);
+  console.log(`  [buildOfflineSegment] fetchTheaterInfo → `, theater ? `title="${theater.title}"` : '❌ null（theaters 表中找不到此 stageId）');
   const resolvedTitle = theater?.title || stageTitle;
   const theaterCharIds = theater?.charIds || [];
 
@@ -329,12 +420,103 @@ async function buildOfflineSegment(db, msg) {
 
   console.log(`  stageId=${stageId} title="${resolvedTitle}" chars=[${charNames}] range=${floorRangeLabel}`);
 
-  // ── 拉取线下剧场消息 ──
-  const theaterMsgs = await fetchOfflineTheaterMessages(db, stageId, floorStart, floorEnd);
-  console.log(`  共读取 ${theaterMsgs.length} 条线下消息`);
+  // ── 拉取线下剧场消息（内部也走 window.openDb） ──
+  const theaterMsgs = await fetchOfflineTheaterMessages(theaterDb, stageId, floorStart, floorEnd);
+  console.log(`  [buildOfflineSegment] theaterMsgs 读取完毕，共 ${theaterMsgs.length} 条`);
+  if (theaterMsgs.length > 0) {
+    console.log('  前3条预览:', theaterMsgs.slice(0,3).map(m => `[F${m.floor}|${m.type}] ${String(m.content||'').slice(0,40)}`));
+  }
 
-  // ── 格式化 ──
-  const bodyText = formatOfflineMessages(theaterMsgs, chars, charNames, resolvedTitle, floorRangeLabel);
+  // ── 读取总结记录（theater_summaries）——单独开新裸连接，对齐 StageSend 的做法 ──
+  //    不走 window.openDb（它的 SCHEMA 检查可能因版本差异返回不含 theater_summaries 的连接）
+  //    直接 indexedDB.open 不带版本号，浏览器会返回当前最高版本的连接，确保 store 存在
+  let stageSummaries = [];
+  try {
+    const summaryDb = await new Promise((res, rej) => {
+      const req = indexedDB.open('tsukiphonepromax');
+      req.onsuccess = () => res(req.result);
+      req.onerror = () => rej(req.error);
+    });
+    const hasSummaryStore = summaryDb.objectStoreNames.contains('theater_summaries');
+    console.log(
+      `%c  [buildOfflineSegment] summaryDb ver=${summaryDb.version} | theater_summaries 存在: ${hasSummaryStore}`,
+      hasSummaryStore ? 'color:#43d9a0' : 'color:#ff6b6b'
+    );
+    if (hasSummaryStore) {
+      stageSummaries = await new Promise(resolve => {
+        try {
+          const tx = summaryDb.transaction('theater_summaries', 'readonly');
+          const req = tx.objectStore('theater_summaries').index('by_theater').getAll(stageId);
+          req.onsuccess = () => {
+            const sorted = (req.result || []).sort((a, b) => a.floorStart - b.floorStart);
+            console.log(`%c  [buildOfflineSegment] theater_summaries → ${sorted.length} 条`, 'color:#43d9a0');
+            sorted.forEach(s => console.log(`    📚 F·${s.floorStart}–F·${s.floorEnd}: ${(s.summaryText || '').slice(0, 60)}…`));
+            resolve(sorted);
+          };
+          req.onerror = () => { console.error('  theater_summaries getAll 失败', req.error); resolve([]); };
+        } catch (e) { console.error('  theater_summaries 事务异常:', e); resolve([]); }
+      });
+    } else {
+      console.warn('  [buildOfflineSegment] ⚠️ theater_summaries store 不存在 → 走原文模式');
+      console.warn('  → 请先在线下剧场页面执行一次总结操作，或确认 TsukiSummary.js 已完成 DB 升级');
+    }
+  } catch (e) {
+    console.warn('[buildOfflineSegment] 读取 theater_summaries 失败:', e);
+  }
+
+  // ── 格式化（有总结则用总结替换覆盖楼层，无则原样输出）──
+  // 对齐 StageSend 的 timeline 统一排序逻辑，避免序幕重复和 history 丢失
+  let bodyText;
+  if (stageSummaries.length > 0) {
+    const coveredFloors = new Set();
+    for (const s of stageSummaries) {
+      for (let f = s.floorStart; f <= s.floorEnd; f++) coveredFloors.add(f);
+    }
+
+    // ── 构建统一时间线，每个元素带 sortKey（楼层号）──
+    const timeline = [];
+
+    // 1. 遍历所有消息：
+    //    - summary_bubble / isSummary 永远跳过（气泡本身不传 AI）
+    //    - history 永远保留（前置剧情背景，不受总结覆盖影响）
+    //    - prologue 永远保留（序幕只出现一次，不受总结覆盖影响）
+    //    - 其他消息：被 isSummarized 标记 或 楼层在 coveredFloors 内 → 跳过
+    for (const m of theaterMsgs) {
+      if (m.type === 'summary_bubble' || m.type === 'summary') continue;
+      if (m.isSummary) continue;
+      if (m.type !== 'history' && m.type !== 'prologue' && m.isSummarized === true) continue;
+      if (m.type !== 'history' && m.type !== 'prologue' && coveredFloors.has(m.floor)) continue;
+
+      const line = msgToOfflineLine(m, chars);
+      if (line) timeline.push({ sortKey: m.floor ?? 0, text: line });
+    }
+
+    // 2. 每段总结以 floorStart - 0.5 作为排序位置（确保总结在同楼层消息之前）
+    for (const s of stageSummaries) {
+      timeline.push({
+        sortKey: s.floorStart - 0.5,
+        text: `========== 剧情摘要 F·${s.floorStart}–F·${s.floorEnd} ==========\n${s.summaryText}\n========== 摘要结束 ==========`,
+      });
+    }
+
+    // 3. 按 sortKey 升序排列
+    timeline.sort((a, b) => a.sortKey - b.sortKey);
+
+    bodyText = timeline.map(t => t.text).join('\n');
+    console.log(
+      `%c  [buildOfflineSegment] timeline 拼合完成：摘要=${stageSummaries.length}段，消息条目=${timeline.length - stageSummaries.length}条`,
+      'color:#d4ff4d'
+    );
+  } else {
+    // 无总结：过滤掉 isSummary / summary_bubble / summary 类型，原样输出
+    const filteredMsgs = theaterMsgs.filter(m =>
+      m.type !== 'summary_bubble' &&
+      m.type !== 'summary' &&
+      !m.isSummary &&
+      !(m.isSummarized === true)
+    );
+    bodyText = filteredMsgs.map(m => msgToOfflineLine(m, chars)).filter(Boolean).join('\n');
+  }
 
   // ── 拼接完整片段 ──
   const header = [
@@ -557,6 +739,11 @@ async function buildChatHistoryPrompt(chatId, historyCount = 0) {
   const chat = await dbGet(IDB_CONFIG.stores.chats, chatId);
   if (!chat) return [];
 
+  // 读取时间戳全局开关（默认 true）
+  const chatSettings = await dbGet('config', 'chat_settings');
+  const timestampEnabled = chatSettings ? chatSettings.timestampEnabled !== false : true;
+  console.log(`%c[buildChatHistoryPrompt] 时间戳开关: ${timestampEnabled}`, 'color:#43d9a0');
+
   const user = await dbGet(IDB_CONFIG.stores.users, chat.userId);
   const userName = user ? user.name : 'User';
   const char = await dbGet(IDB_CONFIG.stores.chars, chat.charIds[0]);
@@ -593,8 +780,21 @@ async function buildChatHistoryPrompt(chatId, historyCount = 0) {
     // 🌟 线下剧场卡片 — 展开对应楼层范围内的所有线下对话内容
     if (msgType === 'offline') {
       console.log(`%c[buildChatHistoryPrompt] 🎭 offline floor=${msg.floor} 开始解析`, 'color:#fa5bd5');
+      // ── 详细调试：打印 msg 关键字段，排查 stageId / stageFloorRange 是否正确传入 ──
+      const _c = msg.content && typeof msg.content === 'object' ? msg.content : {};
+      console.log(
+        `%c  offline msg 元数据：stageId=${msg.stageId || _c.stageId || '❌缺失'} ` +
+        `stageTitle="${msg.stageTitle || _c.stageTitle || '?'}" ` +
+        `stageFloorRange=${JSON.stringify(msg.stageFloorRange || _c.stageFloorRange || [null,null])}`,
+        'color:#fa5bd5'
+      );
+      console.log('  offline msg.content 完整值:', JSON.stringify(_c).slice(0, 300));
       content = await buildOfflineSegment(db, msg);
       senderName = '系统';
+      // ✅ offline 内容已经是完整展开的多行文本（含 ========== 分隔符），
+      //    直接 push，不加 [系统|时间|offline] 包装，避免破坏格式
+      historyPrompts.push(content);
+      continue;
 
     // 🌟 日记转发 — 解析 <diary=日记内容|批注汇总>，实时补全已有批注 + 作者 + 标题
     } else if (msgType === 'diary') {
@@ -748,8 +948,12 @@ async function buildChatHistoryPrompt(chatId, historyCount = 0) {
       }
     }
 
-    // 格式：[角色/用户名/系统消息|时间|消息类别] 消息完整内容
-    historyPrompts.push(`[${senderName}|${formatTime(msg.timestamp)}|${msgType}] ${content}`);
+    // 格式：[角色/用户名/系统消息|时间|消息类别] 消息完整内容  (时间戳受全局开关控制)
+    if (timestampEnabled) {
+      historyPrompts.push(`[${senderName}|${formatTime(msg.timestamp)}|${msgType}] ${content}`);
+    } else {
+      historyPrompts.push(`[${senderName}|${msgType}] ${content}`);
+    }
   }
 
   return historyPrompts;

@@ -2225,6 +2225,9 @@
         title="diary-background"
       ></iframe>
     </div>
+    
+    <script src="db-schema.js"></script>
+    
 
     <script>
       /* CLOCK */
@@ -2609,6 +2612,17 @@
         chats: { keyPath: 'id' },
         // 👉 核心修改：使用数组作为复合主键，[聊天ID, 楼层]
         messages: { keyPath: ['chatId', 'floor'] },
+        // 线下剧场相关（统一在此声明，避免各页面独立升级 DB 版本导致阻塞）
+        theaters: { keyPath: 'id' },
+        theater_messages: { keyPath: ['theaterId', 'floor'] },
+        theater_summaries: { keyPath: 'id' },
+      };
+
+      // 各 store 需要创建的索引（名称 → keyPath）
+      const SCHEMA_INDEXES = {
+        theaters:          [{ name: 'by_created',  keyPath: 'createdAt' }],
+        theater_messages:  [{ name: 'by_theater',  keyPath: 'theaterId' }],
+        theater_summaries: [{ name: 'by_theater',  keyPath: 'theaterId' }],
       };
 
       function initTsukiDB() {
@@ -2625,6 +2639,11 @@
 
             if (missingStores.length === 0) {
               // 结构完整，直接返回可用连接
+              // 监听 versionchange：当其他页面（如 tsukistage.html）需要升级时，自动释放连接
+              db.onversionchange = () => {
+                console.log('[DB] 收到 versionchange，主动关闭连接以允许升级');
+                db.close();
+              };
               resolve(db);
             } else {
               // 第三步：发现缺表！自动关掉当前连接，用 "当前版本 + 1" 触发系统升级
@@ -2640,12 +2659,15 @@
                 // 遍历 SCHEMA 自动建表
                 for (const [storeName, options] of Object.entries(SCHEMA)) {
                   if (!upgradeDb.objectStoreNames.contains(storeName)) {
-                    if (options) {
-                      upgradeDb.createObjectStore(storeName, options);
-                    } else {
-                      upgradeDb.createObjectStore(storeName);
-                    }
+                    const store = options
+                      ? upgradeDb.createObjectStore(storeName, options)
+                      : upgradeDb.createObjectStore(storeName);
                     console.log(`[DB] 成功创建数据表: ${storeName}`);
+                    // 顺带建索引（如有定义）
+                    const indexes = SCHEMA_INDEXES[storeName] || [];
+                    indexes.forEach(idx => {
+                      store.createIndex(idx.name, idx.keyPath);
+                    });
                   }
                 }
               };
@@ -3020,5 +3042,6 @@
     <!-- 视觉引擎：data-listen="true" 表示同时开启 BroadcastChannel/storage 监听 -->
     <script src="TsukiTheme.js" data-listen="true"></script>
     <script src="TsukiDebug.js"></script>
+    <script src="GalleryPicker.js"></script>
   </body>
 </html>

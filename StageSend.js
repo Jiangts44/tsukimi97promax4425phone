@@ -325,7 +325,23 @@ Example:
 
     for (const cid of charIds) {
       const char = await dbGet(IDB_CONFIG.stores.chars, cid);
-      if (char && char.persona) finalStream.push(`[Character Persona: ${char.name}]\n${char.persona}`);
+      if (!char) continue;
+
+      // 角色世界书 Pre（前置，关键词触发）
+      const preWb = (char.worldbook || [])
+        .filter(s => s.type === 'pre' && s.enabled && isKeywordTriggered(latestMessage, s.keys))
+        .sort(sortByPriority);
+      preWb.forEach(s => finalStream.push(`[Memory Shard: ${s.title || ''}]\n${s.content}`));
+
+      // 角色身份 + 人设
+      if (char.name) finalStream.push(`[Character Identification]\nName: ${char.name}`);
+      if (char.persona) finalStream.push(`[Character Persona: ${char.name}]\n${char.persona}`);
+
+      // 角色世界书 Post（后置，关键词触发）
+      const postWb = (char.worldbook || [])
+        .filter(s => s.type === 'post' && s.enabled && isKeywordTriggered(latestMessage, s.keys))
+        .sort(sortByPriority);
+      postWb.forEach(s => finalStream.push(`[Author Notes: ${s.title || ''}]\n${s.content}`));
     }
 
     const localWbList = await getGlobalWb('wb_local');
@@ -355,35 +371,112 @@ Example:
   async function buildTheaterHistoryText(theaterId) {
     const db = await getDb();
     if (!db.objectStoreNames.contains(IDB_CONFIG.stores.theater_messages)) return '';
-    return new Promise(res => {
-      const tx = db.transaction(IDB_CONFIG.stores.theater_messages, 'readonly');
-      const idx = tx.objectStore(IDB_CONFIG.stores.theater_messages).index('by_theater');
-      const req = idx.getAll(theaterId);
-      req.onsuccess = () => {
-        const msgs = (req.result || []).sort((a, b) => a.floor - b.floor);
-        const textLines = msgs.map(m => {
-          let content = m.content || '';
 
-          content = content.replace(/\{"transcript":"(.*?)"\}/g, '$1');
-          content = content.replace(/\{"name":"(.*?)".*?\}/g, '[$1]');
-
-          if (m.type === 'prologue') return `[narrator|序幕] ${content.replace(/<[^>]+>/g, '')}`;
-
-          if (m.type === 'history' || m.type === 'summary' || m.isSummary) {
-            let clean = content
-              .replace(/<[^>]+>/g, ' ')
-              .replace(/\s+/g, ' ')
-              .trim();
-            return `[system|前情剧情] ${clean}`;
-          }
-
-          const tag = m.isNarrator ? 'narrator' : m.isUser ? 'user' : 'char';
-          return `[${tag}] ${content}`;
-        });
-        res(textLines.join('\n'));
-      };
-      req.onerror = () => res('');
+    // ── 读取全部舞台消息 ──
+    const allMsgs = await new Promise(res => {
+      try {
+        const tx = db.transaction(IDB_CONFIG.stores.theater_messages, 'readonly');
+        const req = tx.objectStore(IDB_CONFIG.stores.theater_messages).index('by_theater').getAll(theaterId);
+        req.onsuccess = () => res((req.result || []).sort((a, b) => a.floor - b.floor));
+        req.onerror = () => res([]);
+      } catch (e) { res([]); }
     });
+
+    // ── 尝试读取 theater_summaries（单独开新连接，确保拿到最新 schema） ──
+    let summaries = [];
+    try {
+      const dbForSummary = await new Promise((res, rej) => {
+        const req = indexedDB.open('tsukiphonepromax');
+        req.onsuccess = () => res(req.result);
+        req.onerror = () => rej(req.error);
+      });
+      if (dbForSummary.objectStoreNames.contains('theater_summaries')) {
+        summaries = await new Promise(res => {
+          try {
+            const tx = dbForSummary.transaction('theater_summaries', 'readonly');
+            const req = tx.objectStore('theater_summaries').index('by_theater').getAll(theaterId);
+            req.onsuccess = () => {
+              const result = (req.result || []).sort((a, b) => a.floorStart - b.floorStart);
+              console.log('%c[StageSend] theater_summaries 读取成功，条数: ' + result.length, 'color:#43d9a0;font-weight:bold');
+              res(result);
+            };
+            req.onerror = () => res([]);
+          } catch (e) { res([]); }
+        });
+      } else {
+        console.log('%c[StageSend] theater_summaries store 不存在，使用完整历史', 'color:#8a8a8e');
+      }
+    } catch (e) {
+      console.warn('[StageSend] 读取 theater_summaries 失败:', e);
+    }
+
+    // ── 单条消息 → 文本行 ──
+    function msgToLine(m) {
+      let content = m.content || '';
+      if (typeof content === 'object') {
+        content = content.transcript || content.name || JSON.stringify(content);
+      }
+      content = content
+        .replace(/\{"transcript":"(.*?)"\}/g, '$1')
+        .replace(/\{"name":"(.*?)".*?\}/g, '[$1]');
+      if (m.type === 'prologue') return `[narrator|序幕] ${content.replace(/<[^>]+>/g, '')}`;
+      if (m.type === 'history' || m.type === 'summary' || m.isSummary) {
+        // 先移除 button 标签及其内容（避免"删除"等按钮文字混入提示词）
+        const cleaned = content
+          .replace(/<button[^>]*>[\s\S]*?<\/button>/gi, '')
+          .replace(/<[^>]+>/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim();
+        return `[system|前情剧情·来源线上聊天] ${cleaned}`;
+      }
+      if (m.type === 'summary_bubble') return null;
+      const tag = m.isNarrator ? 'narrator' : m.isUser ? 'user' : 'char';
+      return `[${tag}] ${content}`;
+    }
+
+    // ── 无总结记录：走原来逻辑 ──
+    if (!summaries.length) {
+      console.log('%c[StageSend] 无总结记录，使用完整历史', 'color:#8a8a8e');
+      return allMsgs.map(msgToLine).filter(Boolean).join('\n');
+    }
+
+    // ── 有总结记录：按楼层顺序线性拼合 ──
+    const coveredFloors = new Set();
+    for (const s of summaries) {
+      for (let f = s.floorStart; f <= s.floorEnd; f++) coveredFloors.add(f);
+    }
+
+    // 构建统一时间线：每个元素都有 sortKey（楼层）和 text
+    const timeline = [];
+
+    // 1. 所有消息（history 永远保留，其他过滤掉被总结覆盖的）
+    for (const m of allMsgs) {
+      if (m.type === 'summary_bubble') continue;
+      if (m.isSummary) continue;
+      if (m.type !== 'history' && m.isSummarized === true) continue;
+      if (m.type !== 'history' && m.type !== 'prologue' && coveredFloors.has(m.floor)) continue;
+      const line = msgToLine(m);
+      if (line) timeline.push({ sortKey: m.floor, text: line });
+    }
+
+    // 2. 每段总结以其 floorStart 作为排序位置插入
+    for (const s of summaries) {
+      timeline.push({
+        sortKey: s.floorStart,
+        text: `========== 剧情摘要 F·${s.floorStart}–F·${s.floorEnd} ==========\n${s.summaryText}\n========== 摘要结束 ==========`,
+      });
+    }
+
+    // 3. 按楼层升序排列，总结段在同楼层消息之前（sortKey 相同时总结排前面）
+    timeline.sort((a, b) => a.sortKey - b.sortKey);
+
+    const result = timeline.map(t => t.text).join('\n');
+    console.group('%c[StageSend] 总结优先历史构建完成', 'color:#d4ff4d;font-weight:bold');
+    console.log(`摘要段数: ${summaries.length}，覆盖楼层: ${coveredFloors.size}`);
+    summaries.forEach(s => console.log(`  📚 F·${s.floorStart}–F·${s.floorEnd}: ${s.summaryText.slice(0,60)}…`));
+    console.log('拼合结果预览（前300字）:', result.slice(0, 300));
+    console.groupEnd();
+    return result;
   }
 
   /* ═══════════════════════════════════════════════════════════
@@ -540,6 +633,7 @@ Example:
     const inputField = document.getElementById('sField');
     const userText = inputField.value.trim();
 
+    // 先把用户输入渲染上屏并存入 DB
     if (userText && typeof window.sendMsg === 'function') {
       await window.sendMsg();
     }

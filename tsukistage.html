@@ -201,16 +201,22 @@
       ═══════════════════════════════ */
       #p-create {
         background: var(--paper);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
       }
 
       .char-grid {
         flex: 1;
+        min-height: 0; /* 关键：让 flex 子项可以正确收缩并触发 overflow-y: auto */
         overflow-y: auto;
         scrollbar-width: none;
         padding: 6px 14px 14px;
         display: grid;
         grid-template-columns: 1fr 1fr;
+        grid-auto-rows: 160px; /* 固定每行高度，卡片不压缩，超出自然滚动 */
         gap: 10px;
+        align-content: start; /* 内容从顶部开始排列，不拉伸填满 */
       }
       .char-grid::-webkit-scrollbar {
         display: none;
@@ -223,6 +229,7 @@
         display: flex;
         flex-direction: column;
         align-items: center;
+        justify-content: center; /* 内容垂直居中，在固定高度格子里好看 */
         gap: 8px;
         cursor: pointer;
         user-select: none;
@@ -2347,6 +2354,69 @@
       .stage-settings-bg.day .history-tag {
         color: var(--accent-blue);
       }
+
+      /* ── Day mode: Tab 0 总结面板文字修复 ── */
+      .stage-settings-bg.day .auto-sum-toggle-label {
+        color: var(--ink) !important;
+      }
+      .stage-settings-bg.day .auto-sum-toggle {
+        background: var(--paper-2);
+        border-color: var(--line);
+      }
+      .stage-settings-bg.day .sum-manual-row {
+        background: var(--paper-2);
+        border-color: var(--line);
+      }
+      .stage-settings-bg.day .sum-manual-btn {
+        background: linear-gradient(135deg, rgba(91, 124, 250, 0.12), rgba(67, 217, 160, 0.1));
+        border-color: rgba(91, 124, 250, 0.2);
+        color: var(--ink-2);
+      }
+      .stage-settings-bg.day .sum-manual-input {
+        background: var(--card);
+        border-color: var(--line);
+        color: var(--ink);
+      }
+      .stage-settings-bg.day .sum-manual-max-label {
+        color: var(--mute);
+      }
+      .stage-settings-bg.day .sum-prompt-textarea {
+        background: var(--paper-2);
+        border-color: var(--line);
+        color: var(--ink);
+      }
+      .stage-settings-bg.day .sum-prompt-reset {
+        background: var(--paper-2);
+        border-color: var(--line);
+        color: var(--mute);
+      }
+      .stage-settings-bg.day #tsukiSummaryFloorStatus {
+        color: var(--mute);
+      }
+      .stage-settings-bg.day .sfs-done { color: #2a9e6a; }
+      .stage-settings-bg.day .sfs-pending { color: #b06800; }
+      /* ss-count-label 在自动总结那行的"触发楼层数"文字 */
+      .stage-settings-bg.day .ss-summary-row .ss-count-label {
+        color: var(--ink-3) !important;
+      }
+      /* 手动总结说明小字 */
+      .stage-settings-bg.day #ssTab0 [style*="s-mute"],
+      .stage-settings-bg.day #ssTab0 > div:last-of-type {
+        color: var(--mute) !important;
+      }
+
+      /* ── Day mode: Tab 2 剧场配置文字修复 ── */
+      .stage-settings-bg.day .ss-render-label {
+        color: var(--ink-2) !important;
+      }
+      .stage-settings-bg.day .ss-render-desc {
+        color: var(--mute) !important;
+      }
+      /* 暗色模式下这些新 class 的默认色 */
+      .ss-render-label { color: var(--s-text); }
+      .ss-render-desc { color: var(--s-mute); }
+      .ss-manual-desc { color: var(--s-mute); }
+      .stage-settings-bg.day .ss-manual-desc { color: var(--mute) !important; }
     </style>
     <style id="tsuki-dynamic-style"></style>
   </head>
@@ -2489,25 +2559,78 @@
           </div>
         </div>
 
-        <!-- Tab 0: Auto Summary -->
+        <!-- Tab 0: Summary Panel (3 sections) -->
         <div class="ss-body active" id="ssTab0">
-          <div class="ss-sec">摘要设置</div>
-          <div class="ss-summary-row">
-            <button class="ss-summary-btn" id="ssSummarize">
-              <i class="fa-solid fa-wand-magic-sparkles"></i>
-              自动总结
-            </button>
+
+          <!-- ① 提示词 -->
+          <div class="ss-sec">总结提示词</div>
+          <div class="sum-prompt-wrap" style="margin-bottom:12px">
+            <textarea class="sum-prompt-textarea" id="sumPromptTA" placeholder="输入自定义总结提示词…"></textarea>
+            <button class="sum-prompt-reset" id="sumPromptReset">恢复默认</button>
+          </div>
+
+          <!-- ② 自动总结 + 楼层设置 -->
+          <div class="ss-sec">自动总结</div>
+          <div class="auto-sum-toggle">
+            <div class="auto-sum-toggle-label">
+              <i class="fa-solid fa-robot" style="font-size:11px;margin-right:6px;opacity:0.7"></i>自动总结监控
+            </div>
+            <div class="auto-sum-switch" id="autoSumSwitch"></div>
+          </div>
+          <div class="ss-summary-row" style="margin-bottom:4px">
+            <div class="ss-count-label" style="font-size:11px;color:var(--s-text)">触发楼层数</div>
             <div class="ss-count-wrap">
-              <div class="ss-count-label">条数</div>
               <div class="ss-count-stepper">
-                <button class="ss-stepper-btn" id="ssCountDec">−</button>
-                <div class="ss-count-num" id="ssCountNum">15</div>
-                <button class="ss-stepper-btn" id="ssCountInc">+</button>
+                <button class="ss-stepper-btn" id="ssAutoCountDec">−</button>
+                <input
+                  class="ss-count-num"
+                  id="ssAutoCountNum"
+                  type="number"
+                  min="1"
+                  max="999"
+                  value="15"
+                  style="width:44px;background:none;border:none;text-align:center;color:white;font-family:'Geist Mono',monospace;font-size:13px;font-weight:600;outline:none;-moz-appearance:textfield;"
+                />
+                <button class="ss-stepper-btn" id="ssAutoCountInc">+</button>
               </div>
             </div>
           </div>
-          <div class="ss-sec">总结结果</div>
-          <div class="ss-summary-result" id="ssSummaryResult"></div>
+          <div id="tsukiSummaryFloorStatus" style="margin-bottom:10px">
+            <span class="sfs-pending">加载中…</span>
+          </div>
+
+          <!-- ③ 手动总结 -->
+          <div class="ss-sec">手动总结</div>
+          <div class="sum-manual-row">
+            <button class="sum-manual-btn" id="sumManualBtn">
+              <i class="fa-solid fa-scissors"></i>
+              立即总结
+            </button>
+            <div class="sum-manual-count-wrap">
+              <input class="sum-manual-input" id="tsukiManualFloorCount" type="number" min="1" value="15" max="999" />
+              <span class="sum-manual-max-label" id="tsukiManualFloorMax">/ 0</span>
+            </div>
+          </div>
+          <div class="ss-manual-desc" style="font-size:8.5px;padding:0 2px 4px;line-height:1.5">
+            从最早的未总结楼层开始，总结指定条数。
+          </div>
+
+          <!-- ③b 指定楼层范围总结 -->
+          <div class="sum-manual-row" style="margin-top:4px">
+            <button class="sum-manual-btn" id="sumRangeBtn" style="background:linear-gradient(135deg,rgba(250,91,213,0.3),rgba(91,124,250,0.25));border-color:rgba(250,91,213,0.28)">
+              <i class="fa-solid fa-arrows-left-right-to-line"></i>
+              范围总结
+            </button>
+            <div class="sum-manual-count-wrap" style="gap:3px">
+              <input class="sum-manual-input" id="tsukiRangeFrom" type="number" min="1" value="1" placeholder="起" style="width:38px" />
+              <span class="sum-manual-max-label">—</span>
+              <input class="sum-manual-input" id="tsukiRangeTo" type="number" min="1" value="15" placeholder="止" style="width:38px" />
+            </div>
+          </div>
+          <div class="ss-manual-desc" style="font-size:8.5px;padding:0 2px 8px;line-height:1.5">
+            总结指定楼层范围内所有未总结的消息。
+          </div>
+
         </div>
 
         <!-- Tab 1: Chat Link -->
@@ -2536,7 +2659,7 @@
         <div class="ss-body" id="ssTab2">
           <div class="ss-sec">渲染模式</div>
           <div class="ss-summary-row" style="justify-content: space-between">
-            <div class="ss-count-label" style="font-size: 11px; color: var(--s-text)">沉浸式分段渲染</div>
+            <div class="ss-count-label ss-render-label" style="font-size: 11px;">沉浸式分段渲染</div>
             <div
               class="ss-count-stepper"
               id="renderModeToggle"
@@ -2553,9 +2676,40 @@
               ON
             </div>
           </div>
-          <div style="font-size: 9px; color: var(--s-mute); margin-top: -5px; padding: 0 4px; line-height: 1.4">
+          <div class="ss-render-desc" style="font-size: 9px; margin-top: -5px; padding: 0 4px; line-height: 1.4">
             ON: 旁白与对话自动分离成不同样式的气泡。<br />
             OFF: 强制合并所有内容到一个气泡（纯剧本模式）。
+          </div>
+
+          <div class="ss-sec" style="margin-top:18px">危险操作</div>
+          <button id="ssClearMsgsBtn" style="
+            width:100%;height:38px;
+            background:rgba(255,159,67,0.08);
+            border:1px solid rgba(255,159,67,0.25);
+            border-radius:12px 8px 12px 8px;
+            color:rgba(255,159,67,0.85);
+            font-family:'Geist Mono',monospace;
+            font-size:9.5px;font-weight:600;letter-spacing:0.1em;
+            cursor:pointer;transition:0.18s;margin-bottom:8px;
+            display:flex;align-items:center;justify-content:center;gap:8px;">
+            <i class="fa-solid fa-broom"></i>
+            仅清空聊天记录
+          </button>
+          <button id="ssNukeBtn" style="
+            width:100%;height:38px;
+            background:rgba(255,107,107,0.08);
+            border:1px solid rgba(255,107,107,0.25);
+            border-radius:12px 8px 12px 8px;
+            color:rgba(255,107,107,0.85);
+            font-family:'Geist Mono',monospace;
+            font-size:9.5px;font-weight:600;letter-spacing:0.1em;
+            cursor:pointer;transition:0.18s;
+            display:flex;align-items:center;justify-content:center;gap:8px;">
+            <i class="fa-solid fa-trash-can"></i>
+            删除当前剧场所有数据
+          </button>
+          <div style="font-size:8px;color:var(--s-mute);padding:5px 2px 0;line-height:1.4">
+            删除当前剧场的全部消息、总结记录及剧场本身，方便重新调试。不可撤销。
           </div>
         </div>
         <!-- Insert bar fixed at sheet bottom — outside scrolling ss-body -->
@@ -2601,6 +2755,9 @@
         </div>
       </div>
     </div>
+    
+    <script src="db-schema.js"></script>
+    
 
     <script>
       /* ══════════════════════════════════════════════════════════
@@ -2627,8 +2784,12 @@
           probe.onsuccess = () => {
             const cur = probe.result;
             const ver = cur.version;
-            const ok = cur.objectStoreNames.contains('theaters') && cur.objectStoreNames.contains('theater_messages');
+            const ok = cur.objectStoreNames.contains('theaters') &&
+                       cur.objectStoreNames.contains('theater_messages') &&
+                       cur.objectStoreNames.contains('theater_summaries');
             if (ok) {
+              // 监听 versionchange：其他页面需要升级时主动释放连接
+              cur.onversionchange = () => { _db = null; cur.close(); };
               _db = cur;
               resolve(_db);
               return;
@@ -2637,6 +2798,7 @@
             const req = indexedDB.open('tsukiphonepromax', ver + 1);
             req.onupgradeneeded = e => addStageStores(e.target.result);
             req.onsuccess = () => {
+              req.result.onversionchange = () => { _db = null; req.result.close(); };
               _db = req.result;
               resolve(_db);
             };
@@ -2654,6 +2816,10 @@
         if (!db.objectStoreNames.contains('theater_messages')) {
           const tm = db.createObjectStore('theater_messages', { keyPath: ['theaterId', 'floor'] });
           tm.createIndex('by_theater', 'theaterId');
+        }
+        if (!db.objectStoreNames.contains('theater_summaries')) {
+          const su = db.createObjectStore('theater_summaries', { keyPath: 'id' });
+          su.createIndex('by_theater', 'theaterId');
         }
       }
 
@@ -3172,6 +3338,16 @@
           toggleStageTheme();
         }
 
+        // 初始化总结面板
+        window._tsukiS = S;
+        initSummaryPanel();
+        if (window.TsukiSummary) {
+          window.TsukiSummary.updateSummaryFloorStatus(theater.id);
+          // 如果上次自动总结开关是开着的，重新启动监控
+          const cfg = window.TsukiSummary.loadSummaryCfg();
+          if (cfg.autoEnabled) window.TsukiSummary.startAutoWatch(S);
+        }
+
         // mark nav3 active
         document.getElementById('nav2').classList.add('has-content');
       }
@@ -3349,24 +3525,73 @@
           area.innerHTML = `<div class="s-empty"><i class="fa-solid fa-circle-exclamation"></i><p>消息加载失败</p></div>`;
           return;
         }
-
         msgs.sort((a, b) => a.floor - b.floor);
 
-        if (!msgs.length) {
+        // 读取当前剧场的所有总结记录
+        let summaries = [];
+        if (window.TsukiSummary) {
+          try { summaries = await window.TsukiSummary.getSummariesByTheater(S.theater.id); } catch (e) {}
+        }
+
+        // 构建"被哪条总结覆盖"的映射：floor → summaryRecord
+        const floorToSummary = new Map();
+        for (const s of summaries) {
+          for (let f = s.floorStart; f <= s.floorEnd; f++) {
+            floorToSummary.set(f, s);
+          }
+        }
+
+        // 记录已经渲染过文件夹的 summaryId，避免重复插入
+        const renderedSummaries = new Set();
+
+        let hasContent = false;
+        for (const m of msgs) {
+          const summary = floorToSummary.get(m.floor);
+
+          if (summary) {
+            // 该楼层被某条总结覆盖
+            if (!renderedSummaries.has(summary.id)) {
+              // 第一次遇到这段总结范围 → 插入文件夹气泡
+              renderedSummaries.add(summary.id);
+              if (window.TsukiSummary) {
+                const folderEl = window.TsukiSummary.buildSummaryFolderBubble({
+                  floor: summary.floorStart,
+                  type: 'summary_bubble',
+                  summaryId: summary.id,
+                  floorStart: summary.floorStart,
+                  floorEnd: summary.floorEnd,
+                  floorCount: summary.floorCount,
+                  content: summary.summaryText,
+                  theaterId: S.theater.id,
+                });
+                area.appendChild(folderEl);
+                hasContent = true;
+              }
+            }
+            // 无论如何跳过原始消息渲染（已被总结归档）
+            continue;
+          }
+
+          // 普通消息正常渲染（过滤掉旧式 summary_bubble 写入的楼层残留）
+          if (m.type === 'summary_bubble') continue;
+
+          const el = buildMsgEl(m);
+          if (el) { area.appendChild(el); hasContent = true; }
+        }
+
+        if (!hasContent) {
           area.innerHTML = `<div class="s-empty"><i class="fa-solid fa-masks-theater"></i><p>幕布尚未拉开</p></div>`;
           return;
         }
-
-        msgs.forEach(m => {
-          const el = buildMsgEl(m);
-          if (el) area.appendChild(el);
-        });
         area.scrollTop = area.scrollHeight;
       }
 
       function buildMsgEl(msg) {
         if (msg.type === 'prologue') return buildPrologueEl(msg);
         if (msg.type === 'history') return buildHistoryBubble(msg);
+        if (msg.type === 'summary_bubble') {
+          return window.TsukiSummary ? window.TsukiSummary.buildSummaryFolderBubble(msg) : buildSummaryBubble(msg);
+        }
         if (msg.type === 'summary' || msg.isSummary) return buildSummaryBubble(msg);
         if (msg.isNarrator || msg.sender === 'narrator') return buildNarratorBubble(msg);
 
@@ -3730,6 +3955,9 @@
         settingsBg.classList.toggle('day', isDay);
         settingsBg.classList.add('open');
         loadChatLinks();
+        if (window.TsukiSummary && S.theater) {
+          window.TsukiSummary.updateSummaryFloorStatus(S.theater.id);
+        }
       }
 
       function closeSettings() {
@@ -3755,92 +3983,297 @@
         });
       });
 
-      // ── summary count stepper ──
-      let summaryCount = 15;
-      document.getElementById('ssCountInc').addEventListener('click', () => {
-        summaryCount = Math.min(100, summaryCount + 5);
-        document.getElementById('ssCountNum').textContent = summaryCount;
-      });
-      document.getElementById('ssCountDec').addEventListener('click', () => {
-        summaryCount = Math.max(5, summaryCount - 5);
-        document.getElementById('ssCountNum').textContent = summaryCount;
-      });
-
-      // ── auto summary ──
-      document.getElementById('ssSummarize').addEventListener('click', async () => {
+      // ── 仅清空聊天记录（保留剧场和总结） ──
+      document.getElementById('ssClearMsgsBtn').addEventListener('click', async () => {
         if (!S.theater) return;
-        const btn = document.getElementById('ssSummarize');
-        const resultEl = document.getElementById('ssSummaryResult');
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> 总结中…';
-        resultEl.classList.add('show');
-        resultEl.textContent = '正在读取消息…';
+        const title = S.theater.title || S.theater.id;
+        if (!confirm(`清空剧场「${title}」的所有聊天消息和总结记录？\n剧场本身会保留，可以重新开始聊天。\n此操作不可撤销。`)) return;
+
         try {
-          let msgs = await dbGetByIndex('theater_messages', 'by_theater', S.theater.id);
-          msgs = msgs
-            .filter(m => m.type !== 'prologue' && m.type !== 'history' && !m.isSummary)
-            .sort((a, b) => a.floor - b.floor);
-          const last = msgs.slice(-summaryCount);
-          if (!last.length) {
-            resultEl.textContent = '暂无消息可总结。';
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> 自动总结';
-            return;
+          const db = await openDb();
+          const tid = S.theater.id;
+
+          // 清空 theater_messages
+          await new Promise((res, rej) => {
+            const tx = db.transaction('theater_messages', 'readwrite');
+            const req = tx.objectStore('theater_messages').index('by_theater').openCursor(IDBKeyRange.only(tid));
+            req.onsuccess = e => {
+              const cursor = e.target.result;
+              if (cursor) { cursor.delete(); cursor.continue(); }
+            };
+            tx.oncomplete = res;
+            tx.onerror = rej;
+          });
+
+          // 清空 theater_summaries
+          if (db.objectStoreNames.contains('theater_summaries')) {
+            await new Promise((res, rej) => {
+              const tx = db.transaction('theater_summaries', 'readwrite');
+              const req = tx.objectStore('theater_summaries').index('by_theater').openCursor(IDBKeyRange.only(tid));
+              req.onsuccess = e => {
+                const cursor = e.target.result;
+                if (cursor) { cursor.delete(); cursor.continue(); }
+              };
+              tx.oncomplete = res;
+              tx.onerror = rej;
+            });
           }
 
-          // Build readable summary lines
-          const lines = last
-            .map(m => {
-              let rname;
-              if (m.isNarrator || m.sender === 'narrator') {
-                rname = '[旁白]';
-              } else if (m.isUser || m.sender === 'user') {
-                const u = S.users.find(u => u && u.id === m.charId) || S.users.find(Boolean);
-                rname = u?.name || 'User';
-              } else {
-                const c = S.chars.find(c => c.id === m.charId) || S.chars[0];
-                rname = c?.name || '?';
-              }
-              const txt = typeof m.content === 'string' ? m.content : '';
-              return `${rname}: ${txt.slice(0, 80)}${txt.length > 80 ? '…' : ''}`;
-            })
-            .join('\n');
-
-          resultEl.textContent = lines;
-
-          // ── also insert as a summary bubble into the stage area ──
-          const floor = await getNextFloor(S.theater.id);
-          const summaryMsg = {
-            theaterId: S.theater.id,
-            floor,
-            type: 'summary',
-            isUser: false,
-            isNarrator: false,
-            isSummary: true,
-            charId: null,
-            charIds: [],
-            sender: 'system',
-            content: lines,
-            srcCount: last.length,
-            timestamp: Date.now(),
-          };
-          await dbPut('theater_messages', summaryMsg);
+          // 重置 theater 的 lastFloor
+          S.theater.lastFloor = 0;
           S.theater.updatedAt = Date.now();
-          S.theater.lastFloor = floor;
           await dbPut('theaters', S.theater);
 
-          const area = document.getElementById('sArea');
-          area.querySelector('.s-empty')?.remove();
-          area.appendChild(buildSummaryBubble(summaryMsg));
-          area.scrollTop = area.scrollHeight;
-          updateFloor(floor);
+          console.log(`%c[Stage] 剧场 ${tid} 聊天记录已清空`, 'color:#ff9f43;font-weight:bold');
+          document.getElementById('settingsBg').classList.remove('open');
+          await renderMessages();
+          updateFloor(0);
+          if (window.TsukiSummary) {
+            window.TsukiSummary.stopAutoWatch();
+            window.TsukiSummary.updateSummaryFloorStatus(tid);
+          }
         } catch (e) {
-          resultEl.textContent = '总结失败：' + e.message;
-        } finally {
-          btn.disabled = false;
-          btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> 自动总结';
+          console.error('[Stage] 清空失败:', e);
+          alert('清空失败：' + e.message);
         }
       });
+
+      // ── 删除当前剧场所有数据 ──
+      document.getElementById('ssNukeBtn').addEventListener('click', async () => {
+        if (!S.theater) return;
+        const title = S.theater.title || S.theater.id;
+        if (!confirm(`⚠️ 确认删除剧场「${title}」的全部数据？\n包括所有消息、总结记录和剧场本身。\n此操作不可撤销。`)) return;
+
+        try {
+          const db = await openDb();
+          const tid = S.theater.id;
+
+          // 删除 theater_messages
+          await new Promise((res, rej) => {
+            const tx = db.transaction('theater_messages', 'readwrite');
+            const range = IDBKeyRange.bound([tid, 0], [tid, Infinity]);
+            const req = tx.objectStore('theater_messages').index('by_theater').openCursor(IDBKeyRange.only(tid));
+            req.onsuccess = e => {
+              const cursor = e.target.result;
+              if (cursor) { cursor.delete(); cursor.continue(); }
+            };
+            tx.oncomplete = res;
+            tx.onerror = rej;
+          });
+
+          // 删除 theater_summaries
+          if (db.objectStoreNames.contains('theater_summaries')) {
+            await new Promise((res, rej) => {
+              const tx = db.transaction('theater_summaries', 'readwrite');
+              const req = tx.objectStore('theater_summaries').index('by_theater').openCursor(IDBKeyRange.only(tid));
+              req.onsuccess = e => {
+                const cursor = e.target.result;
+                if (cursor) { cursor.delete(); cursor.continue(); }
+              };
+              tx.oncomplete = res;
+              tx.onerror = rej;
+            });
+          }
+
+          // 删除 theaters 记录
+          await dbPut('theaters', { id: tid, _deleted: true }); // 先置位
+          await new Promise((res, rej) => {
+            const tx = db.transaction('theaters', 'readwrite');
+            tx.objectStore('theaters').delete(tid);
+            tx.oncomplete = res;
+            tx.onerror = rej;
+          });
+
+          console.log(`%c[Stage] 剧场 ${tid} 已全部清除`, 'color:#ff6b6b;font-weight:bold');
+          alert(`剧场「${title}」已删除，将返回剧场列表。`);
+
+          // 重置状态，跳回列表页
+          S.theater = null;
+          S.chars = [];
+          S.users = [];
+          S.roles = [];
+          if (window.TsukiSummary) window.TsukiSummary.stopAutoWatch();
+          document.getElementById('settingsBg').classList.remove('open');
+          await loadTheaterList();
+          goPanel(1);
+        } catch (e) {
+          console.error('[Stage] 删除剧场失败:', e);
+          alert('删除失败：' + e.message);
+        }
+      });
+
+      /* ══════════════════════════════════════════════════════════
+         12b. TsukiSummary — 总结设置面板绑定
+      ══════════════════════════════════════════════════════════ */
+
+      // 暴露 S 给 TsukiSummary.js 使用
+      window._tsukiS = S;
+
+      function initSummaryPanel() {
+        if (!window.TsukiSummary) {
+          console.warn('[Stage] TsukiSummary.js 未加载，总结功能不可用');
+          return;
+        }
+        // 防重复绑定：只初始化一次，后续只刷新 UI 状态
+        if (initSummaryPanel._bound) {
+          // 已绑定过，只刷新开关状态和配置显示
+          const cfg = window.TsukiSummary.loadSummaryCfg();
+          const autoSwitch = document.getElementById('autoSumSwitch');
+          if (autoSwitch) {
+            autoSwitch.classList.toggle('on', !!cfg.autoEnabled);
+          }
+          const promptTA = document.getElementById('sumPromptTA');
+          if (promptTA && !promptTA.value) promptTA.value = cfg.prompt || window.TsukiSummary.DEFAULT_SUMMARY_PROMPT;
+          return;
+        }
+        initSummaryPanel._bound = true;
+        const TS = window.TsukiSummary;
+        const cfg = TS.loadSummaryCfg();
+
+        // ── ① 提示词 ──
+        const promptTA = document.getElementById('sumPromptTA');
+        const promptReset = document.getElementById('sumPromptReset');
+        if (promptTA) {
+          promptTA.value = cfg.prompt || TS.DEFAULT_SUMMARY_PROMPT;
+          promptTA.addEventListener('input', () => {
+            TS.saveSummaryCfg({ prompt: promptTA.value });
+            console.log('[TsukiSummary] 提示词已更新（前50字）:', promptTA.value.slice(0, 50));
+          });
+        }
+        if (promptReset) {
+          promptReset.addEventListener('click', () => {
+            promptTA.value = TS.DEFAULT_SUMMARY_PROMPT;
+            TS.saveSummaryCfg({ prompt: TS.DEFAULT_SUMMARY_PROMPT });
+            console.log('[TsukiSummary] 提示词已恢复默认');
+          });
+        }
+
+        // ── ② 自动总结开关 & 楼层设置 ──
+        const autoSwitch = document.getElementById('autoSumSwitch');
+        const autoCountNum = document.getElementById('ssAutoCountNum');
+        const autoCountDec = document.getElementById('ssAutoCountDec');
+        const autoCountInc = document.getElementById('ssAutoCountInc');
+
+        // 初始化 UI
+        let autoFloorCount = cfg.autoFloorCount || 15;
+        if (autoCountNum) autoCountNum.value = autoFloorCount;
+        if (cfg.autoEnabled) autoSwitch?.classList.add('on');
+
+        autoSwitch?.addEventListener('click', () => {
+          const isOn = autoSwitch.classList.toggle('on');
+          TS.saveSummaryCfg({ autoEnabled: isOn });
+          console.log(`%c🤖 [TsukiSummary] 自动总结: ${isOn ? 'ON' : 'OFF'}`, 'color:#d4ff4d;font-weight:bold');
+          if (isOn && S.theater) TS.startAutoWatch(S);
+          else TS.stopAutoWatch();
+        });
+
+        autoCountDec?.addEventListener('click', () => {
+          autoFloorCount = Math.max(1, autoFloorCount - 1);
+          if (autoCountNum) autoCountNum.value = autoFloorCount;
+          TS.saveSummaryCfg({ autoFloorCount });
+        });
+        autoCountInc?.addEventListener('click', () => {
+          autoFloorCount = Math.min(999, autoFloorCount + 1);
+          if (autoCountNum) autoCountNum.value = autoFloorCount;
+          TS.saveSummaryCfg({ autoFloorCount });
+        });
+        autoCountNum?.addEventListener('change', () => {
+          const v = Math.max(1, Math.min(999, parseInt(autoCountNum.value) || 1));
+          autoFloorCount = v;
+          autoCountNum.value = v;
+          TS.saveSummaryCfg({ autoFloorCount });
+        });
+
+        // ── ③ 手动总结 ──
+        const manualBtn = document.getElementById('sumManualBtn');
+        const manualInput = document.getElementById('tsukiManualFloorCount');
+
+        manualBtn?.addEventListener('click', async () => {
+          if (!S.theater) return;
+          const count = parseInt(manualInput?.value || 15);
+          if (!count || count <= 0) { alert('请输入有效的总结楼层数'); return; }
+
+          manualBtn.disabled = true;
+          manualBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> 总结中…';
+
+          console.group('%c✂️ [TsukiSummary] 手动总结触发', 'color:#5b7cfa;font-weight:bold;font-size:14px');
+          console.log('总结楼层数:', count);
+
+          try {
+            const unsummarized = await TS.getUnsummarizedFloors(S.theater.id);
+            const actualCount = Math.min(count, unsummarized.length);
+            if (!actualCount) { alert('没有可总结的楼层'); return; }
+
+            const floors = unsummarized.slice(0, actualCount).map(m => m.floor);
+            console.log('实际总结楼层:', floors);
+            console.groupEnd();
+
+            const area = document.getElementById('sArea');
+
+            // 执行总结（返回 bubbleMsg，不用 callback）
+            const { bubbleMsg } = await TS.executeSummary(floors, S);
+
+            // 用 renderMessages() 完整重渲染，自动过滤 isSummarized 气泡、显示 summary_bubble 文件夹
+            if (typeof renderMessages === 'function') {
+              await renderMessages();
+            } else {
+              // 降级：手动 DOM 替换
+              const floorSet = new Set(floors);
+              area?.querySelectorAll('[data-floor]').forEach(el => {
+                if (floorSet.has(Number(el.dataset.floor))) el.remove();
+              });
+              area?.querySelector('.s-empty')?.remove();
+              const folderEl = TS.buildSummaryFolderBubble(bubbleMsg);
+              area?.appendChild(folderEl);
+            }
+            if (area) area.scrollTop = area.scrollHeight;
+
+            await TS.updateSummaryFloorStatus(S.theater.id);
+          } catch (e) {
+            console.error('[TsukiSummary] 手动总结失败:', e);
+            alert('总结失败：' + e.message);
+          } finally {
+            manualBtn.disabled = false;
+            manualBtn.innerHTML = '<i class="fa-solid fa-scissors"></i> 立即总结';
+          }
+        });
+        // ── ③b 指定范围总结 ──
+        const rangeBtn = document.getElementById('sumRangeBtn');
+        const rangeFrom = document.getElementById('tsukiRangeFrom');
+        const rangeTo = document.getElementById('tsukiRangeTo');
+
+        rangeBtn?.addEventListener('click', async () => {
+          if (!S.theater) return;
+          const from = parseInt(rangeFrom?.value);
+          const to = parseInt(rangeTo?.value);
+          // 支持单楼层（from === to）和范围（from < to）
+          if (!from || !to || from > to) { alert('请输入有效的楼层范围（起 ≤ 止，单楼层起止相同）'); return; }
+
+          rangeBtn.disabled = true;
+          rangeBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> 总结中…';
+
+          try {
+            const unsummarized = await TS.getUnsummarizedFloors(S.theater.id);
+            const floors = unsummarized.filter(m => m.floor >= from && m.floor <= to).map(m => m.floor);
+            if (!floors.length) { alert(`F·${from}${from === to ? '' : '–F·' + to} 范围内没有可总结的楼层`); return; }
+
+            console.log(`%c✂️ [TsukiSummary] 范围总结 F·${from}–F·${to}，共 ${floors.length} 条`, 'color:#fa5bd5;font-weight:bold;font-size:14px');
+            await TS.executeSummary(floors, S);
+            if (typeof renderMessages === 'function') await renderMessages();
+            document.getElementById('sArea').scrollTop = document.getElementById('sArea').scrollHeight;
+            await TS.updateSummaryFloorStatus(S.theater.id);
+          } catch (e) {
+            console.error('[TsukiSummary] 范围总结失败:', e);
+            alert('总结失败：' + e.message);
+          } finally {
+            rangeBtn.disabled = false;
+            rangeBtn.innerHTML = '<i class="fa-solid fa-arrows-left-right-to-line"></i> 范围总结';
+          }
+        });
+
+      } // end initSummaryPanel
+
+      // 在打开设置面板时刷新楼层状态（已在上面的 openSettings 函数中处理）
 
       function buildSummaryBubble(msg) {
         const el = document.createElement('div');
@@ -4350,6 +4783,9 @@
     ══════════════════════════════════════════════════════════ */
       (async () => {
         try {
+          // 等待 db-schema.js 完成所有 store 的创建/升级，再开始读取数据
+          // 避免 openDb() 和 ensureSchema() 同时竞争 indexedDB.open 导致时序问题
+          if (window.tsukiDbReady) await window.tsukiDbReady;
           await loadChars();
           await loadTheaterList();
           console.log('[Stage] 线下剧场初始化完成');
@@ -4426,6 +4862,11 @@
       const tsukiChannel = new BroadcastChannel('tsuki_channel');
       tsukiChannel.onmessage = e => {
         if (e.data === 'update_theme') applyGlobalTheme();
+        // 🌟 char.html 修改角色后实时刷新角色选择列表
+        if (e.data === 'update_chars') {
+          console.log('[Stage] 收到 update_chars，刷新角色列表');
+          loadChars();
+        }
       };
 
       // 初始化执行
@@ -4445,8 +4886,11 @@
       window.getNextFloor = getNextFloor;
       window.updateFloor = updateFloor;
       window.sendMsg = sendMsg; // 借用这个可以实现本地自己打字时的入库操作
+      window.renderMessages = renderMessages; // 供 TsukiSummary 在总结后重渲染
+      window._stageClearDb = function () { _db = null; }; // 供 TsukiSummary 升级 DB 时清缓存
     </script>
     <script src="StageSend.js"></script>
+    <script src="TsukiSummary.js"></script>
     <script src="TsukiBridge.js"></script>
   </body>
 </html>

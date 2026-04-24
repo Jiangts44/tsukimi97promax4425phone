@@ -961,12 +961,16 @@
       // ── Put (insert or replace) one record ──────────────────
       async function putOne(store, record) {
         const db = await openDb();
-        return new Promise((resolve, reject) => {
+        await new Promise((resolve, reject) => {
           const tx = db.transaction(store, 'readwrite');
           const req = tx.objectStore(store).put(record);
           req.onsuccess = () => resolve();
           req.onerror = e => reject(e.target.error);
         });
+        // 🌟 chars / users 变更时广播，让 tsukistage 等页面实时刷新角色列表
+        if (store === 'chars' || store === 'users') {
+          try { new BroadcastChannel('tsuki_channel').postMessage('update_chars'); } catch (e) {}
+        }
       }
 
       // ── Delete one record ────────────────────────────────────
@@ -1605,5 +1609,6 @@
       });
     </script>
     <script src="TsukiBridge.js"></script>
+    <script src="GalleryPicker.js"></script>
   </body>
 </html>
