@@ -193,19 +193,32 @@
     .gp-tab.active { background: var(--ink,#0a0a0a); color: #fff; border-color: var(--ink,#0a0a0a); }
     #gp-gallery-grid {
       flex: 1; overflow-y: auto; padding: 14px 18px 20px;
-      display: grid; grid-template-columns: repeat(3,1fr); gap: 9px; align-content: start;
+      display: grid;
+      grid-template-columns: repeat(3,1fr);
+      grid-auto-rows: 1fr;
+      gap: 9px; align-content: start;
+    }
+    #gp-gallery-grid::before {
+      content: ''; display: block; padding-bottom: 0;
+      grid-column: 1; grid-row: 1; width: 0;
     }
     #gp-gallery-grid::-webkit-scrollbar { display: none; }
     .gp-grid-item {
-      aspect-ratio: 1; border-radius: 13px; overflow: hidden;
-      background: var(--paper-2,#f1f0ea); position: relative; cursor: pointer;
-      transition: all .18s; box-shadow: 0 2px 8px rgba(0,0,0,.06);
+      position: relative; border-radius: 13px; overflow: hidden;
+      background: var(--paper-2,#f1f0ea); cursor: pointer;
+      transition: transform .18s, box-shadow .18s;
+      box-shadow: 0 2px 8px rgba(0,0,0,.06);
+      /* 正方形：用 padding-top hack 保证高度等于宽度，不依赖 aspect-ratio */
+      width: 100%; padding-top: 100%; height: 0;
     }
     .gp-grid-item:hover {
       transform: scale(.96);
       box-shadow: 0 0 0 2.5px var(--ink,#0a0a0a), 0 4px 16px rgba(0,0,0,.15);
     }
-    .gp-grid-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .gp-grid-item img {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%; object-fit: cover; display: block;
+    }
     .gp-grid-overlay {
       position: absolute; inset: 0; background: rgba(10,10,10,0);
       display: flex; align-items: center; justify-content: center; transition: background .18s;

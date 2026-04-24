@@ -1820,6 +1820,58 @@
         font-size: 10px;
         font-family: 'Geist Mono', monospace;
       }
+      
+      /* ─────────────────────────────────────────────────────────
+   gallery-overlap-fix.css
+   粘贴到 index.html 任意 <style> 块的最底部，或单独 <link> 引入
+   修复：图片多时卡片互相重叠
+   原理：用 padding-top:100% hack 替代 aspect-ratio，
+         彻底解决移动端 grid 行高塌陷导致的重叠问题
+───────────────────────────────────────────────────────── */
+
+.gallery-content {
+  grid-auto-rows: auto !important;
+}
+
+.gallery-item {
+  /* 不再依赖 aspect-ratio，用 padding-top 锁死正方形 */
+  aspect-ratio: unset !important;
+  position: relative !important;
+  width: 100% !important;
+  padding-top: 100% !important;
+  height: 0 !important;
+  overflow: hidden !important;
+}
+
+.gallery-item img {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  display: block !important;
+}
+
+.gallery-item .del-img {
+  z-index: 2 !important;
+}
+
+.gallery-upload-card {
+  aspect-ratio: unset !important;
+  position: relative !important;
+  width: 100% !important;
+  padding-top: 100% !important;
+  height: 0 !important;
+}
+
+/* upload card 的内容要 absolute 居中 */
+.gallery-upload-card > * {
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+}
+
     </style>
 
     <style>
@@ -2022,7 +2074,7 @@
               <div class="string-row">
                 <div class="string-line"></div>
                 <div class="pendants-row">
-                  <div class="pendant" style="--dly: 0.2s; --dur: 3s; --amp: 4.5; --tlen: 26px">
+                  <div class="pendant" style="--dly: 0.2s; --dur: 3s; --amp: 4.5; --tlen: 26px" onclick="openApp('calendar.html')">
                     <div class="pend-thread"></div>
                     <div class="pend-icon ai-cal"><i class="fa-solid fa-calendar-days"></i></div>
                     <div class="pend-label">Calendar</div>
