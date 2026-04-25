@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&family=Caveat:wght@600;700&display=swap" rel="stylesheet" />
   <script src="db-schema.js"></script>
   <style>
     :root {
@@ -117,10 +117,75 @@
     .cc.ot{color:var(--mute);opacity:.45;}
     .cc.hev::after{content:'';position:absolute;bottom:3px;width:4px;height:4px;border-radius:50%;background:var(--blossom);}
     .cc.td.hev::after{background:#fff;}
-    /* Char annotation mark on calendar cell */
-    .amark{position:absolute;top:0px;right:1px;font-size:8px;line-height:1;pointer-events:none;font-family:'Geist Mono',monospace;font-weight:700;}
-    .amark.ci{color:var(--blossom);}
-    .amark.cr{color:var(--coral);}
+    /* ── STAMP SYSTEM — 圆形印章风格 ── */
+    /* Calendar cell stamp */
+    .amark{
+      position:absolute;top:-4px;right:-3px;
+      width:16px;height:16px;border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      font-size:7.5px;font-weight:700;line-height:1;
+      pointer-events:none;
+      font-family:'Noto Serif SC','Songti SC','STSong',serif;
+      border:1.5px solid currentColor;
+      transform:rotate(-8deg);
+      box-shadow:0 1px 4px rgba(0,0,0,.12);
+    }
+    .amark.ci{
+      color:#c0392b;background:rgba(255,235,232,.92);
+      border-color:#c0392b;
+      box-shadow:0 1px 5px rgba(192,57,43,.25),inset 0 0 0 .5px rgba(255,255,255,.6);
+    }
+    .amark.cr{
+      color:#5b6f8a;background:rgba(232,238,248,.92);
+      border-color:#5b6f8a;
+      box-shadow:0 1px 5px rgba(91,111,138,.2),inset 0 0 0 .5px rgba(255,255,255,.6);
+    }
+    .amark.user-ci{
+      color:#b5451b;background:rgba(255,240,230,.92);
+      border-color:#b5451b;border-style:dashed;
+    }
+    .amark.user-cr{
+      color:#4a5d7a;background:rgba(235,240,250,.92);
+      border-color:#4a5d7a;border-style:dashed;
+    }
+    /* Week strip card stamp */
+    .wdano{
+      position:absolute;top:3px;right:3px;
+      width:18px;height:18px;border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      font-size:8px;font-weight:700;line-height:1;
+      font-family:'Noto Serif SC','Songti SC','STSong',serif;
+      border:1.5px solid currentColor;
+      transform:rotate(-6deg);
+      box-shadow:0 1px 4px rgba(0,0,0,.1);
+    }
+    .wdano.ci{color:#c0392b;background:rgba(255,235,232,.9);border-color:#c0392b;}
+    .wdano.cr{color:#5b6f8a;background:rgba(232,238,248,.9);border-color:#5b6f8a;}
+    .wdano.user-ci{color:#b5451b;background:rgba(255,240,230,.9);border-color:#b5451b;border-style:dashed;}
+    .wdano.user-cr{color:#4a5d7a;background:rgba(235,240,250,.9);border-color:#4a5d7a;border-style:dashed;}
+    /* Mood cell stamp */
+    .moodseal{
+      width:20px;height:20px;border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      font-size:9px;font-weight:700;line-height:1;
+      font-family:'Noto Serif SC','Songti SC','STSong',serif;
+      border:1.5px solid currentColor;
+      transform:rotate(-5deg);
+      flex-shrink:0;
+    }
+    .moodseal.good-char{color:#c0392b;background:rgba(255,235,232,.92);border-color:#c0392b;box-shadow:0 1px 4px rgba(192,57,43,.2);}
+    .moodseal.bad-char{color:#5b6f8a;background:rgba(232,238,248,.92);border-color:#5b6f8a;box-shadow:0 1px 4px rgba(91,111,138,.15);}
+    .moodseal.good-user{color:#b5451b;background:rgba(255,240,230,.92);border-color:#b5451b;border-style:dashed;}
+    .moodseal.bad-user{color:#4a5d7a;background:rgba(235,240,250,.92);border-color:#4a5d7a;border-style:dashed;}
+    /* Annotation bar inline seal */
+    .anoseal{
+      display:inline-flex;align-items:center;justify-content:center;
+      width:20px;height:20px;border-radius:50%;
+      font-size:9px;font-weight:700;line-height:1;vertical-align:middle;
+      font-family:'Noto Serif SC','Songti SC','STSong',serif;
+      border:1.5px solid currentColor;
+      transform:rotate(-6deg);margin-right:5px;flex-shrink:0;
+    }
 
     /* Day detail panel */
     .ddp{margin:10px 14px 0;background:var(--card);border-radius:20px;border:1px solid var(--line);overflow:hidden;box-shadow:0 4px 20px -8px rgba(28,28,46,.07);}
@@ -130,21 +195,78 @@
     .addbtn{padding:5px 11px;border-radius:10px;background:linear-gradient(135deg,var(--spring),var(--sky));color:#fff;font-size:10.5px;font-weight:600;border:none;cursor:pointer;display:flex;align-items:center;gap:4px;box-shadow:0 2px 8px -3px rgba(114,201,160,.5);transition:all .18s;}
     .addbtn:active{transform:scale(.92);}
 
-    /* Char annotation bar in day detail */
-    .anobar{margin:8px 18px 0;padding:8px 12px;background:linear-gradient(135deg,rgba(244,167,185,.1),rgba(184,168,216,.08));border:1px solid rgba(244,167,185,.22);border-radius:10px;display:none;align-items:flex-start;gap:8px;}
+    /* Char/User annotation bar in day detail — symmetric two-column */
+    .anobar{margin:8px 18px 0;padding:10px 14px;background:linear-gradient(135deg,rgba(244,167,185,.07),rgba(184,168,216,.05));border:1px solid rgba(244,167,185,.18);border-radius:12px;display:none;gap:10px;}
     .anobar.sh{display:flex;}
-    .anobav{width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,var(--blossom),var(--lavender));display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;flex-shrink:0;margin-top:1px;overflow:hidden;}
-    .anobav img{width:100%;height:100%;object-fit:cover;}
-    .anobwho{font-size:9.5px;font-family:'Geist Mono',monospace;color:var(--mute);letter-spacing:.05em;margin-bottom:3px;}
-    .anobtxt{font-family:'Fraunces',serif;font-style:italic;font-size:12px;color:var(--ink2);line-height:1.5;}
-    .anosym{margin-right:3px;}
+    /* Left col = char, Right col = user, centered divider */
+    .anobar-inner{display:flex;align-items:stretch;width:100%;gap:0;}
+    .anoside{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0;padding:4px 8px;}
+    .anoside.left{border-right:1px solid rgba(244,167,185,.22);}
+    .anoside-empty{flex:1;display:flex;align-items:center;justify-content:center;opacity:.3;}
+    .anoside-av{width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,var(--blossom),var(--lavender));display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;flex-shrink:0;overflow:hidden;}
+    .anoside-av img{width:100%;height:100%;object-fit:cover;}
+    .anoside-av.user{background:linear-gradient(135deg,var(--sky),var(--spring));}
+    .anoside-name{font-size:8.5px;font-family:'Geist Mono',monospace;color:var(--mute);letter-spacing:.05em;text-align:center;}
+    .anoside-items{display:flex;flex-direction:column;gap:4px;align-items:center;width:100%;}
+    .anoside-item{display:flex;align-items:center;gap:5px;width:100%;}
+    .anoside-note{font-family:'Fraunces',serif;font-style:italic;font-size:11px;color:var(--ink2);line-height:1.4;flex:1;min-width:0;word-break:break-all;}
+
+    /* ── MOOD BAROMETER ── */
+    .moodbar{margin:10px 14px 0;background:var(--card);border-radius:18px;border:1px solid var(--line);overflow:hidden;box-shadow:0 3px 14px -6px rgba(28,28,46,.07);}
+    .moodhdr{display:flex;align-items:center;justify-content:space-between;padding:11px 16px 8px;}
+    .moodttl{font-family:'Fraunces',serif;font-style:italic;font-size:14px;color:var(--ink);letter-spacing:-.01em;}
+    .moodsub{font-size:9px;font-family:'Geist Mono',monospace;color:var(--mute);letter-spacing:.07em;}
+    .moodscroll{overflow-x:auto;padding:0 12px 12px;scrollbar-width:none;}
+    .moodscroll::-webkit-scrollbar{display:none;}
+    .moodgrid{display:flex;gap:4px;width:max-content;min-width:100%;}
+    .moodcell{
+      width:34px;flex-shrink:0;border-radius:10px;
+      display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+      gap:3px;padding:6px 4px 5px;cursor:pointer;
+      background:var(--paper2);border:1px solid transparent;
+      transition:all .18s;min-height:56px;position:relative;
+    }
+    .moodcell:hover{background:rgba(114,201,160,.08);border-color:rgba(114,201,160,.2);}
+    .moodcell.has-good{background:linear-gradient(170deg,rgba(192,57,43,.07),rgba(255,220,215,.12));border-color:rgba(192,57,43,.18);}
+    .moodcell.has-bad{background:linear-gradient(170deg,rgba(91,111,138,.07),rgba(200,215,235,.1));border-color:rgba(91,111,138,.15);}
+    .moodcell.today-cell{border-color:rgba(114,201,160,.45);box-shadow:0 0 0 2px rgba(114,201,160,.15);}
+    .moodcell.sel-cell{border-color:rgba(130,196,232,.5);box-shadow:0 0 0 2px rgba(130,196,232,.15);background:rgba(130,196,232,.07)!important;}
+    .moodseals{display:flex;gap:2px;flex-wrap:wrap;justify-content:center;min-height:20px;align-items:center;max-width:100%;}
+    .mooddow{font-size:7px;font-family:'Geist Mono',monospace;color:var(--mute);letter-spacing:.04em;text-align:center;line-height:1;}
+    .mooddate{font-size:9.5px;font-weight:700;color:var(--ink2);font-family:'Fraunces',serif;text-align:center;line-height:1;}
+    .moodcell.today-cell .mooddate{color:var(--spring);}
+    .moodleg{display:flex;align-items:center;gap:12px;padding:0 16px 11px;flex-wrap:wrap;}
+    .moodlegitem{display:flex;align-items:center;gap:5px;font-size:9.5px;color:var(--mute);}
+    /* Week-mode mood bar — compact */
+    .wmoodbar{margin:10px 14px 4px;background:var(--card);border-radius:16px;border:1px solid var(--line);overflow:hidden;box-shadow:0 3px 12px -5px rgba(28,28,46,.07);}
+    .wmoodhdr{padding:10px 14px 6px;display:flex;align-items:center;justify-content:space-between;}
+    .wmoodttl{font-family:'Fraunces',serif;font-style:italic;font-size:13px;color:var(--ink);}
+    .wmoodsub{font-size:8.5px;font-family:'Geist Mono',monospace;color:var(--mute);letter-spacing:.06em;}
+    .wmoodscroll{overflow-x:auto;padding:0 10px 10px;scrollbar-width:none;}
+    .wmoodscroll::-webkit-scrollbar{display:none;}
+    .wmoodrow{display:flex;gap:3px;width:max-content;min-width:100%;}
+    .wmoodcell{
+      width:30px;flex-shrink:0;border-radius:8px;
+      display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+      gap:2px;padding:5px 3px 4px;cursor:pointer;
+      background:var(--paper2);border:1px solid transparent;
+      transition:all .18s;min-height:48px;
+    }
+    .wmoodcell:hover{background:rgba(114,201,160,.08);border-color:rgba(114,201,160,.2);}
+    .wmoodcell.has-good{background:rgba(192,57,43,.06);border-color:rgba(192,57,43,.15);}
+    .wmoodcell.has-bad{background:rgba(91,111,138,.06);border-color:rgba(91,111,138,.12);}
+    .wmoodcell.today-cell{border-color:rgba(114,201,160,.4);box-shadow:0 0 0 1.5px rgba(114,201,160,.15);}
+    .wmoodcell.sel-cell{border-color:rgba(130,196,232,.45);box-shadow:0 0 0 1.5px rgba(130,196,232,.15);background:rgba(130,196,232,.07)!important;}
+    .wmooddow{font-size:6.5px;font-family:'Geist Mono',monospace;color:var(--mute);text-align:center;line-height:1;}
+    .wmooddate{font-size:8.5px;font-weight:700;color:var(--ink2);font-family:'Fraunces',serif;text-align:center;line-height:1;}
+    .wmoodcell.today-cell .wmooddate{color:var(--spring);}
+    .wmoodseals{display:flex;gap:1px;justify-content:center;min-height:16px;align-items:center;flex-wrap:wrap;}
 
     /* Tabs */
     .tabs{display:flex;padding:8px 18px 0;border-bottom:1px solid var(--line);}
     .tab{padding:7px 0;margin-right:18px;font-size:10px;font-family:'Geist Mono',monospace;color:var(--mute);cursor:pointer;border-bottom:2px solid transparent;letter-spacing:.07em;transition:all .18s;}
     .tab.on{color:var(--spring);border-bottom-color:var(--spring);}
-    .tabbody{padding:12px 18px 16px;max-height:260px;overflow-y:auto;scrollbar-width:none;}
-    .tabbody::-webkit-scrollbar{display:none;}
+    .tabbody{padding:10px 18px 16px;}
 
     /* Timeline slots */
     .tlslot{display:flex;align-items:flex-start;gap:10px;min-height:32px;}
@@ -166,14 +288,13 @@
     .cbadge{font-size:9px;padding:2px 6px;border-radius:5px;background:rgba(244,167,185,.16);color:#a0507a;font-family:'Geist Mono',monospace;flex-shrink:0;}
 
     /* Todo / Memo */
-    .trow{display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid var(--line);font-size:12px;color:var(--ink2);}
-    .trow:last-child{border-bottom:none;}
+    /* Todo / Memo */
+    .trow{display:flex;align-items:flex-start;gap:8px;padding:4px 0;font-size:12px;color:var(--ink2);}
     .tchk{width:14px;height:14px;border-radius:4px;border:1.5px solid var(--mute);flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:8.5px;color:transparent;margin-top:1px;transition:all .14s;}
     .tchk.dn{background:var(--spring);border-color:var(--spring);color:#fff;}
     .ttxt.dn{text-decoration:line-through;color:var(--mute);}
-    .ctag{font-size:9px;padding:1px 5px;border-radius:4px;background:rgba(130,196,232,.18);color:#4a88aa;font-family:'Geist Mono',monospace;margin-left:4px;}
-    .mrow{display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid var(--line);font-size:12px;color:var(--ink2);}
-    .mrow:last-child{border-bottom:none;}
+    .ctag{font-size:9px;padding:1px 5px;border-radius:4px;background:rgba(130,196,232,.18);color:#4a88aa;font-family:"Geist Mono",monospace;margin-left:4px;}
+    .mrow{display:flex;align-items:flex-start;gap:8px;padding:4px 0;font-size:12px;color:var(--ink2);}
     .mpip{width:5px;height:5px;border-radius:50%;background:var(--lavender);flex-shrink:0;margin-top:4px;}
     .etip{text-align:center;padding:22px 0;color:var(--mute);}
     .etip i{font-size:22px;margin-bottom:7px;display:block;}
@@ -268,10 +389,7 @@
     .wdcard:not(.act) .wddot:nth-child(3){background:var(--lavender);}
     .wdrel{font-size:7.5px;font-family:'Geist Mono',monospace;color:var(--mute);letter-spacing:.04em;margin-top:1px;}
     .wdcard.act .wdrel{color:rgba(255,255,255,.65);}
-    /* Char annotation mark on week day card */
-    .wdano{position:absolute;top:5px;right:6px;font-size:8.5px;line-height:1;font-family:'Geist Mono',monospace;font-weight:700;}
-    .wdano.ci{color:var(--blossom);}
-    .wdano.cr{color:var(--coral);}
+    /* week strip annotation — handled by stamp system above */
 
     /* ── B: Expanded day panel — totally different from Mode A ── */
     #wdpwrap{padding:0 14px 14px;}
@@ -315,19 +433,20 @@
       margin:14px 18px 0;padding:10px 14px;
       background:linear-gradient(135deg,rgba(244,167,185,.08),rgba(184,168,216,.06));
       border:1px solid rgba(244,167,185,.2);border-radius:14px;
-      display:none;align-items:flex-start;gap:10px;
+      display:none;
     }
-    .wpano.sh{display:flex;}
-    .wpanav{
-      width:28px;height:28px;border-radius:50%;
-      background:linear-gradient(135deg,var(--blossom),var(--lavender));
-      display:flex;align-items:center;justify-content:center;
-      font-size:10px;color:#fff;flex-shrink:0;overflow:hidden;
-      box-shadow:0 3px 10px -3px rgba(244,167,185,.4);
-    }
-    .wpanav img{width:100%;height:100%;object-fit:cover;}
-    .wpana-who{font-size:9px;font-family:'Geist Mono',monospace;color:var(--mute);letter-spacing:.06em;margin-bottom:4px;}
-    .wpanatxt{font-family:'Fraunces',serif;font-style:italic;font-size:12.5px;color:var(--ink2);line-height:1.5;}
+    .wpano.sh{display:block;}
+    .wpano-inner{display:flex;align-items:stretch;width:100%;gap:0;}
+    .wpa-side{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:4px 8px;min-width:0;}
+    .wpa-side.left{border-right:1px solid rgba(244,167,185,.2);}
+    .wpa-side-empty{flex:1;display:flex;align-items:center;justify-content:center;opacity:.25;}
+    .wpa-av{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--blossom),var(--lavender));display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;flex-shrink:0;overflow:hidden;box-shadow:0 2px 8px -3px rgba(244,167,185,.4);}
+    .wpa-av.user{background:linear-gradient(135deg,var(--sky),var(--spring));}
+    .wpa-av img{width:100%;height:100%;object-fit:cover;}
+    .wpa-name{font-size:8.5px;font-family:'Geist Mono',monospace;color:var(--mute);letter-spacing:.05em;text-align:center;}
+    .wpa-items{display:flex;flex-direction:column;gap:5px;align-items:center;width:100%;}
+    .wpa-item{display:flex;align-items:center;gap:6px;width:100%;}
+    .wpa-note{font-family:'Fraunces',serif;font-style:italic;font-size:11.5px;color:var(--ink2);line-height:1.4;flex:1;min-width:0;word-break:break-all;}
 
     /* B: Three-section cards in a column: Timeline / Todo / Memo */
     .wp-sections{padding:14px 18px 18px;display:flex;flex-direction:column;gap:10px;}
@@ -351,16 +470,24 @@
     .wpsec-cnt{font-size:9.5px;font-family:'Geist Mono',monospace;color:var(--mute);background:var(--paper2);padding:2px 7px;border-radius:8px;}
     .wpsec-arr{font-size:10px;color:var(--mute);transition:transform .2s;}
     .wpsec.open .wpsec-arr{transform:rotate(180deg);}
-    .wpsec-body{max-height:0;overflow:hidden;transition:max-height .3s cubic-bezier(.22,1,.36,1);}
-    .wpsec.open .wpsec-body{max-height:400px;}
-    .wpsec-inner{padding:10px 14px 12px;}
+    .wpsec-body{display:grid;grid-template-rows:0fr;transition:grid-template-rows .32s cubic-bezier(.22,1,.36,1);}
+    .wpsec.open .wpsec-body{grid-template-rows:1fr;}
+    .wpsec-inner{min-height:0;overflow:hidden;padding:0;}
+    .wpsec-inner-pad{padding:10px 14px 12px;}
 
     /* B: Timeline items (no hour labels — looser) */
     .btlitem{
       display:flex;align-items:flex-start;gap:9px;
-      padding:7px 0;border-bottom:1px solid var(--line);
+      padding:5px 0;
     }
-    .btlitem:last-child{border-bottom:none;padding-bottom:0;}
+    /* Two-column annotation thread — mirrors the anobar layout above it */
+    .ano-threads{margin:0 14px 4px;}
+    .ano-thread-cols{display:flex;gap:0;}
+    .ano-thread-col{flex:1;min-width:0;padding:2px 8px;display:flex;flex-direction:column;gap:2px;}
+    .ano-thread-col.left{border-right:1px solid rgba(244,167,185,.18);}
+    /* compose always full-width below cols */
+    .ano-thread-compose{padding:4px 8px 2px;}
+
     .btlpip{
       width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px;
       box-shadow:0 0 0 3px rgba(114,201,160,.15);
@@ -373,10 +500,9 @@
     /* B: Todo items */
     .btdrow{
       display:flex;align-items:center;gap:9px;
-      padding:7px 0;border-bottom:1px solid var(--line);
+      padding:5px 0;
       cursor:pointer;
     }
-    .btdrow:last-child{border-bottom:none;padding-bottom:0;}
     .btdchk{
       width:16px;height:16px;border-radius:6px;
       border:1.5px solid var(--mute);flex-shrink:0;
@@ -396,9 +522,193 @@
     .bmmtxt{font-size:12px;color:var(--ink2);line-height:1.5;font-family:'Fraunces',serif;font-style:italic;}
     .bmmctag{font-size:9px;padding:1px 5px;border-radius:4px;background:rgba(130,196,232,.18);color:#4a88aa;font-family:'Geist Mono',monospace;margin-left:4px;}
 
-    /* ── FLOAT ADD ── */
-    .fadd{position:fixed;bottom:26px;right:20px;width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,var(--spring),var(--sky));color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;box-shadow:0 5px 18px -5px rgba(114,201,160,.65);z-index:200;transition:all .22s cubic-bezier(.175,.885,.32,1.275);}
-    .fadd:active{transform:scale(.87);}
+    /* ── FLOAT SNOWFLAKE ── */
+    .fadd{position:fixed;bottom:26px;right:20px;width:50px;height:50px;border-radius:50%;background:transparent;border:none;cursor:pointer;z-index:200;display:flex;align-items:center;justify-content:center;padding:0;}
+    .fadd:active .fsnow{transform:scale(.85);}
+    .fsnow{
+      width:50px;height:50px;position:relative;display:flex;align-items:center;justify-content:center;
+      transition:transform .22s cubic-bezier(.175,.885,.32,1.275);
+    }
+    .fsnow svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;}
+    /* 旋转动画：慢转 + 呼吸 */
+    @keyframes snowSpin{0%{transform:rotate(0deg) scale(1);}50%{transform:rotate(180deg) scale(1.08);}100%{transform:rotate(360deg) scale(1);}}
+    @keyframes snowPulse{0%,100%{opacity:.82;}50%{opacity:1;}}
+    .fsnow svg{animation:snowSpin 12s linear infinite,snowPulse 3.5s ease-in-out infinite;}
+    .fsnow:hover svg{animation:snowSpin 4s linear infinite,snowPulse 1.5s ease-in-out infinite;}
+
+    /* ── SCHEDULE PANEL OVERLAY ── */
+    .spov{position:fixed;inset:0;background:rgba(28,28,46,.32);backdrop-filter:blur(10px);z-index:600;display:flex;align-items:flex-end;justify-content:center;padding:16px;opacity:0;visibility:hidden;transition:all .3s cubic-bezier(.22,1,.36,1);}
+    .spov.open{opacity:1;visibility:visible;}
+    .spbox{
+      width:100%;max-width:500px;
+      background:linear-gradient(160deg,rgba(255,255,255,.96),rgba(246,248,253,.94));
+      border:1px solid rgba(255,255,255,.7);
+      border-radius:24px 24px 16px 16px;
+      box-shadow:0 -10px 40px -8px rgba(28,28,46,.16),0 0 0 .5px rgba(255,255,255,.6) inset;
+      backdrop-filter:blur(16px);
+      transform:translateY(24px);
+      transition:transform .32s cubic-bezier(.22,1,.36,1);
+      overflow:hidden;
+      max-height:82vh;
+      display:flex;flex-direction:column;
+    }
+    .spov.open .spbox{transform:translateY(0);}
+
+    /* 面板顶部 */
+    .sphdr{
+      padding:16px 18px 0;
+      display:flex;align-items:center;justify-content:space-between;
+      flex-shrink:0;
+    }
+    .sphdr-left{display:flex;align-items:center;gap:8px;}
+    .sphdr-ico{
+      width:28px;height:28px;border-radius:50%;
+      background:linear-gradient(135deg,rgba(114,201,160,.15),rgba(130,196,232,.12));
+      border:1px solid rgba(114,201,160,.2);
+      display:flex;align-items:center;justify-content:center;font-size:11px;
+    }
+    .sphdr-ico svg{width:14px;height:14px;}
+    .sphdr-title{font-family:'Fraunces',serif;font-style:italic;font-size:16px;color:var(--ink);letter-spacing:-.01em;}
+    .sp-close{width:26px;height:26px;border-radius:50%;background:var(--paper2);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--mute);transition:all .14s;}
+    .sp-close:hover{background:var(--line);color:var(--ink);}
+
+    /* Tab 栏 */
+    .sptabs{display:flex;gap:0;padding:12px 18px 0;flex-shrink:0;border-bottom:1px solid var(--line);}
+    .sptab{
+      padding:7px 14px;font-size:10px;font-family:'Geist Mono',monospace;letter-spacing:.06em;
+      color:var(--mute);cursor:pointer;border-bottom:2px solid transparent;
+      transition:all .16s;margin-bottom:-1px;
+    }
+    .sptab.on{color:var(--ink2);border-bottom-color:var(--spring);}
+
+    /* 面板内容区 */
+    .spbody{flex:1;overflow-y:auto;padding:16px 18px 24px;}
+    .sppage{display:none;}
+    .sppage.on{display:block;}
+
+    /* ── 全局更新 Tab ── */
+    /* 剧情时钟卡片 */
+    .spclock{
+      background:linear-gradient(135deg,rgba(114,201,160,.08),rgba(130,196,232,.06));
+      border:1px solid rgba(114,201,160,.18);
+      border-radius:14px;padding:12px 14px;margin-bottom:14px;
+    }
+    .spclock-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+    .spclock-lbl{font-size:9px;font-family:'Geist Mono',monospace;letter-spacing:.1em;color:var(--mute);}
+    .spclock-badge{
+      padding:2px 8px;border-radius:100px;
+      background:linear-gradient(135deg,var(--spring),var(--sky));
+      font-size:9px;font-family:'Geist Mono',monospace;color:#fff;letter-spacing:.04em;
+    }
+    .spclock-time{font-family:'Fraunces',serif;font-style:italic;font-size:22px;color:var(--ink);line-height:1.1;margin-bottom:2px;}
+    .spclock-sub{font-size:9px;font-family:'Geist Mono',monospace;color:var(--mute);letter-spacing:.04em;}
+
+    /* 手动调整时间 */
+    .spadj{background:var(--paper2);border-radius:12px;padding:11px 13px;margin-bottom:14px;border:1px solid var(--line);}
+    .spadj-lbl{font-size:9px;font-family:'Geist Mono',monospace;letter-spacing:.08em;color:var(--mute);margin-bottom:8px;}
+    .spadj-row{display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
+    .spadj-grp{display:flex;align-items:center;gap:4px;}
+    .spadj-sublbl{font-size:9px;color:var(--mute);font-family:'Geist Mono',monospace;}
+    .spadj-inp{
+      width:48px;padding:5px 7px;border-radius:7px;border:1px solid var(--line);
+      background:var(--card);font-family:'Geist Mono',monospace;font-size:12px;
+      color:var(--ink);outline:none;text-align:center;transition:border-color .12s;
+    }
+    .spadj-inp:focus{border-color:var(--spring);}
+    .spadj-sep{color:var(--mute);font-size:11px;}
+    .spadj-btn{
+      padding:5px 12px;border-radius:8px;border:none;cursor:pointer;font-size:9.5px;
+      font-family:'Geist Mono',monospace;letter-spacing:.04em;
+      background:linear-gradient(135deg,var(--spring),var(--sky));color:#fff;
+      box-shadow:0 2px 6px -2px rgba(114,201,160,.4);transition:all .14s;
+    }
+    .spadj-btn:active{transform:scale(.92);}
+
+    /* 运行按钮 */
+    .sp-run-btn{
+      width:100%;padding:13px;border-radius:14px;border:none;cursor:pointer;
+      background:linear-gradient(135deg,var(--spring),var(--sky));
+      color:#fff;font-size:13px;font-weight:600;letter-spacing:.04em;
+      box-shadow:0 5px 18px -5px rgba(114,201,160,.5);
+      transition:all .18s cubic-bezier(.175,.885,.32,1.275);
+      display:flex;align-items:center;justify-content:center;gap:8px;
+      margin-bottom:14px;
+    }
+    .sp-run-btn:active{transform:scale(.96);}
+    .sp-run-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+    .sp-run-btn.running{background:linear-gradient(135deg,var(--lavender),var(--blossom));}
+
+    /* 美化控制台 */
+    .sp-console{
+      background:rgba(28,28,46,.04);border:1px solid var(--line);
+      border-radius:12px;padding:10px 12px;min-height:60px;max-height:200px;overflow-y:auto;
+      font-family:'Geist Mono',monospace;font-size:10.5px;line-height:1.7;
+      display:flex;flex-direction:column;gap:1px;
+    }
+    .sp-console:empty::before{content:'等待运行...';color:var(--mute);font-style:italic;}
+    .sp-cline{display:flex;align-items:flex-start;gap:6px;}
+    .sp-cline.info .sp-cico{color:var(--sky);}
+    .sp-cline.success .sp-cico{color:var(--spring);}
+    .sp-cline.error .sp-cico{color:var(--coral);}
+    .sp-cline.stat .sp-cico{color:var(--peach);}
+    .sp-cico{flex-shrink:0;font-size:9px;margin-top:2px;}
+    .sp-ctxt{color:var(--ink2);word-break:break-all;}
+    .sp-ctxt.success{color:#3a8a6a;font-weight:600;}
+    .sp-ctxt.error{color:#c04040;}
+    .sp-ctxt.stat{color:#8a6020;}
+    /* 统计行 */
+    .sp-stat-row{
+      display:flex;flex-wrap:wrap;gap:6px;padding:8px 0 2px;
+    }
+    .sp-stat-chip{
+      padding:3px 9px;border-radius:100px;font-size:9.5px;font-family:'Geist Mono',monospace;
+      background:rgba(255,255,255,.7);border:1px solid var(--line);color:var(--ink2);
+    }
+    .sp-stat-chip.ev{border-color:rgba(114,201,160,.3);background:rgba(114,201,160,.08);color:#2a7a5a;}
+    .sp-stat-chip.td{border-color:rgba(130,196,232,.3);background:rgba(130,196,232,.08);color:#2a5a7a;}
+    .sp-stat-chip.mm{border-color:rgba(184,168,216,.3);background:rgba(184,168,216,.08);color:#5a4a8a;}
+    .sp-stat-chip.an{border-color:rgba(244,167,185,.3);background:rgba(244,167,185,.08);color:#8a3a6a;}
+
+    /* ── 基础设置 Tab ── */
+    .spsec{margin-bottom:18px;}
+    .spsec-ttl{font-size:9px;font-family:'Geist Mono',monospace;letter-spacing:.1em;color:var(--mute);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--line);}
+    /* 初始化起点 */
+    .spinit-row{display:flex;gap:7px;align-items:flex-end;flex-wrap:wrap;margin-bottom:10px;}
+    .spinit-grp{display:flex;flex-direction:column;gap:3px;}
+    .spinit-lbl{font-size:8.5px;font-family:'Geist Mono',monospace;color:var(--mute);letter-spacing:.06em;}
+    .spinit-inp{
+      padding:6px 9px;border-radius:8px;border:1px solid var(--line);
+      background:var(--card);font-family:'Geist',sans-serif;font-size:12px;
+      color:var(--ink);outline:none;transition:border-color .12s;
+    }
+    .spinit-inp:focus{border-color:var(--spring);}
+    .spinit-btn{
+      padding:6px 14px;border-radius:9px;border:none;cursor:pointer;
+      font-size:10px;font-family:'Geist Mono',monospace;letter-spacing:.04em;
+      background:linear-gradient(135deg,var(--spring),var(--mint));color:#fff;
+      box-shadow:0 2px 8px -3px rgba(114,201,160,.4);transition:all .14s;
+      white-space:nowrap;
+    }
+    .spinit-btn:active{transform:scale(.92);}
+    /* 当前状态显示 */
+    .spstatus{
+      padding:10px 12px;border-radius:10px;background:var(--paper2);border:1px solid var(--line);
+      font-size:10.5px;font-family:'Geist Mono',monospace;color:var(--ink3);
+      margin-bottom:14px;line-height:1.7;
+    }
+    /* 危险区 */
+    .spdanger{
+      padding:12px 13px;border-radius:12px;
+      background:rgba(244,146,122,.05);border:1px solid rgba(244,146,122,.15);
+    }
+    .spdanger-lbl{font-size:9px;font-family:'Geist Mono',monospace;letter-spacing:.08em;color:var(--coral);margin-bottom:8px;}
+    .sp-del-btn{
+      padding:8px 16px;border-radius:9px;border:1px solid rgba(244,146,122,.3);cursor:pointer;
+      font-size:10px;font-family:'Geist Mono',monospace;letter-spacing:.04em;
+      background:rgba(244,146,122,.08);color:var(--coral);
+      transition:all .14s;
+    }
+    .sp-del-btn:hover{background:rgba(244,146,122,.15);}
 
     /* ── MODAL ── */
     .mov{position:fixed;inset:0;background:rgba(28,28,46,.38);backdrop-filter:blur(8px);z-index:600;display:flex;align-items:flex-end;justify-content:center;padding:16px;opacity:0;visibility:hidden;transition:all .28s;}
@@ -444,11 +754,63 @@
     .tlspan.cg .tlspan-body{background:linear-gradient(135deg,rgba(244,167,185,.06),rgba(184,168,216,.04));}
     .tlspan-range{font-size:9.5px;font-family:'Geist Mono',monospace;color:var(--mute);white-space:nowrap;background:var(--paper2);padding:2px 7px;border-radius:6px;}
 
-    /* ── Mode B: Timeline span block ── */
-    .btlspan{
-      border-radius:10px;overflow:hidden;border:1px solid var(--line);
-      background:var(--paper);box-shadow:0 2px 8px -4px rgba(28,28,46,.06);
-    }
+    /* ── INLINE BUBBLE SYSTEM ── */
+    .ev-wrap{display:flex;flex-direction:column;margin-bottom:6px;}
+    .ev-thread{display:flex;flex-direction:column;gap:3px;padding:2px 0;}
+    .ev-bubble{display:flex;align-items:flex-start;gap:5px;animation:bubblePop .18s ease;}
+    @keyframes bubblePop{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+    .ev-bav{width:16px;height:16px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:6.5px;color:#fff;overflow:hidden;margin-top:2px;}
+    .ev-bav.char{background:linear-gradient(135deg,var(--blossom),var(--lavender));}
+    .ev-bav.user{background:linear-gradient(135deg,var(--sky),var(--spring));}
+    .ev-bav img{width:100%;height:100%;object-fit:cover;}
+    .ev-bcontent{padding:4px 9px;border-radius:9px;font-size:10.5px;color:var(--ink2);line-height:1.5;border:1px solid var(--line);background:rgba(255,255,255,.65);}
+    .ev-bubble.char-edit .ev-bcontent{background:linear-gradient(135deg,rgba(244,167,185,.08),rgba(184,168,216,.05));border-color:rgba(244,167,185,.22);}
+    .ev-bubble.user-edit .ev-bcontent{background:linear-gradient(135deg,rgba(130,196,232,.08),rgba(114,201,160,.05));border-color:rgba(130,196,232,.22);}
+    .ev-bubble.char-comment .ev-bcontent{background:linear-gradient(135deg,rgba(244,167,185,.1),rgba(184,168,216,.07));border-color:rgba(244,167,185,.25);font-family:'Fraunces',serif;font-style:italic;font-size:11px;}
+    .ev-bubble.user-comment .ev-bcontent{background:linear-gradient(135deg,rgba(130,196,232,.1),rgba(114,201,160,.07));border-color:rgba(130,196,232,.25);font-family:'Fraunces',serif;font-style:italic;font-size:11px;}
+    .ev-who{font-size:8px;font-family:'Geist Mono',monospace;color:var(--mute);margin-right:4px;font-style:normal;}
+    .ev-strike{text-decoration:line-through;color:var(--mute);font-size:10px;margin-right:2px;}
+    .ev-new{color:var(--spring);font-weight:600;}
+    .ev-btime{font-size:7.5px;font-family:'Geist Mono',monospace;color:var(--mute);margin-left:5px;opacity:.7;}
+    /* Action buttons — flush under card */
+    .ev-actions{display:flex;gap:4px;padding:2px 0 0 0;}
+    .ev-act{padding:2px 8px;border-radius:5px;font-size:8px;font-family:'Geist Mono',monospace;cursor:pointer;border:1px solid var(--line);background:var(--paper2);color:var(--mute);transition:all .12s;letter-spacing:.03em;display:flex;align-items:center;gap:3px;}
+    .ev-act:hover{background:var(--card);color:var(--ink3);}
+    /* Compose box */
+    .ev-compose{padding:4px 0 2px 0;display:flex;flex-direction:column;gap:4px;}
+    .ev-compose-row{display:flex;gap:5px;align-items:flex-start;}
+    .ev-compose-input{flex:1;padding:6px 9px;border-radius:8px;border:1px solid rgba(114,201,160,.4);background:var(--paper);font-family:'Geist',sans-serif;font-size:11.5px;color:var(--ink);outline:none;resize:none;min-height:32px;max-height:64px;overflow-y:auto;line-height:1.4;transition:border-color .12s;}
+    .ev-compose-input:focus{border-color:var(--spring);}
+    .ev-compose-send{width:28px;height:28px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,var(--spring),var(--sky));border:none;color:#fff;font-size:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 6px -2px rgba(114,201,160,.5);transition:transform .12s;}
+    .ev-compose-send:active{transform:scale(.85);}
+    .ev-compose-as{display:flex;gap:4px;align-items:center;}
+    .ev-compose-as-lbl{font-size:8px;color:var(--mute);font-family:'Geist Mono',monospace;}
+    .ev-as-btn{padding:2px 6px;border-radius:5px;font-size:8px;font-family:'Geist Mono',monospace;cursor:pointer;border:1px solid var(--line);background:var(--paper2);color:var(--mute);transition:all .12s;}
+    .ev-as-btn.on{background:linear-gradient(135deg,var(--spring),var(--sky));color:#fff;border-color:transparent;}
+    /* Edit fields */
+    .ev-edit-wrap{padding:4px 0 2px 0;display:flex;flex-direction:column;gap:6px;}
+    .ev-edit-field{display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
+    .ev-edit-lbl{font-size:8px;font-family:'Geist Mono',monospace;color:var(--mute);letter-spacing:.04em;white-space:nowrap;}
+    .ev-edit-inp{padding:4px 7px;border-radius:6px;border:1px solid var(--line);background:var(--paper);font-size:11px;color:var(--ink);outline:none;transition:border-color .12s;}
+    .ev-edit-inp:focus{border-color:var(--spring);}
+    .ev-edit-mini{width:44px;text-align:center;font-family:'Geist Mono',monospace;}
+    .ev-edit-sep{color:var(--mute);font-size:9px;margin:0 1px;}
+    .ev-sym-btn{padding:2px 9px;border-radius:7px;font-size:11px;font-family:'Noto Serif SC','Songti SC',serif;font-weight:700;cursor:pointer;border:2px solid var(--line);background:var(--paper2);color:var(--mute);transition:all .13s;}
+    .ev-sym-btn.active-good{border-color:#c0392b;background:rgba(255,215,210,.5);color:#c0392b;}
+    .ev-sym-btn.active-bad{border-color:#5b6f8a;background:rgba(210,220,235,.5);color:#5b6f8a;}
+    .ev-edit-footer{display:flex;gap:5px;align-items:center;}
+    .ev-edit-as{display:flex;gap:4px;}
+    .ev-edit-save{padding:4px 12px;border-radius:7px;font-size:10px;font-weight:600;cursor:pointer;border:none;background:linear-gradient(135deg,var(--spring),var(--sky));color:#fff;box-shadow:0 2px 6px -2px rgba(114,201,160,.4);transition:all .12s;}
+    .ev-edit-save:active{transform:scale(.92);}
+    .ev-cancel{padding:4px 8px;border-radius:7px;font-size:9px;font-family:'Geist Mono',monospace;cursor:pointer;border:1px solid var(--line);background:var(--paper2);color:var(--mute);transition:all .12s;}
+    /* Deletable content — subtle hover hint */
+    .del-target{cursor:pointer;transition:opacity .15s,background .15s,color .15s;}
+    .del-target:hover{opacity:.55;}
+    /* Bubble content — click to delete */
+    .ev-bcontent[data-action]{cursor:pointer;transition:background .15s,border-color .15s;}
+    .ev-bcontent[data-action]:hover{background:rgba(244,146,122,.1)!important;border-color:rgba(244,146,122,.3)!important;}
+
+    .btlspan{border-radius:10px;overflow:hidden;border:1px solid var(--line);background:var(--paper);box-shadow:0 2px 8px -4px rgba(28,28,46,.06);}
     .btlspan-bar{height:3px;}
     .btlspan-body{padding:8px 11px;display:flex;align-items:center;gap:8px;}
     .btlspan-range{font-size:9px;font-family:'Geist Mono',monospace;color:var(--mute);background:var(--paper2);padding:2px 7px;border-radius:5px;white-space:nowrap;}
@@ -495,15 +857,32 @@
       <div class="caldow"><div>SUN</div><div>MON</div><div>TUE</div><div>WED</div><div>THU</div><div>FRI</div><div>SAT</div></div>
       <div class="calgrid" id="calgrid"></div>
     </div>
-    <div class="ddp">
+    <!-- Mood Barometer -->
+    <div class="moodbar">
+      <div class="moodhdr">
+        <div><div class="moodttl">Mood Barometer</div><div class="moodsub">THIS MONTH · TAP TO ANNOTATE</div></div>
+      </div>
+      <div class="moodscroll"><div class="moodgrid" id="moodgrid"></div></div>
+      <div class="moodleg">
+        <div class="moodlegitem"><span style="display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;border:1.5px solid #c0392b;background:rgba(255,235,232,.9);font-size:7px;font-family:'Noto Serif SC',serif;font-weight:700;color:#c0392b;transform:rotate(-6deg)">囍</span><span>角色 · 好日子</span></div>
+        <div class="moodlegitem"><span style="display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;border:1.5px solid #5b6f8a;background:rgba(232,238,248,.9);font-size:7px;font-family:'Noto Serif SC',serif;font-weight:700;color:#5b6f8a;transform:rotate(-6deg)">寂</span><span>角色 · 难熬</span></div>
+        <div class="moodlegitem"><span style="display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;border:1.5px dashed #b5451b;background:rgba(255,240,230,.9);font-size:7px;font-family:'Noto Serif SC',serif;font-weight:700;color:#b5451b;transform:rotate(-6deg)">囍</span><span>你 · 好日子</span></div>
+        <div class="moodlegitem"><span style="display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;border:1.5px dashed #4a5d7a;background:rgba(235,240,250,.9);font-size:7px;font-family:'Noto Serif SC',serif;font-weight:700;color:#4a5d7a;transform:rotate(-6deg)">寂</span><span>你 · 难熬</span></div>
+      </div>
+    </div>
+    <div class="ddp" id="ddp">
       <div class="ddh">
         <div><div class="ddate" id="ddate"></div><div class="dwday" id="dwday"></div></div>
         <button class="addbtn" onclick="openModal()"><i class="fa-solid fa-plus"></i> Add</button>
       </div>
       <div class="anobar" id="anobarA">
-        <div class="anobav" id="anobavA"></div>
-        <div><div class="anobwho" id="anobwhoA"></div><div class="anobtxt" id="anobtxtA"></div></div>
+        <div class="anobar-inner">
+          <div class="anoside left" id="anoside-char"></div>
+          <div class="anoside" id="anoside-user"></div>
+        </div>
       </div>
+      <!-- annotation thread+actions live here, outside the anobar panel, inside tabbody delegation scope -->
+      <div id="anobar-threads"></div>
       <div class="tabs">
         <div class="tab on" onclick="switchTab('tl',this)">TIMELINE</div>
         <div class="tab" onclick="switchTab('todo',this)">TODOS</div>
@@ -530,10 +909,182 @@
       <div class="wstripttl" id="wstriprange">—</div>
     </div>
     <div class="wstripscr"><div class="wstrip" id="wstrip"></div></div>
+    <div class="wmoodbar">
+      <div class="wmoodhdr">
+        <div class="wmoodttl">Mood Barometer</div>
+        <div class="wmoodsub" id="wmoodsub">THIS MONTH</div>
+      </div>
+      <div class="wmoodscroll"><div class="wmoodrow" id="wmoodrow"></div></div>
+    </div>
     <div id="wdpwrap"></div>
   </div>
 
-  <button class="fadd" onclick="openModal()"><i class="fa-solid fa-plus"></i></button>
+  <!-- 雪花装饰按钮（无底色，纯SVG渐变动画） -->
+  <button class="fadd" id="snowBtn" onclick="openSchedulePanel()" title="日程设置">
+    <div class="fsnow">
+      <svg viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="sg1" x1="0" y1="0" x2="50" y2="50" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#72c9a0"/>
+            <stop offset="50%" stop-color="#82c4e8"/>
+            <stop offset="100%" stop-color="#b8a8d8"/>
+          </linearGradient>
+          <linearGradient id="sg2" x1="50" y1="0" x2="0" y2="50" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#f4a7b9"/>
+            <stop offset="100%" stop-color="#82c4e8"/>
+          </linearGradient>
+          <!-- 渐变动画用animate -->
+        </defs>
+        <!-- 六条主轴线 -->
+        <line x1="25" y1="4"  x2="25" y2="46" stroke="url(#sg1)" stroke-width="2.2" stroke-linecap="round"/>
+        <line x1="4"  y1="25" x2="46" y2="25" stroke="url(#sg1)" stroke-width="2.2" stroke-linecap="round"/>
+        <line x1="10.6" y1="10.6" x2="39.4" y2="39.4" stroke="url(#sg2)" stroke-width="2.2" stroke-linecap="round"/>
+        <line x1="39.4" y1="10.6" x2="10.6" y2="39.4" stroke="url(#sg2)" stroke-width="2.2" stroke-linecap="round"/>
+        <!-- 顶部分叉 -->
+        <line x1="25" y1="10" x2="20" y2="15" stroke="url(#sg1)" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="25" y1="10" x2="30" y2="15" stroke="url(#sg1)" stroke-width="1.5" stroke-linecap="round"/>
+        <!-- 底部分叉 -->
+        <line x1="25" y1="40" x2="20" y2="35" stroke="url(#sg1)" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="25" y1="40" x2="30" y2="35" stroke="url(#sg1)" stroke-width="1.5" stroke-linecap="round"/>
+        <!-- 左分叉 -->
+        <line x1="10" y1="25" x2="15" y2="20" stroke="url(#sg1)" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="10" y1="25" x2="15" y2="30" stroke="url(#sg1)" stroke-width="1.5" stroke-linecap="round"/>
+        <!-- 右分叉 -->
+        <line x1="40" y1="25" x2="35" y2="20" stroke="url(#sg1)" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="40" y1="25" x2="35" y2="30" stroke="url(#sg1)" stroke-width="1.5" stroke-linecap="round"/>
+        <!-- 斜轴分叉 -->
+        <line x1="15.5" y1="15.5" x2="19" y2="21" stroke="url(#sg2)" stroke-width="1.4" stroke-linecap="round"/>
+        <line x1="15.5" y1="15.5" x2="21" y2="19" stroke="url(#sg2)" stroke-width="1.4" stroke-linecap="round"/>
+        <line x1="34.5" y1="34.5" x2="31" y2="29" stroke="url(#sg2)" stroke-width="1.4" stroke-linecap="round"/>
+        <line x1="34.5" y1="34.5" x2="29" y2="31" stroke="url(#sg2)" stroke-width="1.4" stroke-linecap="round"/>
+        <line x1="34.5" y1="15.5" x2="29" y2="19" stroke="url(#sg2)" stroke-width="1.4" stroke-linecap="round"/>
+        <line x1="34.5" y1="15.5" x2="31" y2="21" stroke="url(#sg2)" stroke-width="1.4" stroke-linecap="round"/>
+        <line x1="15.5" y1="34.5" x2="21" y2="31" stroke="url(#sg2)" stroke-width="1.4" stroke-linecap="round"/>
+        <line x1="15.5" y1="34.5" x2="19" y2="29" stroke="url(#sg2)" stroke-width="1.4" stroke-linecap="round"/>
+        <!-- 中心圆 -->
+        <circle cx="25" cy="25" r="3.5" fill="url(#sg1)" opacity=".9"/>
+      </svg>
+    </div>
+  </button>
+</div>
+
+<!-- ══ 日程设置面板 ══ -->
+<div class="spov" id="schedulePanel">
+  <div class="spbox">
+    <!-- 顶部标题栏 -->
+    <div class="sphdr">
+      <div class="sphdr-left">
+        <div class="sphdr-ico">
+          <svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <line x1="7" y1="1" x2="7" y2="13" stroke="url(#mg1)" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="1" y1="7" x2="13" y2="7" stroke="url(#mg1)" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="2.9" y1="2.9" x2="11.1" y2="11.1" stroke="url(#mg2)" stroke-width="1.3" stroke-linecap="round"/>
+            <line x1="11.1" y1="2.9" x2="2.9" y2="11.1" stroke="url(#mg2)" stroke-width="1.3" stroke-linecap="round"/>
+            <circle cx="7" cy="7" r="1.2" fill="url(#mg1)"/>
+            <defs>
+              <linearGradient id="mg1" x1="0" y1="0" x2="14" y2="14" gradientUnits="userSpaceOnUse"><stop stop-color="#72c9a0"/><stop offset="1" stop-color="#82c4e8"/></linearGradient>
+              <linearGradient id="mg2" x1="14" y1="0" x2="0" y2="14" gradientUnits="userSpaceOnUse"><stop stop-color="#f4a7b9"/><stop offset="1" stop-color="#b8a8d8"/></linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div class="sphdr-title">Schedule Settings</div>
+      </div>
+      <button class="sp-close" onclick="closeSchedulePanel()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <!-- Tab 栏 -->
+    <div class="sptabs">
+      <div class="sptab on" id="sptab-update" onclick="switchSpTab('update')">GLOBAL UPDATE</div>
+      <div class="sptab" id="sptab-settings" onclick="switchSpTab('settings')">SETTINGS</div>
+    </div>
+
+    <!-- 内容区 -->
+    <div class="spbody">
+
+      <!-- ── Tab: 全局更新 ── -->
+      <div class="sppage on" id="sppage-update">
+
+        <!-- 剧情时钟显示 -->
+        <div class="spclock">
+          <div class="spclock-top">
+            <div class="spclock-lbl">STORY CLOCK</div>
+            <div class="spclock-badge" id="spClockBadge">—</div>
+          </div>
+          <div class="spclock-time" id="spClockTime">第 — 天 —:—</div>
+          <div class="spclock-sub" id="spClockSub">base: —</div>
+        </div>
+
+        <!-- 手动调整剧情时间 -->
+        <div class="spadj">
+          <div class="spadj-lbl">MANUAL TIME ADJUST</div>
+          <div class="spadj-row">
+            <div class="spadj-grp">
+              <span class="spadj-sublbl">第</span>
+              <input class="spadj-inp" id="adjDay" type="number" min="1" max="999" value="1" placeholder="1"/>
+              <span class="spadj-sublbl">天</span>
+            </div>
+            <div class="spadj-grp">
+              <input class="spadj-inp" id="adjHour" type="number" min="0" max="23" value="0" placeholder="00"/>
+              <span class="spadj-sep">:</span>
+              <input class="spadj-inp" id="adjMin" type="number" min="0" max="59" value="0" placeholder="00"/>
+            </div>
+            <button class="spadj-btn" onclick="applyManualTime()">设置</button>
+          </div>
+        </div>
+
+        <!-- 运行按钮 -->
+        <button class="sp-run-btn" id="spRunBtn" onclick="runScheduleUpdate()">
+          <i class="fa-solid fa-wand-magic-sparkles"></i>
+          全局日程更新
+        </button>
+
+        <!-- 美化控制台 -->
+        <div class="sp-console" id="spConsole"></div>
+      </div>
+
+      <!-- ── Tab: 基础设置 ── -->
+      <div class="sppage" id="sppage-settings">
+
+        <!-- 当前状态 -->
+        <div class="spsec">
+          <div class="spsec-ttl">STORY CLOCK STATUS</div>
+          <div class="spstatus" id="spStatusBlock">loading...</div>
+        </div>
+
+        <!-- 初始化起点 -->
+        <div class="spsec">
+          <div class="spsec-ttl">INITIALIZE STORY CLOCK</div>
+          <div class="spinit-row">
+            <div class="spinit-grp">
+              <div class="spinit-lbl">剧情第1天 = 真实日期</div>
+              <input class="spinit-inp" id="initDate" type="date"/>
+            </div>
+            <div class="spinit-grp">
+              <div class="spinit-lbl">初始时间（可选）</div>
+              <input class="spinit-inp" id="initTime" type="time" value="00:00" style="width:90px"/>
+            </div>
+            <button class="spinit-btn" onclick="initClock()">初始化</button>
+          </div>
+          <div style="font-size:9.5px;color:var(--mute);font-family:'Geist Mono',monospace;margin-top:4px;line-height:1.5;">
+            设置后，剧情第N天会对应真实日历日期+N-1天<br/>AI生成日程时会自动写入正确的日历日期
+          </div>
+        </div>
+
+        <!-- 危险区 -->
+        <div class="spsec">
+          <div class="spsec-ttl">DANGER ZONE</div>
+          <div class="spdanger">
+            <div class="spdanger-lbl">⚠ CLEAR ALL SCHEDULE</div>
+            <div style="font-size:10px;color:var(--ink3);margin-bottom:10px;line-height:1.5;">清空当前聊天的所有日程安排（时间轴事件、待办、备忘、心情批注）。此操作不可撤销。</div>
+            <button class="sp-del-btn" onclick="confirmClearSchedule()">
+              <i class="fa-solid fa-trash-can"></i> 清空所有日程
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
 </div>
 
 <div class="mov" id="modal">
@@ -543,6 +1094,7 @@
       <div class="mty on" onclick="setMTy('event',this)">Event</div>
       <div class="mty" onclick="setMTy('todo',this)">Todo</div>
       <div class="mty" onclick="setMTy('memo',this)">Memo</div>
+      <div class="mty" onclick="setMTy('annotation',this)">囍 寂</div>
     </div>
     <div id="mfields"></div>
     <div class="mbtns">
@@ -568,47 +1120,17 @@ const WD=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const WDF=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 const COLORS=['#72c9a0','#82c4e8','#f4a7b9','#b8a8d8','#f9c784','#a8dcc8','#f4927a'];
 
+// 日程锚点缓存：记录生成时剧情第1天对应的真实日期（per-chat，用于两模式日期对齐）
+window.__scheduleAnchorCache=null;
+
 let S={
   mode:'A',ctx:null,evs:[],
   vy:TODAY.getFullYear(),vm:TODAY.getMonth(),
   sd:new Date(TODAY),tab:'tl',
   wo:0,awd:new Date(TODAY),
-  mty:'event',mdate:null,mcol:COLORS[0],
+  mty:'event',mdate:null,mcol:COLORS[0],msym:'囍',
+  wpOpen:{tl:true,td:true,mm:true},
 };
-
-/* ─── SEED DATA (char-generated schedules + annotations) ─── */
-function mkSeeds(chatId,charName){
-  const t=Date.now();
-  const ds=(n)=>{const d=new Date(TODAY);d.setDate(d.getDate()+n);return fd(d);};
-  return [
-    // Timeline events
-    {id:`sd_${chatId}_e1`,chatId,type:'event',date:ds(0),hour:9,minute:0,title:'早安 — 今天要喝够水',color:'#72c9a0',charGen:true,charName,createdAt:t},
-    {id:`sd_${chatId}_e2`,chatId,type:'event',date:ds(0),hour:14,minute:30,title:'下午茶时光',color:'#f4a7b9',charGen:true,charName,createdAt:t},
-    {id:`sd_${chatId}_e3`,chatId,type:'event',date:ds(0),hour:21,minute:0,title:'睡前聊天时间',color:'#b8a8d8',charGen:true,charName,createdAt:t},
-    {id:`sd_${chatId}_e4`,chatId,type:'event',date:ds(1),hour:8,minute:0,title:'晨间日记',color:'#82c4e8',charGen:true,charName,createdAt:t},
-    {id:`sd_${chatId}_e5`,chatId,type:'event',date:ds(1),hour:12,minute:0,title:'一起吃午饭吧',color:'#f9c784',charGen:true,charName,createdAt:t},
-    {id:`sd_${chatId}_e6`,chatId,type:'event',date:ds(2),hour:19,minute:30,title:'想看电影的夜晚',color:'#a8dcc8',charGen:true,charName,createdAt:t},
-    {id:`sd_${chatId}_e7`,chatId,type:'event',date:ds(3),hour:10,minute:0,title:'出去散步 — 记得带伞',color:'#72c9a0',charGen:true,charName,createdAt:t},
-    {id:`sd_${chatId}_e8`,chatId,type:'event',date:ds(5),hour:15,minute:0,title:'周末的发呆时光',color:'#f4a7b9',charGen:true,charName,createdAt:t},
-    {id:`sd_${chatId}_e9`,chatId,type:'event',date:ds(-1),hour:20,minute:0,title:'昨晚聊得很开心',color:'#b8a8d8',charGen:true,charName,createdAt:t},
-    // Todos
-    {id:`sd_${chatId}_t1`,chatId,type:'todo',date:ds(0),title:'记得回复昨天的消息',done:false,charGen:true,charName,createdAt:t},
-    {id:`sd_${chatId}_t2`,chatId,type:'todo',date:ds(0),title:'买点零食备着',done:false,charGen:true,charName,createdAt:t},
-    {id:`sd_${chatId}_t3`,chatId,type:'todo',date:ds(1),title:'整理一下书桌',done:false,charGen:true,charName,createdAt:t},
-    {id:`sd_${chatId}_t4`,chatId,type:'todo',date:ds(2),title:'给植物浇水',done:false,charGen:true,charName,createdAt:t},
-    {id:`sd_${chatId}_t5`,chatId,type:'todo',date:ds(3),title:'订好周末的计划',done:false,charGen:true,charName,createdAt:t},
-    // Memos
-    {id:`sd_${chatId}_m1`,chatId,type:'memo',date:ds(0),title:'今天天气不错，记得开窗',charGen:true,charName,createdAt:t},
-    {id:`sd_${chatId}_m2`,chatId,type:'memo',date:ds(1),title:'昨晚做了个奇怪的梦，要记录一下',charGen:true,charName,createdAt:t},
-    {id:`sd_${chatId}_m3`,chatId,type:'memo',date:ds(2),title:'最近在听的歌单很不错',charGen:true,charName,createdAt:t},
-    // Char annotations (circle = special day, cross = bad day)
-    {id:`sd_${chatId}_a1`,chatId,type:'annotation',date:ds(0),symbol:'○',note:'今天是我们相识的纪念日',charGen:true,charName,createdAt:t},
-    {id:`sd_${chatId}_a2`,chatId,type:'annotation',date:ds(-1),symbol:'○',note:'昨天聊了好多心里话',charGen:true,charName,createdAt:t},
-    {id:`sd_${chatId}_a3`,chatId,type:'annotation',date:ds(3),symbol:'○',note:'我很期待这一天',charGen:true,charName,createdAt:t},
-    {id:`sd_${chatId}_a4`,chatId,type:'annotation',date:ds(-4),symbol:'×',note:'那天我心情不太好',charGen:true,charName,createdAt:t},
-    {id:`sd_${chatId}_a5`,chatId,type:'annotation',date:ds(-7),symbol:'○',note:'上周的这天很特别',charGen:true,charName,createdAt:t},
-  ];
-}
 
 /* ─── ENTRY ─── */
 async function initEntry(){
@@ -669,7 +1191,7 @@ async function initEntry(){
       const hl=cid===hlc;
       paths+=`<path d="M${x1} ${y1} C${mx-14} ${y1-22},${mx-6} ${my},${mx} ${my} C${mx+6} ${my},${mx+14} ${y2+22},${x2} ${y2}" fill="none" stroke="${hl?'url(#hg)':'rgba(114,201,160,.22)'}" stroke-width="${hl?1.8:1}" stroke-dasharray="${hl?'':'4 3'}"/>`;
       const hs=hl?7:4.5;
-      paths+=`<path d="M${mx} ${my+hs*.45} C${mx} ${my+hs*.9} ${mx-hs*1.3} ${my+hs*.35} ${mx-hs*1.3} ${my-.15} C${mx-hs*1.3} ${my-hs*.7} ${mx-hs*.65} ${my-hs*1} ${mx} ${my-.35} C${mx+hs*.65} ${my-hs*1} ${mx+hs*1.3} ${my-hs*.7} ${mx+hs*1.3} ${my-.15} C${mx+hs*1.3} ${my+hs*.35} ${mx} ${my+hs*.9} ${mx} ${my+hs*.45}Z" fill="${hl?'url(#hg)':'rgba(244,167,185,.38)'}"/>`;
+      paths+=`<path d="M${mx} ${my+hs*.6} C${mx} ${my+hs*1.15} ${mx-hs*1.5} ${my+hs*.45} ${mx-hs*1.5} ${my-.15} C${mx-hs*1.5} ${my-hs*.9} ${mx-hs*.65} ${my-hs*1.3} ${mx} ${my-.4} C${mx+hs*.65} ${my-hs*1.3} ${mx+hs*1.5} ${my-hs*.9} ${mx+hs*1.5} ${my-.15} C${mx+hs*1.5} ${my+hs*.45} ${mx} ${my+hs*1.15} ${mx} ${my+hs*.6}Z" fill="${hl?'url(#hg)':'rgba(244,167,185,.38)'}"/>`;
     });
     svg.innerHTML=paths;
   }
@@ -687,6 +1209,18 @@ async function initEntry(){
   document.addEventListener('click',()=>{document.querySelectorAll('.cbub').forEach(b=>b.classList.remove('open'));if(selUid)drawConn(selUid,null);});
 }
 
+/* ─── 静默预加载剧情时钟缓存 & 日程锚点 ─── */
+async function preloadStoryClock(){
+  if(!window.ScheduleUpdater||!S.ctx)return;
+  const clock=await window.ScheduleUpdater.loadStoryClock(S.ctx.chatId);
+  if(clock)window.__storyClockCache=clock;
+  // 同时加载当前聊天的日程锚点（用于两模式日期对齐）
+  if(S.ctx&&window.ScheduleUpdater.loadScheduleAnchor){
+    const anchor=await window.ScheduleUpdater.loadScheduleAnchor(S.ctx.chatId);
+    window.__scheduleAnchorCache=anchor||null;
+  }
+}
+
 /* ─── ENTER CALENDAR ─── */
 async function enterCal(uid,cid,chatId){
   const [user,ch,chat]=await Promise.all([dbOne('users',uid),dbOne('chars',cid),dbOne('chats',chatId)]);
@@ -702,23 +1236,19 @@ async function enterCal(uid,cid,chatId){
   document.getElementById('tsub').textContent=`${S.ctx.userName} · ${S.ctx.charName}`;
 
   // Time awareness
-  const cfg=await dbOne('config','chat_settings');
+  // 改后（读聊天独立开关，与 tsukiphone 保持一致）
+  const cfg = await dbOne('config', `chat_settings_${chatId}`);
   const timeOn=cfg?cfg.timestampEnabled!==false:true;
   S.mode=timeOn?'A':'B';
   document.getElementById('mBtnA').classList.toggle('on',S.mode==='A');
   document.getElementById('mBtnB').classList.toggle('on',S.mode==='B');
 
-  // Load events, seed if empty
   await loadEvs();
-  if(!S.evs.length){
-    const seeds=mkSeeds(chatId,S.ctx.charName);
-    for(const ev of seeds)await dbPut('cal_events',ev);
-    S.evs=seeds;
-  }
 
   document.getElementById('es').classList.add('h');
   document.getElementById('app').style.display='block';
   spawnPetals();
+  await preloadStoryClock();
   S.mode==='A'?renderA():renderB();
 }
 
@@ -726,22 +1256,223 @@ async function loadEvs(){
   if(!S.ctx)return;
   const all=await dbAll('cal_events');
   S.evs=all.filter(e=>e.chatId===S.ctx.chatId);
+  await loadCommentsEdits();
 }
-
 /* ─── MODE SWITCH ─── */
 function switchMode(m){
   S.mode=m;
   document.getElementById('mBtnA').classList.toggle('on',m==='A');
   document.getElementById('mBtnB').classList.toggle('on',m==='B');
-  if(m==='A'){document.getElementById('mA').classList.add('vis');document.getElementById('mB').classList.remove('vis');renderA();}
-  else{document.getElementById('mB').classList.add('vis');document.getElementById('mA').classList.remove('vis');renderB();}
+  if(m==='A'){
+    // Mode A（时间感知）：始终落在真实今日
+    S.sd=new Date(TODAY);S.vy=TODAY.getFullYear();S.vm=TODAY.getMonth();
+    document.getElementById('mA').classList.add('vis');document.getElementById('mB').classList.remove('vis');renderA();
+  }
+  else{preloadStoryClock().then(()=>{document.getElementById('mB').classList.add('vis');document.getElementById('mA').classList.remove('vis');renderB();});}
 }
 
 /* ─── MODE A: FULL CALENDAR ─── */
-function renderA(){
+/* ─── STAMP HELPERS ─── */
+function stampHtml(sym, isUser, size=20, fontSize=9){
+  const isGood=sym==='囍';
+  let col,bg,border,bstyle='solid';
+  if(isUser){
+    col=isGood?'#b5451b':'#4a5d7a';
+    bg=isGood?'rgba(255,240,230,.92)':'rgba(235,240,250,.92)';
+    border=col; bstyle='dashed';
+  } else {
+    col=isGood?'#c0392b':'#5b6f8a';
+    bg=isGood?'rgba(255,235,232,.92)':'rgba(232,238,248,.92)';
+    border=col;
+  }
+  // CJK fonts render slightly high — nudge down with padding-top
+  const padTop=Math.round(size*0.06);
+  return `<span style="display:inline-flex;align-items:center;justify-content:center;width:${size}px;height:${size}px;border-radius:50%;border:1.5px ${bstyle} ${border};background:${bg};font-size:${fontSize}px;font-family:'Noto Serif SC','Songti SC',serif;font-weight:700;color:${col};transform:rotate(-6deg);flex-shrink:0;box-shadow:0 1px 4px rgba(0,0,0,.1);line-height:1;padding-top:${padTop}px;text-align:center">${sym}</span>`;
+}
+
+/* ─── MOOD BAROMETER ─── */
+function renderMoodBar(){
+  const grid=document.getElementById('moodgrid');if(!grid)return;
+  const yr=S.vy,mo=S.vm;
+  const stTd=getStoryTodayDate();
+  const dim=new Date(yr,mo+1,0).getDate();
+  grid.innerHTML='';
+  for(let day=1;day<=dim;day++){
+    const d=new Date(yr,mo,day);
+    const ds=`${yr}-${p2(mo+1)}-${p2(day)}`;
+    const annos=S.evs.filter(e=>e.date===ds&&e.type==='annotation');
+    const charAnnos=annos.filter(e=>e.charGen);
+    const userAnnos=annos.filter(e=>!e.charGen);
+    const isT=sameD(d,stTd);
+    const cell=document.createElement('div');
+    let cls='moodcell';
+    const hasGood=annos.some(a=>a.symbol==='囍');
+    const hasBad=annos.some(a=>a.symbol==='寂');
+    if(hasGood)cls+=' has-good';
+    else if(hasBad)cls+=' has-bad';
+    if(isT)cls+=' today-cell';
+    if(sameD(d,S.sd))cls+=' sel-cell';
+    cell.className=cls;
+    const allAnnotations=[...charAnnos,...userAnnos].slice(0,2);
+    const sealsHtml=allAnnotations.length
+      ? `<div class="moodseals">${allAnnotations.map(a=>stampHtml(a.symbol,!a.charGen,18,8)).join('')}</div>`
+      : `<div class="moodseals"></div>`;
+    cell.innerHTML=`${sealsHtml}<div class="mooddate">${day}</div><div class="mooddow">${WD[d.getDay()]}</div>`;
+    cell.addEventListener('click',()=>{
+      S.sd=new Date(d);S.vy=yr;S.vm=mo;S.tab='tl';
+      renderCal();renderDay(d);renderMoodBar();
+      openModal();setTimeout(()=>{
+        document.querySelectorAll('.mty').forEach((x,i)=>{x.classList.toggle('on',i===3);});
+        S.mty='annotation';buildMFields();
+      },50);
+    });
+    grid.appendChild(cell);
+  }
+  // setTimeout(()=>{
+  //   if(TODAY.getFullYear()===yr&&TODAY.getMonth()===mo){
+  //     const cells=[...grid.children];
+  //     const tc=cells[TODAY.getDate()-1];if(tc)tc.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});
+  //   }
+  // },60);
+}
+
+/* ─── Story-aware "today": 优先用日程锚点，回退到剧情时钟 baseRealDate ─── */
+function getStoryTodayDate(){
+  const clock=window.__storyClockCache;
+  if(!clock||!clock.baseRealDate)return new Date(TODAY);
+  // 优先使用日程锚点（生成时记录的对齐基准），实现两模式日期对齐
+  const anchor=window.__scheduleAnchorCache;
+  const baseDateStr=(anchor&&anchor.realAnchorDay1)?anchor.realAnchorDay1:clock.baseRealDate;
+  const storyNowMs=Math.max(0,clock.lastSyncStoryMs+(Date.now()-clock.lastSyncRealMs));
+  const storyDayNum=Math.floor(storyNowMs/86400000)+1;
+  const base=new Date(baseDateStr+'T00:00:00');
+  base.setDate(base.getDate()+storyDayNum-1);
+  base.setHours(0,0,0,0);
+  return base;
+}
+
+function renderWeekMoodBar(){
+  const row=document.getElementById('wmoodrow');if(!row)return;
+  const clock=window.__storyClockCache;
+  const stTd=getStoryTodayDate();
+
+  /* ── baseDateStr = 剧情第1天对应的真实日期 ── */
+  const anchor=window.__scheduleAnchorCache;
+  const baseDateStr=(anchor&&anchor.realAnchorDay1)
+    ? anchor.realAnchorDay1
+    : (clock&&clock.baseRealDate ? clock.baseRealDate : null);
+
+  /* 当前剧情天数（用于标题） */
+  const curStoryDayNum=clock&&clock.baseRealDate
+    ? Math.floor(Math.max(0,clock.lastSyncStoryMs+(Date.now()-clock.lastSyncRealMs))/86400000)+1
+    : null;
+
+  const storyLabel=curStoryDayNum!=null
+    ?`DAY ${curStoryDayNum} · TAP TO MARK`
+    :`${MOS[stTd.getMonth()].toUpperCase().slice(0,3)} ${stTd.getFullYear()} · TAP TO MARK`;
+  document.getElementById('wmoodsub').textContent=storyLabel;
+
+  row.innerHTML='';
+
+  if(!baseDateStr){
+    /* 无剧情时钟：退回显示真实日历当月 */
+    const yr=stTd.getFullYear(),mo=stTd.getMonth();
+    const dim=new Date(yr,mo+1,0).getDate();
+    for(let day=1;day<=dim;day++){
+      const d=new Date(yr,mo,day);
+      const ds=`${yr}-${p2(mo+1)}-${p2(day)}`;
+      const annos=S.evs.filter(e=>e.date===ds&&e.type==='annotation');
+      const isT=sameD(d,stTd),isAct=sameD(d,S.awd);
+      const cell=document.createElement('div');
+      let cls='wmoodcell';
+      if(annos.some(a=>a.symbol==='囍'))cls+=' has-good';
+      else if(annos.some(a=>a.symbol==='寂'))cls+=' has-bad';
+      if(isT)cls+=' today-cell';
+      if(isAct)cls+=' sel-cell';
+      cell.className=cls;
+      const shown=annos.slice(0,2);
+      const sealsHtml=shown.length?`<div class="wmoodseals">${shown.map(a=>stampHtml(a.symbol,!a.charGen,15,6)).join('')}</div>`:`<div class="wmoodseals"></div>`;
+      cell.innerHTML=`${sealsHtml}<div class="wmooddate">${day}</div><div class="wmooddow">${WD[d.getDay()]}</div>`;
+      cell.addEventListener('click',()=>{S.awd=new Date(d);S.vy=d.getFullYear();S.vm=d.getMonth();renderWeekMoodBar();renderWP(d);openModal();setTimeout(()=>{document.querySelectorAll('.mty').forEach((x,i)=>{x.classList.toggle('on',i===3);});S.mty='annotation';buildMFields();},50);});
+      row.appendChild(cell);
+    }
+    return;
+  }
+
+  /* ── 有剧情时钟：计算渲染范围 ──
+     起点 = 所有日程里最早的真实日期 vs baseDateStr，取最早
+     终点 = 所有日程里最晚的真实日期 vs 剧情今天，取最晚，再往后加14天缓冲
+     格子显示剧情天数标签（D1/D2...），与周面板 chip 保持一致 */
+  const baseDate=new Date(baseDateStr+'T00:00:00');
+
+  /* 收集所有日程的真实日期，算最早/最晚 */
+  const eventDates=S.evs.map(e=>e.date).filter(Boolean);
+  let earliest=new Date(baseDate);
+  let latest=new Date(stTd);
+  eventDates.forEach(ds=>{
+    const d=new Date(ds+'T00:00:00');
+    if(d<earliest)earliest=new Date(d);
+    if(d>latest)latest=new Date(d);
+  });
+  /* 终点至少覆盖到剧情今天后14天 */
+  const latestBuf=new Date(latest);latestBuf.setDate(latestBuf.getDate()+14);
+
+  /* 统一以 baseDate 为 D1 计算偏移 */
+  const startOffset=Math.round((earliest-baseDate)/86400000); // 可能为负（但剧情时钟一般>=0）
+  const endOffset=Math.round((latestBuf-baseDate)/86400000);
+
+  let todayCellEl=null,actCellEl=null;
+
+  for(let offset=startOffset;offset<=endOffset;offset++){
+    const d=new Date(baseDate);
+    d.setDate(d.getDate()+offset);
+    d.setHours(0,0,0,0);
+    const storyDay=offset+1; // 剧情第几天（D1=offset 0）
+    const ds=fd(d);
+    const annos=S.evs.filter(e=>e.date===ds&&e.type==='annotation');
+    const isT=sameD(d,stTd);
+    const isAct=sameD(d,S.awd);
+    const cell=document.createElement('div');
+    let cls='wmoodcell';
+    if(annos.some(a=>a.symbol==='囍'))cls+=' has-good';
+    else if(annos.some(a=>a.symbol==='寂'))cls+=' has-bad';
+    if(isT)cls+=' today-cell';
+    if(isAct)cls+=' sel-cell';
+    cell.className=cls;
+    const shown=annos.slice(0,2);
+    const sealsHtml=shown.length?`<div class="wmoodseals">${shown.map(a=>stampHtml(a.symbol,!a.charGen,15,6)).join('')}</div>`:`<div class="wmoodseals"></div>`;
+    /* 格子标签：今天显示 now，其他显示 D{storyDay}，与周面板对齐 */
+    const dayLbl=isT?'now':`D${storyDay}`;
+    /* D1格额外在星期下方显示 baseRealDate 的月日小字（剧情第1天锚定的现实日期） */
+    const baseD1=new Date(baseDateStr+'T00:00:00');
+    const dateSubLbl=storyDay===1?`<div class="wmooddow" style="margin-top:1px;opacity:.55">${p2(baseD1.getMonth()+1)}-${p2(baseD1.getDate())}</div>`:'';
+    cell.innerHTML=`${sealsHtml}<div class="wmooddate" style="font-size:${isT?'8':'8.5'}px;font-weight:${isT?'700':'400'}">${dayLbl}</div><div class="wmooddow">${WD[d.getDay()]}</div>${dateSubLbl}`;
+    cell.addEventListener('click',()=>{
+      S.awd=new Date(d);S.vy=d.getFullYear();S.vm=d.getMonth();
+      renderWeekMoodBar();renderWP(d);
+      openModal();setTimeout(()=>{document.querySelectorAll('.mty').forEach((x,i)=>{x.classList.toggle('on',i===3);});S.mty='annotation';buildMFields();},50);
+    });
+    row.appendChild(cell);
+    if(isT)todayCellEl=cell;
+    else if(isAct)actCellEl=cell;
+  }
+
+  /* 自动滚动到今日格（居中） */
+  setTimeout(()=>{
+    const target=todayCellEl||actCellEl;
+    if(target){
+      const scroller=row.closest('.wmoodscroll')||row.parentElement;
+      if(scroller){
+        const scrollCenter=target.offsetLeft-(scroller.clientWidth/2)+(target.offsetWidth/2);
+        scroller.scrollTo({left:Math.max(0,scrollCenter),behavior:'smooth'});
+      }
+    }
+  },60);
+}function renderA(){
   document.getElementById('mA').classList.add('vis');
   document.getElementById('mB').classList.remove('vis');
-  renderCal();renderDay(S.sd);
+  renderCal();renderDay(S.sd);renderMoodBar();
+  setupAllDelegation();
 }
 
 function renderCal(){
@@ -764,36 +1495,68 @@ function renderCal(){
     if(isSel&&!isT)cell.classList.add('sl');
     if(hasEv)cell.classList.add('hev');
     cell.textContent=d.getDate();
-    // Char annotation mark
+    // Annotation marks — show up to 2 (char first, then user), handwritten
     if(annos.length){
-      const mk=document.createElement('span');
-      const sym=annos[0].symbol==='×';
-      mk.className=`amark ${sym?'cr':'ci'}`;
-      mk.textContent=sym?'✕':'◯';
-      cell.appendChild(mk);
+      const shown=annos.slice(0,2);
+      shown.forEach((a,idx)=>{
+        const isGood=a.symbol==='囍';
+        const isUser=!a.charGen;
+        const mk=document.createElement('span');
+        mk.className=`amark ${isUser?(isGood?'user-ci':'user-cr'):(isGood?'ci':'cr')}`;
+        mk.style.right=(idx*10)+'px';
+        mk.style.top='-4px';
+        mk.textContent=a.symbol;
+        cell.appendChild(mk);
+      });
     }
     cell.addEventListener('click',()=>selDay(d));
     grid.appendChild(cell);
   }
 }
 
-function selDay(d){S.sd=new Date(d);S.tab='tl';renderCal();renderDay(d);}
-function navMo(dir){S.vm+=dir;if(S.vm<0){S.vm=11;S.vy--;}if(S.vm>11){S.vm=0;S.vy++;}renderCal();}
+function selDay(d){
+  S.sd=new Date(d);S.tab='tl';
+  document.querySelectorAll('#mA .tab').forEach((x,i)=>x.classList.toggle('on',i===0));
+  renderCal();renderDay(d);renderMoodBar();
+}
+function navMo(dir){S.vm+=dir;if(S.vm<0){S.vm=11;S.vy--;}if(S.vm>11){S.vm=0;S.vy++;}renderCal();renderMoodBar();}
 
 function renderDay(d){
   const ds=fd(d);
   document.getElementById('ddate').textContent=`${MOS[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
   document.getElementById('dwday').textContent=WDF[d.getDay()].toUpperCase();
-  // Annotation bar
+  // Annotation bar — symmetric: left=char, right=user (stamps only, no thread/actions inside)
   const annos=S.evs.filter(e=>e.date===ds&&e.type==='annotation');
   const bar=document.getElementById('anobarA');
+  const threadsEl=document.getElementById('anobar-threads');
+  const charAnnos=annos.filter(a=>a.charGen);
+  const userAnnos=annos.filter(a=>!a.charGen);
   if(annos.length){
     bar.classList.add('sh');
-    const av=document.getElementById('anobavA');
-    av.innerHTML=S.ctx.charAvatar?`<img src="${S.ctx.charAvatar}">`:`<i class="fa-solid fa-user" style="font-size:9px"></i>`;
-    document.getElementById('anobwhoA').textContent=`${S.ctx.charName}`;
-    document.getElementById('anobtxtA').innerHTML=annos.map(a=>`<span class="anosym" style="color:${a.symbol==='×'?'var(--coral)':'var(--blossom)'}">${a.symbol==='×'?'✕':'◯'}</span>${esc(a.note||'')}`).join('<br>');
-  }else bar.classList.remove('sh');
+    const charEl=document.getElementById('anoside-char');
+    if(charAnnos.length){
+      const avHtml=S.ctx.charAvatar?`<img src="${S.ctx.charAvatar}">`:`<i class="fa-solid fa-user" style="font-size:8px"></i>`;
+      // Show only the latest stamp+note, not the thread
+      const latest=charAnnos[charAnnos.length-1];
+      charEl.innerHTML=`<div class="anoside-av">${avHtml}</div><div class="anoside-name">${esc(S.ctx.charName||'char')}</div><div class="anoside-items">${charAnnos.map(a=>`<div class="anoside-item del-target" data-action="delete-entry" data-id="${a.id}">${stampHtml(a.symbol,false,22,10)}${a.note?`<span class="anoside-note">${esc(a.note)}</span>`:''}</div>`).join('')}</div>`;
+    } else {
+      charEl.innerHTML=`<div class="anoside-empty"><i class="fa-regular fa-circle" style="font-size:14px"></i></div>`;
+    }
+    const userEl=document.getElementById('anoside-user');
+    if(userAnnos.length){
+      const uavHtml=S.ctx.userAvatar?`<img src="${S.ctx.userAvatar}">`:`<i class="fa-solid fa-user" style="font-size:8px"></i>`;
+      userEl.innerHTML=`<div class="anoside-av user">${uavHtml}</div><div class="anoside-name">${esc(S.ctx.userName||'you')}</div><div class="anoside-items">${userAnnos.map(a=>`<div class="anoside-item del-target" data-action="delete-entry" data-id="${a.id}">${stampHtml(a.symbol,true,22,10)}${a.note?`<span class="anoside-note">${esc(a.note)}</span>`:''}</div>`).join('')}</div>`;
+    } else {
+      userEl.innerHTML=`<div class="anoside-empty"><i class="fa-regular fa-circle" style="font-size:14px"></i></div>`;
+    }
+    // Thread + actions for all annotations go BELOW the anobar in two-column layout
+    if(threadsEl){
+      threadsEl.innerHTML = annoThreadsHtml(charAnnos, userAnnos);
+    }
+  }else{
+    bar.classList.remove('sh');
+    if(threadsEl)threadsEl.innerHTML='';
+  }
   renderTab(S.tab,ds);
 }
 
@@ -808,8 +1571,7 @@ function renderTab(tab,ds){
   const evs=S.evs.filter(e=>e.date===ds);
   if(tab==='tl'){
     const tlevs=evs.filter(e=>e.type==='event'&&e.hour!==undefined).sort((a,b)=>a.hour*60+(a.minute||0)-(b.hour*60+(b.minute||0)));
-    const now=new Date(),curH=sameD(new Date(ds+'T00:00:00'),TODAY)?now.getHours():-1,curM=now.getMinutes();
-    // Build display hour set
+    const now=new Date(),curH=sameD(new Date(ds+'T00:00:00'),TODAY)?now.getHours():-1;
     const hset=new Set(tlevs.flatMap(e=>[e.hour,e.hourEnd].filter(h=>h!==undefined)));
     const disp=new Set();
     if(!hset.size){for(let h=7;h<=22;h++)disp.add(h);}
@@ -822,16 +1584,14 @@ function renderTab(tab,ds){
       const here=tlevs.filter(e=>e.hour===h),isCur=h===curH;
       const sl=document.createElement('div');sl.className='tlslot';
       const cardsHTML=here.map(ev=>{
-        const hasSpan=ev.hourEnd!==undefined;
-        const rangeStr=hasSpan?`${p2(ev.hour)}:${p2(ev.minute||0)} – ${p2(ev.hourEnd)}:${p2(ev.minuteEnd||0)}`:`${p2(ev.hour)}:${p2(ev.minute||0)}`;
+        const eff=effectiveField(ev);
+        const hasSpan=eff.hourEnd!==undefined;
+        const rangeStr=hasSpan?`${p2(eff.hour)}:${p2(eff.minute||0)} – ${p2(eff.hourEnd)}:${p2(eff.minuteEnd||0)}`:`${p2(eff.hour)}:${p2(eff.minute||0)}`;
         const nameTag=ev.charGen?`<span class="ctag">${esc(ev.charName||'char')}</span>`:ev.userName?`<span class="utag">${esc(ev.userName)}</span>`:'';
-        if(hasSpan){
-          return `<div class="tlspan ${ev.charGen?'cg':''}" onclick="confirmDel('${ev.id}')">
-            <div class="tlspan-bar" style="background:${ev.color||'#72c9a0'}"></div>
-            <div class="tlspan-body"><div class="evdot" style="background:${ev.color||'#72c9a0'}"></div><span class="tltxt">${esc(ev.title)}${nameTag}</span><span class="tlspan-range">${rangeStr}</span></div>
-          </div>`;
-        }
-        return `<div class="tlcard ${ev.charGen?'cg':''}" onclick="confirmDel('${ev.id}')"><div class="evdot" style="background:${ev.color||'#72c9a0'}"></div><span class="tltxt">${esc(ev.title)}${nameTag}</span><span class="tltime">${rangeStr}</span></div>`;
+        const card=hasSpan
+          ?`<div class="tlspan ${ev.charGen?'cg':''}"><div class="tlspan-bar" style="background:${eff.color||'#72c9a0'}"></div><div class="tlspan-body del-target" data-action="delete-entry" data-id="${ev.id}"><div class="evdot" style="background:${eff.color||'#72c9a0'}"></div><span class="tltxt">${esc(eff.title)}${nameTag}</span><span class="tlspan-range">${rangeStr}</span></div></div>`
+          :`<div class="tlcard ${ev.charGen?'cg':''} del-target" data-action="delete-entry" data-id="${ev.id}"><div class="evdot" style="background:${eff.color||'#72c9a0'}"></div><span class="tltxt">${esc(eff.title)}${nameTag}</span><span class="tltime">${rangeStr}</span></div>`;
+        return `<div class="ev-wrap">${card}${threadHtml(ev.id)}${actionsHtml(ev.id)}${composeHtml(ev)}</div>`;
       }).join('');
       sl.innerHTML=`<div class="tlhr">${p2(h)}:00</div><div class="tlsp"><div class="tldot ${here.length?'ev':''} ${isCur?'nw':''}"></div><div class="tlln"></div></div><div class="tlcon">${cardsHTML}</div>`;
       body.appendChild(sl);
@@ -839,29 +1599,41 @@ function renderTab(tab,ds){
   }else if(tab==='todo'){
     const todos=evs.filter(e=>e.type==='todo');
     body.innerHTML=todos.length?todos.map(t=>{
+      const eff=effectiveField(t);
       const nameTag=t.charGen?`<span class="ctag">${esc(t.charName||'char')}</span>`:t.userName?`<span class="utag">${esc(t.userName)}</span>`:'';
-      return `<div class="trow"><div class="tchk ${t.done?'dn':''}" onclick="toggleTodo('${t.id}')">${t.done?'<i class="fa-solid fa-check" style="font-size:8px"></i>':''}</div><span class="ttxt ${t.done?'dn':''}">${esc(t.title)}${nameTag}</span></div>`;
+      const row=`<div class="trow"><div class="tchk ${eff.done?'dn':''}" onclick="toggleTodo('${t.id}')">${eff.done?'<i class="fa-solid fa-check" style="font-size:8px"></i>':''}</div><span class="ttxt del-target ${eff.done?'dn':''}" data-action="delete-entry" data-id="${t.id}">${esc(eff.title)}${nameTag}</span></div>`;
+      return `<div class="ev-wrap">${row}${threadHtml(t.id)}${actionsHtml(t.id)}${composeHtml(t)}</div>`;
     }).join(''):etip('fa-regular fa-square-check','All clear');
   }else{
     const memos=evs.filter(e=>e.type==='memo');
     body.innerHTML=memos.length?memos.map(m=>{
+      const eff=effectiveField(m);
       const nameTag=m.charGen?`<span class="ctag">${esc(m.charName||'char')}</span>`:m.userName?`<span class="utag">${esc(m.userName)}</span>`:'';
-      return `<div class="mrow"><div class="mpip"></div><span>${esc(m.title)}${nameTag}</span></div>`;
+      const row=`<div class="mrow"><div class="mpip"></div><span class="del-target" data-action="delete-entry" data-id="${m.id}">${esc(eff.title)}${nameTag}</span></div>`;
+      return `<div class="ev-wrap">${row}${threadHtml(m.id)}${actionsHtml(m.id)}${composeHtml(m)}</div>`;
     }).join(''):etip('fa-regular fa-note-sticky','No memos');
   }
 }
+function activityBadges(id){return '';}
 
 /* ─── MODE B: ORGANIC WEEK STRIP ─── */
 function renderB(){
   document.getElementById('mB').classList.add('vis');
   document.getElementById('mA').classList.remove('vis');
+  // 切换到 Mode B 时，始终以剧情今天为锚点重置周偏移和活跃日
+  const stTd=getStoryTodayDate();
+  S.wo=0;
+  S.awd=new Date(stTd);
+  S.vy=stTd.getFullYear();S.vm=stTd.getMonth();
   spawnPetals();
   renderWeek();
+  renderWeekMoodBar();
+  setupAllDelegation();
 }
 
 function getWkStart(off){
-  // Mode B: 7 days starting from TODAY + off*7 (not week-aligned)
-  const d=new Date(TODAY);d.setDate(d.getDate()+off*7);d.setHours(0,0,0,0);return d;
+  // Mode B: 7 days starting from story today + off*7
+  const d=new Date(getStoryTodayDate());d.setDate(d.getDate()+off*7);d.setHours(0,0,0,0);return d;
 }
 
 function renderWeek(){
@@ -869,7 +1641,8 @@ function renderWeek(){
   const we=new Date(ws);we.setDate(we.getDate()+6);
 
   // Banner text — NO dates
-  const diff0=Math.round((ws-TODAY)/86400000);
+  const stTd0=getStoryTodayDate();
+  const diff0=Math.round((ws-stTd0)/86400000);
   const heading=S.wo===0?`Seven <em>days</em>`:
                 S.wo===1?`Looking <em>ahead</em>`:
                 S.wo===-1?`Looking <em>back</em>`:
@@ -882,28 +1655,37 @@ function renderWeek(){
   const strip=document.getElementById('wstrip');strip.innerHTML='';
   for(let i=0;i<7;i++){
     const d=new Date(ws);d.setDate(d.getDate()+i);
-    const ds=fd(d),isT=sameD(d,TODAY),isAct=sameD(d,S.awd);
+    const stTd=getStoryTodayDate();
+    const ds=fd(d),isT=sameD(d,stTd),isAct=sameD(d,S.awd);
     const evs=S.evs.filter(e=>e.date===ds&&e.type!=='annotation');
     const annos=S.evs.filter(e=>e.date===ds&&e.type==='annotation');
     const tl=evs.filter(e=>e.type==='event').length;
     const td=evs.filter(e=>e.type==='todo').length;
     const mm=evs.filter(e=>e.type==='memo').length;
-    const diff=Math.round((d-TODAY)/86400000);
+    const diff=Math.round((d-stTd)/86400000);
     const chip=bDayChip(d);
     const card=document.createElement('div');
     card.className=`wdcard${isT?' tdc':''}${isAct?' act':''}${diff<-1&&!isT?' past':''}`;
-    const anoHtml=annos.length?`<div class="wdano ${annos[0].symbol==='×'?'cr':'ci'}">${annos[0].symbol==='×'?'✕':'◯'}</div>`:'';
+    let anoHtml='';
+    if(annos.length){
+      const a=annos[0];
+      const isGood=a.symbol==='囍';
+      const isUser=!a.charGen;
+      const cls=isUser?(isGood?'user-ci':'user-cr'):(isGood?'ci':'cr');
+      anoHtml=`<div class="wdano ${cls}">${a.symbol}</div>`;
+    }
     const dotHtml=(tl||td||mm)?`<div class="wddots">${tl?`<div class="wddot"></div>`:''}${td?`<div class="wddot" style="background:var(--blossom)"></div>`:''}${mm?`<div class="wddot" style="background:var(--peach)"></div>`:''}</div>`:'<div class="wddots"></div>';
     // No date number — show WD abbr large + relative chip
     card.innerHTML=`${anoHtml}<div class="wdlbl">${WD[d.getDay()]}</div><div class="wdnum" style="font-size:13px;letter-spacing:-.01em">${isT?'now':chip}</div>${dotHtml}<div class="wdrel">${isT?'·':''}</div>`;
-    card.addEventListener('click',()=>{S.awd=new Date(d);renderWeek();renderWP(d);});
+    card.addEventListener('click',()=>{S.awd=new Date(d);S.vy=d.getFullYear();S.vm=d.getMonth();renderWeek();renderWeekMoodBar();renderWP(d);});
     strip.appendChild(card);
   }
   // Auto-scroll active card into view
-  setTimeout(()=>{const a=strip.querySelector('.act');if(a)a.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});},60);
-  // Clamp active day to window
+  // setTimeout(()=>{const a=strip.querySelector('.act');if(a)a.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});},60);
+  // Clamp active day to window — use story today as fallback anchor
+  const stTd2=getStoryTodayDate();
   const ws2=new Date(ws),we2=new Date(we);
-  if(S.awd<ws2||S.awd>we2)S.awd=(TODAY>=ws2&&TODAY<=we2)?new Date(TODAY):new Date(ws2);
+  if(S.awd<ws2||S.awd>we2)S.awd=(stTd2>=ws2&&stTd2<=we2)?new Date(stTd2):new Date(ws2);
   renderWP(S.awd);
 }
 
@@ -911,7 +1693,8 @@ function navWk(dir){
   S.wo+=dir;
   const ws=getWkStart(S.wo),we=new Date(ws);we.setDate(we.getDate()+6);
   if(S.awd<ws||S.awd>we)S.awd=new Date(ws);
-  renderWeek();
+  S.vy=S.awd.getFullYear();S.vm=S.awd.getMonth();
+  renderWeek();renderWeekMoodBar();
 }
 
 function renderWP(d){
@@ -924,38 +1707,27 @@ function renderWP(d){
   const memos=evs.filter(e=>e.type==='memo');
 
   const tlHTML=tlevs.length?tlevs.map(ev=>{
-    const hasSpan=ev.hourEnd!==undefined;
+    const eff=effectiveField(ev);
+    const hasSpan=eff.hourEnd!==undefined;
     const nameTag=ev.charGen?`<span class="btl-cbadge">${esc(ev.charName||'char')}</span>`:ev.userName?`<span class="btl-cbadge" style="background:rgba(130,196,232,.14);color:#3d7ea6">${esc(ev.userName)}</span>`:'';
-    if(hasSpan){
-      return `<div class="btlspan" style="margin-bottom:7px">
-        <div class="btlspan-bar" style="background:${ev.color||'#72c9a0'}"></div>
-        <div class="btlspan-body">
-          <div class="btlpip" style="background:${ev.color||'#72c9a0'};box-shadow:0 0 0 3px ${(ev.color||'#72c9a0')}22;flex-shrink:0;width:8px;height:8px;border-radius:50%;margin-top:0;"></div>
-          <div class="btl-content"><div class="btl-title">${esc(ev.title)}${nameTag}</div></div>
-          <span class="btlspan-range">${p2(ev.hour)}:${p2(ev.minute||0)}–${p2(ev.hourEnd)}:${p2(ev.minuteEnd||0)}</span>
-        </div>
-      </div>`;
-    }
-    return `<div class="btlitem">
-      <div class="btlpip-wrap"><div class="btlpip" style="background:${ev.color||'#72c9a0'};box-shadow:0 0 0 3px ${(ev.color||'#72c9a0')}22;"></div><div class="btlpip-line"></div></div>
-      <div class="btl-content">
-        <div class="btl-title">${esc(ev.title)}${nameTag}</div>
-        ${ev.hour!==undefined?`<div class="btl-time"><i class="fa-regular fa-clock" style="font-size:8px;margin-right:3px"></i>${p2(ev.hour)}:${p2(ev.minute||0)}</div>`:''}
-      </div>
-    </div>`;
+    const card=hasSpan
+      ?`<div class="btlspan" style="margin-bottom:0"><div class="btlspan-bar" style="background:${eff.color||'#72c9a0'}"></div><div class="btlspan-body"><div class="btlpip" style="background:${eff.color||'#72c9a0'};box-shadow:0 0 0 3px ${(eff.color||'#72c9a0')}22;flex-shrink:0;width:8px;height:8px;border-radius:50%;margin-top:0;"></div><div class="btl-content"><div class="btl-title del-target" data-action="delete-entry" data-id="${ev.id}">${esc(eff.title)}${nameTag}</div></div><span class="btlspan-range">${p2(eff.hour)}:${p2(eff.minute||0)}–${p2(eff.hourEnd)}:${p2(eff.minuteEnd||0)}</span></div></div>`
+      :`<div class="btlitem"><div class="btlpip-wrap"><div class="btlpip" style="background:${eff.color||'#72c9a0'};box-shadow:0 0 0 3px ${(eff.color||'#72c9a0')}22;"></div><div class="btlpip-line"></div></div><div class="btl-content"><div class="btl-title del-target" data-action="delete-entry" data-id="${ev.id}">${esc(eff.title)}${nameTag}</div>${eff.hour!==undefined?`<div class="btl-time"><i class="fa-regular fa-clock" style="font-size:8px;margin-right:3px"></i>${p2(eff.hour)}:${p2(eff.minute||0)}</div>`:''}</div></div>`;
+    return `<div class="ev-wrap" style="margin-bottom:6px">${card}${threadHtml(ev.id)}${actionsHtml(ev.id)}${composeHtml(ev)}</div>`;
   }).join(''):etip('fa-regular fa-sun','Nothing planned');
 
   const tdHTML=todos.length?todos.map(t=>{
+    const eff=effectiveField(t);
     const nameTag=t.charGen?`<span class="bmmctag">${esc(t.charName||'char')}</span>`:t.userName?`<span class="bmmctag" style="background:rgba(130,196,232,.14);color:#3d7ea6">${esc(t.userName)}</span>`:'';
-    return `<div class="btdrow" onclick="toggleTodo('${t.id}')">
-      <div class="btdchk ${t.done?'dn':''}">${t.done?'<i class="fa-solid fa-check"></i>':''}</div>
-      <span class="btd-txt ${t.done?'dn':''}">${esc(t.title)}${nameTag}</span>
-    </div>`;
+    const row=`<div class="btdrow"><div class="btdchk ${eff.done?'dn':''}" onclick="toggleTodo('${t.id}')">${eff.done?'<i class="fa-solid fa-check"></i>':''}</div><span class="btd-txt del-target ${eff.done?'dn':''}" data-action="delete-entry" data-id="${t.id}">${esc(eff.title)}${nameTag}</span></div>`;
+    return `<div class="ev-wrap" style="margin-bottom:4px">${row}${threadHtml(t.id)}${actionsHtml(t.id)}${composeHtml(t)}</div>`;
   }).join(''):etip('fa-regular fa-square-check','All clear');
 
   const mmHTML=memos.length?memos.map(m=>{
+    const eff=effectiveField(m);
     const nameTag=m.charGen?`<span class="bmmctag">${esc(m.charName||'char')}</span>`:m.userName?`<span class="bmmctag" style="background:rgba(130,196,232,.14);color:#3d7ea6">${esc(m.userName)}</span>`:'';
-    return `<div class="bmmrow"><div class="bmmtxt">${esc(m.title)}${nameTag}</div></div>`;
+    const row=`<div class="bmmrow"><div class="bmmtxt del-target" data-action="delete-entry" data-id="${m.id}">${esc(eff.title)}${nameTag}</div></div>`;
+    return `<div class="ev-wrap" style="margin-bottom:4px">${row}${threadHtml(m.id)}${actionsHtml(m.id)}${composeHtml(m)}</div>`;
   }).join(''):etip('fa-regular fa-note-sticky','Nothing written');
 
   const wrap=document.getElementById('wdpwrap');
@@ -971,34 +1743,40 @@ function renderWP(d){
           <button class="addbtn" onclick="openModal()"><i class="fa-solid fa-plus"></i> Add</button>
         </div>
       </div>
-      <div class="wpano ${annos.length?'sh':''}" id="wpano">
-        <div class="wpanav">${S.ctx.charAvatar?`<img src="${S.ctx.charAvatar}">`:`<i class="fa-solid fa-user" style="font-size:10px"></i>`}</div>
-        <div>
-          <div class="wpana-who">${esc(S.ctx.charName||'char')} · note</div>
-          <div class="wpanatxt">${annos.map(a=>`<span style="margin-right:4px;color:${a.symbol==='×'?'var(--coral)':'var(--blossom)'}">${a.symbol==='×'?'✕':'◯'}</span>${esc(a.note||'')}`).join('<br>')}</div>
-        </div>
-      </div>
+      <div class="wpano ${annos.length?'sh':''}" id="wpano">${(()=>{
+        const ca=annos.filter(a=>a.charGen),ua=annos.filter(a=>!a.charGen);
+        const avChar=S.ctx.charAvatar?`<img src="${S.ctx.charAvatar}">`:`<i class="fa-solid fa-user" style="font-size:9px"></i>`;
+        const avUser=S.ctx.userAvatar?`<img src="${S.ctx.userAvatar}">`:`<i class="fa-solid fa-user" style="font-size:9px"></i>`;
+        const charSide=ca.length
+          ?`<div class="wpa-av">${avChar}</div><div class="wpa-name">${esc(S.ctx.charName||'char')}</div><div class="wpa-items">${ca.map(a=>`<div class="wpa-item del-target" data-action="delete-entry" data-id="${a.id}">${stampHtml(a.symbol,false,22,10)}${a.note?`<span class="wpa-note">${esc(a.note)}</span>`:''}</div>`).join('')}</div>`
+          :`<div class="wpa-side-empty"><i class="fa-regular fa-circle" style="font-size:16px"></i></div>`;
+        const userSide=ua.length
+          ?`<div class="wpa-av user">${avUser}</div><div class="wpa-name">${esc(S.ctx.userName||'you')}</div><div class="wpa-items">${ua.map(a=>`<div class="wpa-item del-target" data-action="delete-entry" data-id="${a.id}">${stampHtml(a.symbol,true,22,10)}${a.note?`<span class="wpa-note">${esc(a.note)}</span>`:''}</div>`).join('')}</div>`
+          :`<div class="wpa-side-empty"><i class="fa-regular fa-circle" style="font-size:16px"></i></div>`;
+        return `<div class="wpano-inner"><div class="wpa-side left">${charSide}</div><div class="wpa-side">${userSide}</div></div>`;
+      })()}</div>
+      ${annos.length?`<div>${annoThreadsHtml(annos.filter(a=>a.charGen),annos.filter(a=>!a.charGen))}</div>`:''}
       <div class="wp-sections">
-        <div class="wpsec open" id="wps-tl">
+        <div class="wpsec ${S.wpOpen.tl?'open':''}" id="wps-tl">
           <div class="wpsec-hdr" onclick="toggleWPSec('wps-tl')">
             <div class="wpsec-hdr-l"><div class="wpsec-ico tl"><i class="fa-solid fa-bars-staggered"></i></div><span class="wpsec-ttl">Timeline</span></div>
             <div style="display:flex;align-items:center;gap:7px"><span class="wpsec-cnt">${tlevs.length}</span><i class="fa-solid fa-chevron-down wpsec-arr"></i></div>
           </div>
-          <div class="wpsec-body"><div class="wpsec-inner">${tlHTML}</div></div>
+          <div class="wpsec-body"><div class="wpsec-inner"><div class="wpsec-inner-pad">${tlHTML}</div></div></div>
         </div>
-        <div class="wpsec" id="wps-td">
+        <div class="wpsec ${S.wpOpen.td?'open':''}" id="wps-td">
           <div class="wpsec-hdr" onclick="toggleWPSec('wps-td')">
             <div class="wpsec-hdr-l"><div class="wpsec-ico td"><i class="fa-solid fa-check-double"></i></div><span class="wpsec-ttl">To-do</span></div>
             <div style="display:flex;align-items:center;gap:7px"><span class="wpsec-cnt">${todos.length}</span><i class="fa-solid fa-chevron-down wpsec-arr"></i></div>
           </div>
-          <div class="wpsec-body"><div class="wpsec-inner">${tdHTML}</div></div>
+          <div class="wpsec-body"><div class="wpsec-inner"><div class="wpsec-inner-pad">${tdHTML}</div></div></div>
         </div>
-        <div class="wpsec" id="wps-mm">
+        <div class="wpsec ${S.wpOpen.mm?'open':''}" id="wps-mm">
           <div class="wpsec-hdr" onclick="toggleWPSec('wps-mm')">
             <div class="wpsec-hdr-l"><div class="wpsec-ico mm"><i class="fa-solid fa-feather-pointed"></i></div><span class="wpsec-ttl">Memos</span></div>
             <div style="display:flex;align-items:center;gap:7px"><span class="wpsec-cnt">${memos.length}</span><i class="fa-solid fa-chevron-down wpsec-arr"></i></div>
           </div>
-          <div class="wpsec-body"><div class="wpsec-inner">${mmHTML}</div></div>
+          <div class="wpsec-body"><div class="wpsec-inner"><div class="wpsec-inner-pad">${mmHTML}</div></div></div>
         </div>
       </div>
     </div>`;
@@ -1007,28 +1785,48 @@ function renderWP(d){
 function toggleWPSec(id){
   const sec=document.getElementById(id);if(!sec)return;
   sec.classList.toggle('open');
+  // persist state so re-renders don't reset it
+  const key=id.replace('wps-','');
+  if(S.wpOpen)S.wpOpen[key]=sec.classList.contains('open');
 }
 
-/* ─── MODE B: RELATIVE DAY LABELS (no dates ever) ─── */
-// Map a date → a poetic ordinal label relative to the "session anchor" (first day user entered Mode B)
-// The anchor is TODAY when S.wo===0, shifts by +/-7 per nav
+/* ─── MODE B: RELATIVE DAY LABELS (anchored to story today, not real today) ─── */
+function _getStoryDayNum(d){
+  /* 给定真实日期d，返回剧情天数（D1起）；无时钟时回退到相对今日的diff */
+  const clock=window.__storyClockCache;
+  const anchor=window.__scheduleAnchorCache;
+  const baseDateStr=(anchor&&anchor.realAnchorDay1)
+    ? anchor.realAnchorDay1
+    : (clock&&clock.baseRealDate ? clock.baseRealDate : null);
+  if(!baseDateStr) return null;
+  const base=new Date(baseDateStr+'T00:00:00');
+  return Math.round((d - base) / 86400000) + 1; // D1 = offset 0 + 1
+}
 function bDayLabel(d, idx){
-  // idx = 0..6 position in the 7-day window
-  const diff = Math.round((d - TODAY) / 86400000);
-  // Named specials
+  const dn=_getStoryDayNum(d);
+  if(dn!=null){
+    const ref=getStoryTodayDate();
+    const diff=Math.round((d-ref)/86400000);
+    if(diff===0) return `Day ${dn} · Today`;
+    if(diff===1) return `Day ${dn} · Tomorrow`;
+    if(diff===-1) return `Day ${dn} · Yesterday`;
+    if(diff<0) return `Day ${dn} · ${Math.abs(diff)}d ago`;
+    return `Day ${dn} · +${diff}d`;
+  }
+  const ref=getStoryTodayDate();
+  const diff = Math.round((d - ref) / 86400000);
   if(diff === 0) return 'Today';
   if(diff === 1) return 'Tomorrow';
   if(diff === -1) return 'Yesterday';
-  if(diff === -2) return 'Two days ago';
-  if(diff === 2) return 'In two days';
-  if(diff === -3) return 'Three days ago';
-  if(diff === 3) return 'In three days';
   if(diff < 0) return `${Math.abs(diff)} days ago`;
   return `In ${diff} days`;
 }
-// Short version for the card chip
+// Short version for the card chip — shows story day number
 function bDayChip(d){
-  const diff = Math.round((d - TODAY) / 86400000);
+  const dn=_getStoryDayNum(d);
+  if(dn!=null) return `D${dn}`;
+  const ref=getStoryTodayDate();
+  const diff = Math.round((d - ref) / 86400000);
   if(diff === 0) return 'today';
   if(diff === 1) return 'tmrw';
   if(diff === -1) return 'yest';
@@ -1067,11 +1865,55 @@ function buildMFields(){
     document.getElementById('mtitle').textContent='New Memo';
     f.innerHTML=`<div class="mf"><div class="mlbl">MEMO</div><textarea class="mta" id="minput" placeholder="Write a note…"></textarea></div>`;
   }
+  if(S.mty==='annotation'){
+    document.getElementById('mtitle').textContent='盖章记录心情';
+    f.innerHTML=`
+      <div class="mf"><div class="mlbl">今天是</div>
+        <div style="display:flex;gap:10px;margin-top:6px">
+          <div id="sym-o" onclick="pickSym('囍',this)" style="cursor:pointer;flex:1;height:64px;border-radius:14px;border:2px solid rgba(192,57,43,.45);background:rgba(255,235,232,.5);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;transition:all .18s;">
+            <div style="width:30px;height:30px;border-radius:50%;border:2px solid #c0392b;background:rgba(255,235,232,.9);display:flex;align-items:center;justify-content:center;font-size:14px;font-family:'Noto Serif SC','Songti SC',serif;font-weight:700;color:#c0392b;transform:rotate(-6deg)">囍</div>
+            <span style="font-size:9px;color:#c0392b;font-family:'Geist Mono',monospace;letter-spacing:.04em">好日子</span>
+          </div>
+          <div id="sym-x" onclick="pickSym('寂',this)" style="cursor:pointer;flex:1;height:64px;border-radius:14px;border:2px solid rgba(91,111,138,.3);background:rgba(232,238,248,.4);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;transition:all .18s;">
+            <div style="width:30px;height:30px;border-radius:50%;border:2px solid #5b6f8a;background:rgba(232,238,248,.9);display:flex;align-items:center;justify-content:center;font-size:14px;font-family:'Noto Serif SC','Songti SC',serif;font-weight:700;color:#5b6f8a;transform:rotate(-6deg)">寂</div>
+            <span style="font-size:9px;color:#5b6f8a;font-family:'Geist Mono',monospace;letter-spacing:.04em">难熬的一天</span>
+          </div>
+        </div>
+      </div>
+      <div class="mf"><div class="mlbl">备注 <span class="mopt">选填</span></div><input class="min" id="minput" placeholder="这一天发生了什么…"></div>`;
+    S.msym='囍';
+    setTimeout(()=>pickSym('囍',document.getElementById('sym-o')),10);
+  }
 }
 function pickCol(el,c){S.mcol=c;document.querySelectorAll('.mcol').forEach(x=>x.classList.remove('on'));el.classList.add('on');}
+function pickSym(s,el){
+  S.msym=s;
+  const so=document.getElementById('sym-o'),sx=document.getElementById('sym-x');
+  if(so&&sx){
+    const isGood=s==='囍';
+    so.style.borderColor=isGood?'#c0392b':'rgba(192,57,43,.25)';
+    so.style.background=isGood?'rgba(255,215,210,.6)':'rgba(255,235,232,.5)';
+    so.style.transform=isGood?'scale(1.03)':'scale(1)';
+    sx.style.borderColor=!isGood?'#5b6f8a':'rgba(91,111,138,.22)';
+    sx.style.background=!isGood?'rgba(210,220,235,.6)':'rgba(232,238,248,.4)';
+    sx.style.transform=!isGood?'scale(1.03)':'scale(1)';
+  }
+}
 
 async function saveEntry(){
   const titleEl=document.getElementById('minput');
+  if(S.mty==='annotation'){
+    const note=(titleEl?.value||'').trim();
+    const ev={
+      id:`ev_${Date.now()}_${Math.random().toString(36).slice(2)}`,
+      chatId:S.ctx.chatId,type:'annotation',date:S.mdate,
+      symbol:S.msym||'囍',note,
+      charGen:false,userName:S.ctx.userName,createdAt:Date.now()
+    };
+    await dbPut('cal_events',ev);S.evs.push(ev);closeModal();
+    S.mode==='A'?(renderCal(),renderDay(S.sd),renderMoodBar()):(renderWeek(),renderWeekMoodBar());
+    return;
+  }
   const title=(titleEl?.value||'').trim();if(!title){titleEl?.focus();return;}
   const ev={
     id:`ev_${Date.now()}_${Math.random().toString(36).slice(2)}`,
@@ -1090,7 +1932,7 @@ async function saveEntry(){
     }
   }
   await dbPut('cal_events',ev);S.evs.push(ev);closeModal();
-  S.mode==='A'?(renderCal(),renderDay(S.sd)):renderWeek();
+  S.mode==='A'?(renderCal(),renderDay(S.sd),renderMoodBar()):(renderWeek(),renderWeekMoodBar());
 }
 async function toggleTodo(id){
   const ev=S.evs.find(e=>e.id===id);if(!ev)return;
@@ -1100,14 +1942,402 @@ async function toggleTodo(id){
 async function confirmDel(id){
   if(!confirm('Delete this entry?'))return;
   S.evs=S.evs.filter(e=>e.id!==id);await dbDel('cal_events',id);
-  S.mode==='A'?(renderCal(),renderDay(S.sd)):(renderWeek());
+  S.mode==='A'?(renderCal(),renderDay(S.sd),renderMoodBar()):(renderWeek(),renderWeekMoodBar());
+}
+
+/* ─── 删除条目（含子吐槽和修改记录） ─── */
+async function deleteEntry(id){
+  const ev=S.evs.find(e=>e.id===id);
+  if(!ev)return;
+  const typeLabel={event:'时间线事件',todo:'待办',memo:'备忘',annotation:'批注'}[ev.type]||'条目';
+  const cmtCount=S_comments.filter(c=>c.targetId===id).length;
+  const edtCount=S_edits.filter(e=>e.targetId===id).length;
+  const extra=(cmtCount+edtCount)>0?`\n（同时删除 ${cmtCount} 条吐槽、${edtCount} 条修改记录）`:'';
+  if(!confirm(`删除这条${typeLabel}？${extra}`))return;
+  // 删除主条目
+  S.evs=S.evs.filter(e=>e.id!==id);
+  await dbDel('cal_events',id);
+  // 删除关联吐槽
+  const cmtIds=S_comments.filter(c=>c.targetId===id).map(c=>c.id);
+  S_comments=S_comments.filter(c=>c.targetId!==id);
+  for(const cid of cmtIds)await dbDel('cal_comments',cid);
+  // 删除关联修改记录
+  const edtIds=S_edits.filter(e=>e.targetId===id).map(e=>e.id);
+  S_edits=S_edits.filter(e=>e.targetId!==id);
+  for(const eid of edtIds)await dbDel('cal_edits',eid);
+  // 重置compose状态并刷新
+  if(SC.evId===id){SC.evId=null;SC.mode=null;}
+  S.mode==='A'?(renderCal(),renderDay(S.sd),renderMoodBar()):(renderWeek(),renderWeekMoodBar());
+}
+
+/* ─── 删除单条气泡（吐槽或修改记录） ─── */
+async function deleteBubble(id, kind){
+  const label=kind==='comment'?'吐槽':'修改记录';
+  if(!confirm(`删除这条${label}？`))return;
+  if(kind==='comment'){
+    S_comments=S_comments.filter(c=>c.id!==id);
+    await dbDel('cal_comments',id);
+  }else{
+    S_edits=S_edits.filter(e=>e.id!==id);
+    await dbDel('cal_edits',id);
+  }
+  refreshAllCards();
+}
+
+/* ─── COMMENTS & EDITS (inline bubble system) ─── */
+let S_comments=[];
+let S_edits=[];
+// Track which card has compose open: {evId, mode:'comment'|'edit', as:'char'|'user', editSym}
+let SC={evId:null,mode:null,as:'user',editSym:'囍'};
+
+async function loadCommentsEdits(){
+  if(!S.ctx)return;
+  const [ac,ae]=await Promise.all([dbAll('cal_comments'),dbAll('cal_edits')]);
+  S_comments=ac.filter(c=>c.chatId===S.ctx.chatId);
+  S_edits=ae.filter(e=>e.chatId===S.ctx.chatId);
+}
+
+/* Two-column annotation thread layout — left=char, right=user
+   Bubbles (history) go in their respective column.
+   Compose box (when open) spans full width below both columns. */
+function annoThreadsHtml(charAnnos, userAnnos){
+  // Bubbles only (no compose) inside the columns
+  const colBubbles = (annos) =>
+    annos.map(a => {
+      const th = threadHtml(a.id);
+      const act = actionsHtml(a.id);
+      return th || act ? `<div class="ev-wrap" style="margin-bottom:2px">${th}${act}</div>` : '';
+    }).join('');
+
+  // Compose box: show if SC.evId matches any annotation in this day
+  const activeAnno = [...charAnnos,...userAnnos].find(a=>a.id===SC.evId);
+  const composeSection = activeAnno
+    ? `<div class="ano-thread-compose">${composeHtml(activeAnno)}</div>`
+    : '';
+
+  return `<div class="ano-threads">
+    <div class="ano-thread-cols">
+      <div class="ano-thread-col left">${colBubbles(charAnnos)}</div>
+      <div class="ano-thread-col">${colBubbles(userAnnos)}</div>
+    </div>${composeSection}
+  </div>`;
+}
+
+/* Build thread HTML */
+/* ─── 剥情时间戳：时间感知关闭时返回剧情毫秒时间戳，开启时返回 Date.now() ─── */
+function storyNow(){
+  if(S.mode!=='B')return Date.now();
+  const clock=window.__storyClockCache;
+  if(!clock)return Date.now();
+  // 剧情时间戳 = 剧情第1天为 0 的绝对毫秒就是：lastSyncStoryMs + (now - lastSyncRealMs)
+  return Math.max(0, clock.lastSyncStoryMs + (Date.now() - clock.lastSyncRealMs));
+}
+
+/* ─── 时间戳显示：timeMode + 当前模式双维路由 ─── */
+function formatBubbleTime(createdAtMs,timeMode){
+  const clock=window.__storyClockCache;
+  const storyFmt=(ms)=>{
+    const s=Math.floor(ms/1000),day=Math.floor(s/86400)+1,h=Math.floor((s%86400)/3600),m=Math.floor((s%3600)/60);
+    const ord=['1st','2nd','3rd','4th','5th','6th','7th','8th','9th','10th'];
+    return `𝘋·${ord[day-1]||(day+'th')} ${p2(h)}:${p2(m)}`;
+  };
+  const realFmt=(ms)=>{const t=new Date(ms);return `${p2(t.getMonth()+1)}/${p2(t.getDate())} ${p2(t.getHours())}:${p2(t.getMinutes())}`;};
+  if(timeMode==='story'){
+    if(S.mode==='A'){
+      if(clock)return realFmt(clock.lastSyncRealMs+(createdAtMs-clock.lastSyncStoryMs));
+      const s=Math.floor(createdAtMs/1000);return `${p2(Math.floor((s%86400)/3600))}:${p2(Math.floor((s%3600)/60))}`;
+    }
+    return storyFmt(createdAtMs);
+  }
+  if(timeMode==='real'){
+    if(S.mode==='B'){
+      if(clock)return storyFmt(Math.max(0,clock.lastSyncStoryMs+(createdAtMs-clock.lastSyncRealMs)));
+      const t=new Date(createdAtMs);return `${p2(t.getHours())}:${p2(t.getMinutes())}`;
+    }
+    return realFmt(createdAtMs);
+  }
+  // 旧数据兼容
+  if(S.mode==='B'&&clock)return storyFmt(Math.max(0,clock.lastSyncStoryMs+(createdAtMs-clock.lastSyncRealMs)));
+  const t=new Date(createdAtMs);
+  if(S.mode==='B')return `${p2(t.getHours())}:${p2(t.getMinutes())}`;
+  return realFmt(createdAtMs);
+}
+
+function threadHtml(evId){
+  const items=[
+    ...S_edits.filter(e=>e.targetId===evId).map(e=>({...e,_k:'edit'})),
+    ...S_comments.filter(c=>c.targetId===evId).map(c=>({...c,_k:'comment'}))
+  ].sort((a,b)=>a.createdAt-b.createdAt);
+  if(!items.length)return '';
+  const fieldLabel={title:'内容',hour:'开始时',minute:'开始分',hourEnd:'结束时',minuteEnd:'结束分',color:'颜色',done:'完成状态',symbol:'心情章',note:'备注'};
+  return '<div class="ev-thread">'+items.map(item=>{
+    const isUser=item.authorType==='user'||item.editorType==='user';
+    const who=isUser?(item.authorName||item.editorName||S.ctx.userName||'你'):(item.authorName||item.editorName||S.ctx.charName||'角色');
+    const avHtml=isUser
+      ?(S.ctx.userAvatar?`<img src="${S.ctx.userAvatar}">`:`<i class="fa-solid fa-user" style="font-size:5px"></i>`)
+      :(S.ctx.charAvatar?`<img src="${S.ctx.charAvatar}">`:`<i class="fa-solid fa-user" style="font-size:5px"></i>`);
+    const ts=formatBubbleTime(item.createdAt,item.timeMode);
+    if(item._k==='edit'){
+      const fl=fieldLabel[item.field]||item.field;
+      const ov=item.field==='done'?(item.oldValue?'已完成':'未完成'):esc(String(item.oldValue??''));
+      const nv=item.field==='done'?(item.newValue?'已完成':'未完成'):esc(String(item.newValue??''));
+      return `<div class="ev-bubble ${isUser?'user-edit':'char-edit'}">
+        <div class="ev-bav ${isUser?'user':'char'}">${avHtml}</div>
+        <div class="ev-bcontent" data-action="delete-bubble" data-id="${item.id}" data-kind="edit"><span class="ev-who">${esc(who)}</span>将 <b>${fl}</b> 从 <span class="ev-strike">${ov}</span> 改为 <span class="ev-new">${nv}</span><span class="ev-btime">${ts}</span></div>
+      </div>`;
+    }else{
+      return `<div class="ev-bubble ${isUser?'user-comment':'char-comment'}">
+        <div class="ev-bav ${isUser?'user':'char'}">${avHtml}</div>
+        <div class="ev-bcontent" data-action="delete-bubble" data-id="${item.id}" data-kind="comment"><span class="ev-who">${esc(who)}</span>${esc(item.content)}<span class="ev-btime">${ts}</span></div>
+      </div>`;
+    }
+  }).join('')+'</div>';
+}
+
+/* Action buttons — use data-* for event delegation, NO inline onclick */
+function actionsHtml(evId){
+  return `<div class="ev-actions">
+    <div class="ev-act" data-action="open-comment" data-id="${evId}"><i class="fa-regular fa-comment"></i> 吐槽</div>
+    <div class="ev-act" data-action="open-edit" data-id="${evId}"><i class="fa-regular fa-pen-to-square"></i> 修改</div>
+  </div>`;
+}
+
+/* Compose HTML — all buttons use data-* */
+function composeHtml(ev){
+  if(SC.evId!==ev.id)return '';
+  if(SC.mode==='comment'){
+    return `<div class="ev-compose">
+      <div class="ev-compose-row">
+        <textarea class="ev-compose-input" id="ev-inp-${ev.id}" placeholder="说点什么…" rows="1"></textarea>
+        <button class="ev-compose-send" data-action="send-comment" data-id="${ev.id}"><i class="fa-solid fa-location-arrow"></i></button>
+      </div>
+      <div class="ev-compose-as">
+        <span class="ev-compose-as-lbl">以</span>
+        <div class="ev-as-btn ${SC.as==='char'?'on':''}" data-action="set-as" data-id="${ev.id}" data-as="char">${esc(S.ctx.charName||'角色')}</div>
+        <div class="ev-as-btn ${SC.as==='user'?'on':''}" data-action="set-as" data-id="${ev.id}" data-as="user">${esc(S.ctx.userName||'你')}</div>
+        <span class="ev-compose-as-lbl">身份</span>
+        <div class="ev-cancel" data-action="cancel" data-id="${ev.id}" style="margin-left:auto"><i class="fa-solid fa-xmark"></i></div>
+      </div>
+    </div>`;
+  }else{
+    const eff=effectiveField(ev);
+    let fields='';
+    if(ev.type==='event'){
+      fields=`<div class="ev-edit-field"><span class="ev-edit-lbl">标题</span><input class="ev-edit-inp" id="ef-title-${ev.id}" value="${esc(eff.title||'')}" style="flex:1;min-width:80px"></div>
+        <div class="ev-edit-field">
+          <span class="ev-edit-lbl">开始</span>
+          <input class="ev-edit-inp ev-edit-mini" id="ef-h-${ev.id}" type="number" min="0" max="23" value="${eff.hour??''}">
+          <span class="ev-edit-sep">:</span>
+          <input class="ev-edit-inp ev-edit-mini" id="ef-m-${ev.id}" type="number" min="0" max="59" value="${eff.minute??''}">
+          <span class="ev-edit-lbl" style="margin-left:6px">结束</span>
+          <input class="ev-edit-inp ev-edit-mini" id="ef-he-${ev.id}" type="number" min="0" max="23" value="${eff.hourEnd??''}">
+          <span class="ev-edit-sep">:</span>
+          <input class="ev-edit-inp ev-edit-mini" id="ef-me-${ev.id}" type="number" min="0" max="59" value="${eff.minuteEnd??''}">
+        </div>`;
+    }else if(ev.type==='todo'||ev.type==='memo'){
+      fields=`<div class="ev-edit-field"><span class="ev-edit-lbl">内容</span><input class="ev-edit-inp" id="ef-title-${ev.id}" value="${esc(eff.title||'')}" style="flex:1;min-width:80px"></div>`;
+    }else if(ev.type==='annotation'){
+      const isGood=(SC.editSym==='囍');
+      fields=`<div class="ev-edit-field"><span class="ev-edit-lbl">心情</span>
+        <div class="ev-sym-btn ${isGood?'active-good':'off'}" data-action="set-sym" data-id="${ev.id}" data-sym="囍">囍 好日子</div>
+        <div class="ev-sym-btn ${!isGood?'active-bad':'off'}" data-action="set-sym" data-id="${ev.id}" data-sym="寂">寂 难熬</div>
+      </div>
+      <div class="ev-edit-field"><span class="ev-edit-lbl">备注</span><input class="ev-edit-inp" id="ef-note-${ev.id}" value="${esc(eff.note||'')}" style="flex:1;min-width:80px" placeholder="这一天发生了什么…"></div>`;
+    }
+    return `<div class="ev-edit-wrap">
+      ${fields}
+      <div class="ev-edit-footer">
+        <div class="ev-edit-as">
+          <div class="ev-as-btn ${SC.as==='char'?'on':''}" data-action="set-as" data-id="${ev.id}" data-as="char">以 ${esc(S.ctx.charName||'角色')} 修改</div>
+          <div class="ev-as-btn ${SC.as==='user'?'on':''}" data-action="set-as" data-id="${ev.id}" data-as="user">以 ${esc(S.ctx.userName||'你')} 修改</div>
+        </div>
+        <button class="ev-edit-save" data-action="save-edit" data-id="${ev.id}"><i class="fa-solid fa-check"></i> 保存</button>
+        <div class="ev-cancel" data-action="cancel" data-id="${ev.id}"><i class="fa-solid fa-xmark"></i></div>
+      </div>
+    </div>`;
+  }
+}
+
+/* Get last-applied values for each field (for edit default values) */
+function effectiveField(ev){
+  const fields=['title','hour','minute','hourEnd','minuteEnd','color','done','symbol','note'];
+  const out={...ev};
+  fields.forEach(f=>{
+    const edits=S_edits.filter(e=>e.targetId===ev.id&&e.field===f).sort((a,b)=>a.createdAt-b.createdAt);
+    if(edits.length)out[f]=edits[edits.length-1].newValue;
+  });
+  return out;
+}
+
+/* ─── EVENT DELEGATION — single listener handles all bubble interactions ─── */
+function openEv(evId,mode){
+  console.log('[OPEN-EV] evId:',evId,'mode:',mode,'SC.evId:',SC.evId,'SC.mode:',SC.mode);
+  console.log('[OPEN-EV] evId:',evId,'mode:',mode,'SC:',JSON.stringify(SC));
+  if(SC.evId===evId&&SC.mode===mode){console.log('[OPEN-EV] toggle off');SC.evId=null;SC.mode=null;}
+  else{
+    SC.evId=evId;SC.mode=mode;SC.as='user';
+    const ev=S.evs.find(e=>e.id===evId);
+    SC.editSym=effectiveField(ev)?.symbol||'囍';
+    console.log('[OPEN-EV] opened, SC now:',JSON.stringify(SC));
+  }
+  refreshAllCards();
+  if(SC.evId){
+    setTimeout(()=>{
+      const inp=document.getElementById(`ev-inp-${evId}`);
+      console.log('[OPEN-EV] focus input:',!!inp);
+      if(inp)inp.focus();
+    },50);
+  }
+}
+
+function refreshAllCards(){
+  if(S.mode==='A'){
+    renderTab(S.tab,fd(S.sd));
+    // also refresh annotation threads below anobar
+    const te=document.getElementById('anobar-threads');
+    if(te){
+      const ds=fd(S.sd);
+      const annos=S.evs.filter(e=>e.date===ds&&e.type==='annotation');
+      if(annos.length) te.innerHTML=annoThreadsHtml(annos.filter(a=>a.charGen),annos.filter(a=>!a.charGen));
+    }
+  } else renderWP(S.awd);
+}
+
+function setupEvDelegation(container){
+  console.log('[EV-DELEG] binding to container:', container.id);
+  container.addEventListener('click',async function(e){
+    console.log('[EV-CLICK] raw click target:', e.target.tagName, e.target.className, 'dataset:', JSON.stringify(e.target.dataset));
+    let el=e.target;
+    let steps=0;
+    while(el&&el!==container&&!el.dataset.action){
+      console.log('[EV-WALK]', steps++, el.tagName, el.className, '→ no data-action, walking up');
+      el=el.parentElement;
+    }
+    console.log('[EV-FOUND] el:', el?.tagName, el?.className, 'dataset:', JSON.stringify(el?.dataset));
+    if(!el||!el.dataset.action){
+      console.log('[EV-MISS] no data-action found, bailing');
+      return;
+    }
+    e.stopPropagation();
+    const action=el.dataset.action,evId=el.dataset.id;
+    console.log('[EV-ACTION]', action, 'evId:', evId, 'SC:', JSON.stringify(SC));
+
+    if(action==='open-comment'){openEv(evId,'comment');return;}
+    if(action==='open-edit'){openEv(evId,'edit');return;}
+    if(action==='delete-entry'){await deleteEntry(evId);return;}
+    if(action==='delete-bubble'){
+      const bId=el.dataset.id,bKind=el.dataset.kind;
+      await deleteBubble(bId,bKind);return;
+    }
+    if(action==='cancel'){
+      if(SC.evId===evId){SC.evId=null;SC.mode=null;refreshAllCards();}
+      return;
+    }
+    if(action==='set-as'){
+      SC.as=el.dataset.as;
+      refreshAllCards();
+      return;
+    }
+    if(action==='set-sym'){
+      SC.editSym=el.dataset.sym;
+      refreshAllCards();
+      return;
+    }
+    if(action==='send-comment'){
+      console.log('[SEND-COMMENT] looking for input ev-inp-'+evId);
+      const inp=document.getElementById(`ev-inp-${evId}`);
+      console.log('[SEND-COMMENT] inp found:', !!inp, 'value:', inp?.value);
+      const txt=(inp?.value||'').trim();
+      if(!txt){console.log('[SEND-COMMENT] empty, aborting');inp?.focus();return;}
+      const _cNow=storyNow();
+      const c={
+        id:`cm_${Date.now()}_${Math.random().toString(36).slice(2)}`,
+        chatId:S.ctx.chatId,targetId:evId,
+        authorType:SC.as,
+        authorName:SC.as==='char'?(S.ctx.charName||'角色'):(S.ctx.userName||'你'),
+        content:txt,createdAt:_cNow,timeMode:S.mode==='B'?'story':'real'
+      };
+      console.log('[SEND-COMMENT] saving:', c);
+      try{
+        await dbPut('cal_comments',c);
+        console.log('[SEND-COMMENT] dbPut OK');
+        S_comments.push(c);
+        SC.evId=null;SC.mode=null;
+        refreshAllCards();
+        console.log('[SEND-COMMENT] done, refreshed');
+      }catch(err){
+        console.error('[SEND-COMMENT] dbPut FAILED:', err);
+      }
+      return;
+    }
+    if(action==='save-edit'){
+      console.log('[SAVE-EDIT] starting for evId:', evId);
+      const ev=S.evs.find(e=>e.id===evId);
+      if(!ev){console.warn('[SAVE-EDIT] ev not found!');return;}
+      console.log('[SAVE-EDIT] ev type:', ev.type);
+      const eff=effectiveField(ev);
+      console.log('[SAVE-EDIT] eff:', JSON.stringify(eff));
+      const editorType=SC.as;
+      const editorName=editorType==='char'?(S.ctx.charName||'角色'):(S.ctx.userName||'你');
+      let t=storyNow(),n=0;
+      const maybeEdit=async(field,oldVal,rawNew)=>{
+        const nv=typeof rawNew==='number'?rawNew:(rawNew===null||rawNew===undefined?null:String(rawNew).trim());
+        console.log(`[MAYBE-EDIT] field=${field} old="${oldVal}" raw="${rawNew}" nv="${nv}"`);
+        if(nv===null||nv===''||nv===undefined){console.log('[MAYBE-EDIT] skip: empty new value');return;}
+        const ov=oldVal===null||oldVal===undefined?'':oldVal;
+        if(String(ov)===String(nv)){console.log('[MAYBE-EDIT] skip: unchanged');return;}
+        const ed={id:`ed_${t}_${n++}_${Math.random().toString(36).slice(2)}`,chatId:S.ctx.chatId,targetId:evId,editorType,editorName,field,oldValue:ov,newValue:nv,createdAt:t+n,timeMode:S.mode==='B'?'story':'real'};
+        console.log('[MAYBE-EDIT] writing:', ed);
+        try{
+          await dbPut('cal_edits',ed);
+          S_edits.push(ed);
+          console.log('[MAYBE-EDIT] OK');
+        }catch(err){console.error('[MAYBE-EDIT] FAILED:',err);}
+      };
+      if(ev.type==='event'){
+        await maybeEdit('title',eff.title,document.getElementById(`ef-title-${evId}`)?.value);
+        const hv=document.getElementById(`ef-h-${evId}`)?.value;
+        const mv=document.getElementById(`ef-m-${evId}`)?.value;
+        const hev=document.getElementById(`ef-he-${evId}`)?.value;
+        const mev=document.getElementById(`ef-me-${evId}`)?.value;
+        if(hv!==''&&hv!=null)await maybeEdit('hour',eff.hour,parseInt(hv,10));
+        if(mv!==''&&mv!=null)await maybeEdit('minute',eff.minute,parseInt(mv,10));
+        if(hev!==''&&hev!=null)await maybeEdit('hourEnd',eff.hourEnd,parseInt(hev,10));
+        if(mev!==''&&mev!=null)await maybeEdit('minuteEnd',eff.minuteEnd,parseInt(mev,10));
+      }else if(ev.type==='todo'||ev.type==='memo'){
+        await maybeEdit('title',eff.title,document.getElementById(`ef-title-${evId}`)?.value);
+      }else if(ev.type==='annotation'){
+        await maybeEdit('symbol',eff.symbol,SC.editSym);
+        await maybeEdit('note',eff.note||'',document.getElementById(`ef-note-${evId}`)?.value);
+      }
+      SC.evId=null;SC.mode=null;
+      console.log('[SAVE-EDIT] done, refreshing');
+      refreshAllCards();
+      if(ev.type==='annotation'){S.mode==='A'?renderMoodBar():renderWeekMoodBar();}
+      return;
+    }
+    console.warn('[EV-ACTION] unhandled action:', action);
+  });
+  console.log('[EV-DELEG] bound OK to', container.id);
+}
+
+function setupAllDelegation(){
+  const tb=document.getElementById('tabbody');
+  const wp=document.getElementById('wdpwrap');
+  const ddp=document.getElementById('ddp');
+  if(tb&&!tb._evDelegated){setupEvDelegation(tb);tb._evDelegated=true;}
+  if(wp&&!wp._evDelegated){setupEvDelegation(wp);wp._evDelegated=true;}
+  if(ddp&&!ddp._evDelegated){setupEvDelegation(ddp);ddp._evDelegated=true;}
 }
 
 /* ─── BACK ─── */
 document.getElementById('bkBtn').addEventListener('click',()=>{
   document.getElementById('app').style.display='none';
   document.getElementById('es').classList.remove('h');
-  S.ctx=null;S.evs=[];
+  S.ctx=null;S.evs=[];S_comments=[];S_edits=[];
+  SC.evId=null;SC.mode=null;
+  window.__scheduleAnchorCache=null; // 切换聊天时清空锚点缓存
+  window.__storyClockCache=null;     // 切换聊天时清空时钟缓存
 });
 
 /* ─── PETALS (Mode B decoration) ─── */
@@ -1133,9 +2363,393 @@ function etip(ico,txt){return `<div class="etip"><i class="${ico}"></i><p>${txt}
 /* ─── BOOT ─── */
 (async()=>{
   await window.tsukiDbReady;
+
+  /* ── Ensure cal_comments and cal_edits exist (auto-migrate) ── */
+  await (async()=>{
+    // If db-schema's onversionchange already closed __tsukiDb, reopen
+    if(!window.__tsukiDb){
+      console.warn('[cal-migrate] __tsukiDb is null, reopening...');
+      await new Promise(resolve=>{
+        const r=indexedDB.open('tsukiphonepromax');
+        r.onsuccess=e=>{
+          window.__tsukiDb=e.target.result;
+          window.__tsukiDb.onversionchange=()=>{window.__tsukiDb?.close();window.__tsukiDb=null;};
+          console.log('[cal-migrate] reopened db v'+window.__tsukiDb.version);
+          resolve();
+        };
+        r.onerror=()=>resolve();
+      });
+    }
+
+    const db = window.__tsukiDb;
+    if(!db){console.error('[cal-migrate] no db after reopen, skipping migration');return;}
+
+    const needed = ['cal_comments','cal_edits'].filter(s=>!db.objectStoreNames.contains(s));
+    if(!needed.length){console.log('[cal-migrate] stores OK');return;}
+
+    console.warn('[cal-migrate] missing:', needed, '— upgrading v'+db.version+'→v'+(db.version+1));
+    const nextVer = db.version + 1;
+    db.close();
+    window.__tsukiDb = null;
+
+    await new Promise((resolve) => {
+      const req = indexedDB.open('tsukiphonepromax', nextVer);
+
+      req.onupgradeneeded = e => {
+        const d = e.target.result;
+        if(!d.objectStoreNames.contains('cal_comments')){
+          const s = d.createObjectStore('cal_comments',{keyPath:'id'});
+          s.createIndex('by_target','targetId',{unique:false});
+          console.log('[cal-migrate] ✅ created cal_comments');
+        }
+        if(!d.objectStoreNames.contains('cal_edits')){
+          const s = d.createObjectStore('cal_edits',{keyPath:'id'});
+          s.createIndex('by_target','targetId',{unique:false});
+          console.log('[cal-migrate] ✅ created cal_edits');
+        }
+      };
+
+      req.onsuccess = e => {
+        window.__tsukiDb = e.target.result;
+        // Also attach onversionchange to the new connection
+        window.__tsukiDb.onversionchange = ()=>{
+          console.log('[cal-migrate] onversionchange on new conn — closing');
+          window.__tsukiDb.close();
+          window.__tsukiDb = null;
+        };
+        console.log('[cal-migrate] ✅ done, db v'+window.__tsukiDb.version);
+        resolve();
+      };
+
+      req.onerror = e => {
+        console.error('[cal-migrate] upgrade error:', e.target.error);
+        resolve(); // don't block boot on error
+      };
+
+      req.onblocked = () => {
+        console.warn('[cal-migrate] blocked — will retry in 1.5s (close other Tsukimi tabs to speed this up)');
+        // Don't reject — wait for the other tab to respond to onversionchange
+        // Fallback: if still blocked after 4s, open without version to get whatever is current
+        setTimeout(()=>{
+          console.warn('[cal-migrate] timeout fallback — opening without version');
+          const fallback = indexedDB.open('tsukiphonepromax');
+          fallback.onsuccess = e2 => {
+            window.__tsukiDb = e2.target.result;
+            window.__tsukiDb.onversionchange = ()=>{window.__tsukiDb?.close();window.__tsukiDb=null;};
+            console.warn('[cal-migrate] fallback connected, v'+window.__tsukiDb.version+' (stores may be missing)');
+            resolve();
+          };
+          fallback.onerror = ()=>resolve();
+        }, 4000);
+      };
+    });
+  })();
+
   document.getElementById('ls').classList.add('h');
   await initEntry();
 })();
+
+/* ══════════════════════════════════════════════════════════
+   SchedulePanel — 面板控制 & 剧情时钟 UI
+══════════════════════════════════════════════════════════ */
+
+/* ── 面板开关 ── */
+async function openSchedulePanel(){
+  if(!S.ctx){showSPToast('请先选择一个聊天室');return;}
+  document.getElementById('schedulePanel').classList.add('open');
+
+  // ✅ 打开面板时：遍历当前聊天消息，找最新的 storyTimestamp，同步写入 story_clock
+  await syncClockFromLatestMessage(S.ctx.chatId);
+
+  refreshSpClockDisplay();
+  refreshSpStatus();
+}
+
+/**
+ * 遍历当前聊天所有消息，找 storyTimestamp 最大的一条，
+ * 用它更新 story_clock.lastSyncStoryMs（不改 baseRealDate）。
+ * 只在该值比 clock 当前值更新时才写入，避免倒退。
+ */
+async function syncClockFromLatestMessage(chatId){
+  if(!chatId||!window.ScheduleUpdater)return;
+  const SU=window.ScheduleUpdater;
+  try{
+    // 1. 读取当前 clock
+    const clock=await SU.loadStoryClock(chatId);
+    if(!clock||!clock.baseRealDate)return; // 未初始化，不操作
+
+    const baseTs=new Date(clock.baseRealDate+'T00:00:00').getTime();
+
+    // 2. 遍历该聊天所有消息，找最大 storyTimestamp
+    const allMsgs=await dbAll('messages');
+    const chatMsgs=allMsgs.filter(m=>m.chatId===chatId&&m.storyTimestamp);
+    if(chatMsgs.length===0)return; // 没有任何带剧情时间戳的消息，不操作
+
+    const maxStoryTs=Math.max(...chatMsgs.map(m=>m.storyTimestamp));
+    const latestStoryMs=maxStoryTs-baseTs; // 转换为相对 baseTs 的偏移ms
+
+    // 3. 仅当比当前 clock 记录的值更新时才写入（防止倒退）
+    const currentStoryMs=SU.calcCurrentStoryMs(clock);
+    if(latestStoryMs<=currentStoryMs)return;
+
+    clock.lastSyncStoryMs=latestStoryMs;
+    clock.lastSyncRealMs=Date.now();
+    await SU.saveStoryClock(clock,chatId);
+
+    // 同步缓存
+    window.__storyClockCache=clock;
+
+    const {day,hour,minute}=SU.msToStoryTime(latestStoryMs);
+    console.log(`%c[SyncClock] 从消息记录同步剧情时间 → Day${day} ${SU.p2(hour)}:${SU.p2(minute)}  chatId=${chatId}`,'color:#72c9a0;font-weight:bold');
+  }catch(e){
+    console.warn('[SyncClock] 同步失败:',e);
+  }
+}
+function closeSchedulePanel(){
+  document.getElementById('schedulePanel').classList.remove('open');
+}
+// 点遮罩关闭
+document.getElementById('schedulePanel').addEventListener('click',function(e){
+  if(e.target===this)closeSchedulePanel();
+});
+
+/* ── Tab 切换 ── */
+function switchSpTab(tab){
+  document.querySelectorAll('.sptab').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('.sppage').forEach(p=>p.classList.remove('on'));
+  document.getElementById('sptab-'+tab).classList.add('on');
+  document.getElementById('sppage-'+tab).classList.add('on');
+  if(tab==='settings')refreshSpStatus();
+}
+
+/* ── 剧情时钟显示刷新 ── */
+let _clockTimer=null;
+function refreshSpClockDisplay(){
+  if(!window.ScheduleUpdater)return;
+  const SU=window.ScheduleUpdater;
+
+  async function update(){
+    const clock=await SU.loadStoryClock(S.ctx&&S.ctx.chatId);
+    const timeEl=document.getElementById('spClockTime');
+    const badgeEl=document.getElementById('spClockBadge');
+    const subEl=document.getElementById('spClockSub');
+    if(!clock){
+      if(timeEl)timeEl.textContent='未初始化';
+      if(badgeEl)badgeEl.textContent='NO CLOCK';
+      if(subEl)subEl.textContent='请在设置中初始化剧情时钟';
+      return;
+    }
+    const ms=SU.calcCurrentStoryMs(clock);
+    const str=SU.msToStoryTimeStr(ms);
+    const {day,hour,minute}=SU.msToStoryTime(ms);
+    if(timeEl)timeEl.textContent=str;
+    if(badgeEl)badgeEl.textContent=`DAY ${day}`;
+    if(subEl)subEl.textContent=`base: ${clock.baseRealDate}  ·  真实日期: ${SU.storyDayToRealDate(clock.baseRealDate,day)}`;
+
+    // 同步到手动调整输入框
+    const adjDay=document.getElementById('adjDay');
+    const adjHour=document.getElementById('adjHour');
+    const adjMin=document.getElementById('adjMin');
+    if(adjDay&&!adjDay.matches(':focus'))adjDay.value=day;
+    if(adjHour&&!adjHour.matches(':focus'))adjHour.value=hour;
+    if(adjMin&&!adjMin.matches(':focus'))adjMin.value=minute;
+    window.__storyClockCache=clock;
+  }
+
+  update();
+  if(_clockTimer)clearInterval(_clockTimer);
+  _clockTimer=setInterval(update,10000); // 每10秒刷新一次
+}
+
+// 供 ScheduleUpdater 回调触发刷新
+window.refreshStoryClockDisplay=refreshSpClockDisplay;
+
+/* ── 设置页状态刷新 ── */
+async function refreshSpStatus(){
+  if(!window.ScheduleUpdater)return;
+  const SU=window.ScheduleUpdater;
+  const el=document.getElementById('spStatusBlock');
+  if(!el)return;
+  const clock=await SU.loadStoryClock(S.ctx&&S.ctx.chatId);
+  if(!clock){
+    el.textContent='⚪ 剧情时钟未初始化';
+    return;
+  }
+  const ms=SU.calcCurrentStoryMs(clock);
+  const {day,hour,minute}=SU.msToStoryTime(ms);
+  const realDate=SU.storyDayToRealDate(clock.baseRealDate,day);
+  el.innerHTML=
+    `baseRealDate: ${clock.baseRealDate}<br>`+
+    `当前剧情时间: 第${day}天 ${SU.p2(hour)}:${SU.p2(minute)}<br>`+
+    `对应真实日期: ${realDate}<br>`+
+    `lastSync: ${new Date(clock.lastSyncRealMs).toLocaleString()}`;
+}
+
+/* ── 手动调整时间 ── */
+async function applyManualTime(){
+  if(!window.ScheduleUpdater){showSPToast('ScheduleUpdater 未加载');return;}
+  const SU=window.ScheduleUpdater;
+  const day=parseInt(document.getElementById('adjDay').value)||1;
+  const hour=parseInt(document.getElementById('adjHour').value)||0;
+  const min=parseInt(document.getElementById('adjMin').value)||0;
+  if(day<1){showSPToast('天数最小为1');return;}
+  await SU.setStoryTime(day,hour,min,S.ctx&&S.ctx.chatId);
+  refreshSpClockDisplay();
+  showSPToast(`✓ 剧情时间已设置为 第${day}天 ${SU.p2(hour)}:${SU.p2(min)}`);
+}
+
+/* ── 初始化时钟 ── */
+async function initClock(){
+  if(!window.ScheduleUpdater){showSPToast('ScheduleUpdater 未加载');return;}
+  const SU=window.ScheduleUpdater;
+  const dateVal=document.getElementById('initDate').value;
+  const timeVal=document.getElementById('initTime').value||'00:00';
+  if(!dateVal){showSPToast('请填写起始真实日期');return;}
+  const [h,m]=timeVal.split(':').map(Number);
+  const initMs=((h||0)*3600+(m||0)*60)*1000;
+  try{
+    await SU.initStoryClock(dateVal,initMs,S.ctx&&S.ctx.chatId);
+    refreshSpClockDisplay();
+    refreshSpStatus();
+    showSPToast(`✓ 剧情时钟已初始化  第1天 = ${dateVal}`);
+  }catch(e){
+    console.error('[initClock]',e);
+    showSPToast('初始化失败：'+e.message);
+  }
+}
+
+/* ── 全局日程更新 ── */
+let _isRunning=false;
+async function runScheduleUpdate(){
+  if(_isRunning){showSPToast('正在更新中，请稍候...');return;}
+  if(!window.ScheduleUpdater){showSPToast('ScheduleUpdater.js 未加载');return;}
+  if(!S.ctx){showSPToast('请先选择聊天室');return;}
+
+  const clock=await window.ScheduleUpdater.loadStoryClock(S.ctx.chatId);
+  if(!clock){
+    showSPToast('请先在「设置」中初始化剧情时钟');
+    switchSpTab('settings');
+    return;
+  }
+
+  const SU=window.ScheduleUpdater;
+  const btn=document.getElementById('spRunBtn');
+  const console_el=document.getElementById('spConsole');
+
+  _isRunning=true;
+  btn.disabled=true;
+  btn.classList.add('running');
+  btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> 生成中...';
+  console_el.innerHTML='';
+
+  // 统计行（先占位）
+  let statRow=null;
+
+  function appendLog(msg,type='info'){
+    const icons={info:'fa-circle-info',success:'fa-circle-check',error:'fa-circle-xmark',stat:'fa-chart-bar'};
+    const icon=icons[type]||icons.info;
+    const line=document.createElement('div');
+    line.className=`sp-cline ${type}`;
+    line.innerHTML=`<i class="fa-solid ${icon} sp-cico"></i><span class="sp-ctxt ${type}">${escSp(msg)}</span>`;
+    console_el.appendChild(line);
+    console_el.scrollTop=console_el.scrollHeight;
+  }
+
+  try{
+    const result=await SU.runScheduleUpdate(S.ctx.chatId,S.ctx,(msg,type)=>{
+      appendLog(msg,type||'info');
+    });
+
+    if(result.error){
+      appendLog('更新失败：'+result.error,'error');
+    } else {
+      const {stats,storyTimeAfter,commentary}=result;
+
+      // AI 吐槽
+      if(commentary){
+        const q=document.createElement('div');
+        q.style.cssText='padding:8px 10px;margin:6px 0;background:linear-gradient(135deg,rgba(244,167,185,.08),rgba(184,168,216,.06));border-radius:9px;font-size:10.5px;font-family:"Fraunces",serif;font-style:italic;color:var(--ink2);line-height:1.55;border:1px solid rgba(244,167,185,.15)';
+        q.textContent=commentary;
+        console_el.appendChild(q);
+      }
+
+      // 统计卡片
+      const dateLabel=storyTimeAfter||'—';
+      const statDiv=document.createElement('div');
+      statDiv.innerHTML=`
+        <div style="font-size:8.5px;font-family:'Geist Mono',monospace;color:var(--mute);margin:8px 0 5px;letter-spacing:.06em">UPDATE COMPLETE · ${escSp(dateLabel)}</div>
+        <div class="sp-stat-row">
+          <span class="sp-stat-chip ev"><i class="fa-solid fa-bars-staggered" style="margin-right:4px"></i>时间轴 +${stats.events}</span>
+          <span class="sp-stat-chip td"><i class="fa-solid fa-check-double" style="margin-right:4px"></i>待办 +${stats.todos}</span>
+          <span class="sp-stat-chip mm"><i class="fa-solid fa-feather-pointed" style="margin-right:4px"></i>备忘 +${stats.memos}</span>
+          <span class="sp-stat-chip an"><i class="fa-solid fa-heart" style="margin-right:4px"></i>心情 +${stats.annotations}</span>
+          ${(stats.comments||0)>0?`<span class="sp-stat-chip" style="border-color:rgba(249,199,132,.3);background:rgba(249,199,132,.08);color:#8a6020"><i class="fa-regular fa-comment" style="margin-right:4px"></i>吐槽 +${stats.comments}</span>`:''}
+          ${(stats.edits||0)>0?`<span class="sp-stat-chip" style="border-color:rgba(114,201,160,.25);background:rgba(114,201,160,.06);color:#2a6a50"><i class="fa-regular fa-pen-to-square" style="margin-right:4px"></i>修改 +${stats.edits}</span>`:''}
+        </div>`;
+      console_el.appendChild(statDiv);
+      console_el.scrollTop=console_el.scrollHeight;
+
+      // 刷新日历视图
+      await loadEvs();
+      if(S.mode==='A')renderA();else renderB();
+      refreshSpClockDisplay();
+      // 刷新日程锚点缓存（更新后锚点已变，需重新加载以对齐两模式）
+      if(S.ctx&&window.ScheduleUpdater&&window.ScheduleUpdater.loadScheduleAnchor){
+        const newAnchor=await window.ScheduleUpdater.loadScheduleAnchor(S.ctx.chatId);
+        window.__scheduleAnchorCache=newAnchor||null;
+      }
+    }
+  } catch(e){
+    appendLog('致命错误：'+e.message,'error');
+  } finally{
+    _isRunning=false;
+    btn.disabled=false;
+    btn.classList.remove('running');
+    btn.innerHTML='<i class="fa-solid fa-wand-magic-sparkles"></i> 全局日程更新';
+  }
+}
+
+/* ── 清空日程 ── */
+async function confirmClearSchedule(){
+  if(!S.ctx){showSPToast('请先选择聊天室');return;}
+  if(!confirm(`确认清空「${S.ctx.chatName}」的所有日程？此操作不可撤销。`))return;
+  if(!window.ScheduleUpdater){showSPToast('ScheduleUpdater.js 未加载');return;}
+  const n=await window.ScheduleUpdater.clearAllSchedule(S.ctx.chatId);
+  await loadEvs();
+  if(S.mode==='A')renderA();else renderB();
+  showSPToast(`✓ 已清空 ${n} 条日程`);
+}
+
+/* ── 面板内 toast ── */
+function showSPToast(msg){
+  // 复用已有 toast 或自建
+  const existing=document.querySelector('.sp-toast');
+  if(existing)existing.remove();
+  const t=document.createElement('div');
+  t.className='sp-toast';
+  t.textContent=msg;
+  t.style.cssText='position:fixed;top:20px;left:50%;transform:translateX(-50%);background:rgba(28,28,46,.88);color:#f5f5f0;padding:7px 16px;border-radius:100px;font-size:11px;font-family:"Geist Mono",monospace;letter-spacing:.04em;z-index:9999;pointer-events:none;white-space:nowrap;';
+  document.body.appendChild(t);
+  setTimeout(()=>t?.remove(),2600);
+}
+
+/* ── HTML 转义（面板内用） ── */
+function escSp(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+/* ── 面板初始化：设置默认日期为今天 ── */
+(function(){
+  const today=new Date();
+  const y=today.getFullYear();
+  const m=String(today.getMonth()+1).padStart(2,'0');
+  const d=String(today.getDate()).padStart(2,'0');
+  const initEl=document.getElementById('initDate');
+  if(initEl)initEl.value=`${y}-${m}-${d}`;
+})();
 </script>
+  <!-- PromptHelper読み込み前にinitAndDebug自動実行をブロック -->
+  <script>window.__PROMPTHELPER_NO_AUTORUN = true;</script>
+  <script src="PromptHelper.js"></script>
+<script src="ScheduleUpdater.js"></script>
+<script src="TsukiBridge.js"></script>
 </body>
 </html>

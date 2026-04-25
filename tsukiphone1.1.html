@@ -434,6 +434,10 @@
       .msg-row.user .bubble-wrap {
         align-items: flex-end;
       }
+      /* 在 .msg-row.user .bubble-wrap 那条规则下面加 */
+.msg-row:not(.user) .bubble-wrap {
+  align-items: flex-start;
+}
 
       .bubble {
         padding: 9px 13px;
@@ -2972,7 +2976,8 @@
         /* background: rgba(91, 124, 250, 0.05); */
       }
       .user-chip.is-char-mode .user-chip-avatar {
-        background: linear-gradient(135deg, #1a1a1a, #3a3a3c) !important;
+        /* 默认黑色背景仅作 fallback，不用 !important，避免覆盖 JS 动态设置的 backgroundImage */
+        background-color: #1a1a1a;
         color: white;
       }
 
@@ -2986,7 +2991,7 @@
         background: var(--paper-2);
       }
       .user-chip.is-sys-mode .user-chip-avatar {
-        background: var(--mute) !important;
+        background-color: var(--mute);
         color: white;
       }
       .user-chip.is-sys-mode .user-chip-name {
@@ -5477,6 +5482,49 @@
                 <span class="ts-toggle-slider"></span>
               </label>
             </div>
+            <div
+              class="si-fmt-row"
+              style="
+                align-items: center;
+                justify-content: space-between;
+                padding: 12px;
+                margin-top: 6px;
+                background: var(--card);
+                border: 1px solid var(--line);
+                border-radius: 12px;
+              "
+            >
+              <div style="display: flex; flex-direction: column; gap: 2px">
+                <span style="font-size: 11px; font-weight: 600; color: var(--ink)">开启日程</span>
+                <span style="font-size: 10px; color: var(--ink-3)">在提示词中附带角色日程安排</span>
+              </div>
+              <label class="ts-toggle" style="flex-shrink: 0">
+                <input type="checkbox" id="settingScheduleEnabled" checked />
+                <span class="ts-toggle-slider"></span>
+              </label>
+            </div>
+            <div
+              class="si-fmt-row"
+              style="
+                align-items: center;
+                justify-content: space-between;
+                padding: 12px;
+                margin-top: 6px;
+                background: var(--card);
+                border: 1px solid var(--line);
+                border-radius: 12px;
+              "
+            >
+              <div style="display: flex; flex-direction: column; gap: 2px">
+                <span style="font-size: 11px; font-weight: 600; color: var(--ink)">剧情时间标注</span>
+                <span style="font-size: 10px; color: var(--ink-3)">用 DayN HH:MM 星期几 替代真实时间戳</span>
+                <span style="font-size: 9px; color: var(--ink-3); opacity: .7">关闭时间感知时生效·基准日期取自日历设置</span>
+              </div>
+              <label class="ts-toggle" style="flex-shrink: 0">
+                <input type="checkbox" id="settingStoryTimeEnabled" />
+                <span class="ts-toggle-slider"></span>
+              </label>
+            </div>
           </div>
 
           <div style="margin-top: 10px">
@@ -5974,7 +6022,8 @@
         if (typeof window.saveMessageToDB === 'function') {
           const contentData = { callType: isVideo ? 'video' : 'voice' };
           const summaryStr = isVideo ? '[视频通话]' : '[语音通话]';
-          const callFloor = await window.saveMessageToDB('call', contentData, summaryStr, window.currentSender);
+          const _callStoryTs = typeof window._getStoryTimestampNow === 'function' ? await window._getStoryTimestampNow(window.currentChatId) : null;
+          const callFloor = await window.saveMessageToDB('call', contentData, summaryStr, window.currentSender, _callStoryTs);
           if (callEl && callFloor != null) callEl.dataset.floor = callFloor;
         }
       };
@@ -6188,6 +6237,31 @@
         chatView.style.display = 'flex';
         currentChatId = chatId;
         initChatRoom(chatId); // 初始化聊天室数据
+        // 诊断：检查剧情时间开关状态并打印基准时间
+        (async () => {
+          try {
+            const settings = (await dbGet('config', `chat_settings_${chatId}`)) || {};
+            const tsEnabled = settings.timestampEnabled !== false;
+            const stEnabled = settings.storyTimeEnabled === true;
+            console.log(`%c[StoryTime诊断] chatId=${chatId}  时间感知=${tsEnabled}  剧情时间=${stEnabled}`, 'color:#f9c784;font-weight:bold');
+            if (stEnabled) {
+              const clock = await dbGet('config', `story_clock_${chatId}`);
+              if (clock && clock.baseRealDate) {
+                const baseTs = new Date(clock.baseRealDate + 'T00:00:00').getTime();
+                const nowStoryMs = clock.lastSyncStoryMs + (Date.now() - clock.lastSyncRealMs);
+                const dayNum = Math.floor(Math.max(0, nowStoryMs) / 86400000) + 1;
+                const hh = String(Math.floor((nowStoryMs % 86400000) / 3600000)).padStart(2,'0');
+                const mm = String(Math.floor((nowStoryMs % 3600000) / 60000)).padStart(2,'0');
+                console.log(`%c[StoryTime诊断] 基准日期: ${clock.baseRealDate}  baseTs: ${baseTs}`, 'color:#72c9a0');
+                console.log(`%c[StoryTime诊断] 当前剧情时间: Day${dayNum} ${hh}:${mm}  lastSync: ${new Date(clock.lastSyncRealMs).toLocaleString()}`, 'color:#72c9a0');
+              } else {
+                console.warn(`[StoryTime诊断] story_clock_${chatId} 未找到 —— 将在发送时自动锚定最早消息日期`);
+              }
+            }
+          } catch(e) {
+            console.warn('[StoryTime诊断] 读取失败:', e);
+          }
+        })();
       }
 
       document.getElementById('backToListBtn').addEventListener('click', showContactList);
@@ -6493,7 +6567,21 @@
           }
         }
 
-        // 2. 只渲染气泡（复用 reloadBubbles）
+        // 2. 先加载该聊天室的独立设置，再渲染气泡
+        // （必须在 reloadBubbles 前执行，确保 __storyTimeEnabled 等缓存已就绪）
+        if (typeof window.loadChatSettings === 'function') {
+          await window.loadChatSettings();
+        }
+
+        // 2b. 预加载当前聊天的 story_clock 到同步缓存，供 renderHistoryBubble 使用
+        try {
+          const _clock = await dbGet('config', `story_clock_${chatId}`);
+          window.__storyClock_cache = _clock || null;
+        } catch(e) {
+          window.__storyClock_cache = null;
+        }
+
+        // 3. 渲染气泡（复用 reloadBubbles）
         await reloadBubbles(chatId, db);
       }
 
@@ -6503,7 +6591,14 @@
         if (!db) db = await openDb();
         const chatArea = document.getElementById('chatArea');
         chatArea.innerHTML = '';
-        const settings = await dbGet('config', 'chat_settings');
+
+        // 每次重新渲染前，刷新 story_clock 同步缓存
+        try {
+          const _clk = await dbGet('config', `story_clock_${chatId}`);
+          window.__storyClock_cache = _clk || null;
+        } catch(e) { window.__storyClock_cache = null; }
+
+        const settings = await dbGet('config', `chat_settings_${chatId}`);
         const renderLimit = settings && settings.renderCount !== undefined ? parseInt(settings.renderCount) : 44;
         const tx = db.transaction('messages', 'readonly');
         const store = tx.objectStore('messages');
@@ -6623,11 +6718,34 @@
         const role = msg.senderRole;
         const c = msg.content; // 原始数据内容
 
-        // 读取时间感知开关（同步读缓存，避免异步阻塞渲染）
+        // ── 三分支 meta（同步，依赖 initChatRoom 中提前写入的全局缓存）──────
+        // 优先级：剧情时间 > 时间感知 > 已读角标
+        const _storyOn = window.__storyTimeEnabled === true;
         const _tsEnabled = window.__timestampEnabled !== false;
-        const _defaultMeta = _tsEnabled
-          ? `<i class="fa-regular fa-clock"></i> ${timeStr}`
-          : `<i class="fa-solid fa-check-double" style="color:var(--accent-mint)"></i> 已读`;
+
+        let _defaultMeta;
+        if (_storyOn && msg.storyTimestamp) {
+          // 从消息存储的剧情时间戳反算 HH:MM
+          try {
+            const _clock = window.__storyClock_cache;
+            if (_clock && _clock.baseRealDate) {
+              const _baseTs = new Date(_clock.baseRealDate + 'T00:00:00').getTime();
+              const _diffSec = Math.floor((msg.storyTimestamp - _baseTs) / 1000);
+              const _secInDay = ((_diffSec % 86400) + 86400) % 86400;
+              const _hh = String(Math.floor(_secInDay / 3600)).padStart(2, '0');
+              const _mm = String(Math.floor((_secInDay % 3600) / 60)).padStart(2, '0');
+              _defaultMeta = `<i class="fa-solid fa-check-double" style="color:var(--accent-mint)"></i> 已读 · ${_hh}:${_mm}`;
+            } else {
+              _defaultMeta = `<i class="fa-solid fa-check-double" style="color:var(--accent-mint)"></i> 已读`;
+            }
+          } catch(e) {
+            _defaultMeta = `<i class="fa-solid fa-check-double" style="color:var(--accent-mint)"></i> 已读`;
+          }
+        } else if (_tsEnabled) {
+          _defaultMeta = `<i class="fa-regular fa-clock"></i> ${timeStr}`;
+        } else {
+          _defaultMeta = `<i class="fa-solid fa-check-double" style="color:var(--accent-mint)"></i> 已读`;
+        }
 
         let bubble = document.createElement('div');
         let metaHtml = _defaultMeta;
@@ -7500,8 +7618,11 @@
               chipAv.innerHTML = '';
               chipAv.style.backgroundImage = `url('${cAvatar}'), linear-gradient(135deg, #1a1a1a, #3a3a3c)`;
               chipAv.style.backgroundSize = 'cover';
+              chipAv.style.backgroundPosition = 'center';
             } else {
               chipAv.style.backgroundImage = '';
+              chipAv.style.backgroundSize = '';
+              chipAv.style.backgroundPosition = '';
               chipAv.innerHTML = '<i class="fa-solid fa-user-astronaut"></i>';
             }
             inputField.placeholder = 'say something as char...';
@@ -7509,6 +7630,8 @@
             userChip.classList.add('is-sys-mode');
             chipName.innerHTML = 'System<em>· 通知播报</em>';
             chipAv.style.backgroundImage = '';
+            chipAv.style.backgroundSize = '';
+            chipAv.style.backgroundPosition = '';
             chipAv.innerHTML = '<i class="fa-solid fa-gear"></i>';
             inputField.placeholder = '输入系统通知文字...';
             inputArea.classList.add('sys-locked');
@@ -7522,8 +7645,11 @@
               chipAv.innerHTML = '';
               chipAv.style.backgroundImage = `url('${uAvatar}'), conic-gradient(from 180deg, #ffb8d1, #ff9a5a, #c7b8ff, #ffb8d1)`;
               chipAv.style.backgroundSize = 'cover';
+              chipAv.style.backgroundPosition = 'center';
             } else {
               chipAv.style.backgroundImage = '';
+              chipAv.style.backgroundSize = '';
+              chipAv.style.backgroundPosition = '';
               chipAv.innerHTML = '<i class="fa-solid fa-feather"></i>';
             }
             inputField.placeholder = 'say something to char…';
@@ -7691,20 +7817,32 @@
           });
         };
 
+        // 安全的 _getStoryTimestampNow 兜底
+        if (typeof window._getStoryTimestampNow !== 'function') {
+          window._getStoryTimestampNow = async function (chatId) {
+            try {
+              const clock = await dbGet('config', `story_clock_${chatId}`);
+              if (!clock || !clock.baseRealDate) return null;
+              const baseTs = new Date(clock.baseRealDate + 'T00:00:00').getTime();
+              return baseTs + (clock.lastSyncStoryMs || 0) + (Date.now() - (clock.lastSyncRealMs || Date.now()));
+            } catch { return null; }
+          };
+        }
+
         // 【修改点】将定义改为全局，确保表情包插件能调用
-        // 【修复①】返回 floor，让调用方可以将楼层号绑定到已渲染的 DOM 节点上
-        window.saveMessageToDB = async function (type, contentData, textSummary, senderOverride) {
+        window.saveMessageToDB = async function (type, contentData, textSummary, senderOverride, storyTimestamp) {
           if (!currentChatId) return null;
           const floor = await getNextFloor(currentChatId);
 
           const newMsg = {
-            id: `${currentChatId}_${floor}`, // 保证主键绝对唯一
-            floor: floor, // 👉 这里就是你要的楼层号！方便直接读取
+            id: `${currentChatId}_${floor}`,
+            floor: floor,
             chatId: currentChatId,
             senderRole: senderOverride || window.currentSender,
-            type: type, // 'text' 或 8种卡片类型
-            content: contentData, // 动态解析出来的原始数据
+            type: type,
+            content: contentData,
             timestamp: Date.now(),
+            storyTimestamp: storyTimestamp || null,
           };
 
           await dbPut('messages', newMsg);
@@ -7741,9 +7879,41 @@
           const d = new Date();
           const timeStr = d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0');
 
+          // ✅ 三分支 meta：剧情时间开 > 时间感知开 > 双勾已读
+          async function getStoryMetaHtml() {
+            try {
+              const _settings = (await dbGet('config', `chat_settings_${currentChatId}`)) || {};
+              const _storyOn = _settings.storyTimeEnabled === true;
+              const _tsOn    = _settings.timestampEnabled !== false;
+              if (!_storyOn) {
+                if (_tsOn) return `<i class="fa-regular fa-clock"></i> ${timeStr}`;
+                return `<i class="fa-solid fa-check-double" style="color:var(--accent-mint)"></i> 已读`;
+              }
+              const storyTs = typeof window._getStoryTimestampNow === 'function'
+                ? await window._getStoryTimestampNow(currentChatId)
+                : null;
+              if (!storyTs) {
+                if (_tsOn) return `<i class="fa-regular fa-clock"></i> ${timeStr}`;
+                return `<i class="fa-solid fa-check-double" style="color:var(--accent-mint)"></i> 已读`;
+              }
+              const clock = await dbGet('config', `story_clock_${currentChatId}`);
+              if (!clock || !clock.baseRealDate) {
+                if (_tsOn) return `<i class="fa-regular fa-clock"></i> ${timeStr}`;
+                return `<i class="fa-solid fa-check-double" style="color:var(--accent-mint)"></i> 已读`;
+              }
+              const baseTs = new Date(clock.baseRealDate + 'T00:00:00').getTime();
+              const diffMs = storyTs - baseTs;
+              const totalSec = Math.floor(diffMs / 1000);
+              const hh = String(Math.floor((((totalSec % 86400) + 86400) % 86400) / 3600)).padStart(2, '0');
+              const mm = String(Math.floor(((((totalSec % 86400) + 86400) % 86400) % 3600) / 60)).padStart(2, '0');
+              return `<i class="fa-solid fa-check-double" style="color:var(--accent-mint)"></i> 已读 · ${hh}:${mm}`;
+            } catch(e) {
+              return `<i class="fa-solid fa-check-double" style="color:var(--accent-mint)"></i> 已读`;
+            }
+          }
+
           try {
             // 1. 发送并存储文本内容
-            // 在 sendAll() 函数中找到这段，并替换：
             if (txt) {
               let finalTxt = txt;
 
@@ -7753,13 +7923,19 @@
                 clearQuote(); // 发送后清空引用状态
               }
 
-              // 渲染时交给 renderHistoryBubble 处理解析
-              const textEl = window.renderMessage(window.currentSender, finalTxt, {
-                meta: window.currentSender === 'system' ? '' : (window.__timestampEnabled !== false ? `<i class="fa-regular fa-clock"></i> ${timeStr}` : `<i class="fa-solid fa-check-double" style="color:var(--accent-mint)"></i> 已读`),
-              });
+              // ✅ 三分支 meta（已在 getStoryMetaHtml 内处理完毕）
+              let textMeta = '';
+              if (window.currentSender === 'system') {
+                textMeta = '';
+              } else {
+                textMeta = await getStoryMetaHtml();
+              }
+
+              const textEl = window.renderMessage(window.currentSender, finalTxt, { meta: textMeta });
 
               // 存入数据库的是带引用格式的字符串
-              const textFloor = await window.saveMessageToDB('text', finalTxt, txt);
+              const _textStoryTs = typeof window._getStoryTimestampNow === 'function' ? await window._getStoryTimestampNow(currentChatId) : null;
+              const textFloor = await window.saveMessageToDB('text', finalTxt, txt, undefined, _textStoryTs);
               if (textEl && textFloor != null) textEl.dataset.floor = textFloor;
             }
 
@@ -7832,14 +8008,16 @@
                   contentData = { transcript: transcript };
                   summaryStr = transcript ? '[语音] ' + transcript : '[语音]';
                 } else if (action === 'transfer') {
-                  metaHtml = `<i class="fa-solid fa-check-double" style="color:var(--accent-mint)"></i> delivered · ${timeStr}`;
+                  const _stMeta = await getStoryMetaHtml();
+                  metaHtml = _stMeta;
                   const from = body.querySelector('.fn-from')?.value || '';
                   const amount = body.querySelector('.fn-amount')?.value || '';
                   const note = body.querySelector('.fn-note')?.value || '';
                   contentData = { from, amount, note };
                   summaryStr = `[转账] ¥${amount}`;
                 } else if (action === 'gift') {
-                  metaHtml = `<i class="fa-solid fa-check-double" style="color:var(--accent-mint)"></i> delivered · ${timeStr}`;
+                  const _stMeta = await getStoryMetaHtml();
+                  metaHtml = _stMeta;
                   const item = body.querySelector('.fn-gift-item')?.value || '';
                   const note = body.querySelector('.fn-note')?.value || '';
                   contentData = { item, note };
@@ -7861,7 +8039,8 @@
 
                 // 执行存库，并利用提取好的提取物打印
                 // 【修复①】存库返回 floor，立即绑定到 DOM，使所有气泡类型均可撤回
-                const cardFloor = await window.saveMessageToDB(action, contentData, summaryStr);
+                const _cardStoryTs = typeof window._getStoryTimestampNow === 'function' ? await window._getStoryTimestampNow(currentChatId) : null;
+                const cardFloor = await window.saveMessageToDB(action, contentData, summaryStr, undefined, _cardStoryTs);
                 if (cardEl && cardFloor != null) cardEl.dataset.floor = cardFloor;
               }
 
@@ -8239,7 +8418,8 @@
                   const contentData = { name: stk.name, url: stk.url };
                   const summaryStr = `[表情包] ${stk.name}`;
                   // 【修复①】存库返回 floor，绑定到渲染节点，使撤回可用
-                  const stickerFloor = await window.saveMessageToDB('sticker', contentData, summaryStr);
+                  const _stickerStoryTs = typeof window._getStoryTimestampNow === 'function' ? await window._getStoryTimestampNow(window.currentChatId) : null;
+                  const stickerFloor = await window.saveMessageToDB('sticker', contentData, summaryStr, undefined, _stickerStoryTs);
                   if (stickerEl && stickerFloor != null) stickerEl.dataset.floor = stickerFloor;
                 } else {
                   console.error('未找到 window.saveMessageToDB 函数，请检查第一步是否修改成功');
@@ -9663,11 +9843,17 @@
         const renderInput = document.getElementById('settingRenderCount');
         // 【新增】：获取时间戳开关
         const timestampToggle = document.getElementById('settingTimestampEnabled');
+        // 剧情时间开关
+        const storyTimeToggle = document.getElementById('settingStoryTimeEnabled');
+        // 日程开关
+        const scheduleToggle = document.getElementById('settingScheduleEnabled');
 
         // 初始化：打开页面时从数据库读取当前设置
-        async function loadChatSettings() {
+        // 挂到 window 上，供 initChatRoom 切换聊天室时也能调用
+        window.loadChatSettings = async function loadChatSettings() {
           try {
-            const settings = (await dbGet('config', 'chat_settings')) || { id: 'chat_settings' };
+            const _csKey = `chat_settings_${window.currentChatId}`;
+            const settings = (await dbGet('config', _csKey)) || { id: _csKey };
 
             // 读取历史记忆条数（默认 0）
             if (historyInput) {
@@ -9681,15 +9867,24 @@
             if (timestampToggle) {
               timestampToggle.checked = settings.timestampEnabled !== false;
             }
+            // 剧情时间开关（默认 false）
+            if (storyTimeToggle) {
+              storyTimeToggle.checked = settings.storyTimeEnabled === true;
+            }
+            // 日程开关（默认 true）
+            if (scheduleToggle) {
+              scheduleToggle.checked = settings.scheduleEnabled !== false;
+            }
             // 同步写入全局缓存，供气泡渲染同步读取
             window.__timestampEnabled = settings.timestampEnabled !== false;
+            window.__storyTimeEnabled = settings.storyTimeEnabled === true;
           } catch (e) {
             console.error('[Settings] 读取设置失败', e);
           }
         }
 
         // 确保数据库准备好后再读取
-        setTimeout(loadChatSettings, 500);
+        setTimeout(window.loadChatSettings, 500);
 
         // 【新增】：统一的保存配置函数
         async function saveSettings() {
@@ -9701,13 +9896,20 @@
           if (isNaN(rVal) || rVal < 0) rVal = 44;
 
           try {
-            const existingConfig = (await dbGet('config', 'chat_settings')) || { id: 'chat_settings' };
+            const _csKey = `chat_settings_${window.currentChatId}`;
+            const existingConfig = (await dbGet('config', _csKey)) || { id: _csKey };
+            existingConfig.id = _csKey;
             existingConfig.historyCount = hVal;
             existingConfig.renderCount = rVal; // 把渲染条数一起存进去
             // 【新增】：保存时间戳开关
             existingConfig.timestampEnabled = timestampToggle ? timestampToggle.checked : true;
+            // 保存剧情时间开关
+            existingConfig.storyTimeEnabled = storyTimeToggle ? storyTimeToggle.checked : false;
+            // 保存日程开关
+            existingConfig.scheduleEnabled = scheduleToggle ? scheduleToggle.checked : true;
             // 同步更新全局缓存
             window.__timestampEnabled = existingConfig.timestampEnabled;
+            window.__storyTimeEnabled = existingConfig.storyTimeEnabled === true;
             await dbPut('config', existingConfig);
             console.log('[Settings] 聊天设置已保存:', existingConfig);
           } catch (err) {
@@ -9729,6 +9931,22 @@
             if (typeof currentChatId !== 'undefined' && currentChatId) {
               reloadBubbles(currentChatId);
             }
+          });
+        }
+        // 剧情时间开关 change 时立即保存
+        if (storyTimeToggle) {
+          // 之后（保存 + 刷新气泡）
+storyTimeToggle.addEventListener('change', async () => {
+  await saveSettings();
+  if (typeof currentChatId !== 'undefined' && currentChatId) {
+    reloadBubbles(currentChatId);
+  }
+});
+        }
+        // 日程开关 change 时立即保存
+        if (scheduleToggle) {
+          scheduleToggle.addEventListener('change', async () => {
+            await saveSettings();
           });
         }
 
@@ -10557,6 +10775,7 @@
     </script>
 
     <script src="PromptHelper.js"></script>
+    <script src="ScheduleUpdater.js"></script>
     <script src="TsukiSend.js"></script>
     <script src="DiaryFloorListener.js"></script>
     <script src="TsukiBridge.js"></script>

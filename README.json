@@ -1,0 +1,149 @@
+tsukiphonepromax
+
+├── api
+
+│ ├── activePreset: "MyNode_01"
+
+│ ├── presets
+
+│ │ ├── default: { url, key, model, temp }
+
+│ │ └── MyNode_01: { url, key, model, temp }
+
+│ └── temp: { url, key, model, temp } <-- 页面刷新后回显这里 │
+
+└── theme
+
+    ├── activePresets: ["CyberStyle", "DarkVibe"]
+
+    ├── presets
+
+    │   ├── default: { css, wallpaper }
+
+    │   └── CyberStyle: { css, wallpaper }
+
+    ├── temp: { css, wallpaper } <-- 临时编辑区，未保存预设时也存这
+
+    └── global
+
+        ├── css: "/* 合并后的所有CSS */"
+
+        └── wallpaper: "data:image/png;base64..." <-- 主页读取这里
+
+3. 数据访问指南 (代码片段) 如果你在开发其他模块时需要调用数据，请参考以下路径：
+
+1. 获取主页当前应该显示的壁纸：
+
+JavaScript const db = JSON.parse(localStorage.getItem('tsukiphonepromax')); const currentWallpaper =
+db.theme.global.wallpaper; // 这是一个 Base64 字符串
+
+2. 获取当前启用的 API 配置（用于发起请求）：
+
+JavaScript const db = JSON.parse(localStorage.getItem('tsukiphonepromax')); const config = db.api.temp; // 包含 url,
+key, model, temp // 建议直接取 temp，因为 temp 始终代表了用户最后一次测试或启用的配置
+
+3. 读取所有保存的 API 预设名称：
+
+JavaScript const db = JSON.parse(localStorage.getItem('tsukiphonepromax')); const presetNames =
+Object.keys(db.api.presets);
+
+4. 读取上次页面离开时，输入框里的临时内容：
+
+JavaScript const db = JSON.parse(localStorage.getItem('tsukiphonepromax')); const lastApiUrl = db.api.temp.url; const
+lastThemeCss = db.theme.temp.css;
+
+tsukiphonepromax (localStorage 主键)
+├── theme (你原本的全局主题配置)
+└── homeData (本次新增的主页自定义数据)
+    ├── images (存储图片的 Base64 编码)
+    │   ├── avatar     : "data:image/jpeg;base64,..."  // 主头像
+    │   ├── pw1        : "data:image/jpeg;base64,..."  // 照片墙图1
+    │   ├── pw2        : "data:image/jpeg;base64,..."  // 照片墙图2
+    │   └── dbAvatar   : "data:image/jpeg;base64,..."  // Banner小头像
+    └── texts (存储文本的 HTML 字符串)
+        ├── avatarName   : "TSUKIMI"
+        ├── avatarOnline : "<i class=\"fa-solid fa-circle\"></i> online"
+        ├── dbName       : "TSUKIMI · 江眠月"
+        ├── dbQuote      : "今日もいい日でありますように"
+        ├── stickyText   : "今日もいい日でありますように ✦"
+        ├── haikuB       : "月見れば<br>千々に物こそ<br>悲しけれ"
+        ├── haikuV       : "古池や<br>蛙飛び込む<br>水の音"
+        └── ticketName   : "夜に駆ける"
+
+
+        <div class="pendant" style="--dly: 0.35s; --dur: 2.8s; --amp: 4; --tlen: 30px">
+                    <div class="pend-thread"></div>
+                    <div class="pend-icon ai-cam"><i class="fa-solid fa-camera-retro"></i></div>
+                    <div class="pend-label">Camera</div>
+                  <div class="pendant" style="--dly: 0.35s; --dur: 2.8s; --amp: 4; --tlen: 30px">
+                    <div class="pend-thread"></div>
+                    <div class="pend-icon ai-cam"><i class="fa-solid fa-camera-retro"></i></div>
+                    <div class="pend-label">Camera</div>
+                  </div></div>
+                  
+                  
+IndexedDB["tsukiphonepromax"]
+├── objectStore: "chars"   (keyPath: "id")
+│   ├── record "c1748294400000_x3f2"  → { id, name, avatar, worldbook, ... }
+│   └── record "c1748294401000_a9b1"  → { ... }
+└── objectStore: "users"   (keyPath: "id")
+    ├── record "u1748294500000_k2m7"  → { id, name, avatar, persona, ... }
+    └── record "u1748294501000_p4q8"  → { ... }
+    
+    
+    
+    
+IndexedDB: "tsukiphonepromax"          ← 与 char.html 共享同一数据库
+│
+├── objectStore: "worldbook"           ← 独立 store，不干扰 char.html 的 localStorage
+│   │
+│   ├── key: "wb_pre"     → Entry[]   头部世界书
+│   ├── key: "wb_mid"     → Entry[]   中部世界书
+│   ├── key: "wb_post"    → Entry[]   尾部世界书
+│   ├── key: "wb_global"  → Entry[]   全局世界书
+│   └── key: "wb_keyword" → Entry[]   关键词世界书
+│
+└── (char.html 的数据仍在 localStorage["tsukiphonepromax"]，互不影响)
+
+Entry {
+  id        : string    — uid
+  title     : string
+  content   : string
+  keys      : string    — 逗号分隔，如 "forest,精灵"
+  priority  : number    — 1–999
+  enabled   : boolean
+  isKeyword : boolean   — ★ true 当且仅当 section==="keyword" 或 keys 非空
+}
+
+
+IndexedDB: "tsukiphonepromax"  (version 2)
+│
+├── objectStore: "worldbook"   (out-of-line keys)
+│   ├── "wb_pre"         → Entry[]    头部世界书
+│   ├── "wb_mid"         → Entry[]    中部世界书
+│   ├── "wb_post"        → Entry[]    尾部世界书
+│   ├── "wb_global"      → Entry[]    全局世界书
+│   ├── "wb_local"       → Entry[]    局部世界书
+│   └── "wb_categories"  → string[]   自定义分类列表（不含默认 Online/Offline）
+│
+├── objectStore: "chars"  (keyPath: "id")   ← worldbook.html 只读
+│   └── { id, name, avatar, worldbook, ... }
+│
+└── objectStore: "users"  (keyPath: "id")   ← 预留
+    └── { id, name, avatar, persona, ... }
+
+Entry (pre / mid / post / global) {
+  id        : string
+  title     : string
+  content   : string
+  keys      : string     逗号分隔触发词
+  priority  : number
+  enabled   : boolean
+  isKeyword : boolean    ← 自动：keys 非空时为 true
+  category  : string     '' | 'Online' | 'Offline' | <custom>
+}
+
+Entry (local) {
+  ...同上...
+  charIds   : string[]   ← 绑定的 char.id 列表
+}

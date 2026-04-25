@@ -80,6 +80,18 @@ function formatTime(ts) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')} ${weeks[d.getDay()]}`;
 }
 
+function formatStoryTime(ts, baseTs) {
+  const diffMs = ts - baseTs;
+  const totalSec = Math.floor(diffMs / 1000);
+  const dayNum = Math.floor(totalSec / 86400) + 1;
+  const secInDay = ((totalSec % 86400) + 86400) % 86400;
+  const hh = String(Math.floor(secInDay / 3600)).padStart(2, '0');
+  const mm = String(Math.floor((secInDay % 3600) / 60)).padStart(2, '0');
+  const d = new Date(ts);
+  const weeks = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+  return `Day${dayNum} ${hh}:${mm} ${weeks[d.getDay()]}`;
+}
+
 // ── 日记消息解析工具 ────────────────────────────────────────────────────────
 
 /**
@@ -581,11 +593,17 @@ async function assembleCharacterPrompts(ids, latestMessage, chatUserId = null) {
     }
 
     if (char.bindId) {
-      const charUser = await dbGet(IDB_CONFIG.stores.users, char.bindId);
-      if (charUser) {
-        const ownerStr = `[Character Owner: ${charUser.name}]\nOwner Persona: ${charUser.persona || 'None'}`;
-        console.log(`%c    [拼接 绑定主人] ->\n${ownerStr}`, 'color: #ff9f43;');
-        charSegment.push(ownerStr);
+      // ✅ 若绑定的 user 与当前聊天室的 chatUserId 相同，
+      //    后面 Active User 块会统一注入，这里跳过避免重复
+      if (char.bindId === chatUserId) {
+        console.log(`%c    [跳过 绑定主人] bindId === chatUserId (${chatUserId})，由后续 Active User 块统一注入`, 'color: #ff9f43;');
+      } else {
+        const charUser = await dbGet(IDB_CONFIG.stores.users, char.bindId);
+        if (charUser) {
+          const ownerStr = `[Character Owner: ${charUser.name}]\nOwner Persona: ${charUser.persona || 'None'}`;
+          console.log(`%c    [拼接 绑定主人] bindId(${char.bindId}) ≠ chatUserId(${chatUserId}) ->\n${ownerStr}`, 'color: #ff9f43;');
+          charSegment.push(ownerStr);
+        }
       }
     }
 
@@ -739,10 +757,25 @@ async function buildChatHistoryPrompt(chatId, historyCount = 0) {
   const chat = await dbGet(IDB_CONFIG.stores.chats, chatId);
   if (!chat) return [];
 
-  // 读取时间戳全局开关（默认 true）
-  const chatSettings = await dbGet('config', 'chat_settings');
+  // 读取时间戳开关 + 剧情时间开关（按 chatId 独立读取，支持单聊天室单独控制）
+  const chatSettings = await dbGet('config', `chat_settings_${chatId}`);
   const timestampEnabled = chatSettings ? chatSettings.timestampEnabled !== false : true;
-  console.log(`%c[buildChatHistoryPrompt] 时间戳开关: ${timestampEnabled}`, 'color:#43d9a0');
+  const storyTimeEnabled = chatSettings ? chatSettings.storyTimeEnabled === true : false;
+  console.log(`%c[buildChatHistoryPrompt] chatId=${chatId}  时间感知=${timestampEnabled}  剧情时间=${storyTimeEnabled}`, 'color:#43d9a0');
+
+  // 若开启剧情时间，先尝试从该聊天的 story_clock 读 baseRealDate
+  let baseTs = null;
+  let _storyClockKey = null;
+  if (storyTimeEnabled) {
+    _storyClockKey = `story_clock_${chatId}`;
+    const clock = await dbGet('config', _storyClockKey);
+    if (clock && clock.baseRealDate) {
+      baseTs = new Date(clock.baseRealDate + 'T00:00:00').getTime();
+      console.log(`%c[buildChatHistoryPrompt] 剧情基准: ${clock.baseRealDate}  baseTs=${baseTs}`, 'color:#72c9a0');
+    } else {
+      console.log(`%c[buildChatHistoryPrompt] story_clock_${chatId} 未找到，将用最早消息日期降级锚定`, 'color:#f9c784');
+    }
+  }
 
   const user = await dbGet(IDB_CONFIG.stores.users, chat.userId);
   const userName = user ? user.name : 'User';
@@ -764,6 +797,22 @@ async function buildChatHistoryPrompt(chatId, historyCount = 0) {
   // 全量升序，resolveLatestAnnotationText 需要向后查找，必须用完整列表
   const allSorted = messages.sort((a, b) => a.floor - b.floor);
   const targetMessages = historyCount > 0 ? allSorted.slice(-historyCount) : allSorted;
+
+  // 剧情时间降级：没有 story_clock 时用最早消息日期作为 D1 锚点并自动保存
+  if (storyTimeEnabled && baseTs === null && _storyClockKey) {
+    const allTs = allSorted.map(m => m.timestamp).filter(Boolean);
+    if (allTs.length > 0) {
+      const earliest = Math.min(...allTs);
+      const d0 = new Date(earliest);
+      d0.setHours(0, 0, 0, 0);
+      baseTs = d0.getTime();
+      const baseRealDate = `${d0.getFullYear()}-${String(d0.getMonth()+1).padStart(2,'0')}-${String(d0.getDate()).padStart(2,'0')}`;
+      try { await dbPut('config', { id: _storyClockKey, baseRealDate, lastSyncStoryMs: 0, lastSyncRealMs: Date.now() }); } catch(e) {}
+      console.log(`%c[buildChatHistoryPrompt] 剧情基准(自动锚定): ${baseRealDate}  baseTs=${baseTs}`, 'color:#f9c784');
+    }
+  }
+
+  console.log(`%c[buildChatHistoryPrompt] 最终模式: ${storyTimeEnabled && baseTs!==null ? '剧情时间' : timestampEnabled ? '真实时间戳' : '无时间'}  共${targetMessages.length}条`, 'color:#43d9a0;font-weight:bold');
 
   for (const msg of targetMessages) {
     let senderName = msg.senderRole === 'user' ? userName : msg.senderRole === 'char' ? charName : '系统';
@@ -948,8 +997,20 @@ async function buildChatHistoryPrompt(chatId, historyCount = 0) {
       }
     }
 
-    // 格式：[角色/用户名/系统消息|时间|消息类别] 消息完整内容  (时间戳受全局开关控制)
-    if (timestampEnabled) {
+    // 三种模式：剧情时间 > 真实时间戳 > 无时间
+    if (storyTimeEnabled && baseTs !== null) {
+      let displayTs;
+      if (msg.storyTimestamp) {
+        // ✅ 新消息：直接用存库时写入的剧情时间戳
+        displayTs = msg.storyTimestamp;
+      } else {
+        // ✅ 旧消息（没有storyTimestamp）：降级用真实时间相对最早消息的偏移来估算
+        // 这样旧消息从Day1开始，按真实时间间隔排列，不改库
+        const earliestTs = allSorted.length > 0 ? (allSorted[0].timestamp || msg.timestamp) : msg.timestamp;
+        displayTs = baseTs + (msg.timestamp - earliestTs);
+      }
+      historyPrompts.push(`[${senderName}|${formatStoryTime(displayTs, baseTs)}|${msgType}] ${content}`);
+    } else if (timestampEnabled) {
       historyPrompts.push(`[${senderName}|${formatTime(msg.timestamp)}|${msgType}] ${content}`);
     } else {
       historyPrompts.push(`[${senderName}|${msgType}] ${content}`);

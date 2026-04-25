@@ -58,7 +58,15 @@
     diaries: { keyPath: 'id' },
 
     // ── 日历（calendar.html）─────────────────────────────────────────────
-    cal_events: { keyPath: 'id' },
+    cal_events:   { keyPath: 'id' },
+    cal_comments: {
+      keyPath: 'id',
+      indexes: [{ name: 'by_target', keyPath: 'targetId' }],
+    },
+    cal_edits: {
+      keyPath: 'id',
+      indexes: [{ name: 'by_target', keyPath: 'targetId' }],
+    },
   };
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -138,6 +146,12 @@
             `%c[db-schema] ✅ DB 结构完整 (v${currentVersion})，无需升级`,
             'color:#8a8a8e'
           );
+          // 监听版本变更，其他标签触发升级时自动关闭此连接
+          db.onversionchange = () => {
+            console.log('%c[db-schema] onversionchange — closing to allow upgrade', 'color:#f9c784');
+            db.close();
+            window.__tsukiDb = null;
+          };
           window.__tsukiDb = db;
           resolve(db);
           return;
@@ -158,6 +172,11 @@
 
         upgradeReq.onsuccess = event => {
           const upgradedDb = event.target.result;
+          upgradedDb.onversionchange = () => {
+            console.log('%c[db-schema] onversionchange on upgraded conn — closing', 'color:#f9c784');
+            upgradedDb.close();
+            window.__tsukiDb = null;
+          };
           console.log(
             `%c[db-schema] ✅ 升级完成 (v${upgradedDb.version})，` +
             `stores: [${Array.from(upgradedDb.objectStoreNames).join(', ')}]`,
