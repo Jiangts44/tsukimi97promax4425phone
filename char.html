@@ -696,7 +696,7 @@
             type="file"
             id="charImportInput"
             class="hidden"
-            accept=".json,.txt,.doc,.docx"
+            accept=".json,.txt,.doc,.docx,application/json,text/plain,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
             onchange="handleImport(this)"
           />
 
@@ -1166,48 +1166,63 @@
 
         const fileName = file.name;
         const extension = fileName.split('.').pop().toLowerCase();
-        const reader = new FileReader();
+        const charName = fileName.replace(/\.[^/.]+$/, '');
 
-        reader.onload = async e => {
-          const content = e.target.result;
-
-          if (extension === 'json') {
+        if (extension === 'json') {
+          const reader = new FileReader();
+          reader.onload = async e => {
             try {
-              const data = JSON.parse(content);
-              // 填充表单
+              const data = JSON.parse(e.target.result);
               document.getElementById('charName').value = data.name || '';
               document.getElementById('charRemark').value = data.remark || '';
               document.getElementById('charAvatarUrl').value = data.avatar || '';
               document.getElementById('charPreview').src = data.avatar || '';
               document.getElementById('charPersona').innerHTML = data.persona || '';
               if (data.bindId) document.getElementById('userBind').value = data.bindId;
-
               alert('JSON 角色数据已加载，请点击 SAVE 保存');
             } catch (err) {
               alert('JSON 解析失败，请检查文件格式');
             }
-          } else if (extension === 'txt' || extension === 'doc' || extension === 'docx') {
-            // 对于 txt 直接读取内容；对于 doc/docx 提取文件名，由于 JS 无法直接读 Word 二进制，
-            // 建议配合 mammoth.js 使用，这里先实现文件名作为名字，内容作为人设的逻辑
-            const charName = fileName.replace(/\.[^/.]+$/, ''); // 去掉后缀作为名字
+            input.value = '';
+          };
+          reader.readAsText(file);
 
+        } else if (extension === 'txt') {
+          const reader = new FileReader();
+          reader.onload = e => {
             document.getElementById('charName').value = charName;
-            // 如果是文本，内容填入人设；如果是二进制文档，提醒用户手动处理
-            document.getElementById('charPersona').innerHTML =
-              extension === 'txt' ? content : '检测到文档文件，请手动输入或粘贴人设内容。';
+            document.getElementById('charPersona').innerHTML = e.target.result.replace(/\n/g, '<br>');
+            alert(`已导入：[${charName}]，请点击 SAVE 保存`);
+            input.value = '';
+          };
+          reader.readAsText(file);
 
-            alert(`已识别文档：[${charName}]，已自动填充名称。`);
+        } else if (extension === 'docx' || extension === 'doc') {
+          // 动态加载 mammoth.js 提取 Word 文档文字
+          if (!window.mammoth) {
+            await new Promise((resolve, reject) => {
+              const s = document.createElement('script');
+              s.src = 'https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js';
+              s.onload = resolve;
+              s.onerror = () => reject(new Error('mammoth.js 加载失败，请检查网络'));
+              document.head.appendChild(s);
+            }).catch(err => { alert(err.message); input.value = ''; return; });
           }
 
-          input.value = ''; // 清空选择器
-        };
+          const arrayBuffer = await file.arrayBuffer();
+          try {
+            const result = await mammoth.convertToHtml({ arrayBuffer });
+            document.getElementById('charName').value = charName;
+            document.getElementById('charPersona').innerHTML = result.value || '';
+            alert(`已从 Word 文档提取内容：[${charName}]，请点击 SAVE 保存`);
+          } catch (err) {
+            alert('Word 文档解析失败：' + err.message);
+          }
+          input.value = '';
 
-        // 根据类型选择读取方式
-        if (extension === 'json' || extension === 'txt') {
-          reader.readAsText(file);
         } else {
-          // doc/docx 暂时只处理文件名逻辑，不读取二进制内部文本
-          reader.onload({ target: { result: '' } });
+          alert('不支持的文件格式');
+          input.value = '';
         }
       }
 
