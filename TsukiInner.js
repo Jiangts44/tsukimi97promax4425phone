@@ -461,7 +461,7 @@
   font-size:9px;color:var(--mute);transition:transform .3s;flex-shrink:0;margin-left:8px;
 }
 .ac-item.open .ac-chevron{transform:rotate(90deg);}
-.ac-item.open .ac-head{background:var(--paper-2);}
+.ac-item.open .ac-head{background:var(--card);}
 
 /* 展开内容区 */
 .ac-body{
