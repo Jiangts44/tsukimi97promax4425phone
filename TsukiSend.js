@@ -126,8 +126,7 @@ Rules:
       apiKey: '',
       baseUrl: '',
       model: 'gpt-4o',
-      maxTokens: 99999999,
-      temperature: 0.7,
+      temperature: 1,
       historyCount: 0,
     };
 
@@ -178,15 +177,16 @@ Rules:
         console.log('[TsukiSend Monitor] 未使用预设，加载 API 临时配置');
       }
 
-      return {
-        apiKey: cfg.key || defaults.apiKey,
-        baseUrl: cfg.url || defaults.baseUrl,
-        model: cfg.model || defaults.model,
-        temperature: parseFloat(cfg.temp || defaults.temperature),
-        maxTokens: parseInt(cfg.maxTokens || defaults.maxTokens, 10),
-        // 这里的 historyCount 不再读取 cfg，而是强制使用我们刚从 chat_settings 读出来的值
-        historyCount: finalHistoryCount,
-      };
+      
+// 改后
+return {
+  apiKey: cfg.key || defaults.apiKey,
+  baseUrl: cfg.url || defaults.baseUrl,
+  model: cfg.model || defaults.model,
+  temperature: parseFloat(cfg.temp || defaults.temperature),
+  maxTokens: cfg.maxTokens ? parseInt(cfg.maxTokens, 10) : undefined,
+  historyCount: finalHistoryCount,
+};
     } catch (e) {
       console.error('[TsukiSend Error] 读取配置遭遇严重错误，使用安全默认值兜底', e);
       return defaults;
@@ -1247,13 +1247,14 @@ function _showScheduleBubble(stats, timestampEnabled) {
     const res = await fetch(finalUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${config.apiKey}` },
-      body: JSON.stringify({
-        model: config.model,
-        max_tokens: config.maxTokens,
-        temperature: config.temperature,
-        messages,
-        stream: false,
-      }),
+      // 改后
+body: JSON.stringify({
+  model: config.model,
+  ...(config.maxTokens != null ? { max_tokens: config.maxTokens } : {}),
+  temperature: config.temperature,
+  messages,
+  stream: false,
+}),
     });
     const data = await res.json();
     if (!res.ok) throw new Error(`API 请求失败 ${res.status}: ${data.error?.message || data.detail || '未知错误'}`);
