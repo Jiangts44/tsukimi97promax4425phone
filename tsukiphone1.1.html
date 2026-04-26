@@ -2412,13 +2412,17 @@
       }
 
       /* ③ call invite bubble - 增强辨识度与挂断按钮样式 */
+      /* ══ call-invite 通话气泡 ══ */
       .bubble.call-invite {
         display: flex;
         align-items: center;
         gap: 11px;
         padding: 10px 13px;
-        min-width: 190px;
+        min-width: 200px;
+        transition: background 0.25s;
       }
+
+      /* ── 图标圆圈 ── */
       .call-invite-icon {
         width: 36px;
         height: 36px;
@@ -2428,25 +2432,65 @@
         align-items: center;
         justify-content: center;
         font-size: 15px;
+        position: relative;
+        transition: background 0.3s, color 0.3s;
       }
-      /* 视频用蓝色调，语音用绿色调加以区分 */
-      .call-invite-icon.video {
+
+      /* 铃响：彩色 + 脉冲光环 */
+      .call-invite-icon.video.ringing {
         background: rgba(91, 124, 250, 0.15);
         color: var(--accent-blue);
       }
-      .call-invite-icon.voice {
+      .call-invite-icon.voice.ringing {
         background: rgba(67, 217, 160, 0.15);
         color: var(--accent-mint);
       }
-      .msg-row.user .call-invite-icon.video {
-        background: rgba(255, 255, 255, 0.25);
-        color: white;
+      .call-invite-icon.ringing::after {
+        content: '';
+        position: absolute;
+        inset: -3px;
+        border-radius: 50%;
+        border: 2px solid currentColor;
+        opacity: 0;
+        animation: callRingPulse 1.6s ease-out infinite;
       }
-      .msg-row.user .call-invite-icon.voice {
-        background: rgba(255, 255, 255, 0.25);
+      @keyframes callRingPulse {
+        0%   { transform: scale(1);   opacity: 0.6; }
+        100% { transform: scale(1.5); opacity: 0; }
+      }
+
+      /* 通话中：绿色高亮 + 更慢呼吸 */
+      .call-invite-icon.connected {
+        background: rgba(67, 217, 160, 0.2);
+        color: var(--accent-mint);
+      }
+      .call-invite-icon.connected::after {
+        content: '';
+        position: absolute;
+        inset: -3px;
+        border-radius: 50%;
+        border: 2px solid var(--accent-mint);
+        opacity: 0;
+        animation: callConnPulse 2.4s ease-out infinite;
+      }
+      @keyframes callConnPulse {
+        0%   { transform: scale(1);   opacity: 0.5; }
+        100% { transform: scale(1.6); opacity: 0; }
+      }
+
+      /* 终态（已结束/已取消）：灰色 */
+      .call-invite-icon.ended {
+        background: rgba(138, 138, 142, 0.12);
+        color: var(--mute);
+      }
+
+      /* user 侧图标始终白色半透明（不覆盖 ended） */
+      .msg-row.user .call-invite-icon:not(.ended) {
+        background: rgba(255, 255, 255, 0.22);
         color: white;
       }
 
+      /* ── 文字区 ── */
       .call-invite-info {
         flex: 1;
         min-width: 0;
@@ -2454,6 +2498,7 @@
       .call-invite-label {
         font-size: 11.5px;
         font-weight: 600;
+        white-space: nowrap;
       }
       .call-invite-sub {
         font-size: 9px;
@@ -2461,39 +2506,110 @@
         opacity: 0.55;
         margin-top: 2px;
         letter-spacing: 0.04em;
+        white-space: nowrap;
       }
 
+      /* 通话计时器（通话中 + 已结束时长） */
+      .call-invite-timer {
+        font-size: 10px;
+        font-family: 'Geist Mono', monospace;
+        font-weight: 600;
+        margin-top: 3px;
+        color: var(--accent-mint);
+        letter-spacing: 0.06em;
+      }
+      .call-invite-timer.ended {
+        color: var(--mute);
+        opacity: 0.7;
+      }
+
+      /* ── 按钮区 ── */
       .call-invite-btn {
         flex-shrink: 0;
-        height: 26px;
-        padding: 0 12px;
+        height: 28px;
+        padding: 0 13px;
         border-radius: 100px;
         border: none;
         font-size: 10px;
-        font-weight: 600;
+        font-weight: 700;
         cursor: pointer;
         font-family: 'Geist', sans-serif;
-        transition: 0.2s;
+        letter-spacing: 0.04em;
+        transition: background 0.18s, transform 0.12s;
+        white-space: nowrap;
       }
-      .msg-row:not(.user) .call-invite-btn {
+      .call-invite-btn:active { transform: scale(0.93); }
+
+      /* char 侧 接听按钮：深色填充 */
+      .msg-row:not(.user) .call-invite-btn.answer {
         background: var(--ink);
         color: white;
       }
+      .msg-row:not(.user) .call-invite-btn.answer:hover {
+        background: #222;
+      }
+
+      /* 挂断按钮：coral 红 */
+      .call-invite-btn.hangup {
+        background: var(--accent-coral) !important;
+        color: white !important;
+        border-color: transparent !important;
+      }
+      .call-invite-btn.hangup:hover {
+        background: #e85555 !important;
+      }
+
+      /* user 侧按钮（半透明白） */
       .msg-row.user .call-invite-btn {
         background: rgba(255, 255, 255, 0.15);
         color: white;
         border: 1px solid rgba(255, 255, 255, 0.25);
       }
 
-      /* 接听后变成挂断按钮的样式 */
-      .call-invite-btn.hangup {
-        background: var(--accent-coral) !important;
-        color: white !important;
-        border-color: transparent !important;
+      /* 终态标签（非按钮） */
+      .call-invite-ended {
+        flex-shrink: 0;
+        font-size: 10px;
+        font-family: 'Geist Mono', monospace;
+        color: var(--mute);
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        white-space: nowrap;
+        opacity: 0.75;
       }
-      .call-invite-btn:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
+
+      /* 整体终态气泡略微褪色 */
+      .bubble.call-invite.state-ended {
+        opacity: 0.82;
+      }
+
+      /* 未接听：橙红色调提示 */
+      .bubble.call-invite.state-missed {
+        opacity: 0.82;
+      }
+      .bubble.call-invite.state-missed .call-invite-sub {
+        color: var(--accent-coral);
+        opacity: 0.75;
+      }
+      .call-invite-ended.missed {
+        color: var(--accent-coral);
+        opacity: 0.8;
+      }
+
+      /* user 侧取消按钮：橙红色 */
+      .call-invite-btn.cancel-call {
+        background: rgba(255, 107, 107, 0.12) !important;
+        color: var(--accent-coral) !important;
+        border: 1px solid rgba(255, 107, 107, 0.3) !important;
+      }
+      .call-invite-btn.cancel-call:hover {
+        background: rgba(255, 107, 107, 0.22) !important;
+      }
+      .msg-row.user .call-invite-btn.cancel-call {
+        background: rgba(255, 255, 255, 0.12) !important;
+        color: rgba(255, 200, 200, 0.9) !important;
+        border: 1px solid rgba(255, 200, 200, 0.25) !important;
       }
 
       /* ══ offline stage card ══ */
@@ -5252,20 +5368,87 @@
                 background: var(--card);
               "
             />
-            <input
-              type="text"
-              id="groupAvatarInput"
-              placeholder="群聊头像 URL (如 https://...)"
-              style="
-                height: 32px;
-                border-radius: 8px;
-                border: 1px solid var(--line);
-                padding: 0 10px;
-                font-size: 12px;
-                outline: none;
-                background: var(--card);
-              "
-            />
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <!-- 本地上传群头像按钮 -->
+              <div
+                id="groupAvatarLocalBtn"
+                title="本地上传群头像"
+                onclick="document.getElementById('groupAvatarFileInput').click()"
+                style="
+                  width: 32px;
+                  height: 32px;
+                  border-radius: 8px;
+                  border: 1px solid var(--line);
+                  background: var(--card);
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  cursor: pointer;
+                  flex-shrink: 0;
+                  overflow: hidden;
+                  position: relative;
+                  transition: border-color 0.2s;
+                "
+              >
+                <span id="groupAvatarLocalPreview" style="
+                  width: 100%; height: 100%;
+                  display: flex; align-items: center; justify-content: center;
+                ">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--mute);">
+                    <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+                  </svg>
+                </span>
+              </div>
+              <input type="file" id="groupAvatarFileInput" accept="image/*" style="display:none" />
+              <input
+                type="text"
+                id="groupAvatarInput"
+                placeholder="群聊头像 URL (如 https://...)"
+                style="
+                  flex: 1;
+                  height: 32px;
+                  border-radius: 8px;
+                  border: 1px solid var(--line);
+                  padding: 0 10px;
+                  font-size: 12px;
+                  outline: none;
+                  background: var(--card);
+                "
+              />
+            </div>
+            <script>
+              (function() {
+                const fileInput = document.getElementById('groupAvatarFileInput');
+                const urlInput  = document.getElementById('groupAvatarInput');
+                const btn       = document.getElementById('groupAvatarLocalBtn');
+                const preview   = document.getElementById('groupAvatarLocalPreview');
+
+                fileInput.addEventListener('change', function() {
+                  const file = fileInput.files[0];
+                  if (!file) return;
+                  const reader = new FileReader();
+                  reader.onload = function(e) {
+                    const dataUrl = e.target.result;
+                    // 填入 URL 输入框（base64）
+                    urlInput.value = dataUrl;
+                    // 小预览图替换图标
+                    preview.innerHTML = '<img src="' + dataUrl + '" style="width:100%;height:100%;object-fit:cover;border-radius:7px;" />';
+                    btn.style.borderColor = 'var(--accent-mint)';
+                  };
+                  reader.readAsDataURL(file);
+                  // reset so same file can be re-selected
+                  fileInput.value = '';
+                });
+
+                // URL 手动清空时还原预览图标
+                urlInput.addEventListener('input', function() {
+                  if (!urlInput.value.trim()) {
+                    preview.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--mute);"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
+                    btn.style.borderColor = 'var(--line)';
+                  }
+                });
+              })();
+            </script>
           </div>
         </div>
       </div>
@@ -5522,6 +5705,30 @@
               </div>
               <label class="ts-toggle" style="flex-shrink: 0">
                 <input type="checkbox" id="settingStoryTimeEnabled" />
+                <span class="ts-toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <div style="margin-top: 10px">
+            <div class="si-sec-label"><i class="fa-solid fa-heart-pulse"></i> 心声</div>
+            <div
+              class="si-fmt-row"
+              style="
+                align-items: center;
+                justify-content: space-between;
+                padding: 12px;
+                background: var(--card);
+                border: 1px solid var(--line);
+                border-radius: 12px;
+              "
+            >
+              <div style="display: flex; flex-direction: column; gap: 2px">
+                <span style="font-size: 11px; font-weight: 600; color: var(--ink)">心声系统</span>
+                <span style="font-size: 10px; color: var(--ink-3)">AI 回复将附带心声格式，自动解析渲染</span>
+              </div>
+              <label class="ts-toggle" style="flex-shrink: 0">
+                <input type="checkbox" id="settingInnerVoiceEnabled" />
                 <span class="ts-toggle-slider"></span>
               </label>
             </div>
@@ -5923,110 +6130,234 @@
         });
       };
 
-      /* ——— 通话气泡交互 (接听 / 取消) ——— */
-      // 【修复②】bindCallInvite — 按钮互动后将通话状态存库，下次渲染时恢复
+      /* ——— 通话气泡交互 ——— */
+      // bindCallInvite：TsukiSend.js 新系统已自带交互绑定，此处保留为兼容空壳
       window.bindCallInvite = function (bubbleWrap) {
-        const btn = bubbleWrap.querySelector('.call-invite-btn');
-        if (!btn) return;
-        btn.addEventListener('click', async function () {
-          if (this.disabled) return;
+        const b = bubbleWrap ? bubbleWrap.querySelector('.bubble.call-invite') : null;
+        if (!b || b.dataset.callState) return; // 新格式已有 data-call-state，跳过
+        const btn = b.querySelector('.call-invite-btn');
+        if (btn) { btn.disabled = true; btn.innerText = '已结束'; }
+      };
 
-          let meta = bubbleWrap.querySelector('.bubble-meta');
-          if (!meta) {
-            meta = document.createElement('div');
-            meta.className = 'bubble-meta';
-            bubbleWrap.appendChild(meta);
-          }
+      // sendCall：手动点击顶部通话按钮，使用新状态系统
+      window.sendCall = async function (type) {
+        const isVideo    = type === 'video';
+        const mediaLabel = isVideo ? '视频通话' : '语音通话';
+        const mediaIcon  = isVideo ? 'fa-video'  : 'fa-phone';
+        const sender     = window.currentSender || 'user';
+        // user 发呼出 → 显示「取消」按钮；char 发呼入 → 显示「接听」按钮
+        const isUserSender = sender === 'user';
 
-          let newCallState = null;
+        function _fmtDur(sec) {
+          return String(Math.floor(sec / 60)).padStart(2, '0') + ':' + String(sec % 60).padStart(2, '0');
+        }
 
-          if (this.classList.contains('hangup')) {
-            // 通话中 → 挂断
-            this.disabled = true;
-            this.innerText = '已结束';
-            meta.innerHTML = `<i class="fa-solid fa-phone-slash" style="color:var(--mute)"></i> 通话已结束`;
-            bubbleWrap.querySelector('.call-invite-sub').innerText = 'CALL ENDED';
-            newCallState = 'ended';
-          } else if (this.innerText === '取消') {
-            // 发起方取消
-            this.disabled = true;
-            this.innerText = '已取消';
-            meta.innerHTML = `<i class="fa-solid fa-phone-slash" style="color:var(--mute)"></i> 通话已取消`;
-            bubbleWrap.querySelector('.call-invite-sub').innerText = 'CANCELED';
-            newCallState = 'canceled';
-          } else {
-            // 接收方接听
-            this.classList.add('hangup');
-            this.innerText = '挂断';
-            meta.innerHTML = `<i class="fa-solid fa-phone-volume" style="color:var(--accent-mint)"></i> 通话中...`;
-            bubbleWrap.querySelector('.call-invite-sub').innerText = '00:01';
-            newCallState = 'answered';
-          }
+        // buildHTML 根据发送方差异化渲染：
+        //   isUserSender=true  → 「取消」按钮（user 呼出给 char）
+        //   isUserSender=false → 「接听」按钮（char 呼入给 user）
+        function buildHTML(state, elapsed) {
+          const ringBtnHtml = isUserSender
+            ? '<button class="call-invite-btn cancel-call">取消</button>'
+            : '<button class="call-invite-btn answer">接听</button>';
+          const cfgMap = {
+            '接听':   { sub: mediaLabel.toUpperCase() + ' · RINGING',   btnHtml: ringBtnHtml,                                                                               ringClass: 'ringing' },
+            '挂断':   { sub: mediaLabel.toUpperCase() + ' · CONNECTED',  btnHtml: '<button class="call-invite-btn hangup">挂断</button>',                                   ringClass: 'connected' },
+            '已取消': { sub: mediaLabel.toUpperCase() + ' · CANCELLED',  btnHtml: '<span class="call-invite-ended"><i class="fa-solid fa-ban"></i> 已取消</span>',          ringClass: 'ended' },
+            '已结束': { sub: mediaLabel.toUpperCase() + ' · ENDED',      btnHtml: '<span class="call-invite-ended"><i class="fa-solid fa-phone-slash"></i> 已结束</span>',  ringClass: 'ended' },
+          };
+          const cfg = cfgMap[state] || cfgMap['已结束'];
+          const timerHtml = state === '挂断'
+            ? '<div class="call-invite-timer" data-elapsed="' + elapsed + '">' + _fmtDur(elapsed) + '</div>'
+            : (state === '已结束' && elapsed > 0)
+              ? '<div class="call-invite-timer ended">' + _fmtDur(elapsed) + '</div>' : '';
+          return '<div class="call-invite-icon ' + (isVideo ? 'video' : 'voice') + ' ' + cfg.ringClass + '">'
+            + '<i class="fa-solid ' + mediaIcon + '"></i></div>'
+            + '<div class="call-invite-info"><div class="call-invite-label">' + mediaLabel + (state === '接听' ? '邀请' : '') + '</div>'
+            + '<div class="call-invite-sub">' + cfg.sub + '</div>' + timerHtml + '</div>' + cfg.btnHtml;
+        }
 
-          // 【修复②】将通话状态写回数据库对应楼层
-          if (newCallState) {
-            try {
-              const row = bubbleWrap.closest('.msg-row');
-              const floor = row ? parseInt(row.dataset.floor) : null;
-              if (floor && currentChatId) {
-                const db = await openDb();
-                await new Promise((resolve, reject) => {
+        const b = document.createElement('div');
+        b.className = 'bubble call-invite state-ringing';
+        b.dataset.callMedia = type;
+        b.dataset.callState = '接听';
+        b.dataset.elapsed   = '0';
+        b.innerHTML = buildHTML('接听', 0);
+
+        const metaHtml = '<i class="fa-solid ' + mediaIcon + '"></i> ' + (isVideo ? 'video call' : 'voice call');
+        const callEl = window.renderMessage ? window.renderMessage(sender, b, { meta: metaHtml }) : null;
+
+        let savedFloor = null;
+        if (typeof window.saveMessageToDB === 'function') {
+          const _callStoryTs = typeof window._getStoryTimestampNow === 'function'
+            ? await window._getStoryTimestampNow(window.currentChatId) : null;
+          savedFloor = await window.saveMessageToDB(
+            'call', { callType: type, callState: 'ringing' },
+            '[' + mediaLabel + '·呼出]', sender, _callStoryTs,
+          );
+          if (callEl && savedFloor != null) callEl.dataset.floor = savedFloor;
+        }
+
+        // user 侧：绑定「取消」按钮点击 → 变已取消 + 更新存库
+        if (isUserSender) {
+          _bindUserCancelButton(b, savedFloor, mediaLabel, buildHTML);
+        }
+        // char 侧：绑定「接听/挂断」交互
+        else if (typeof window.TsukiSend?._bindCallBubbleInteractionPublic === 'function') {
+          window.TsukiSend._bindCallBubbleInteractionPublic(
+            b, { callMedia: type, callState: '接听' },
+            buildHTML, _fmtDur, isVideo, mediaLabel, mediaIcon, null,
+          );
+        }
+      };
+
+      // user 侧「取消」按钮绑定：点击→终态已取消，更新DB
+      // 同时：点击振铃图标 → 模拟对方接听，进入通话中状态
+      function _bindUserCancelButton(b, floor, mediaLabel, buildHTML) {
+
+        function _fmtSec(sec) {
+          return String(Math.floor(sec / 60)).padStart(2, '0') + ':' + String(sec % 60).padStart(2, '0');
+        }
+
+        // ── 通话中：启动计时 + 绑定挂断按钮 ──
+        function _bindUserHangupAndTimer(elapsed0) {
+          let _elapsed = elapsed0 || 0;
+          // 先刷一次 innerHTML 确保计时器 DOM 存在
+          b.innerHTML = buildHTML('挂断', _elapsed);
+
+          const _timer = setInterval(() => {
+            _elapsed++;
+            const timerEl = b.querySelector('.call-invite-timer');
+            if (timerEl) { timerEl.textContent = _fmtSec(_elapsed); timerEl.dataset.elapsed = _elapsed; }
+            b.dataset.elapsed = _elapsed;
+          }, 1000);
+
+          const hangupBtn = b.querySelector('.call-invite-btn.hangup');
+          if (hangupBtn) {
+            hangupBtn.onclick = async () => {
+              clearInterval(_timer);
+              const durStr = _fmtSec(_elapsed);
+
+              b.dataset.callState = '已结束';
+              b.className = 'bubble call-invite state-ended';
+              b.innerHTML = buildHTML('已结束', _elapsed);
+
+              // ★ 更新 sub 文字（包含通话时长）
+              const subEl = b.querySelector('.call-invite-sub');
+              if (subEl && _elapsed > 0) {
+                subEl.textContent = mediaLabel.toUpperCase() + ' · ENDED';
+              }
+
+              // ★ 更新 meta（气泡右下角时间/标注）
+              const _row = b.closest('.msg-row');
+              if (_row) {
+                const metaEl = _row.querySelector('.msg-meta');
+                if (metaEl && _elapsed > 0) {
+                  metaEl.innerHTML = '<i class="fa-solid ' + mediaIcon + '"></i> '
+                    + (isVideo ? 'video call' : 'voice call') + ' · ' + durStr;
+                }
+              }
+
+              if (floor && window.currentChatId) {
+                try {
+                  const db = await openDb();
                   const tx = db.transaction('messages', 'readwrite');
                   const store = tx.objectStore('messages');
-                  const getReq = store.get([currentChatId, floor]);
+                  const getReq = store.get([window.currentChatId, floor]);
                   getReq.onsuccess = () => {
                     const record = getReq.result;
                     if (record && record.type === 'call') {
-                      record.content.callState = newCallState;
+                      record.content.callState = 'ended';
+                      record.content.duration  = _elapsed;
+                      record.summary = '[' + mediaLabel + '·' + durStr + ']';
                       store.put(record);
-                      console.log(`[Call State Saved] 楼层: ${floor} 状态: ${newCallState}`);
                     }
-                    resolve();
                   };
-                  getReq.onerror = () => reject(getReq.error);
-                });
+                  const chats = await dbGetAll('chats');
+                  const current = chats.find(c => c.id === window.currentChatId);
+                  if (current) {
+                    current.lastMessage = '[' + mediaLabel + '·' + durStr + ']';
+                    current.updatedAt = Date.now();
+                    await dbPut('chats', current);
+                  }
+                } catch(e) { console.error('挂断通话存库失败:', e); }
               }
-            } catch (e) {
-              console.error('通话状态存库失败:', e);
-            }
+            };
           }
-        });
-      };
-
-      // 『修复④』改为 async 函数，支持存库与楼层绑定
-      window.sendCall = async function (type) {
-        const isVideo = type === 'video';
-        const b = document.createElement('div');
-        b.className = 'bubble call-invite';
-
-        // 动态决定按鈕文案：谁发起的谁就是“取消”，对方就是“接听”
-        const btnText = window.currentSender === 'user' ? '取消' : '接听';
-        const subText = isVideo ? 'VIDEO CALL · RINGING' : 'VOICE CALL · RINGING';
-        const labelText = isVideo ? '视频通话邀请' : '语音通话邀请';
-
-        b.innerHTML = `
-          <div class="call-invite-icon ${isVideo ? 'video' : 'voice'}">
-            <i class="fa-solid ${isVideo ? 'fa-video' : 'fa-phone'}"></i>
-          </div>
-          <div class="call-invite-info">
-            <div class="call-invite-label">${labelText}</div>
-            <div class="call-invite-sub">${subText}</div>
-          </div>
-          <button class="call-invite-btn">${btnText}</button>
-        `;
-        const metaHtml = `<i class="fa-solid ${isVideo ? 'fa-video' : 'fa-phone'}"></i> ${isVideo ? 'video call' : 'voice call'}`;
-        // 使用统一的消息渲染器发出去，捕获返回的行节点
-        const callEl = window.renderMessage ? window.renderMessage(window.currentSender, b, { meta: metaHtml }) : null;
-
-        // 『修复④』存库，并将楼层号绑定到已渲染的 DOM，使撤回功能可用
-        if (typeof window.saveMessageToDB === 'function') {
-          const contentData = { callType: isVideo ? 'video' : 'voice' };
-          const summaryStr = isVideo ? '[视频通话]' : '[语音通话]';
-          const _callStoryTs = typeof window._getStoryTimestampNow === 'function' ? await window._getStoryTimestampNow(window.currentChatId) : null;
-          const callFloor = await window.saveMessageToDB('call', contentData, summaryStr, window.currentSender, _callStoryTs);
-          if (callEl && callFloor != null) callEl.dataset.floor = callFloor;
         }
-      };
+
+        function bindBtn() {
+          // ── 「取消」按钮 ──
+          const cancelBtn = b.querySelector('.call-invite-btn.cancel-call');
+          if (cancelBtn) {
+            cancelBtn.onclick = async () => {
+              b.dataset.callState = '已取消';
+              b.className = 'bubble call-invite state-ended';
+              b.innerHTML = buildHTML('已取消', 0);
+
+              if (floor && window.currentChatId) {
+                try {
+                  const db = await openDb();
+                  const tx = db.transaction('messages', 'readwrite');
+                  const store = tx.objectStore('messages');
+                  const getReq = store.get([window.currentChatId, floor]);
+                  getReq.onsuccess = () => {
+                    const record = getReq.result;
+                    if (record && record.type === 'call') {
+                      record.content.callState = 'canceled';
+                      record.summary = '[' + mediaLabel + '·已取消]';
+                      store.put(record);
+                    }
+                  };
+                  const chats = await dbGetAll('chats');
+                  const current = chats.find(c => c.id === window.currentChatId);
+                  if (current) {
+                    current.lastMessage = '[' + mediaLabel + '·已取消]';
+                    current.updatedAt = Date.now();
+                    await dbPut('chats', current);
+                  }
+                } catch(e) { console.error('取消通话存库失败:', e); }
+              }
+            };
+          }
+
+          // ── 点击振铃图标 → 对方接听，切换到通话中 ──
+          const iconEl = b.querySelector('.call-invite-icon');
+          if (iconEl) {
+            iconEl.style.cursor = 'pointer';
+            iconEl.title = '点击：对方接听';
+            iconEl.onclick = async (e) => {
+              e.stopPropagation();
+              if (b.dataset.callState !== '接听') return;   // 只在振铃态响应
+
+              // 气泡状态切到「通话中」
+              b.dataset.callState = '挂断';
+              b.className = 'bubble call-invite state-connected';
+              _bindUserHangupAndTimer(0);
+
+              // 写库：callState → answered + answeredAt
+              if (floor && window.currentChatId) {
+                try {
+                  const db = await openDb();
+                  const tx = db.transaction('messages', 'readwrite');
+                  const store = tx.objectStore('messages');
+                  const getReq = store.get([window.currentChatId, floor]);
+                  getReq.onsuccess = () => {
+                    const record = getReq.result;
+                    if (record && record.type === 'call') {
+                      record.content.callState  = 'answered';
+                      record.content.answeredAt = Date.now();
+                      record.summary = '[' + mediaLabel + '·通话中]';
+                      store.put(record);
+                    }
+                  };
+                } catch(e) { console.error('接听通话存库失败:', e); }
+              }
+            };
+          }
+        }
+
+        bindBtn();
+      }
 
       // 绑定顶部菜单的两个通话按钮
       document.getElementById('recBtn')?.addEventListener('click', () => window.sendCall('video'));
@@ -6480,6 +6811,11 @@
         createModal.classList.remove('open');
         document.getElementById('groupNameInput').value = '';
         document.getElementById('groupAvatarInput').value = '';
+        // 还原本地上传预览
+        const _prevEl = document.getElementById('groupAvatarLocalPreview');
+        const _btnEl  = document.getElementById('groupAvatarLocalBtn');
+        if (_prevEl) _prevEl.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--mute);"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
+        if (_btnEl)  _btnEl.style.borderColor = 'var(--line)';
         selectedUser = null;
         selectedChars = [];
 
@@ -6611,7 +6947,36 @@
             messagesToRender.push(cursor.value);
             cursor.continue();
           } else {
-            messagesToRender.reverse().forEach(msg => renderHistoryBubble(msg));
+            messagesToRender.reverse();
+
+            // ── 预处理：找出哪些 answered call 已经有配对的 user/ended 记录 ──
+            // 规则：同一 chatId，floor 更大，senderRole=user，type=call，callState=ended
+            // answered 的 floor → 是否已结束（true=已结束, false=仍在通话中）
+            const answeredEndedFloors = new Set();
+            const answeredFloors = messagesToRender
+              .filter(m => m.type === 'call' && m.content?.callState === 'answered' && m.senderRole === 'char')
+              .map(m => m.floor);
+
+            if (answeredFloors.length > 0) {
+              const userEndedFloors = new Set(
+                messagesToRender
+                  .filter(m => m.type === 'call' && m.content?.callState === 'ended' && m.senderRole === 'user')
+                  .map(m => m.floor)
+              );
+              // 对每个 answered，在它之后找有没有 user/ended（floor 更大）
+              answeredFloors.forEach(af => {
+                const hasEnded = messagesToRender.some(
+                  m => m.type === 'call' && m.content?.callState === 'ended'
+                    && m.senderRole === 'user' && m.floor > af
+                );
+                if (hasEnded) answeredEndedFloors.add(af);
+              });
+            }
+
+            // 把预处理结果挂到全局，renderHistoryBubble 读取
+            window._answeredEndedFloors = answeredEndedFloors;
+
+            messagesToRender.forEach(msg => renderHistoryBubble(msg));
             scrollChatToBottom();
             console.log(`[Performance] 渲染了 ${messagesToRender.length} 条消息 (限制设置: ${renderLimit === 0 ? '全部渲染 (0)' : renderLimit})`);
           }
@@ -6708,6 +7073,33 @@
           }
         } catch (err) {
           body.innerHTML = `<div style="color:var(--accent-coral)">读取失败: ${err.message}</div>`;
+        }
+      }
+
+      /**
+       * _upgradeCallStateToMissed(msg)
+       * 当历史通话气泡以「ringing」状态重新渲染时（即用户离开页面前未接听），
+       * 将 IndexedDB 中该条记录的 callState 从 'ringing' 升级为 'missed'。
+       * 这样提示词携带历史消息传给 AI 时，能明确区分：
+       *   - canceled → AI 主动撤销
+       *   - missed   → AI 发出邀请，用户始终未接听
+       */
+      async function _upgradeCallStateToMissed(msg) {
+        try {
+          const db = await openDb();
+          const tx = db.transaction('messages', 'readwrite');
+          const store = tx.objectStore('messages');
+          const req = store.get([msg.chatId, msg.floor]);
+          req.onsuccess = () => {
+            const rec = req.result;
+            if (rec && rec.type === 'call' && rec.content?.callState === 'ringing') {
+              rec.content.callState = 'missed';
+              store.put(rec);
+              console.log(`[TsukiPhone] 通话气泡 floor=${msg.floor} callState: ringing → missed`);
+            }
+          };
+        } catch (e) {
+          console.warn('[TsukiPhone] missed 状态写库失败:', e);
         }
       }
 
@@ -7164,57 +7556,133 @@
 
         // 10. 通话气泡 (Call)
         if (msg.type === 'call') {
-          const isVideo = msg.content.callType === 'video';
-          const callState = msg.content.callState || 'ringing'; // 默认振铃中
-          const b = document.createElement('div');
-          b.className = 'bubble call-invite';
-          const labelText = isVideo ? '视频通话邀请' : '语音通话邀请';
-          const phoneIcon = isVideo ? 'fa-video' : 'fa-phone';
+          const isVideo   = msg.content.callType === 'video';
+          const callState = msg.content.callState || 'ringing';
+          const duration  = msg.content.duration  || 0;   // 通话秒数（user 挂断时存入）
+          const b         = document.createElement('div');
+          const mediaLabel= isVideo ? '视频通话' : '语音通话';
+          const phoneIcon = isVideo ? 'fa-video'  : 'fa-phone';
 
-          // 【修复②】根据存库的 callState 恢复按钮文案、副标题、底部 meta
-          let btnText,
-            btnDisabled = false,
-            btnHangup = false,
-            subText,
-            metaContent;
-
-          if (callState === 'canceled') {
-            btnText = '已取消';
-            btnDisabled = true;
-            subText = 'CANCELED';
-            metaContent = `<i class="fa-solid fa-phone-slash" style="color:var(--mute)"></i> 通话已取消`;
-          } else if (callState === 'ended') {
-            btnText = '已结束';
-            btnDisabled = true;
-            subText = 'CALL ENDED';
-            metaContent = `<i class="fa-solid fa-phone-slash" style="color:var(--mute)"></i> 通话已结束`;
-          } else if (callState === 'answered') {
-            // 接听后未挂断（理论上应继续为挂断状态）
-            btnText = '挂断';
-            btnHangup = true;
-            subText = '00:01';
-            metaContent = `<i class="fa-solid fa-phone-volume" style="color:var(--accent-mint)"></i> 通话中...`;
-          } else {
-            // ringing（振铃中，默认初始状态）
-            btnText = msg.senderRole === 'user' ? '取消' : '接听';
-            subText = isVideo ? 'VIDEO CALL · RINGING' : 'VOICE CALL · RINGING';
-            metaContent = `<i class="fa-solid ${phoneIcon}"></i> ${isVideo ? 'video call' : 'voice call'}`;
+          // 格式化秒数为 MM:SS
+          function _fmtDur(sec) {
+            const m = Math.floor(sec / 60), s = sec % 60;
+            return String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
           }
 
+          // 根据 callState 确定显示参数
+          let stateClass, subText, actionHtml, metaContent;
+
+          if (callState === 'canceled') {
+            stateClass  = 'state-ended';
+            subText     = `${mediaLabel.toUpperCase()} · CANCELLED`;
+            actionHtml  = `<span class="call-invite-ended"><i class="fa-solid fa-ban"></i> 已取消</span>`;
+            metaContent = `<i class="fa-solid fa-ban" style="color:var(--mute)"></i> 通话已取消`;
+          } else if (callState === 'ended') {
+            stateClass  = 'state-ended';
+            subText     = `${mediaLabel.toUpperCase()} · ENDED`;
+            actionHtml  = `<span class="call-invite-ended"><i class="fa-solid fa-phone-slash"></i> 已结束</span>`;
+            metaContent = `<i class="fa-solid fa-phone-slash" style="color:var(--mute)"></i> 通话已结束`;
+          } else if (callState === 'answered') {
+            // 检查是否有配对的 user/ended 记录
+            const isReallyEnded = (window._answeredEndedFloors || new Set()).has(msg.floor);
+
+            if (isReallyEnded) {
+              // 通话已真正结束
+              stateClass  = 'state-ended';
+              subText     = `${mediaLabel.toUpperCase()} · ENDED`;
+              actionHtml  = `<span class="call-invite-ended"><i class="fa-solid fa-phone-slash"></i> 已结束</span>`;
+              metaContent = `<i class="fa-solid fa-phone-slash" style="color:var(--mute)"></i> 通话已结束`;
+            } else {
+              // 没有配对 ended → 通话仍在进行中，恢复「挂断」可交互态
+              stateClass  = 'state-connected-restore';  // 特殊标记，下方单独处理
+              subText     = `${mediaLabel.toUpperCase()} · CONNECTED`;
+              actionHtml  = `<button class="call-invite-btn hangup">挂断</button>`;
+              metaContent = `<i class="fa-solid fa-phone-volume" style="color:var(--accent-mint)"></i> 通话中`;
+            }
+          } else {
+            // ringing — 重进页面后未接听的历史通话，显示「未接听」而非「已结束」
+            stateClass  = 'state-missed';
+            subText     = `${mediaLabel.toUpperCase()} · MISSED`;
+            actionHtml  = `<span class="call-invite-ended missed"><i class="fa-solid fa-phone-slash"></i> 未接听</span>`;
+            metaContent = `<i class="fa-solid fa-phone-slash" style="color:var(--mute)"></i> 未接听`;
+            // ★ 同步将 DB 里该条记录的 callState 从 ringing 升级为 missed
+            //   这样提示词传给 AI 时能明确区分「已取消」和「未接听」
+            _upgradeCallStateToMissed(msg);
+          }
+
+          // 图标选择
+          const iconName = callState === 'canceled' ? 'fa-ban' : 'fa-phone-slash';
+
+          const durHtml = duration > 0
+            ? `<div class="call-invite-timer ended">${_fmtDur(duration)}</div>`
+            : '';
+
+          // 「通话中恢复」态单独渲染，图标和计时器不同
+          if (stateClass === 'state-connected-restore') {
+            // 用 answeredAt 算出已经通话了多少秒，重进页面从正确时长开始计时
+            const answeredAt = msg.content.answeredAt || null;
+            const initElapsed = answeredAt
+              ? Math.max(0, Math.floor((Date.now() - answeredAt) / 1000))
+              : 0;
+
+            function _fmtD(sec) { return String(Math.floor(sec/60)).padStart(2,'0')+':'+String(sec%60).padStart(2,'0'); }
+
+            b.className = 'bubble call-invite state-connected';
+            b.dataset.callMedia = msg.content.callType;
+            b.dataset.callState = '挂断';
+            b.dataset.elapsed   = String(initElapsed);
+            b.innerHTML = `
+              <div class="call-invite-icon ${isVideo ? 'video' : 'voice'} connected">
+                <i class="fa-solid ${isVideo ? 'fa-video' : 'fa-phone'}"></i>
+              </div>
+              <div class="call-invite-info">
+                <div class="call-invite-label">${mediaLabel}</div>
+                <div class="call-invite-sub">${subText}</div>
+                <div class="call-invite-timer" data-elapsed="${initElapsed}">${_fmtD(initElapsed)}</div>
+              </div>
+              ${actionHtml}
+            `;
+            const callRow = window.renderMessage(msg.senderRole, b, { floor: msg.floor, meta: metaContent });
+
+            // 恢复交互绑定，计时从已通话时长继续
+            if (typeof window.TsukiSend?._bindCallBubbleInteractionPublic === 'function') {
+              function buildH(state, elapsed) {
+                const cfgMap = {
+                  '挂断':   { sub: mediaLabel.toUpperCase()+' · CONNECTED', btnHtml: '<button class="call-invite-btn hangup">挂断</button>', ringClass: 'connected' },
+                  '已结束': { sub: mediaLabel.toUpperCase()+' · ENDED',     btnHtml: '<span class="call-invite-ended"><i class="fa-solid fa-phone-slash"></i> 已结束</span>', ringClass: 'ended' },
+                };
+                const cfg = cfgMap[state] || cfgMap['已结束'];
+                const timerHtml = state === '挂断'
+                  ? `<div class="call-invite-timer" data-elapsed="${elapsed}">${_fmtD(elapsed)}</div>`
+                  : elapsed > 0 ? `<div class="call-invite-timer ended">${_fmtD(elapsed)}</div>` : '';
+                return `<div class="call-invite-icon ${isVideo?'video':'voice'} ${cfg.ringClass}"><i class="fa-solid ${isVideo?'fa-video':'fa-phone'}"></i></div>`
+                  + `<div class="call-invite-info"><div class="call-invite-label">${mediaLabel}</div>`
+                  + `<div class="call-invite-sub">${cfg.sub}</div>${timerHtml}</div>${cfg.btnHtml}`;
+              }
+              window.TsukiSend._bindCallBubbleInteractionPublic(
+                b,
+                { callMedia: msg.content.callType, callState: '挂断' },
+                buildH, _fmtD, isVideo, mediaLabel, isVideo ? 'fa-video' : 'fa-phone', null,
+                initElapsed,   // ← 传入偏移秒数，计时器从这里继续
+              );
+            }
+            return;
+          }
+
+          b.className = `bubble call-invite ${stateClass}`;
           b.innerHTML = `
-                <div class="call-invite-icon ${isVideo ? 'video' : 'voice'}">
-                  <i class="fa-solid ${phoneIcon}"></i>
-                </div>
-                <div class="call-invite-info">
-                  <div class="call-invite-label">${labelText}</div>
-                  <div class="call-invite-sub">${subText}</div>
-                </div>
-                <button class="call-invite-btn${btnHangup ? ' hangup' : ''}"${btnDisabled ? ' disabled' : ''}>${btnText}</button>
-              `;
-          const callOptions = { floor: msg.floor, meta: metaContent };
-          const callRow = window.renderMessage(msg.senderRole, b, callOptions);
-          // ❌ 同样，把下面这一行删掉！
-          // if (window.bindCallInvite) window.bindCallInvite(callRow.querySelector('.bubble-wrap'));
+            <div class="call-invite-icon ${isVideo ? 'video' : 'voice'} ended">
+              <i class="fa-solid ${iconName}"></i>
+            </div>
+            <div class="call-invite-info">
+              <div class="call-invite-label">${mediaLabel}</div>
+              <div class="call-invite-sub">${subText}</div>
+              ${durHtml}
+            </div>
+            ${actionHtml}
+          `;
+
+          const callRow = window.renderMessage(msg.senderRole, b, { floor: msg.floor, meta: metaContent });
           return;
         }
 
@@ -7225,11 +7693,13 @@
 
       // ··默认发送者是用户
       let currentSender = 'user';
+      window.currentSender = 'user';  // ★ 同步到全局，供 sendCall 等函数读取
 
       const userChip = document.querySelector('.user-chip');
       userChip.style.cursor = 'pointer';
       userChip.addEventListener('click', () => {
         currentSender = currentSender === 'user' ? 'char' : 'user';
+        window.currentSender = currentSender;  // ★ 切换时同步更新全局
         userChip.classList.toggle('is-char-mode', currentSender === 'char');
         // 小提示
         console.log('当前发送身份:', currentSender);
@@ -9847,6 +10317,8 @@
         const storyTimeToggle = document.getElementById('settingStoryTimeEnabled');
         // 日程开关
         const scheduleToggle = document.getElementById('settingScheduleEnabled');
+        // 心声开关
+        const innerVoiceToggle = document.getElementById('settingInnerVoiceEnabled');
 
         // 初始化：打开页面时从数据库读取当前设置
         // 挂到 window 上，供 initChatRoom 切换聊天室时也能调用
@@ -9875,9 +10347,14 @@
             if (scheduleToggle) {
               scheduleToggle.checked = settings.scheduleEnabled !== false;
             }
+            // 心声开关（默认 true）
+            if (innerVoiceToggle) {
+              innerVoiceToggle.checked = settings.innerVoiceEnabled !== false;
+            }
             // 同步写入全局缓存，供气泡渲染同步读取
             window.__timestampEnabled = settings.timestampEnabled !== false;
             window.__storyTimeEnabled = settings.storyTimeEnabled === true;
+            window.__innerVoiceEnabled = settings.innerVoiceEnabled !== false;
           } catch (e) {
             console.error('[Settings] 读取设置失败', e);
           }
@@ -9907,9 +10384,12 @@
             existingConfig.storyTimeEnabled = storyTimeToggle ? storyTimeToggle.checked : false;
             // 保存日程开关
             existingConfig.scheduleEnabled = scheduleToggle ? scheduleToggle.checked : true;
+            // 保存心声开关
+            existingConfig.innerVoiceEnabled = innerVoiceToggle ? innerVoiceToggle.checked : true;
             // 同步更新全局缓存
             window.__timestampEnabled = existingConfig.timestampEnabled;
             window.__storyTimeEnabled = existingConfig.storyTimeEnabled === true;
+            window.__innerVoiceEnabled = existingConfig.innerVoiceEnabled !== false;
             await dbPut('config', existingConfig);
             console.log('[Settings] 聊天设置已保存:', existingConfig);
           } catch (err) {
@@ -9946,6 +10426,12 @@ storyTimeToggle.addEventListener('change', async () => {
         // 日程开关 change 时立即保存
         if (scheduleToggle) {
           scheduleToggle.addEventListener('change', async () => {
+            await saveSettings();
+          });
+        }
+        // 心声开关 change 时立即保存
+        if (innerVoiceToggle) {
+          innerVoiceToggle.addEventListener('change', async () => {
             await saveSettings();
           });
         }
@@ -10781,5 +11267,71 @@ storyTimeToggle.addEventListener('change', async () => {
     <script src="TsukiBridge.js"></script>
     <script src="GalleryPicker.js"></script>
     <script src="TsukiInner.js"></script>
+
+    <!-- ══ CALL HUB OVERLAY ══════════════════════════════════════════════ -->
+    <div id="callHubOverlay" style="
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 8888;
+      background: #000;
+    ">
+      <iframe
+        id="callHubIframe"
+        src=""
+        style="width:100%; height:100%; border:none; display:block;"
+        allow="camera; microphone"
+      ></iframe>
+    </div>
+
+    <script>
+      // ── 打开通话中心 / 直接跳通话页 ─────────────────────────────────
+      // chatId   : 当前聊天 ID
+      // opts     : { directTo: 'tsuki-call-voice.html?...' }  可选，有则直接加载该页
+      window.openCallHub = function (chatId, opts) {
+        const overlay = document.getElementById('callHubOverlay');
+        const iframe  = document.getElementById('callHubIframe');
+
+        if (opts && opts.directTo) {
+          // 接听后：先经过 hub（hub 会读最新数据后再跳通话页）
+          const hubSrc = `tsuki-call-hub.html?chatId=${encodeURIComponent(chatId)}&directTo=${encodeURIComponent(opts.directTo)}`;
+          console.log('%c[tsukiphone] 📲 iframe → hub(中转) →', 'color:#5b9cfa;font-weight:bold', opts.directTo);
+          iframe.src = hubSrc;
+        } else {
+          // 点击气泡本体 → 直接进 hub 首页
+          const src = `tsuki-call-hub.html?chatId=${encodeURIComponent(chatId)}`;
+          console.log('%c[tsukiphone] 📲 iframe → hub', 'color:#a855f7;font-weight:bold', src);
+          iframe.src = src;
+        }
+
+        overlay.style.display = 'block';
+        console.log('%c[tsukiphone] ✅ callHubOverlay 已展开', 'color:#43d9a0');
+      };
+
+      // ── 关闭通话中心 ─────────────────────────────────────────────────
+      window.closeCallHub = function () {
+        const overlay = document.getElementById('callHubOverlay');
+        const iframe  = document.getElementById('callHubIframe');
+        overlay.style.display = 'none';
+        iframe.src = '';
+        console.log('%c[tsukiphone] 🔒 callHubOverlay 已关闭', 'color:#fa5b5b');
+      };
+
+      // 监听子页面发来的关闭信号
+      window.addEventListener('message', function (e) {
+        if (e.data && e.data.type === 'CLOSE_CALL_HUB') {
+          window.closeCallHub();
+        }
+      });
+
+      // 点击 call-invite 气泡本体（非按钮）→ 进 hub 首页
+      document.addEventListener('click', function (e) {
+        const bubble = e.target.closest('.bubble.call-invite');
+        if (bubble && !e.target.closest('button') && !e.target.closest('.call-invite-btn')) {
+          const chatId = window.currentChatId;
+          if (chatId) window.openCallHub(chatId);
+        }
+      });
+    </script>
   </body>
 </html>

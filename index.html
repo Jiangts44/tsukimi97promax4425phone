@@ -2109,9 +2109,9 @@
                 <div class="dock-icon di-settings"><i class="fa-solid fa-gear"></i></div>
                 <div class="dock-label">Settings</div>
               </div>
-              <div class="dock-item">
+              <div class="dock-item" onclick="openApp('tsuki-call-hub.html')">
                 <div class="dock-icon di-phone"><i class="fa-solid fa-phone"></i></div>
-                <div class="dock-label">Phone</div>
+                <div class="dock-label">Call</div>
               </div>
               <div class="dock-item">
                 <div class="dock-icon di-browse"><i class="fa-solid fa-globe"></i></div>
@@ -2614,6 +2614,9 @@
           return iframe;
         }
 
+        // 不使用 iframe 缓存、每次打开都强制重新加载的页面白名单
+        const NO_CACHE_APPS = new Set(['tsuki-call-hub.html']);
+
         // 核心：通用打开 App 函数
         window.openApp = function (url) {
           // 隐藏当前显示的 iframe
@@ -2625,6 +2628,13 @@
           }
 
           const frame = frameCache.get(url);
+
+          // ★ 方案一：白名单内的页面每次打开都重置 src，强制重新加载最新数据
+          if (NO_CACHE_APPS.has(url)) {
+            frame.src = url;
+            console.log('%c[AppOverlay] 🔄 强制重载(no-cache): ' + url, 'color:#f9c784;font-weight:600');
+          }
+
           frame.style.display = 'block';
           activeFrame = frame;
 

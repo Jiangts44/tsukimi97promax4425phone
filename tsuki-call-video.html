@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tsuki · 视频通话</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&family=Fraunces:ital,opsz,wght@1,9..144,300..900&display=swap" rel="stylesheet" />
+  <script src="db-schema.js"></script>
+
+  <style>
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+    :root {
+      --video: #5b9cfa;
+      --video-dim: rgba(91, 156, 250, .15);
+      --ink: #e8e8f0;
+      --ink-2: #a0a0b8;
+      --ink-3: #55556a;
+    }
+
+    html, body {
+      width: 100%; height: 100%;
+      background: #000;
+      color: var(--ink);
+      font-family: 'Geist', sans-serif;
+      overflow: hidden;
+    }
+
+    /* ── 主视频区（占满全屏，模拟远端画面） ── */
+    .video-bg {
+      position: fixed;
+      inset: 0;
+      background:
+        linear-gradient(135deg, #050510 0%, #0a0a1a 40%, #060612 100%);
+      z-index: 0;
+    }
+    /* 静态噪点模拟视频纹理 */
+    .video-bg::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      opacity: .04;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+    /* 扫描线 */
+    .video-bg::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 3px,
+        rgba(255,255,255,.008) 3px,
+        rgba(255,255,255,.008) 6px
+      );
+    }
+
+    /* 背景光晕 */
+    .bg-orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(100px);
+      pointer-events: none;
+      z-index: 1;
+    }
+    .bg-orb-1 {
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(91,156,250,.15) 0%, transparent 70%);
+      top: -80px; right: -80px;
+      animation: orbFloat 12s ease-in-out infinite;
+    }
+    .bg-orb-2 {
+      width: 300px; height: 300px;
+      background: radial-gradient(circle, rgba(168,85,247,.1) 0%, transparent 70%);
+      bottom: 100px; left: -60px;
+      animation: orbFloat 9s ease-in-out infinite reverse;
+    }
+    @keyframes orbFloat {
+      0%, 100% { transform: translate(0,0) scale(1); }
+      50%       { transform: translate(15px,20px) scale(1.06); }
+    }
+
+    /* ── 顶部覆盖层 ── */
+    .top-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 140px;
+      background: linear-gradient(to bottom, rgba(0,0,0,.7), transparent);
+      z-index: 10;
+      display: flex;
+      align-items: flex-start;
+      padding: 52px 20px 0;
+      gap: 12px;
+    }
+    .back-btn {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.15);
+      color: var(--ink-2);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      font-size: 13px;
+      transition: background .15s;
+      flex-shrink: 0;
+    }
+    .back-btn:hover { background: rgba(255,255,255,.18); }
+
+    .call-type-badge {
+      font-family: 'Geist Mono', monospace;
+      font-size: 9px;
+      letter-spacing: .14em;
+      color: var(--video);
+      background: rgba(91,156,250,.18);
+      border: 1px solid rgba(91,156,250,.3);
+      padding: 4px 10px;
+      border-radius: 20px;
+      align-self: center;
+    }
+
+    /* 录制指示器 */
+    .rec-dot {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Geist Mono', monospace;
+      font-size: 9px;
+      letter-spacing: .1em;
+      color: rgba(255,255,255,.5);
+    }
+    .rec-dot::before {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #fa5b5b;
+      animation: recBlink 1.5s ease-in-out infinite;
+    }
+    @keyframes recBlink {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: .2; }
+    }
+
+    /* ── 主体（中央信息） ── */
+    .center-block {
+      position: fixed;
+      inset: 0;
+      z-index: 5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      pointer-events: none;
+    }
+
+    /* 头像（主视频占位符） */
+    .main-avatar-wrap {
+      position: relative;
+      margin-bottom: 20px;
+    }
+    .main-avatar-ring {
+      position: absolute;
+      inset: -8px;
+      border-radius: 26px;
+      border: 2px solid rgba(91,156,250,.3);
+      animation: ringPulse 2.5s ease-in-out infinite;
+    }
+    @keyframes ringPulse {
+      0%, 100% { opacity: .3; transform: scale(1); }
+      50%       { opacity: .7; transform: scale(1.015); }
+    }
+
+    .main-avatar {
+      width: 110px; height: 110px;
+      border-radius: 24px;
+      background: rgba(91,156,250,.08);
+      border: 2px solid rgba(91,156,250,.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 40px;
+      color: var(--ink-3);
+      overflow: hidden;
+      position: relative;
+      z-index: 1;
+    }
+    .main-avatar img { width:100%; height:100%; object-fit:cover; }
+
+    .char-name {
+      font-family: 'Fraunces', serif;
+      font-size: 26px;
+      font-weight: 700;
+      font-style: italic;
+      color: var(--ink);
+      margin-bottom: 6px;
+      text-align: center;
+      text-shadow: 0 2px 20px rgba(0,0,0,.8);
+    }
+    .char-sub {
+      font-size: 13px;
+      color: var(--ink-2);
+      text-shadow: 0 1px 8px rgba(0,0,0,.9);
+    }
+
+    /* ── 小视频框（右上角，自己的预览） ── */
+    .self-video {
+      position: fixed;
+      top: 100px;
+      right: 16px;
+      width: 88px;
+      height: 118px;
+      border-radius: 16px;
+      background: #0a0a18;
+      border: 2px solid rgba(255,255,255,.12);
+      z-index: 20;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,.6);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .self-video-noise {
+      position: absolute;
+      inset: 0;
+      opacity: .06;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+    .self-video-icon {
+      font-size: 22px;
+      color: var(--ink-3);
+      position: relative;
+      z-index: 1;
+    }
+    .self-video-label {
+      font-family: 'Geist Mono', monospace;
+      font-size: 8px;
+      color: var(--ink-3);
+      letter-spacing: .08em;
+      position: relative;
+      z-index: 1;
+    }
+    /* 相机禁用指示 */
+    .self-video-off {
+      position: absolute;
+      bottom: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 9px;
+      color: rgba(255,255,255,.3);
+    }
+
+    /* ── 底部覆盖层 ── */
+    .bottom-overlay {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: 180px;
+      background: linear-gradient(to top, rgba(0,0,0,.75), transparent);
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 0 24px 40px;
+      gap: 10px;
+    }
+
+    .placeholder-chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Geist Mono', monospace;
+      font-size: 9px;
+      letter-spacing: .1em;
+      color: rgba(255,255,255,.3);
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 20px;
+      padding: 5px 12px;
+    }
+    .placeholder-chip::before {
+      content: '';
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: var(--video);
+      opacity: .5;
+    }
+
+    .timestamp-row {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+    }
+    .timestamp-label {
+      font-family: 'Geist Mono', monospace;
+      font-size: 9px;
+      color: rgba(255,255,255,.3);
+      letter-spacing: .14em;
+    }
+    .timestamp-value {
+      font-family: 'Geist Mono', monospace;
+      font-size: 12px;
+      color: rgba(255,255,255,.55);
+      letter-spacing: .04em;
+    }
+    .raw-ts {
+      font-family: 'Geist Mono', monospace;
+      font-size: 10px;
+      color: rgba(255,255,255,.2);
+    }
+  </style>
+</head>
+<body>
+
+<div class="video-bg"></div>
+<div class="bg-orb bg-orb-1"></div>
+<div class="bg-orb bg-orb-2"></div>
+
+<!-- 右上角小视频框 -->
+<div class="self-video">
+  <div class="self-video-noise"></div>
+  <div class="self-video-icon"><i class="fa-solid fa-user"></i></div>
+  <div class="self-video-label">YOU</div>
+  <div class="self-video-off"><i class="fa-solid fa-video-slash"></i></div>
+</div>
+
+<!-- 顶部 -->
+<div class="top-overlay">
+  <div class="back-btn" id="backBtn">
+    <i class="fa-solid fa-chevron-left"></i>
+  </div>
+  <div class="call-type-badge">
+    <i class="fa-solid fa-video"></i> &nbsp;VIDEO CALL
+  </div>
+  <div class="rec-dot">REC</div>
+</div>
+
+<!-- 中央 -->
+<div class="center-block">
+  <div class="main-avatar-wrap">
+    <div class="main-avatar-ring"></div>
+    <div class="main-avatar" id="charAvatar">
+      <i class="fa-solid fa-user-astronaut"></i>
+    </div>
+  </div>
+  <div class="char-name" id="charName">—</div>
+  <div class="char-sub" id="charSub">视频通话</div>
+</div>
+
+<!-- 底部 -->
+<div class="bottom-overlay">
+  <div class="placeholder-chip">PLACEHOLDER · VIDEO PAGE</div>
+  <div class="timestamp-row">
+    <div class="timestamp-label">接听时间</div>
+    <div class="timestamp-value" id="tsValue">—</div>
+    <div class="raw-ts" id="rawTs">—</div>
+  </div>
+</div>
+
+<script>
+  const p      = new URLSearchParams(location.search);
+  const chatId = p.get('chatId') || '';
+  const floor  = parseInt(p.get('floor') || '-1');
+  const ts     = parseInt(p.get('ts')    || '0');
+
+  /* ── 返回 ── */
+  document.getElementById('backBtn').addEventListener('click', () => {
+    if (window.self !== window.top) {
+      window.parent.postMessage({ type: 'CLOSE_CALL_HUB' }, '*');
+    } else {
+      history.back();
+    }
+  });
+
+  /* ── 时间戳 ── */
+  if (ts) {
+    const d = new Date(ts);
+    document.getElementById('tsValue').textContent =
+      d.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })
+      + ' ' + d.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    document.getElementById('rawTs').textContent = `ts: ${ts}`;
+  }
+
+  /* ── DB 读取 ── */
+  const IDB_NAME = 'tsukiphonepromax';
+
+  async function openDb() {
+    return new Promise((resolve, reject) => {
+      const req = indexedDB.open(IDB_NAME);
+      req.onsuccess = e => resolve(e.target.result);
+      req.onerror   = e => reject(e.target.error);
+    });
+  }
+
+  async function loadInfo() {
+    if (!chatId || floor < 0) return;
+    try {
+      const db  = window.__tsukiDb || await openDb();
+      const txM = db.transaction('messages', 'readonly');
+      const msg = await new Promise((res, rej) => {
+        const r = txM.objectStore('messages').get([chatId, floor]);
+        r.onsuccess = e => res(e.target.result);
+        r.onerror   = e => rej(e.target.error);
+      });
+      if (!msg) return;
+
+      const txC  = db.transaction('chats', 'readonly');
+      const chat = await new Promise((res, rej) => {
+        const r = txC.objectStore('chats').get(chatId);
+        r.onsuccess = e => res(e.target.result);
+        r.onerror   = e => rej(e.target.error);
+      });
+      if (!chat) return;
+
+      const charId = chat.charIds && chat.charIds[0];
+      if (!charId) return;
+
+      const txCh = db.transaction('chars', 'readonly');
+      const char = await new Promise((res, rej) => {
+        const r = txCh.objectStore('chars').get(charId);
+        r.onsuccess = e => res(e.target.result);
+        r.onerror   = e => rej(e.target.error);
+      });
+      if (!char) return;
+
+      const avatarEl = document.getElementById('charAvatar');
+      if (char.avatar) {
+        avatarEl.innerHTML = `<img src="${char.avatar}" alt="">`;
+      }
+
+      const isGroup = chat.type === 'group';
+      document.getElementById('charName').textContent = isGroup
+        ? (chat.name || '群聊')
+        : (char.remark || char.name);
+
+      document.getElementById('charSub').textContent = isGroup
+        ? '群视频通话'
+        : char.name + ' · 视频通话';
+
+    } catch (e) {
+      console.warn('[video-page] 加载信息失败:', e);
+    }
+  }
+
+  loadInfo();
+</script>
+</body>
+</html>

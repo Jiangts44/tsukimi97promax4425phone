@@ -984,8 +984,58 @@ async function buildChatHistoryPrompt(chatId, historyCount = 0) {
         if (stickerUrl.startsWith('//')) stickerUrl = 'https:' + stickerUrl;
         content = stickerUrl ? `${cleanName}|${stickerUrl}` : cleanName;
       } else if (msgType === 'call') {
+        const callType  = content.callType === 'video' ? '视频通话' : '语音通话';
+        const callState = content.callState || 'ringing';
+        const duration  = content.duration  || 0;    // 秒数（user 挂断时存入）
+        const answeredAt = content.answeredAt || null; // 接通时间戳
+
+        // 格式化秒数为 MM:SS
+        function _fmtCallDur(sec) {
+          const m = Math.floor(sec / 60), s = sec % 60;
+          return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+        }
+
+        // 正在通话中（answered 且无配对 ended）：计算实时已通话时长
+        let stateLabel;
+        if (callState === 'answered') {
+          if (answeredAt) {
+            const elapsedSec = Math.max(0, Math.floor((Date.now() - answeredAt) / 1000));
+            stateLabel = `正在通话中（已通话 ${_fmtCallDur(elapsedSec)}）`;
+          } else {
+            stateLabel = '正在通话中';
+          }
+        } else if (callState === 'ended') {
+          stateLabel = duration > 0 ? `已结束（通话时长 ${_fmtCallDur(duration)}）` : '已结束';
+        } else if (callState === 'canceled') {
+          stateLabel = msg.senderRole === 'user' ? '已取消（用户撤销）' : '已取消（角色撤销）';
+        } else if (callState === 'missed') {
+          // ★ missed — renderHistoryBubble 重进页面时将 ringing 升级为此状态
+          // 表示 AI 曾发出邀请但用户始终未接听，属于终态
+          stateLabel = msg.senderRole === 'char' ? '未接听（用户未接）' : '未接听（角色未接）';
+        } else {
+          // ringing — DB 里仍为 ringing，说明尚未经过 renderHistoryBubble 的 missed 升级
+          // （正常情况下重进页面后都会被升级为 missed；极少数情况下可能刚写库还没刷新）
+          // 策略：只查找紧邻该 floor 之后的第一条 call 记录，判断是否是本次通话的接听记录
+          // 不跨越多条 call 进行全局匹配，避免把不同次通话的 answered 误判为「已接听」
+          const nextCall = allSorted.find(
+            m => m.floor > msg.floor && m.type === 'call'
+          );
+          const thisCallAnswered = nextCall
+            && (nextCall.content?.callState === 'answered' || nextCall.content?.callState === 'ended')
+            && nextCall.content?.callType === content.callType; // 同一通话类型（voice/video）
+
+          if (thisCallAnswered) {
+            stateLabel = msg.senderRole === 'user' ? '呼出中（已接听）' : '呼入中（已接听）';
+          } else if (msg.senderRole === 'user') {
+    // ★ 修复：user 主动发出的通话，仍在振铃，AI 还没有机会接或拒绝
+    stateLabel = '呼出中（振铃中，等待接听）';   // ← 改这里
+  } else {
+    stateLabel = '未接听（用户未接）';
+  }
+        }
+
         msgType = content.callType === 'video' ? 'video_call' : 'voice_call';
-        content = content.callType === 'video' ? '视频通话邀请' : '语音通话邀请';
+        content = `${callType}·${stateLabel}`;
       } else if (msgType === 'camera') {
         content = `[发送了${content.urls?.length || 0}张照片]`;
       } else {

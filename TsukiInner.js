@@ -2358,12 +2358,13 @@
           ? await assembleCharacterPrompts(charIds, latestMessage, chatUserId)
           : [];
 
-        // Step 2：buildFinalPromptStream — 全局世界书头/中/尾 + 局部世界书 + 历史记录
+        // Step 2：buildFinalPromptStream — 全局世界书头/中/尾 + 局部世界书 + 全量历史记录
+        const RECENT_FOCUS = 20; // AI 重点关注的最新消息条数
         if (typeof buildFinalPromptStream === 'function') {
           fullPromptParts = await buildFinalPromptStream(
             charIds,
             personaPrompts,
-            30,          // 取最近 30 条历史
+            0,           // 传 0 → PromptHelper 内部读取全量历史
             'Online',    // 线上聊天场景
             latestMessage,
             chatId,
@@ -2372,6 +2373,21 @@
           // 降级：至少把人设分片放进去
           fullPromptParts = personaPrompts;
           console.warn('[TsukiInner] buildFinalPromptStream 不可用，仅使用人设分片');
+        }
+
+        // ── 单独拉最近 RECENT_FOCUS 条，附加「重点关注」标记块 ──
+        if (typeof buildChatHistoryPrompt === 'function') {
+          try {
+            const recentLines = await buildChatHistoryPrompt(chatId, RECENT_FOCUS);
+            if (recentLines.length) {
+              fullPromptParts.push(
+                `========== 最近 ${RECENT_FOCUS} 条对话（请重点关注） ==========`,
+                ...recentLines,
+                `========== 重点对话结束 ==========`,
+                `[系统指令] 以上「最近 ${RECENT_FOCUS} 条对话」是角色此刻心声的直接触发源，请优先以此作为心声报告的核心依据，全量历史记录仅作为背景参考。`,
+              );
+            }
+          } catch(_) {}
         }
       } catch(e) {
         console.warn('[TsukiInner] PromptHelper 构建失败，降级为空上下文:', e);
@@ -2473,6 +2489,15 @@
   window.TsukiInner = {
     openPocket, closePocket,
     triggerWeather, spawnPara,
+
+    /** 解析 AI 返回的 <inner>...</inner> 块（供 TsukiSend 调用） */
+    parseInnerResponse,
+
+    /** 播放心声动画（关面板→情绪飘屏→批注→平行宇宙气泡，供 TsukiSend 调用） */
+    playInnerAnimation,
+
+    /** 心声系统提示词原文（供 TsukiSend 注入到 systemPrompt，供外部读取） */
+    INNER_SYSTEM_PROMPT,
 
     /** AI 推送状态（一条完整心声记录） */
     async pushState(obj) {

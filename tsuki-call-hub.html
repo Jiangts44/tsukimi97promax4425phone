@@ -1,0 +1,1108 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tsuki · 通话</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&display=swap" rel="stylesheet" />
+  <script src="db-schema.js"></script>
+
+  <style>
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+    :root {
+      --bg:       #080810;
+      --bg-2:     #0f0f1a;
+      --bg-3:     #16162a;
+      --card:     #12121f;
+      --card-2:   #1a1a2e;
+      --border:   rgba(255,255,255,0.07);
+      --border-2: rgba(255,255,255,0.12);
+      --ink:      #e8e8f0;
+      --ink-2:    #a0a0b8;
+      --ink-3:    #60607a;
+      --accent:   #7c6cfa;
+      --accent-2: #a855f7;
+      --voice:    #43d9a0;
+      --video:    #5b9cfa;
+      --ended:    #60607a;
+      --missed:   #fa5b5b;
+    }
+
+    html, body {
+      width: 100%; height: 100%;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'Geist', sans-serif;
+      overflow: hidden;
+    }
+
+    /* ── 页面结构 ── */
+    .page {
+      width: 100%; height: 100%;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* ── 顶栏 ── */
+    .topbar {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 18px 20px 14px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+      position: relative;
+      z-index: 10;
+    }
+    .topbar-back {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      background: var(--card);
+      border: 1px solid var(--border-2);
+      color: var(--ink-2);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      font-size: 13px;
+      transition: background .15s, color .15s;
+      flex-shrink: 0;
+    }
+    .topbar-back:hover { background: var(--card-2); color: var(--ink); }
+    .topbar-title {
+      flex: 1;
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: .02em;
+    }
+    .topbar-sub {
+      font-family: 'Geist Mono', monospace;
+      font-size: 10px;
+      color: var(--ink-3);
+      letter-spacing: .12em;
+    }
+    .topbar-badge {
+      font-family: 'Geist Mono', monospace;
+      font-size: 9px;
+      padding: 3px 8px;
+      background: var(--card-2);
+      border: 1px solid var(--border-2);
+      border-radius: 20px;
+      color: var(--ink-3);
+      letter-spacing: .08em;
+    }
+
+    /* ── 主滚动区 ── */
+    .main-scroll {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 16px 16px 0;
+      /* 底部留出抽屉高度 */
+      padding-bottom: 80px;
+    }
+    .main-scroll::-webkit-scrollbar { width: 0; }
+
+    /* ── 区块标题 ── */
+    .section-label {
+      font-family: 'Geist Mono', monospace;
+      font-size: 9px;
+      color: var(--ink-3);
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      padding-left: 2px;
+    }
+
+    /* ── char 卡片网格 ── */
+    .chars-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .char-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 16px 14px 14px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: border-color .2s, background .2s, transform .15s;
+      user-select: none;
+    }
+    .char-card::before {
+      content: '';
+      position: absolute;
+      top: -30px; right: -30px;
+      width: 90px; height: 90px;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+      opacity: 0;
+      transition: opacity .3s;
+      pointer-events: none;
+    }
+    .char-card:hover::before, .char-card:active::before { opacity: .12; }
+    .char-card:active { transform: scale(.97); }
+    .char-card:hover { border-color: var(--border-2); background: var(--card-2); }
+
+    .char-card-avatar {
+      width: 44px; height: 44px;
+      border-radius: 14px;
+      background: var(--card-2);
+      border: 1px solid var(--border-2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      color: var(--ink-3);
+      margin-bottom: 10px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .char-card-avatar img { width:100%; height:100%; object-fit:cover; }
+
+    .char-card-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .char-card-remark {
+      font-size: 11px;
+      color: var(--ink-3);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 10px;
+    }
+    .char-card-stats {
+      display: flex;
+      gap: 6px;
+    }
+    .char-stat {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-family: 'Geist Mono', monospace;
+      font-size: 9px;
+      color: var(--ink-3);
+      background: var(--bg-3);
+      border-radius: 8px;
+      padding: 3px 7px;
+    }
+    .char-stat i { font-size: 8px; }
+    .char-stat.voice-stat i { color: var(--voice); }
+    .char-stat.video-stat i { color: var(--video); }
+    .char-stat.zero { opacity: .4; }
+
+    /* ── 空状态 ── */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 48px 24px;
+      gap: 10px;
+      color: var(--ink-3);
+    }
+    .empty-state i { font-size: 28px; opacity: .3; }
+    .empty-state p { font-size: 13px; text-align: center; line-height: 1.6; }
+
+    /* ── 底部抽屉：群聊 ── */
+    .drawer {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      z-index: 20;
+      transition: transform .35s cubic-bezier(.32,.72,0,1);
+    }
+    .drawer-handle-zone {
+      background: linear-gradient(to top, var(--bg-2), transparent);
+      padding: 8px 0 0;
+      display: flex;
+      justify-content: center;
+      cursor: pointer;
+    }
+    .drawer-handle {
+      width: 36px; height: 4px;
+      border-radius: 2px;
+      background: var(--border-2);
+      transition: background .2s;
+    }
+    .drawer-handle-zone:hover .drawer-handle { background: var(--ink-3); }
+
+    .drawer-body {
+      background: var(--bg-2);
+      border-top: 1px solid var(--border);
+      height: 0;
+      overflow: hidden;
+      transition: height .35s cubic-bezier(.32,.72,0,1);
+    }
+    .drawer.open .drawer-body {
+      height: 240px;
+    }
+
+    .drawer-inner {
+      padding: 14px 16px 32px;
+      height: 100%;
+      overflow-y: auto;
+    }
+    .drawer-inner::-webkit-scrollbar { width: 0; }
+
+    .drawer-title {
+      font-family: 'Geist Mono', monospace;
+      font-size: 9px;
+      color: var(--ink-3);
+      letter-spacing: .15em;
+      margin-bottom: 12px;
+    }
+
+    /* 群聊行 */
+    .group-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background .15s;
+      margin-bottom: 4px;
+    }
+    .group-row:hover { background: var(--card); }
+    .group-row:active { background: var(--card-2); }
+
+    .group-avatar {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      background: var(--card-2);
+      border: 1px solid var(--border-2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+      color: var(--ink-3);
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .group-avatar img { width:100%; height:100%; object-fit:cover; }
+
+    .group-info { flex: 1; min-width: 0; }
+    .group-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--ink);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .group-sub {
+      font-size: 11px;
+      color: var(--ink-3);
+      margin-top: 1px;
+    }
+    .group-arrow {
+      color: var(--ink-3);
+      font-size: 11px;
+    }
+
+    /* ══ 悬浮面板：书页+票根 ══ */
+    .panel-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: flex;
+      align-items: flex-end;
+      background: rgba(0,0,0,.6);
+      backdrop-filter: blur(6px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .3s;
+    }
+    .panel-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .panel-sheet {
+      width: 100%;
+      max-height: 82vh;
+      background: var(--bg-2);
+      border-radius: 24px 24px 0 0;
+      border-top: 1px solid var(--border-2);
+      display: flex;
+      flex-direction: column;
+      transform: translateY(100%);
+      transition: transform .35s cubic-bezier(.32,.72,0,1);
+      overflow: hidden;
+    }
+    .panel-overlay.open .panel-sheet {
+      transform: translateY(0);
+    }
+
+    /* 票根撕边装饰 */
+    .panel-ticket-edge {
+      flex-shrink: 0;
+      height: 14px;
+      position: relative;
+      overflow: hidden;
+      margin: 0 -1px;
+    }
+    .panel-ticket-edge::before {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 14px;
+      background:
+        radial-gradient(circle at 10px -2px, var(--bg-2) 8px, transparent 8px),
+        radial-gradient(circle at 30px -2px, var(--bg-2) 8px, transparent 8px),
+        radial-gradient(circle at 50px -2px, var(--bg-2) 8px, transparent 8px),
+        radial-gradient(circle at 70px -2px, var(--bg-2) 8px, transparent 8px),
+        radial-gradient(circle at 90px -2px, var(--bg-2) 8px, transparent 8px),
+        radial-gradient(circle at 110px -2px, var(--bg-2) 8px, transparent 8px),
+        radial-gradient(circle at 130px -2px, var(--bg-2) 8px, transparent 8px),
+        radial-gradient(circle at 150px -2px, var(--bg-2) 8px, transparent 8px),
+        radial-gradient(circle at 170px -2px, var(--bg-2) 8px, transparent 8px),
+        radial-gradient(circle at 190px -2px, var(--bg-2) 8px, transparent 8px),
+        radial-gradient(circle at 210px -2px, var(--bg-2) 8px, transparent 8px),
+        radial-gradient(circle at 230px -2px, var(--bg-2) 8px, transparent 8px),
+        radial-gradient(circle at 250px -2px, var(--bg-2) 8px, transparent 8px),
+        radial-gradient(circle at 270px -2px, var(--bg-2) 8px, transparent 8px),
+        radial-gradient(circle at 290px -2px, var(--bg-2) 8px, transparent 8px),
+        radial-gradient(circle at 310px -2px, var(--bg-2) 8px, transparent 8px),
+        radial-gradient(circle at 330px -2px, var(--bg-2) 8px, transparent 8px),
+        radial-gradient(circle at 350px -2px, var(--bg-2) 8px, transparent 8px),
+        radial-gradient(circle at 370px -2px, var(--bg-2) 8px, transparent 8px),
+        radial-gradient(circle at 390px -2px, var(--bg-2) 8px, transparent 8px);
+      background-color: var(--card);
+      background-size: 20px 14px;
+    }
+
+    /* 书页顶部装饰线 */
+    .panel-book-header {
+      flex-shrink: 0;
+      padding: 14px 18px 0;
+      background: var(--card);
+      border-bottom: 1px dashed var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .panel-book-avatar {
+      width: 40px; height: 40px;
+      border-radius: 12px;
+      background: var(--bg-3);
+      border: 1px solid var(--border-2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+      color: var(--ink-3);
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .panel-book-avatar img { width:100%; height:100%; object-fit:cover; }
+    .panel-book-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .panel-book-id {
+      font-family: 'Geist Mono', monospace;
+      font-size: 9px;
+      color: var(--ink-3);
+      letter-spacing: .1em;
+      margin-top: 1px;
+    }
+    .panel-close {
+      margin-left: auto;
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      background: var(--bg-3);
+      border: 1px solid var(--border);
+      color: var(--ink-3);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      font-size: 12px;
+      transition: background .15s, color .15s;
+    }
+    .panel-close:hover { background: var(--card-2); color: var(--ink); }
+
+    /* 书页正文 */
+    .panel-scroll {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      background: var(--bg-2);
+    }
+    .panel-scroll::-webkit-scrollbar { width: 0; }
+
+    /* 通话类型分区 */
+    .call-section {
+      padding: 14px 16px 0;
+    }
+    .call-section + .call-section {
+      border-top: 1px dashed var(--border);
+      margin-top: 4px;
+    }
+    .call-section-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .call-section-icon {
+      width: 26px; height: 26px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px;
+      flex-shrink: 0;
+    }
+    .call-section-icon.voice { background: rgba(67,217,160,.12); color: var(--voice); }
+    .call-section-icon.video { background: rgba(91,156,250,.12); color: var(--video); }
+
+    .call-section-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--ink-2);
+      letter-spacing: .04em;
+    }
+    .call-section-count {
+      font-family: 'Geist Mono', monospace;
+      font-size: 9px;
+      color: var(--ink-3);
+      margin-left: auto;
+    }
+
+    /* 通话记录行 */
+    .call-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      cursor: pointer;
+      margin-bottom: 4px;
+      transition: background .15s;
+      position: relative;
+    }
+    .call-row:hover { background: var(--card); }
+    .call-row:active { background: var(--card-2); transform: scale(.99); }
+
+    .call-row-icon {
+      width: 34px; height: 34px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+    .call-row-icon.voice { background: rgba(67,217,160,.12); color: var(--voice); }
+    .call-row-icon.video { background: rgba(91,156,250,.12); color: var(--video); }
+    .call-row-icon.ended { background: rgba(96,96,122,.1); color: var(--ended); }
+
+    .call-row-info { flex: 1; min-width: 0; }
+    .call-row-time {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--ink);
+    }
+    .call-row-meta {
+      font-size: 11px;
+      color: var(--ink-3);
+      margin-top: 1px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .call-row-dur {
+      font-family: 'Geist Mono', monospace;
+      font-size: 10px;
+      color: var(--ink-3);
+      background: var(--bg-3);
+      padding: 2px 7px;
+      border-radius: 6px;
+    }
+    .call-row-enter {
+      width: 28px; height: 28px;
+      border-radius: 8px;
+      background: var(--card-2);
+      border: 1px solid var(--border-2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px;
+      color: var(--ink-3);
+      flex-shrink: 0;
+      transition: background .15s, color .15s, border-color .15s;
+    }
+    .call-row:hover .call-row-enter {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    /* 底部安全区 */
+    .panel-bottom-pad { height: 20px; flex-shrink: 0; background: var(--bg-2); }
+
+    /* 无记录 */
+    .call-empty {
+      padding: 16px 12px 20px;
+      font-size: 12px;
+      color: var(--ink-3);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .call-empty i { opacity: .4; }
+
+    /* loading */
+    .loading-dots {
+      display: flex;
+      gap: 5px;
+      padding: 40px;
+      justify-content: center;
+    }
+    .loading-dots span {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--ink-3);
+      animation: ld .9s ease-in-out infinite;
+    }
+    .loading-dots span:nth-child(2) { animation-delay: .15s; }
+    .loading-dots span:nth-child(3) { animation-delay: .3s; }
+    @keyframes ld { 0%,80%,100%{transform:scale(.6);opacity:.3} 40%{transform:scale(1);opacity:1} }
+
+    /* 背景噪点 */
+    .noise {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      opacity: .025;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    }
+
+    /* ── 过渡蒙版 ── */
+    #transitionMask {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      pointer-events: none;
+      opacity: 1;
+      transition: opacity .4s ease;
+    }
+    #transitionMask.fade-out {
+      opacity: 0;
+    }
+    #transitionMask.fade-in {
+      opacity: 1;
+    }
+    #transitionMask.hidden {
+      display: none;
+    }
+    .mask-icon {
+      width: 52px; height: 52px;
+      border-radius: 16px;
+      background: var(--card);
+      border: 1px solid var(--border-2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+      color: var(--accent);
+    }
+    .mask-label {
+      font-family: 'Geist Mono', monospace;
+      font-size: 10px;
+      color: var(--ink-3);
+      letter-spacing: .14em;
+    }
+    .mask-dots {
+      display: flex;
+      gap: 5px;
+    }
+    .mask-dots span {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: var(--accent);
+      opacity: .4;
+      animation: ld .9s ease-in-out infinite;
+    }
+    .mask-dots span:nth-child(2) { animation-delay: .15s; }
+    .mask-dots span:nth-child(3) { animation-delay: .3s; }
+  </style>
+</head>
+<body>
+
+<div class="noise"></div>
+
+<!-- 过渡蒙版：页面加载和跳转时显示 -->
+<div id="transitionMask">
+  <div class="mask-icon"><i class="fa-solid fa-phone-volume"></i></div>
+  <div class="mask-label" id="maskLabel">LOADING</div>
+  <div class="mask-dots"><span></span><span></span><span></span></div>
+</div>
+
+<div class="page" id="page">
+
+  <!-- 顶栏 -->
+  <div class="topbar">
+    <div class="topbar-back" id="backBtn">
+      <i class="fa-solid fa-chevron-left"></i>
+    </div>
+    <div style="flex:1">
+      <div class="topbar-title">通话</div>
+      <div class="topbar-sub">CALL HUB</div>
+    </div>
+    <div class="topbar-badge" id="chatBadge">—</div>
+  </div>
+
+  <!-- 主滚动区 -->
+  <div class="main-scroll" id="mainScroll">
+    <div class="section-label">CHARACTERS</div>
+    <div class="chars-grid" id="charsGrid">
+      <div class="loading-dots"><span></span><span></span><span></span></div>
+    </div>
+  </div>
+
+  <!-- 底部抽屉：群聊 -->
+  <div class="drawer" id="drawer">
+    <div class="drawer-handle-zone" id="drawerToggle">
+      <div class="drawer-handle"></div>
+    </div>
+    <div class="drawer-body">
+      <div class="drawer-inner">
+        <div class="drawer-title">GROUP CHATS · 群聊通话</div>
+        <div id="groupList">
+          <div class="loading-dots"><span></span><span></span><span></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- 悬浮面板：char 通话记录 -->
+<div class="panel-overlay" id="panelOverlay">
+  <div class="panel-sheet" id="panelSheet">
+    <div class="panel-book-header">
+      <div class="panel-book-avatar" id="panelAvatar">
+        <i class="fa-solid fa-user"></i>
+      </div>
+      <div>
+        <div class="panel-book-name" id="panelName">—</div>
+        <div class="panel-book-id" id="panelId">—</div>
+      </div>
+      <div class="panel-close" id="panelClose">
+        <i class="fa-solid fa-xmark"></i>
+      </div>
+    </div>
+    <div class="panel-ticket-edge"></div>
+    <div class="panel-scroll" id="panelScroll">
+      <!-- voice section -->
+      <div class="call-section">
+        <div class="call-section-header">
+          <div class="call-section-icon voice"><i class="fa-solid fa-phone"></i></div>
+          <div class="call-section-title">语音通话</div>
+          <div class="call-section-count" id="voiceCount">0</div>
+        </div>
+        <div id="voiceList"><div class="call-empty"><i class="fa-solid fa-phone-slash"></i> 暂无语音通话记录</div></div>
+      </div>
+      <!-- video section -->
+      <div class="call-section">
+        <div class="call-section-header">
+          <div class="call-section-icon video"><i class="fa-solid fa-video"></i></div>
+          <div class="call-section-title">视频通话</div>
+          <div class="call-section-count" id="videoCount">0</div>
+        </div>
+        <div id="videoList"><div class="call-empty"><i class="fa-solid fa-video-slash"></i> 暂无视频通话记录</div></div>
+      </div>
+      <div class="panel-bottom-pad"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  /* ── URL params ── */
+  const urlParams   = new URLSearchParams(location.search);
+  const initChatId  = urlParams.get('chatId') || '';
+  const directTo    = urlParams.get('directTo') || '';  // 接听后直接跳入的通话页 URL
+
+  /* ── IDB helpers ── */
+  const IDB_NAME = 'tsukiphonepromax';
+
+  function openDb() {
+    return new Promise((resolve, reject) => {
+      const req = indexedDB.open(IDB_NAME);
+      req.onsuccess = e => resolve(e.target.result);
+      req.onerror   = e => reject(e.target.error);
+    });
+  }
+
+  function dbGetAll(db, store) {
+    return new Promise((resolve, reject) => {
+      const tx  = db.transaction(store, 'readonly');
+      const req = tx.objectStore(store).getAll();
+      req.onsuccess = e => resolve(e.target.result || []);
+      req.onerror   = e => reject(e.target.error);
+    });
+  }
+
+  function getMessagesForChat(db, chatId) {
+    return new Promise((resolve, reject) => {
+      const tx    = db.transaction('messages', 'readonly');
+      const store = tx.objectStore('messages');
+      const range = IDBKeyRange.bound([chatId, 0], [chatId, Infinity]);
+      const req   = store.openCursor(range);
+      const msgs  = [];
+      req.onsuccess = e => {
+        const c = e.target.result;
+        if (c) { msgs.push(c.value); c.continue(); }
+        else resolve(msgs);
+      };
+      req.onerror = e => reject(e.target.error);
+    });
+  }
+
+  /* ── 工具函数 ── */
+  function fmtTime(ts) {
+    if (!ts) return '—';
+    const d = new Date(ts);
+    return d.toLocaleDateString('zh-CN', { month: 'numeric', day: 'numeric' })
+      + ' ' + d.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+  }
+  function fmtDur(sec) {
+    if (!sec || sec <= 0) return null;
+    return String(Math.floor(sec / 60)).padStart(2, '0') + ':' + String(sec % 60).padStart(2, '0');
+  }
+
+  /* ── 返回按钮 ── */
+  document.getElementById('backBtn').addEventListener('click', () => {
+    if (window.self !== window.top) {
+      // 在 iframe 内 → 通知父页面关闭 overlay
+      window.parent.postMessage({ type: 'CLOSE_CALL_HUB' }, '*');
+    } else {
+      // 独立页面 → 返回上一页
+      history.back();
+    }
+  });
+
+  /* ── 抽屉开关 ── */
+  const drawer = document.getElementById('drawer');
+  document.getElementById('drawerToggle').addEventListener('click', () => {
+    drawer.classList.toggle('open');
+  });
+
+  /* ── 面板开关 ── */
+  const panelOverlay = document.getElementById('panelOverlay');
+  document.getElementById('panelClose').addEventListener('click', closePanel);
+  panelOverlay.addEventListener('click', e => {
+    if (e.target === panelOverlay) closePanel();
+  });
+
+  function closePanel() {
+    panelOverlay.classList.remove('open');
+  }
+
+  function openPanel(char, chatId, callRecords) {
+    // 填充头部
+    const avatarEl = document.getElementById('panelAvatar');
+    if (char.avatar) {
+      avatarEl.innerHTML = `<img src="${char.avatar}" alt="">`;
+    } else {
+      avatarEl.innerHTML = `<i class="fa-solid fa-user"></i>`;
+    }
+    document.getElementById('panelName').textContent = char.remark || char.name;
+    document.getElementById('panelId').textContent   = `ID: ${char.id} · ${chatId}`;
+
+    // 分类
+    const voiceCalls = callRecords.filter(r => r.content.callType === 'voice');
+    const videoCalls = callRecords.filter(r => r.content.callType === 'video');
+
+    document.getElementById('voiceCount').textContent = voiceCalls.length ? voiceCalls.length + ' 条' : '0';
+    document.getElementById('videoCount').textContent = videoCalls.length ? videoCalls.length + ' 条' : '0';
+
+    renderCallList('voiceList', voiceCalls, 'voice', chatId);
+    renderCallList('videoList', videoCalls, 'video', chatId);
+
+    panelOverlay.classList.add('open');
+  }
+
+  function renderCallList(containerId, records, type, chatId) {
+    const el = document.getElementById(containerId);
+    if (!records.length) {
+      el.innerHTML = `<div class="call-empty"><i class="fa-solid fa-${type === 'voice' ? 'phone-slash' : 'video-slash'}"></i> 暂无${type === 'voice' ? '语音' : '视频'}通话记录</div>`;
+      return;
+    }
+    el.innerHTML = records.map(r => {
+      const ts  = r.content.answeredAt || r.timestamp;
+      const dur = fmtDur(r.content.duration);
+      const isEnded = r.content.callState === 'ended';
+      const iconClass = isEnded ? 'ended' : type;
+      const targetPage = type === 'voice' ? 'tsuki-call-voice.html' : 'tsuki-call-video.html';
+      const url = `${targetPage}?chatId=${encodeURIComponent(chatId)}&floor=${r.floor}&ts=${ts || ''}`;
+
+      return `
+        <div class="call-row" onclick="enterCall('${url}')">
+          <div class="call-row-icon ${iconClass}">
+            <i class="fa-solid fa-${type === 'voice' ? 'phone' : 'video'}"></i>
+          </div>
+          <div class="call-row-info">
+            <div class="call-row-time">${fmtTime(ts)}</div>
+            <div class="call-row-meta">
+              ${isEnded ? '<span style="color:var(--ended)">已结束</span>' : '<span style="color:var(--voice)">已接听</span>'}
+              ${dur ? `<span class="call-row-dur">${dur}</span>` : ''}
+            </div>
+          </div>
+          <div class="call-row-enter"><i class="fa-solid fa-arrow-right"></i></div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function enterCall(url) {
+    // 始终在当前 iframe 内跳转（通话页本身有返回按钮关掉 overlay）
+    location.href = url;
+  }
+
+  /* ── 渲染 char 卡片 ── */
+  async function renderCharCards(db, chars, chats, allMessages) {
+    const grid = document.getElementById('charsGrid');
+
+    // 找出有私聊的 chars，并统计通话数
+    const privateChats = chats.filter(c => c.type === 'private');
+
+    const charWithChats = chars.map(char => {
+      const chat = privateChats.find(c => c.charIds && c.charIds.includes(char.id));
+      if (!chat) return null;
+
+      const msgs  = allMessages[chat.id] || [];
+      const calls = msgs.filter(m =>
+        m.type === 'call' &&
+        (m.content.callState === 'answered' || m.content.callState === 'ended') &&
+        !m.content.decorative
+      );
+      const voiceCount = calls.filter(c => c.content.callType === 'voice').length;
+      const videoCount = calls.filter(c => c.content.callType === 'video').length;
+
+      return { char, chat, voiceCount, videoCount, calls };
+    }).filter(Boolean);
+
+    if (!charWithChats.length) {
+      grid.innerHTML = `
+        <div class="empty-state" style="grid-column:1/-1">
+          <i class="fa-solid fa-phone-slash"></i>
+          <p>暂无绑定私聊的角色<br>先去创建一个聊天吧</p>
+        </div>`;
+      return;
+    }
+
+    grid.innerHTML = charWithChats.map(({ char, chat, voiceCount, videoCount, calls }) => {
+      const avatarHtml = char.avatar
+        ? `<img src="${char.avatar}" alt="">`
+        : `<i class="fa-solid fa-user-astronaut"></i>`;
+
+      return `
+        <div class="char-card" onclick="handleCharClick('${char.id}', '${chat.id}')">
+          <div class="char-card-avatar">${avatarHtml}</div>
+          <div class="char-card-name">${char.remark || char.name}</div>
+          <div class="char-card-remark">${char.name}</div>
+          <div class="char-card-stats">
+            <div class="char-stat voice-stat ${voiceCount === 0 ? 'zero' : ''}">
+              <i class="fa-solid fa-phone"></i>${voiceCount}
+            </div>
+            <div class="char-stat video-stat ${videoCount === 0 ? 'zero' : ''}">
+              <i class="fa-solid fa-video"></i>${videoCount}
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    // 存到全局供点击使用
+    window._charDataMap = {};
+    charWithChats.forEach(({ char, chat, calls }) => {
+      window._charDataMap[char.id] = { char, chatId: chat.id, calls };
+    });
+  }
+
+  /* ── 渲染群聊列表 ── */
+  function renderGroupList(chats, allMessages) {
+    const el  = document.getElementById('groupList');
+    const groups = chats.filter(c => c.type === 'group');
+
+    if (!groups.length) {
+      el.innerHTML = `<div class="call-empty"><i class="fa-solid fa-users-slash"></i> 暂无群聊</div>`;
+      return;
+    }
+
+    el.innerHTML = groups.map(g => {
+      const msgs  = allMessages[g.id] || [];
+      const calls = msgs.filter(m =>
+        m.type === 'call' &&
+        (m.content.callState === 'answered' || m.content.callState === 'ended') &&
+        !m.content.decorative
+      );
+      const avatarHtml = g.avatar
+        ? `<img src="${g.avatar}" alt="">`
+        : `<i class="fa-solid fa-users"></i>`;
+
+      return `
+        <div class="group-row" onclick="handleGroupClick('${g.id}')">
+          <div class="group-avatar">${avatarHtml}</div>
+          <div class="group-info">
+            <div class="group-name">${g.name || '群聊'}</div>
+            <div class="group-sub">${calls.length} 条通话记录</div>
+          </div>
+          <div class="group-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+        </div>
+      `;
+    }).join('');
+
+    window._groupDataMap = {};
+    groups.forEach(g => {
+      const msgs  = allMessages[g.id] || [];
+      const calls = msgs.filter(m =>
+        m.type === 'call' &&
+        (m.content.callState === 'answered' || m.content.callState === 'ended') &&
+        !m.content.decorative
+      );
+      window._groupDataMap[g.id] = { group: g, chatId: g.id, calls };
+    });
+  }
+
+  /* ── 点击 char 卡片 ── */
+  window.handleCharClick = function (charId, chatId) {
+    const data = window._charDataMap?.[charId];
+    if (!data) return;
+    openPanel(data.char, data.chatId, data.calls);
+  };
+
+  /* ── 点击群聊行 ── */
+  window.handleGroupClick = function (chatId) {
+    const data = window._groupDataMap?.[chatId];
+    if (!data) return;
+    // 群聊使用同样的面板，但 char 字段用群聊信息填充
+    const pseudoChar = {
+      id:     data.group.id,
+      name:   data.group.name || '群聊',
+      remark: data.group.name || '群聊',
+      avatar: data.group.avatar || null,
+    };
+    openPanel(pseudoChar, data.chatId, data.calls);
+  };
+
+  /* ── 更新顶栏 badge ── */
+  function updateBadge(chatId) {
+    const badge = document.getElementById('chatBadge');
+    if (chatId) {
+      badge.textContent = chatId.slice(-6).toUpperCase();
+    }
+  }
+
+  /* ── 蒙版控制 ── */
+  const mask = document.getElementById('transitionMask');
+  const maskLabel = document.getElementById('maskLabel');
+
+  function showMask(label) {
+    mask.classList.remove('hidden', 'fade-out');
+    mask.classList.add('fade-in');
+    maskLabel.textContent = label || 'LOADING';
+    mask.style.pointerEvents = 'all';
+  }
+
+  function hideMask() {
+    mask.classList.remove('fade-in');
+    mask.classList.add('fade-out');
+    mask.style.pointerEvents = 'none';
+    setTimeout(() => mask.classList.add('hidden'), 420);
+  }
+
+  /* ── 主初始化 ── */
+  async function init() {
+    updateBadge(initChatId);
+    maskLabel.textContent = directTo ? 'CONNECTING' : 'LOADING';
+    console.group('%c[call-hub] 🔄 init()', 'color:#a855f7;font-weight:bold');
+    console.log('initChatId:', initChatId, '  directTo:', directTo);
+
+    let db;
+    try {
+      if (window.tsukiDbReady) {
+        db = await window.tsukiDbReady;
+      } else {
+        db = await openDb();
+      }
+      console.log('%c[call-hub] ✅ DB 连接成功', 'color:#43d9a0', 'v' + db.version);
+    } catch (e) {
+      console.error('[call-hub] ❌ DB 打开失败:', e);
+      console.groupEnd();
+      return;
+    }
+
+    const [chars, chats] = await Promise.all([
+      dbGetAll(db, 'chars'),
+      dbGetAll(db, 'chats'),
+    ]);
+    console.log(`[call-hub] chars: ${chars.length}  chats: ${chats.length}`);
+
+    // 批量拉消息
+    const allMessages = {};
+    await Promise.all(chats.map(async chat => {
+      try {
+        const msgs = await getMessagesForChat(db, chat.id);
+        allMessages[chat.id] = msgs;
+        // 只打印有通话记录的 chat
+        const calls = msgs.filter(m => m.type === 'call');
+        if (calls.length) {
+          console.log(`  chatId=${chat.id}  总消息=${msgs.length}  通话记录=${calls.length}`);
+          calls.forEach(c => console.log(
+            `    floor=${c.floor}  callType=${c.content?.callType}  callState=${c.content?.callState}  answeredAt=${c.content?.answeredAt}`
+          ));
+        }
+      } catch (e) {
+        allMessages[chat.id] = [];
+        console.warn(`  [call-hub] chatId=${chat.id} 消息拉取失败:`, e);
+      }
+    }));
+
+    console.groupEnd();
+    renderCharCards(db, chars, chats, allMessages);
+    renderGroupList(chats, allMessages);
+
+    // 接听中转：直接跳通话页，用 replace 不留 history
+    if (directTo) {
+      maskLabel.textContent = 'CONNECTING';
+      console.log('%c[call-hub] 🚀 directTo →', 'color:#5b9cfa', directTo);
+      // 短暂停留让蒙版可见，再跳转
+      setTimeout(() => location.replace(directTo), 180);
+    } else {
+      // 正常首页：蒙版淡出
+      hideMask();
+    }
+  }
+
+  // 通话页返回时发来 REFRESH_HUB 信号 → 重新拉数据
+  window.addEventListener('message', (e) => {
+    if (e.data && e.data.type === 'REFRESH_HUB') {
+      console.log('%c[call-hub] 📨 收到 REFRESH_HUB → 重新 init', 'color:#f9c784');
+      init();
+    }
+  });
+
+  // ★ 方案二：每次 iframe 从隐藏变为可见时重新拉数据（兜底 index.html 缓存问题）
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      console.log('%c[call-hub] 👁 visibilitychange visible → 重新 init', 'color:#f9c784');
+      init();
+    }
+  });
+
+  /* ── 进入通话页（全局供 renderCallList 调用）── */
+  window.enterCall = enterCall;
+
+  init();
+</script>
+</body>
+</html>
