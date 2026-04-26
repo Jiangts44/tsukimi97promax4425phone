@@ -1694,7 +1694,7 @@ body: JSON.stringify({
 
       // 4. 渲染图片或占位符
       if (stickerUrl) {
-        b.innerHTML = `<img src="${stickerUrl}" style="min-width:70px;max-width:120px;height:auto;border-radius:10px;display:block;object-fit:cover;" alt="${stickerName}">`;
+        b.innerHTML = `<img src="${stickerUrl}" style="width:68px;height:68px;border-radius:10px;display:block;object-fit:cover;" alt="${stickerName}">`;
       } else {
         b.innerHTML = `<div style="width:68px;height:68px;border-radius:10px;background:var(--paper-2);display:flex;align-items:center;justify-content:center;font-size:9px;font-family:'Geist Mono',monospace;color:var(--mute);text-align:center;padding:5px;word-break:break-all;">${stickerName}.jpg</div>`;
       }

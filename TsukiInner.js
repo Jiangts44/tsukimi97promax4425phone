@@ -2327,68 +2327,65 @@
     closePocket();
 
     try {
-      // ── 读取角色人设 + 聊天历史 ──────────────────────────────────
-      let personaBlock = '';
-      let historyBlock = '';
-
+      // ── 使用 PromptHelper 构建完整提示词（世界书头/中/尾 + 人设 + 局部 + 历史 + 用户人设）──
+      let fullPromptParts = [];
       try {
+        // 读取当前聊天室信息，获取 charIds 和 userId
         const db = typeof openDb === 'function' ? await openDb() : await new Promise((res, rej) => {
           const r = indexedDB.open('tsukiphonepromax'); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
         });
-
-        // 读 chat → charIds
         const chat = await new Promise(res => {
           const tx = db.transaction('chats', 'readonly');
           const req = tx.objectStore('chats').get(chatId);
           req.onsuccess = () => res(req.result); req.onerror = () => res(null);
         });
 
-        if (chat?.charIds?.length) {
-          const charId = chat.charIds[0];
-          const char = await new Promise(res => {
-            const tx = db.transaction('chars', 'readonly');
-            const req = tx.objectStore('chars').get(charId);
-            req.onsuccess = () => res(req.result); req.onerror = () => res(null);
-          });
-          if (char) {
-            personaBlock = [
-              char.name ? `[角色名称] ${char.name}` : '',
-              char.persona ? `[角色人设]\n${char.persona}` : '',
-            ].filter(Boolean).join('\n');
-          }
-        }
+        const charIds   = chat?.charIds || [];
+        const chatUserId = chat?.userId  || null;
 
-        // 读最近 30 条消息作为上下文
-        if (typeof buildChatHistoryPrompt === 'function') {
-          const histLines = await buildChatHistoryPrompt(chatId, 30);
-          historyBlock = histLines.join('\n');
+        // 取最新一条消息文本用于世界书关键词触发
+        let latestMessage = '';
+        try {
+          if (typeof buildChatHistoryPrompt === 'function') {
+            // 复用 PromptHelper 内部接口拿到最近一条
+            const recentLines = await buildChatHistoryPrompt(chatId, 1);
+            latestMessage = recentLines.join(' ');
+          }
+        } catch(_) {}
+
+        // Step 1：assembleCharacterPrompts — 世界书私有Pre/Post + 角色人设 + 绑定主人 + 活跃用户人设
+        const personaPrompts = typeof assembleCharacterPrompts === 'function'
+          ? await assembleCharacterPrompts(charIds, latestMessage, chatUserId)
+          : [];
+
+        // Step 2：buildFinalPromptStream — 全局世界书头/中/尾 + 局部世界书 + 历史记录
+        if (typeof buildFinalPromptStream === 'function') {
+          fullPromptParts = await buildFinalPromptStream(
+            charIds,
+            personaPrompts,
+            30,          // 取最近 30 条历史
+            'Online',    // 线上聊天场景
+            latestMessage,
+            chatId,
+          );
         } else {
-          // 降级：直接读消息表
-          const msgs = await new Promise(res => {
-            const tx = db.transaction('messages', 'readonly');
-            const req = tx.objectStore('messages').getAll();
-            req.onsuccess = () => res(req.result || []); req.onerror = () => res([]);
-          });
-          const chatMsgs = msgs
-            .filter(m => m.chatId === chatId)
-            .sort((a, b) => (a.floor||0) - (b.floor||0))
-            .slice(-30);
-          historyBlock = chatMsgs.map(m => {
-            const sender = m.sender === 'user' ? 'User' : (m.charName || '角色');
-            const content = typeof m.content === 'string' ? m.content : JSON.stringify(m.content || '');
-            return `[${sender}] ${content}`;
-          }).join('\n');
+          // 降级：至少把人设分片放进去
+          fullPromptParts = personaPrompts;
+          console.warn('[TsukiInner] buildFinalPromptStream 不可用，仅使用人设分片');
         }
       } catch(e) {
-        console.warn('[TsukiInner] 读取人设/历史失败，降级为空上下文:', e);
+        console.warn('[TsukiInner] PromptHelper 构建失败，降级为空上下文:', e);
       }
 
-      // ── 构建提示词 ──────────────────────────────────────────────
+      // ── 构建最终 userPrompt ─────────────────────────────────────
+      const promptBody = fullPromptParts.length
+        ? fullPromptParts.join('\n\n')
+        : '（暂无角色信息）';
+
       const userPrompt = [
-        personaBlock ? `【角色人设】\n${personaBlock}` : '',
-        historyBlock ? `【最近聊天记录】\n${historyBlock}` : '（暂无聊天记录）',
+        promptBody,
         '\n请根据以上信息，生成该角色此刻完整的心声状态报告。',
-      ].filter(Boolean).join('\n\n');
+      ].join('\n\n');
 
       console.group('%c💭 [TsukiInner] AI 心声召唤 — 构建提示词', 'color:#82c4e8;font-weight:bold');
       console.log('%c[SYSTEM PROMPT]\n' + INNER_SYSTEM_PROMPT, 'color:#8a8a8e');
