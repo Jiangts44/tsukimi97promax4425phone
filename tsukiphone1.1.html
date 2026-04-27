@@ -4090,6 +4090,44 @@
         background: rgba(255, 255, 255, 0.15);
         color: rgba(255, 255, 255, 0.9);
       }
+
+      /* ——— 群聊头像包裹容器（头像 + 角色名标签） ——— */
+      .msg-av-wrap {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0px;
+        flex-shrink: 0;
+        position: relative;
+      }
+      /* 群聊角色名标签 */
+      .group-char-nametag {
+        position: relative;
+        margin-top: -6px;
+        background: rgba(10, 10, 10, 0.72);
+        color: #fff;
+        font-family: 'Geist Mono', monospace;
+        font-size: 8px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        padding: 2px 6px;
+        border-radius: 20px;
+        white-space: nowrap;
+        max-width: 64px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        backdrop-filter: blur(4px);
+        border: 1px solid rgba(255,255,255,0.12);
+        box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+        z-index: 2;
+        /* 和头像底部稍微重叠，更美观 */
+        transform: translateY(-4px);
+        pointer-events: none;
+        user-select: none;
+      }
+      /* 让头像包裹容器和原 msg-row 布局保持一致 */
+      .msg-row.char .msg-av-wrap { align-self: flex-start; }
+      .msg-row.user .msg-av-wrap { align-self: flex-start; }
       /* 礼物弹窗内的拒收按钮 */
       .gift-overlay-reject {
         margin-top: 10px;
@@ -5809,8 +5847,34 @@
         </div>
 
         <div class="setting-tab-content" id="settingTabTheme" style="display: none">
-          <div class="si-sec-label"><i class="fa-solid fa-tag"></i> 自定义聊天名称</div>
-          <div
+
+          <!-- ★ 群聊角色身份 — 仅群聊可见 -->
+          <div id="groupCharIdSection" style="display:none; margin-bottom: 14px;">
+            <div class="si-sec-label"><i class="fa-solid fa-users"></i> 群聊渲染</div>
+            <div
+              class="si-fmt-row"
+              style="
+                align-items: center;
+                justify-content: space-between;
+                padding: 12px;
+                background: var(--card);
+                border: 1px solid var(--line);
+                border-radius: 12px;
+              "
+            >
+              <div style="display: flex; flex-direction: column; gap: 2px">
+                <span style="font-size: 11px; font-weight: 600; color: var(--ink)">显示角色头像 &amp; 名字</span>
+                <span style="font-size: 10px; color: var(--ink-3)">开启后每条消息渲染对应角色的头像与名字标签</span>
+                <span style="font-size: 9px; color: var(--mute)">关闭后所有消息统一使用群头像（匿名模式）</span>
+              </div>
+              <label class="ts-toggle" style="flex-shrink: 0">
+                <input type="checkbox" id="settingGroupShowCharId" checked />
+                <span class="ts-toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="si-sec-label"><i class="fa-solid fa-tag"></i> 自定义聊天名称</div>          <div
             style="
               display: flex;
               align-items: center;
@@ -6863,6 +6927,16 @@
             avatar: displayAvatar,
           };
 
+          // ★ 群聊：标记当前是群聊，并预加载所有成员头像到 map
+          window.__currentChatIsGroup = (chatData.type === 'group');
+          window._groupMembersMap = {};
+          if (chatData.type === 'group' && chatData.charIds?.length > 0) {
+            const _memberLoads = chatData.charIds.map(cid => dbGet('chars', cid));
+            const _members = await Promise.all(_memberLoads);
+            _members.forEach(m => { if (m) window._groupMembersMap[m.id] = m; });
+            console.log('[Group] 成员 map 已加载:', Object.keys(window._groupMembersMap).length, '人');
+          }
+
           // 🌟 更新角色顶栏 UI
           const charNameEl = document.querySelector('.char-name');
           const charStatusTextEl = document.querySelector('.char-status-text');
@@ -7146,6 +7220,7 @@
         const options = {
           meta: _defaultMeta,
           floor: msg.floor, // 将楼层号传入渲染引擎
+          charName: msg.charName || null, // 群聊角色名
         };
 
         // 0-0. 线下剧场插入记录 (offline)
@@ -7317,6 +7392,7 @@
           const options = {
             floor: msg.floor,
             meta: `<i class="fa-solid fa-ban"></i> 屏蔽信息`,
+            charName: msg.charName || null,
           };
 
           const el = window.renderMessage(msg.senderRole, b, options);
@@ -7358,7 +7434,7 @@
           // 拼接：引用块 + 真实文本内容
           b.innerHTML = quoteHtml + displayContent;
 
-          const el = window.renderMessage(role, b, options);
+          const el = window.renderMessage(role, b, { ...options, charName: msg.charName || null });
           el.dataset.floor = msg.floor;
           return;
         }
@@ -7481,7 +7557,7 @@
           // window.renderMessage(msg.senderRole, container, { meta: metaHtml, floor: msg.floor });
 
           // 【核心修改】：将 meta 设置为空字符串 ''，这样就不会渲染底部的时间戳了
-          window.renderMessage(msg.senderRole, container, { meta: '', floor: msg.floor });
+          window.renderMessage(msg.senderRole, container, { meta: '', floor: msg.floor, charName: msg.charName || null });
           return;
         }
 
@@ -7548,6 +7624,7 @@
           const options = {
             floor: msg.floor,
             meta: `<i class="fa-solid fa-face-smile-wink"></i> ${stickerName}`,
+            charName: msg.charName || null,
           };
 
           window.renderMessage(msg.senderRole, b, options);
@@ -7642,7 +7719,7 @@
               </div>
               ${actionHtml}
             `;
-            const callRow = window.renderMessage(msg.senderRole, b, { floor: msg.floor, meta: metaContent });
+            const callRow = window.renderMessage(msg.senderRole, b, { floor: msg.floor, meta: metaContent, charName: msg.charName || null });
 
             // 恢复交互绑定，计时从已通话时长继续
             if (typeof window.TsukiSend?._bindCallBubbleInteractionPublic === 'function') {
@@ -7682,13 +7759,13 @@
             ${actionHtml}
           `;
 
-          const callRow = window.renderMessage(msg.senderRole, b, { floor: msg.floor, meta: metaContent });
+          const callRow = window.renderMessage(msg.senderRole, b, { floor: msg.floor, meta: metaContent, charName: msg.charName || null });
           return;
         }
 
         // 统一渲染到界面（transfer / image / voice / file / camera / gift）
         // 【修复①】传入 floor，确保所有类型的气泡都能删除/撤回
-        window.renderMessage(msg.senderRole, bubble, { meta: metaHtml, floor: msg.floor });
+        window.renderMessage(msg.senderRole, bubble, { meta: metaHtml, floor: msg.floor, charName: msg.charName || null });
       }
 
       // ··默认发送者是用户
@@ -8300,7 +8377,7 @@
         }
 
         // 【修改点】将定义改为全局，确保表情包插件能调用
-        window.saveMessageToDB = async function (type, contentData, textSummary, senderOverride, storyTimestamp) {
+        window.saveMessageToDB = async function (type, contentData, textSummary, senderOverride, storyTimestamp, charNameOverride) {
           if (!currentChatId) return null;
           const floor = await getNextFloor(currentChatId);
 
@@ -8314,6 +8391,15 @@
             timestamp: Date.now(),
             storyTimestamp: storyTimestamp || null,
           };
+
+          // 群聊时存入发言角色名，用于历史回放
+          if (charNameOverride) {
+            newMsg.charName = charNameOverride;
+            // 同时反查 _groupMembersMap，补全 charId，供 PromptHelper 区分多角色发言
+            const _memberMap = window._groupMembersMap || {};
+            const _matched = Object.values(_memberMap).find(m => m.name === charNameOverride);
+            if (_matched) newMsg.charId = _matched.id;
+          }
 
           await dbPut('messages', newMsg);
 
@@ -9556,12 +9642,28 @@
         if (options.floor) row.dataset.floor = options.floor;
 
         // ——— 头像处理部分 ———
+        // 群聊角色身份渲染容器（头像+名字标签，包在一起）
+        const avWrap = document.createElement('div');
+        avWrap.className = `msg-av-wrap ${isUser ? 'user' : 'char'}`;
+
         const av = document.createElement('div');
         av.className = `msg-avatar ${isUser ? 'user' : 'char'}`;
         if (options.avatar === false) av.classList.add('hidden');
 
         // 确定当前要使用的头像数据
-        const targetData = isUser ? window.currentChatUser : window.currentChatChar;
+        // 群聊+开关开启时：按 charName 查成员 map
+        let targetData = isUser ? window.currentChatUser : window.currentChatChar;
+        const _isGroup = window.__currentChatIsGroup === true;
+        const _showGroupId = window.__groupShowCharId !== false; // 默认 true
+        let _groupCharName = null; // 群聊时实际发言角色名
+
+        if (!isUser && _isGroup && _showGroupId && options.charName) {
+          _groupCharName = options.charName;
+          // 在 _groupMembersMap 里用名字查找
+          const _map = window._groupMembersMap || {};
+          const _found = Object.values(_map).find(c => c.name === options.charName);
+          if (_found) targetData = _found;
+        }
 
         if (targetData && targetData.avatar) {
           // 👉 情况 A：有头像图片
@@ -9577,6 +9679,16 @@
         } else {
           // 👉 情况 B：没有图片，显示默认图标
           av.innerHTML = isUser ? '<i class="fa-solid fa-feather"></i>' : '<i class="fa-solid fa-user-astronaut"></i>';
+        }
+
+        avWrap.appendChild(av);
+
+        // 群聊角色名标签（仅非用户、群聊、开关开启时显示）
+        if (!isUser && _isGroup && _showGroupId && _groupCharName) {
+          const nameTag = document.createElement('div');
+          nameTag.className = 'group-char-nametag';
+          nameTag.textContent = _groupCharName;
+          avWrap.appendChild(nameTag);
         }
 
         const wrap = document.createElement('div');
@@ -9657,7 +9769,7 @@
         }
 
         // 组合并渲染
-        row.appendChild(av);
+        row.appendChild(avWrap);
         row.appendChild(wrap);
         chatArea.appendChild(row);
 
@@ -10351,6 +10463,13 @@
             if (innerVoiceToggle) {
               innerVoiceToggle.checked = settings.innerVoiceEnabled !== false;
             }
+            // 群聊角色身份显示开关（默认 true）
+            const _groupIdToggle = document.getElementById('settingGroupShowCharId');
+            if (_groupIdToggle) {
+              _groupIdToggle.checked = settings.groupShowCharId !== false;
+            }
+            // 同步写入全局缓存
+            window.__groupShowCharId = settings.groupShowCharId !== false;
             // 同步写入全局缓存，供气泡渲染同步读取
             window.__timestampEnabled = settings.timestampEnabled !== false;
             window.__storyTimeEnabled = settings.storyTimeEnabled === true;
@@ -10386,10 +10505,14 @@
             existingConfig.scheduleEnabled = scheduleToggle ? scheduleToggle.checked : true;
             // 保存心声开关
             existingConfig.innerVoiceEnabled = innerVoiceToggle ? innerVoiceToggle.checked : true;
+            // 保存群聊角色身份显示开关
+            const _gidToggle = document.getElementById('settingGroupShowCharId');
+            existingConfig.groupShowCharId = _gidToggle ? _gidToggle.checked : true;
             // 同步更新全局缓存
             window.__timestampEnabled = existingConfig.timestampEnabled;
             window.__storyTimeEnabled = existingConfig.storyTimeEnabled === true;
             window.__innerVoiceEnabled = existingConfig.innerVoiceEnabled !== false;
+            window.__groupShowCharId = existingConfig.groupShowCharId !== false;
             await dbPut('config', existingConfig);
             console.log('[Settings] 聊天设置已保存:', existingConfig);
           } catch (err) {
@@ -10433,6 +10556,29 @@ storyTimeToggle.addEventListener('change', async () => {
         if (innerVoiceToggle) {
           innerVoiceToggle.addEventListener('change', async () => {
             await saveSettings();
+          });
+        }
+
+        // ★ 群聊角色身份开关 change 时立即保存并刷新气泡
+        const groupIdToggle = document.getElementById('settingGroupShowCharId');
+        if (groupIdToggle) {
+          groupIdToggle.addEventListener('change', async () => {
+            await saveSettings();
+            // 刷新气泡以立即看到效果
+            if (typeof currentChatId !== 'undefined' && currentChatId) {
+              reloadBubbles(currentChatId);
+            }
+          });
+        }
+
+        // ★ 打开设置面板时：检测是否群聊，决定是否显示群聊区域
+        const _origOpenSettings = settingsBtn?.onclick;
+        if (settingsBtn) {
+          settingsBtn.addEventListener('click', () => {
+            const _groupSec = document.getElementById('groupCharIdSection');
+            if (_groupSec) {
+              _groupSec.style.display = window.__currentChatIsGroup ? 'block' : 'none';
+            }
           });
         }
 

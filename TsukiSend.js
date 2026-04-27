@@ -1682,7 +1682,7 @@ body: JSON.stringify({
       if (window.bindLongPress) window.bindLongPress(notice, 'recalled');
 
       if (window.saveMessageToDB) {
-        const floor = await window.saveMessageToDB('recalled', content, '[撤回消息]', 'char', _storyTs);
+        const floor = await window.saveMessageToDB('recalled', content, '[撤回消息]', 'char', _storyTs, charName);
         if (floor != null) {
           notice.dataset.floor = floor;
           revDiv.dataset.floor = floor;
@@ -1697,13 +1697,13 @@ body: JSON.stringify({
       b.className = 'bubble blocked';
       b.innerHTML = `${content}<div class="bubble-blocked-badge"><i class="fa-solid fa-ban"></i> BLOCKED · 消息已屏蔽</div>`;
 
-      const row = window.renderMessage('char', b, { meta: `<i class="fa-solid fa-ban"></i> 屏蔽信息` });
+      const row = window.renderMessage('char', b, { meta: `<i class="fa-solid fa-ban"></i> 屏蔽信息`, charName: charName });
       if (window.bindLongPress) {
         row.style.cursor = 'context-menu';
         window.bindLongPress(row, 'blocked');
       }
       if (window.saveMessageToDB) {
-        const floor = await window.saveMessageToDB('blocked', content, '[屏蔽消息]', 'char', _storyTs);
+        const floor = await window.saveMessageToDB('blocked', content, '[屏蔽消息]', 'char', _storyTs, charName);
         if (row && floor != null) row.dataset.floor = floor;
       }
       return;
@@ -1760,6 +1760,7 @@ body: JSON.stringify({
 
       const row = window.renderMessage('char', b, {
         meta: `<i class="fa-solid ${mediaIcon}"></i> ${mediaLabel.toLowerCase()}`,
+        charName: charName,
       });
 
       /* ── 存库（char 侧） ── */
@@ -1784,6 +1785,7 @@ body: JSON.stringify({
           dbSummary,
           'char',
           _storyTs,
+          charName,
         );
         if (row && floor != null) row.dataset.floor = floor;
       }
@@ -1819,11 +1821,11 @@ body: JSON.stringify({
 
     /* ── text ───────────────────────────────────────────── */
     if (type === 'text') {
-      const row = window.renderMessage('char', content, { meta: await buildCharMeta() });
+      const row = window.renderMessage('char', content, { meta: await buildCharMeta(), charName: charName });
       if (window.saveMessageToDB) {
         const match = content.match(/^<quote=.*?\|.*?>([\s\S]*)$/);
         const cleanSummary = match ? match[1].trim() : content;
-        const floor = await window.saveMessageToDB('text', content, cleanSummary, 'char', _storyTs);
+        const floor = await window.saveMessageToDB('text', content, cleanSummary, 'char', _storyTs, charName);
         if (row && floor != null) row.dataset.floor = floor;
       }
       return;
@@ -1852,9 +1854,9 @@ body: JSON.stringify({
         s.style.animationDelay = i * 0.05 + 's';
         waveWrap.appendChild(s);
       });
-      const row = window.renderMessage('char', b, { meta: `<i class="fa-solid fa-microphone-lines"></i> voice` });
+      const row = window.renderMessage('char', b, { meta: `<i class="fa-solid fa-microphone-lines"></i> voice`, charName: charName });
       if (window.saveMessageToDB) {
-        const floor = await window.saveMessageToDB('voice', { transcript: content }, '[语音]', 'char', _storyTs);
+        const floor = await window.saveMessageToDB('voice', { transcript: content }, '[语音]', 'char', _storyTs, charName);
         if (row && floor != null) row.dataset.floor = floor;
       }
       return;
@@ -1871,9 +1873,9 @@ body: JSON.stringify({
           <i class="fa-solid fa-image img-text-card-deco"></i>
         </div>
       `;
-      const row = window.renderMessage('char', b, { meta: '<i class="fa-solid fa-font"></i> image text' });
+      const row = window.renderMessage('char', b, { meta: '<i class="fa-solid fa-font"></i> image text', charName: charName });
       if (window.saveMessageToDB) {
-        const floor = await window.saveMessageToDB('image', { text: content }, '[图文] ' + content, 'char', _storyTs);
+        const floor = await window.saveMessageToDB('image', { text: content }, '[图文] ' + content, 'char', _storyTs, charName);
         if (row && floor != null) row.dataset.floor = floor;
       }
       return;
@@ -1899,6 +1901,7 @@ body: JSON.stringify({
       `;
       const row = window.renderMessage('char', b, {
         meta: await buildCharMeta(),
+        charName: charName,
       });
       if (window.bindTransferView) window.bindTransferView(b);
       if (window.saveMessageToDB) {
@@ -1908,6 +1911,7 @@ body: JSON.stringify({
           `[转账] ¥${amount}`,
           'char',
           _storyTs,
+          charName,
         );
         if (row && floor != null) row.dataset.floor = floor;
       }
@@ -1923,9 +1927,10 @@ body: JSON.stringify({
       `;
       const row = window.renderMessage('char', container, {
         meta: `<i class="fa-solid fa-location-dot"></i> location`,
+        charName: charName,
       });
       if (window.saveMessageToDB) {
-        const floor = await window.saveMessageToDB('location', { location: content }, `[位置] ${content}`, 'char', _storyTs);
+        const floor = await window.saveMessageToDB('location', { location: content }, `[位置] ${content}`, 'char', _storyTs, charName);
         if (row && floor != null) row.dataset.floor = floor;
       }
       return;
@@ -1951,10 +1956,10 @@ body: JSON.stringify({
         </div>
         <div class="gift-foot"><span>TAP TO OPEN</span><span class="tap gift-tap"><i class="fa-solid fa-hand-pointer"></i> view</span></div>
       `;
-      const row = window.renderMessage('char', b, { meta: `<i class="fa-solid fa-gift"></i> gift` });
+      const row = window.renderMessage('char', b, { meta: `<i class="fa-solid fa-gift"></i> gift`, charName: charName });
       if (window.bindGiftView) window.bindGiftView(b);
       if (window.saveMessageToDB) {
-        const floor = await window.saveMessageToDB('gift', { item, note: gnote }, `[礼物] ${item}`, 'char', _storyTs);
+        const floor = await window.saveMessageToDB('gift', { item, note: gnote }, `[礼物] ${item}`, 'char', _storyTs, charName);
         if (row && floor != null) row.dataset.floor = floor;
       }
       return;
@@ -2020,23 +2025,24 @@ body: JSON.stringify({
       // 5. 渲染下方元数据（名字此时已经干干净净，绝对没有 https）
       const row = window.renderMessage('char', b, {
         meta: `<i class="fa-solid fa-face-smile-wink"></i> ${stickerName}`,
+        charName: charName,
       });
 
       // 6. 存入数据库
       if (window.saveMessageToDB) {
         const contentData = stickerUrl ? { name: stickerName, url: stickerUrl } : { name: stickerName };
-        const floor = await window.saveMessageToDB('sticker', contentData, `[表情包] ${stickerName}`, 'char', _storyTs);
+        const floor = await window.saveMessageToDB('sticker', contentData, `[表情包] ${stickerName}`, 'char', _storyTs, charName);
         if (row && floor != null) row.dataset.floor = floor;
       }
       return;
     }
 
     /* ── 兜底 text ──────────────────────────────────────── */
-    const fbRow = window.renderMessage('char', content, { meta: await buildCharMeta() });
+    const fbRow = window.renderMessage('char', content, { meta: await buildCharMeta(), charName: charName });
     if (window.saveMessageToDB) {
       const match = content.match(/^<quote=.*?\|.*?>([\s\S]*)$/);
       const cleanSummary = match ? match[1].trim() : content;
-      const floor = await window.saveMessageToDB('text', content, cleanSummary, 'char', _storyTs);
+      const floor = await window.saveMessageToDB('text', content, cleanSummary, 'char', _storyTs, charName);
       if (fbRow && floor != null) fbRow.dataset.floor = floor;
     }
   }

@@ -1,0 +1,1912 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Agent · TSUKIMI</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style id="tsuki-dynamic-style"></style>
+  <style>
+    :root{
+      --ink:#0a0a0a;--ink-2:#3a3a3a;--mute:#8a8a8e;--line:rgba(10,10,10,0.07);
+      --paper:#fafaf7;--paper-2:#f1f0ea;--card:#ffffff;
+      --lime:#d4ff4d;--coral:#ff6b6b;--blue:#5b7cfa;--purple:#a78bfa;
+      --amber:#f59e0b;--mint:#43d9a0;--acc:#5b7cfa;--acc-soft:rgba(91,124,250,0.09);
+    }
+    html.night{
+      --ink:rgba(232,232,245,0.92);--ink-2:rgba(232,232,245,0.55);--mute:rgba(232,232,245,0.32);
+      --line:rgba(255,255,255,0.07);--paper:#08080f;--paper-2:#0f0a1e;--card:#12121e;
+      --acc:var(--lime);--acc-soft:rgba(212,255,77,0.09);
+    }
+    *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+    body{font-family:'Geist',-apple-system,'PingFang SC',sans-serif;background:var(--paper);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased;transition:background 0.38s,color 0.3s;}
+    html.night body{background:linear-gradient(145deg,#08080f,#0f0a1e 55%,#1a0a2e);}
+    html.night body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse at 20% 15%,rgba(212,255,77,0.05),transparent 55%),radial-gradient(ellipse at 85% 85%,rgba(167,139,250,0.07),transparent 50%);}
+    ::-webkit-scrollbar{width:2px;}::-webkit-scrollbar-thumb{background:var(--line);border-radius:2px;}
+    .wrap{position:relative;z-index:1;max-width:600px;margin:0 auto;padding:0 16px 110px;}
+
+    /* HEADER */
+    .page-header{display:flex;align-items:flex-end;justify-content:space-between;padding:28px 0 22px;}
+    .page-title{font-family:'Fraunces',serif;font-style:italic;font-size:32px;font-weight:300;line-height:1;color:var(--ink);letter-spacing:-0.02em;}
+    .page-title span{color:var(--acc);}
+    html.night .page-title span{color:var(--lime);}
+    .page-subtitle{font-family:'Geist Mono',monospace;font-size:8.5px;color:var(--mute);letter-spacing:0.18em;text-transform:uppercase;margin-top:4px;display:block;}
+    .header-right{display:flex;align-items:flex-end;gap:10px;}
+
+    /* 设置按钮 */
+    .settings-btn{
+      display:flex;flex-direction:column;align-items:center;cursor:pointer;user-select:none;
+      transition:transform 0.25s cubic-bezier(0.175,0.885,0.32,1.275);transform-origin:top center;
+    }
+    .settings-btn:active{transform:scale(0.9) rotate(-4deg);}
+    .settings-thread{width:1px;height:16px;background:var(--line);}
+    .settings-tag{
+      padding:5px 13px;background:var(--card);border:1px solid var(--line);border-radius:4px;
+      font-family:'Geist Mono',monospace;font-size:10px;font-weight:600;letter-spacing:0.1em;
+      box-shadow:0 4px 10px -4px rgba(0,0,0,0.1);color:var(--mute);
+      display:flex;align-items:center;gap:5px;white-space:nowrap;
+      transition:background 0.3s,color 0.3s,border-color 0.3s,box-shadow 0.3s;
+    }
+    html.night .settings-tag{background:rgba(167,139,250,0.07);border-color:rgba(167,139,250,0.2);color:var(--purple);box-shadow:0 4px 14px rgba(0,0,0,0.3);}
+    .settings-dot{width:5px;height:5px;border-radius:50%;background:var(--mute);transition:background 0.3s;}
+    .settings-dot.active{background:var(--mint);box-shadow:0 0 5px rgba(67,217,160,0.6);}
+    html.night .settings-dot.active{background:var(--lime);box-shadow:0 0 5px rgba(212,255,77,0.5);}
+
+    /* 日夜按钮 */
+    .theme-btn{display:flex;flex-direction:column;align-items:center;cursor:pointer;user-select:none;transition:transform 0.25s cubic-bezier(0.175,0.885,0.32,1.275);transform-origin:top center;}
+    .theme-btn:active{transform:scale(0.9) rotate(4deg);}
+    .theme-thread{width:1px;height:16px;background:var(--line);}
+    .theme-tag{padding:5px 13px;background:var(--card);border:1px solid var(--line);border-radius:4px;font-family:'Geist Mono',monospace;font-size:10px;font-weight:600;letter-spacing:0.1em;box-shadow:0 4px 10px -4px rgba(0,0,0,0.1);color:var(--mute);display:flex;align-items:center;gap:5px;white-space:nowrap;transition:background 0.3s,color 0.3s,border-color 0.3s,box-shadow 0.3s;}
+    html.night .theme-tag{background:rgba(212,255,77,0.07);border-color:rgba(212,255,77,0.2);color:var(--lime);box-shadow:0 4px 14px rgba(0,0,0,0.3);}
+
+    /* ══ 设置面板 OVERLAY ══ */
+    .settings-overlay{
+      position:fixed;inset:0;z-index:8888;
+      background:rgba(0,0,0,0.45);backdrop-filter:blur(6px);
+      opacity:0;pointer-events:none;transition:opacity 0.28s ease;
+    }
+    .settings-overlay.open{opacity:1;pointer-events:all;}
+    .settings-panel{
+      position:fixed;top:0;right:-420px;bottom:0;width:min(420px,100vw);z-index:8889;
+      background:var(--paper);border-left:1px solid var(--line);
+      overflow-y:auto;transition:right 0.35s cubic-bezier(0.22,1,0.36,1);
+      display:flex;flex-direction:column;
+    }
+    html.night .settings-panel{background:linear-gradient(180deg,#0c0c1a,#0f0a1e);}
+    .settings-overlay.open .settings-panel{right:0;}
+    .settings-panel-head{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:22px 20px 18px;border-bottom:1px solid var(--line);
+      position:sticky;top:0;z-index:2;
+      background:var(--paper);backdrop-filter:blur(12px);
+    }
+    html.night .settings-panel-head{background:rgba(8,8,15,0.92);}
+    .settings-panel-title{font-family:'Fraunces',serif;font-style:italic;font-size:22px;font-weight:300;color:var(--ink);}
+    .settings-panel-title span{color:var(--acc);}
+    html.night .settings-panel-title span{color:var(--lime);}
+    .settings-close{width:30px;height:30px;border-radius:8px;border:1px solid var(--line);background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--mute);font-size:13px;transition:background 0.15s,color 0.15s;}
+    .settings-close:hover{background:var(--paper-2);color:var(--ink);}
+    html.night .settings-close:hover{background:rgba(255,255,255,0.06);}
+    .settings-body{padding:16px 20px 30px;flex:1;}
+
+    /* 设置组 */
+    .setting-group{margin-bottom:22px;}
+    .setting-group-label{
+      font-family:'Geist Mono',monospace;font-size:7.5px;color:var(--mute);
+      letter-spacing:0.2em;text-transform:uppercase;margin-bottom:10px;
+      display:flex;align-items:center;gap:8px;
+    }
+    .setting-group-label::after{content:'';flex:1;height:1px;background:var(--line);}
+    .setting-field{margin-bottom:10px;}
+    .setting-label{font-family:'Geist Mono',monospace;font-size:9px;color:var(--ink-2);margin-bottom:5px;display:flex;align-items:center;gap:6px;}
+    .setting-label .badge{font-size:7px;padding:1px 6px;border-radius:100px;background:var(--acc-soft);color:var(--acc);border:1px solid rgba(91,124,250,0.18);}
+    html.night .setting-label .badge{background:rgba(212,255,77,0.08);color:var(--lime);border-color:rgba(212,255,77,0.18);}
+    .setting-input{
+      width:100%;padding:9px 12px;border-radius:7px;
+      background:var(--card);border:1px solid var(--line);
+      font-family:'Geist Mono',monospace;font-size:10px;color:var(--ink);
+      outline:none;transition:border-color 0.2s,box-shadow 0.2s;
+    }
+    .setting-input:focus{border-color:rgba(91,124,250,0.35);box-shadow:0 0 0 3px rgba(91,124,250,0.07);}
+    html.night .setting-input{background:#12121e;border-color:rgba(255,255,255,0.09);}
+    html.night .setting-input:focus{border-color:rgba(212,255,77,0.3);box-shadow:0 0 0 3px rgba(212,255,77,0.06);}
+    .setting-input::placeholder{color:var(--mute);}
+    .setting-input[type="password"]{letter-spacing:0.1em;}
+    .setting-hint{font-family:'Geist Mono',monospace;font-size:7.5px;color:var(--mute);margin-top:4px;line-height:1.5;}
+
+    /* 状态指示条 */
+    .status-bar{
+      display:flex;align-items:center;gap:7px;
+      padding:8px 12px;border-radius:7px;
+      background:var(--paper-2);border:1px solid var(--line);
+      font-family:'Geist Mono',monospace;font-size:8.5px;color:var(--ink-2);
+      margin-bottom:10px;
+    }
+    html.night .status-bar{background:rgba(255,255,255,0.03);border-color:rgba(255,255,255,0.07);}
+    .status-dot-sm{width:5px;height:5px;border-radius:50%;background:var(--line);flex-shrink:0;transition:background 0.3s,box-shadow 0.3s;}
+    .status-dot-sm.ok{background:var(--mint);box-shadow:0 0 5px rgba(67,217,160,0.5);}
+    .status-dot-sm.err{background:var(--coral);}
+    .status-dot-sm.pending{background:var(--amber);animation:dotPulse 1s infinite;}
+    @keyframes dotPulse{0%,100%{opacity:1}50%{opacity:0.4}}
+
+    /* 设置按钮行 */
+    .setting-actions{display:flex;gap:8px;margin-top:10px;}
+    .s-btn{
+      flex:1;padding:9px 14px;border-radius:7px;border:1px solid var(--line);
+      font-family:'Geist Mono',monospace;font-size:9px;font-weight:600;letter-spacing:0.06em;
+      cursor:pointer;background:var(--card);color:var(--ink-2);
+      display:flex;align-items:center;justify-content:center;gap:7px;
+      transition:all 0.18s;
+    }
+    .s-btn:hover{border-color:rgba(91,124,250,0.28);color:var(--acc);}
+    html.night .s-btn{background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.08);color:rgba(232,232,245,0.5);}
+    html.night .s-btn:hover{border-color:rgba(212,255,77,0.25);color:var(--lime);}
+    .s-btn:active{transform:scale(0.97);}
+    .s-btn.primary{background:var(--acc);border-color:transparent;color:#fff;}
+    html.night .s-btn.primary{background:var(--lime);color:#08080f;}
+    .s-btn.primary:hover{filter:brightness(1.08);}
+    .s-btn.danger{border-color:rgba(255,107,107,0.3);color:var(--coral);}
+    .s-btn.danger:hover{background:rgba(255,107,107,0.08);}
+
+    /* SQL 教程卡 */
+    .sql-card{
+      background:#0a0a0f;border-radius:8px;padding:12px 14px;
+      font-family:'Geist Mono',monospace;font-size:8px;color:rgba(255,255,255,0.5);
+      line-height:1.6;margin-top:8px;position:relative;overflow:hidden;
+    }
+    .sql-card .sql-comment{color:rgba(255,255,255,0.22);}
+    .sql-card .sql-kw{color:#7a9cff;}
+    .sql-card .sql-str{color:#43d9a0;}
+    .sql-card .sql-copy{
+      position:absolute;top:8px;right:8px;background:rgba(255,255,255,0.06);
+      border:1px solid rgba(255,255,255,0.1);border-radius:4px;
+      font-size:7px;padding:2px 7px;cursor:pointer;color:rgba(255,255,255,0.3);
+      transition:background 0.15s,color 0.15s;
+    }
+    .sql-copy:hover{background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.7);}
+
+    /* Push 状态卡 */
+    .push-status-card{
+      border-radius:8px;border:1px solid var(--line);overflow:hidden;margin-bottom:8px;
+    }
+    .push-status-row{
+      display:flex;align-items:center;gap:10px;padding:10px 12px;
+      border-bottom:1px solid var(--line);
+    }
+    .push-status-row:last-child{border-bottom:none;}
+    html.night .push-status-card{border-color:rgba(255,255,255,0.07);}
+    html.night .push-status-row{border-bottom-color:rgba(255,255,255,0.05);}
+    .push-status-icon{width:28px;height:28px;border-radius:7px;background:var(--paper-2);display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;}
+    html.night .push-status-icon{background:rgba(255,255,255,0.04);}
+    .push-status-info{flex:1;min-width:0;}
+    .push-status-name{font-family:'Geist Mono',monospace;font-size:9px;color:var(--ink);font-weight:600;}
+    .push-status-sub{font-family:'Geist Mono',monospace;font-size:7.5px;color:var(--mute);margin-top:2px;}
+
+    /* ══ 主开关卡 ══ */
+    .master-card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:16px 18px;margin-bottom:22px;position:relative;overflow:hidden;transition:background 0.35s,border-color 0.35s,box-shadow 0.35s;box-shadow:0 2px 12px -4px rgba(0,0,0,0.06);}
+    .master-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--line);border-radius:4px 0 0 4px;transition:background 0.35s;}
+    .master-card.active::before{background:linear-gradient(180deg,var(--acc),rgba(91,124,250,0.3));}
+    html.night .master-card{background:linear-gradient(145deg,#0f0f1e,#141428);border-color:rgba(255,255,255,0.06);box-shadow:0 10px 30px rgba(0,0,0,0.3);}
+    html.night .master-card.active{border-color:rgba(212,255,77,0.1);}
+    html.night .master-card.active::before{background:linear-gradient(180deg,var(--lime),#b8e030);}
+    .master-row{display:flex;align-items:center;gap:12px;}
+    .master-icon{width:38px;height:38px;border-radius:10px;background:var(--acc-soft);border:1px solid rgba(91,124,250,0.13);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;transition:0.3s;}
+    html.night .master-icon{background:rgba(212,255,77,0.07);border-color:rgba(212,255,77,0.13);}
+    .master-card.active .master-icon{background:rgba(91,124,250,0.16);box-shadow:0 0 14px rgba(91,124,250,0.18);}
+    html.night .master-card.active .master-icon{background:rgba(212,255,77,0.12);box-shadow:0 0 14px rgba(212,255,77,0.16);}
+    .master-info{flex:1;min-width:0;}
+    .master-label{font-family:'Fraunces',serif;font-style:italic;font-size:18px;color:var(--ink);line-height:1.1;}
+    .master-desc{font-family:'Geist Mono',monospace;font-size:9px;color:var(--mute);margin-top:3px;letter-spacing:0.04em;}
+    .master-desc.on{color:var(--mint);}
+    html.night .master-desc.on{color:var(--lime);}
+    .toggle{width:44px;height:25px;border-radius:13px;background:var(--paper-2);border:1px solid var(--line);position:relative;cursor:pointer;flex-shrink:0;transition:background 0.3s cubic-bezier(0.22,1,0.36,1),border-color 0.3s;}
+    .toggle.on{background:var(--acc);border-color:transparent;box-shadow:0 0 10px rgba(91,124,250,0.28);}
+    html.night .toggle.on{background:linear-gradient(90deg,var(--lime),#b8e030);box-shadow:0 0 10px rgba(212,255,77,0.22);}
+    .toggle-knob{width:19px;height:19px;background:#fff;border-radius:50%;position:absolute;top:2px;left:2px;transition:transform 0.3s cubic-bezier(0.22,1,0.36,1);box-shadow:0 2px 5px rgba(0,0,0,0.18);}
+    .toggle.on .toggle-knob{transform:translateX(19px);}
+    .master-chips{display:flex;gap:6px;margin-top:11px;flex-wrap:wrap;}
+    .master-chip{font-family:'Geist Mono',monospace;font-size:7.5px;padding:2px 8px;border-radius:100px;background:rgba(10,10,10,0.04);border:1px solid var(--line);color:var(--mute);white-space:nowrap;transition:background 0.3s,color 0.3s,border-color 0.3s;}
+    .master-chip.acc{background:var(--acc-soft);border-color:rgba(91,124,250,0.2);color:var(--acc);}
+    html.night .master-chip{background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.08);}
+    html.night .master-chip.acc{background:rgba(212,255,77,0.08);border-color:rgba(212,255,77,0.18);color:var(--lime);}
+
+    /* cloud 状态徽章 */
+    .cloud-badge{
+      display:inline-flex;align-items:center;gap:4px;
+      font-family:'Geist Mono',monospace;font-size:7px;
+      padding:2px 7px;border-radius:100px;
+      background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.18);
+      color:var(--purple);white-space:nowrap;
+    }
+    .cloud-badge.active-cloud{background:rgba(67,217,160,0.08);border-color:rgba(67,217,160,0.18);color:var(--mint);}
+    .cloud-badge i{font-size:6px;}
+
+    /* SECTION */
+    .section{margin-bottom:20px;}
+    .section-head{display:flex;align-items:center;gap:10px;margin-bottom:11px;}
+    .section-label{font-family:'Geist Mono',monospace;font-size:8px;color:var(--mute);letter-spacing:0.2em;text-transform:uppercase;white-space:nowrap;}
+    .section-rule{flex:1;height:1px;background:var(--line);}
+    .section-count{font-family:'Geist Mono',monospace;font-size:8px;color:var(--mute);white-space:nowrap;}
+
+    /* 角色网格 */
+    .chars-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;}
+    .char-card{position:relative;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:11px 10px 10px;cursor:pointer;overflow:hidden;transition:transform 0.28s cubic-bezier(0.175,0.885,0.32,1.275),box-shadow 0.28s;display:flex;flex-direction:column;align-items:center;gap:6px;user-select:none;box-shadow:0 2px 8px -3px rgba(0,0,0,0.06);}
+    .char-card::after{content:'';position:absolute;top:0;left:0;right:0;height:2.5px;background:transparent;transition:background 0.22s;}
+    .char-card.selected::after{background:var(--acc);}
+    html.night .char-card.selected::after{background:var(--lime);}
+    .char-card:active{transform:scale(0.93);}
+    html.night .char-card{background:rgba(255,255,255,0.03);border-color:rgba(255,255,255,0.07);box-shadow:none;}
+    .char-card.selected{border-color:rgba(91,124,250,0.32);box-shadow:0 0 0 1.5px rgba(91,124,250,0.16),0 3px 12px rgba(91,124,250,0.09);}
+    html.night .char-card.selected{border-color:rgba(212,255,77,0.26);box-shadow:0 0 0 1px rgba(212,255,77,0.13),0 4px 16px rgba(0,0,0,0.3);}
+    .char-sel-dot{position:absolute;top:6px;right:6px;width:6px;height:6px;border-radius:50%;background:var(--acc);opacity:0;transform:scale(0);transition:opacity 0.2s,transform 0.25s cubic-bezier(0.175,0.885,0.32,1.275);}
+    html.night .char-sel-dot{background:var(--lime);}
+    .char-card.selected .char-sel-dot{opacity:1;transform:scale(1);}
+    .char-avatar{width:36px;height:36px;border-radius:50%;background:var(--paper-2);border:2px solid var(--line);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-style:italic;font-size:15px;color:var(--mute);transition:border-color 0.2s;}
+    html.night .char-avatar{background:rgba(255,255,255,0.05);border-color:rgba(255,255,255,0.1);}
+    .char-card.selected .char-avatar{border-color:rgba(91,124,250,0.38);}
+    html.night .char-card.selected .char-avatar{border-color:rgba(212,255,77,0.28);}
+    .char-avatar img{width:100%;height:100%;object-fit:cover;display:block;}
+    .char-name{font-family:'Geist Mono',monospace;font-size:9.5px;font-weight:600;color:var(--ink);letter-spacing:0.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;text-align:center;}
+    .char-status-dot{width:4px;height:4px;border-radius:50%;background:var(--line);flex-shrink:0;margin-top:-2px;transition:background 0.2s,box-shadow 0.2s;}
+    .char-card.selected .char-status-dot{background:var(--mint);box-shadow:0 0 5px rgba(67,217,160,0.6);}
+    html.night .char-card.selected .char-status-dot{background:var(--lime);box-shadow:0 0 5px rgba(212,255,77,0.5);}
+
+    /* 定时器 */
+    .timers-section{display:none;}
+    .timers-section.visible{display:block;}
+    .timer-card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:14px 16px 13px;margin-bottom:9px;position:relative;overflow:hidden;box-shadow:2px 3px 10px rgba(0,0,0,0.05);}
+    .timer-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--acc),rgba(91,124,250,0.28));border-radius:3px 0 0 3px;}
+    html.night .timer-card{background:#12121e;border-color:rgba(212,255,77,0.1);box-shadow:0 4px 18px rgba(0,0,0,0.3);}
+    html.night .timer-card::before{background:linear-gradient(180deg,var(--lime),rgba(212,255,77,0.18));}
+    .timer-header{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+    .timer-avatar{width:28px;height:28px;border-radius:50%;background:var(--paper-2);border:1.5px solid var(--line);overflow:hidden;display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:11px;color:var(--mute);flex-shrink:0;}
+    html.night .timer-avatar{background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.09);}
+    .timer-avatar img{width:100%;height:100%;object-fit:cover;}
+    .timer-name{font-family:'Fraunces',serif;font-style:italic;font-size:14px;color:var(--ink);flex:1;}
+    .timer-countdown{font-family:'Geist Mono',monospace;font-size:11px;color:var(--acc);font-weight:600;letter-spacing:0.04em;transition:color 0.3s;}
+    html.night .timer-countdown{color:var(--lime);}
+    .timer-countdown.urgent{color:var(--coral);animation:countdownPulse 1s ease-in-out infinite;}
+    @keyframes countdownPulse{0%,100%{opacity:1}50%{opacity:0.5}}
+    .slider-wrap{padding-left:2px;}
+    .slider-labels{display:flex;justify-content:space-between;margin-bottom:4px;}
+    .slider-label{font-family:'Geist Mono',monospace;font-size:7px;color:var(--mute);}
+    .slider-track{position:relative;height:22px;display:flex;align-items:center;}
+    .slider-bg{position:absolute;left:0;right:0;height:3px;background:var(--paper-2);border-radius:2px;}
+    html.night .slider-bg{background:rgba(255,255,255,0.06);}
+    .slider-fill{position:absolute;left:0;height:3px;background:linear-gradient(90deg,var(--acc),rgba(91,124,250,0.5));border-radius:2px;transition:width 0.1s;}
+    html.night .slider-fill{background:linear-gradient(90deg,var(--lime),rgba(212,255,77,0.5));}
+    input.time-slider{position:absolute;left:0;right:0;width:100%;opacity:0;cursor:pointer;height:22px;margin:0;}
+    .slider-value-label{font-family:'Geist Mono',monospace;font-size:8px;color:var(--mute);margin-top:3px;text-align:right;}
+
+    /* 聊天列表 */
+    .chat-list{display:flex;flex-direction:column;gap:7px;}
+    .chat-item{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:10px;cursor:pointer;position:relative;overflow:hidden;transition:transform 0.18s,border-color 0.2s;user-select:none;box-shadow:0 2px 8px -3px rgba(0,0,0,0.05);}
+    .chat-item::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px;background:transparent;transition:background 0.2s;}
+    .chat-item.selected::before{background:var(--acc);}
+    html.night .chat-item.selected::before{background:var(--lime);}
+    .chat-item:active{transform:scale(0.97);}
+    html.night .chat-item{background:rgba(255,255,255,0.03);border-color:rgba(255,255,255,0.06);box-shadow:none;}
+    .chat-item.selected{border-color:rgba(91,124,250,0.26);}
+    html.night .chat-item.selected{border-color:rgba(212,255,77,0.18);background:rgba(212,255,77,0.02);}
+    .auto-badge{position:absolute;bottom:6px;right:10px;font-family:'Geist Mono',monospace;font-size:7px;color:var(--acc);letter-spacing:0.08em;opacity:0;transition:opacity 0.2s;background:var(--acc-soft);padding:1px 5px;border-radius:100px;border:1px solid rgba(91,124,250,0.14);}
+    html.night .auto-badge{color:var(--lime);background:rgba(212,255,77,0.07);border-color:rgba(212,255,77,0.14);}
+    .chat-item.auto-selected .auto-badge{opacity:1;}
+    .chat-avatars{position:relative;width:42px;height:36px;flex-shrink:0;}
+    .chat-avatar-main{width:32px;height:32px;border-radius:50%;overflow:hidden;background:var(--paper-2);border:2px solid var(--line);display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-style:italic;font-size:13px;color:var(--mute);position:absolute;top:0;left:0;z-index:1;}
+    html.night .chat-avatar-main{background:rgba(255,255,255,0.05);border-color:rgba(255,255,255,0.1);}
+    .chat-avatar-main img{width:100%;height:100%;object-fit:cover;display:block;}
+    .chat-avatar-user{width:19px;height:19px;border-radius:50%;overflow:hidden;background:var(--paper-2);border:1.5px solid var(--card);display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-style:italic;font-size:8px;color:var(--mute);position:absolute;bottom:0;right:0;z-index:2;}
+    html.night .chat-avatar-user{background:rgba(255,255,255,0.05);border-color:var(--card);}
+    .chat-avatar-user img{width:100%;height:100%;object-fit:cover;display:block;}
+    .chat-info{flex:1;min-width:0;padding-right:40px;}
+    .chat-name{font-family:'Fraunces',serif;font-style:italic;font-size:14px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .chat-preview{font-family:'Geist Mono',monospace;font-size:9px;color:var(--mute);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .chat-time{position:absolute;top:11px;right:12px;font-family:'Geist Mono',monospace;font-size:8px;color:var(--mute);}
+    .group-item{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:10px;box-shadow:0 2px 8px -3px rgba(0,0,0,0.05);}
+    html.night .group-item{background:rgba(255,255,255,0.03);border-color:rgba(255,255,255,0.06);box-shadow:none;}
+    .group-avatar{width:36px;height:36px;border-radius:50%;background:var(--paper-2);border:2px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:14px;overflow:hidden;flex-shrink:0;position:relative;}
+    html.night .group-avatar{background:rgba(255,255,255,0.05);border-color:rgba(255,255,255,0.1);}
+    .group-avatar img{width:100%;height:100%;object-fit:cover;}
+    .group-member-count{position:absolute;bottom:-2px;right:-2px;background:var(--paper);border:1px solid var(--line);font-family:'Geist Mono',monospace;font-size:7px;color:var(--mute);padding:0 3px;border-radius:4px;line-height:1.5;}
+    html.night .group-member-count{background:var(--card);}
+    .group-info{flex:1;min-width:0;}
+    .group-name{font-family:'Fraunces',serif;font-style:italic;font-size:14px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .group-members{font-family:'Geist Mono',monospace;font-size:9px;color:var(--mute);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .group-badge{font-family:'Geist Mono',monospace;font-size:7.5px;padding:2px 8px;border-radius:100px;background:rgba(10,10,10,0.04);border:1px solid var(--line);color:var(--mute);flex-shrink:0;}
+    html.night .group-badge{background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.08);}
+    .empty-state{text-align:center;padding:28px 0;color:var(--mute);}
+    .empty-state i{font-size:20px;opacity:0.25;display:block;margin-bottom:8px;}
+    .empty-state p{font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:0.06em;}
+
+    /* 测试按钮 */
+    .test-btn-wrap{margin:24px 0 20px;}
+    .test-btn{width:100%;padding:13px 16px;border-radius:8px;cursor:pointer;background:var(--card);border:1px solid var(--line);color:var(--ink-2);font-family:'Geist Mono',monospace;font-size:11px;font-weight:600;letter-spacing:0.08em;display:flex;align-items:center;justify-content:center;gap:9px;transition:all 0.2s;box-shadow:0 2px 8px -3px rgba(0,0,0,0.06);position:relative;overflow:hidden;}
+    .test-btn::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3.5px;background:rgba(245,158,11,0.45);border-radius:3px 0 0 3px;transition:background 0.2s;}
+    .test-btn:hover{border-color:rgba(245,158,11,0.28);}
+    .test-btn:hover::before{background:var(--amber);}
+    .test-btn:active{transform:scale(0.98);}
+    html.night .test-btn{background:rgba(255,255,255,0.03);border-color:rgba(255,255,255,0.07);color:rgba(232,232,245,0.5);}
+    html.night .test-btn::before{background:rgba(212,255,77,0.28);}
+    html.night .test-btn:hover{border-color:rgba(212,255,77,0.22);}
+    html.night .test-btn:hover::before{background:var(--lime);}
+    .test-btn.firing{border-color:rgba(91,124,250,0.35);color:var(--acc);animation:testFire 0.5s ease-out;}
+    html.night .test-btn.firing{color:var(--lime);border-color:rgba(212,255,77,0.28);}
+    @keyframes testFire{0%{box-shadow:none}50%{box-shadow:0 0 18px rgba(91,124,250,0.16)}100%{box-shadow:none}}
+    .test-btn.firing i{animation:spinOnce 0.5s ease-out;}
+    @keyframes spinOnce{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+
+    /* 控制台 */
+    .console-card{background:#0a0a0f;border-radius:10px;overflow:hidden;}
+    html:not(.night) .console-card{box-shadow:0 4px 20px rgba(0,0,0,0.09);border:1px solid rgba(0,0,0,0.04);}
+    .console-header{display:flex;justify-content:space-between;align-items:center;padding:9px 13px;border-bottom:1px solid rgba(255,255,255,0.06);}
+    .console-dots{display:flex;gap:5px;}
+    .console-dot{width:8px;height:8px;border-radius:50%;}
+    .console-dot:nth-child(1){background:#ff5f57}.console-dot:nth-child(2){background:#febc2e}.console-dot:nth-child(3){background:#28c840}
+    .console-title{font-family:'Geist Mono',monospace;font-size:8px;color:rgba(255,255,255,0.26);letter-spacing:0.12em;text-transform:uppercase;}
+    .console-controls{display:flex;gap:6px;align-items:center;}
+    .console-clear-btn{font-family:'Geist Mono',monospace;font-size:7.5px;color:var(--coral);border:1px solid rgba(255,107,107,0.22);padding:2px 8px;border-radius:100px;cursor:pointer;transition:background 0.15s;background:none;}
+    .console-clear-btn:active{background:rgba(255,107,107,0.1);}
+    .console-export-btn{font-family:'Geist Mono',monospace;font-size:7.5px;color:rgba(255,255,255,0.25);border:1px solid rgba(255,255,255,0.1);padding:2px 8px;border-radius:100px;cursor:pointer;transition:background 0.15s;background:none;}
+    .console-export-btn:active{background:rgba(255,255,255,0.06);}
+    .console-body{height:220px;overflow-y:auto;padding:6px 0;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,0.08) transparent;}
+    .console-body::-webkit-scrollbar{width:2px;}
+    .console-body::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);}
+    .log-line{display:flex;gap:8px;align-items:flex-start;padding:5px 13px;border-bottom:1px solid rgba(255,255,255,0.04);}
+    .log-line:last-child{border-bottom:none;}
+    .log-time{font-family:'Geist Mono',monospace;font-size:7px;color:rgba(255,255,255,0.2);flex-shrink:0;margin-top:2px;}
+    .log-msg{font-family:'Geist Mono',monospace;font-size:8.5px;color:rgba(255,255,255,0.6);line-height:1.5;flex:1;word-break:break-all;}
+    .log-status{font-family:'Geist Mono',monospace;font-size:7px;padding:1px 6px;border-radius:100px;flex-shrink:0;margin-top:2px;}
+    .log-status.ok{background:rgba(67,217,160,0.12);color:#43d9a0;border:1px solid rgba(67,217,160,0.2);}
+    .log-status.err{background:rgba(255,107,107,0.1);color:var(--coral);border:1px solid rgba(255,107,107,0.18);}
+    .log-status.run{background:rgba(245,158,11,0.1);color:var(--amber);border:1px solid rgba(245,158,11,0.2);animation:logPulse 1.2s ease-in-out infinite;}
+    .log-status.info{background:rgba(91,124,250,0.1);color:#7a9cff;border:1px solid rgba(91,124,250,0.18);}
+    .log-status.cloud{background:rgba(167,139,250,0.1);color:var(--purple);border:1px solid rgba(167,139,250,0.18);}
+    @keyframes logPulse{0%,100%{opacity:1}50%{opacity:0.5}}
+    .console-empty{padding:24px 13px;font-family:'Geist Mono',monospace;font-size:9px;color:rgba(255,255,255,0.16);text-align:center;font-style:italic;}
+
+    /* Toast */
+    .toast-container{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:6px;pointer-events:none;width:calc(100% - 28px);max-width:360px;}
+    .toast{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:9px;font-size:12px;color:var(--ink);box-shadow:0 8px 24px rgba(0,0,0,0.12);animation:toastIn 0.3s cubic-bezier(0.22,1,0.36,1);pointer-events:auto;}
+    html.night .toast{background:#1a1a2e;border-color:rgba(255,255,255,0.08);box-shadow:0 8px 28px rgba(0,0,0,0.4);}
+    .toast.out{animation:toastOut 0.25s cubic-bezier(0.22,1,0.36,1) forwards;}
+    @keyframes toastIn{from{opacity:0;transform:translateY(-8px) scale(0.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+    @keyframes toastOut{from{opacity:1;transform:translateY(0) scale(1)}to{opacity:0;transform:translateY(-6px) scale(0.95)}}
+    .toast i{font-size:12px;}
+    .toast.success{border-left:3px solid #43d9a0}.toast.success i{color:#43d9a0}
+    .toast.error{border-left:3px solid var(--coral)}.toast.error i{color:var(--coral)}
+    .toast.warn{border-left:3px solid var(--amber)}.toast.warn i{color:var(--amber)}
+    .toast.purple{border-left:3px solid var(--purple)}.toast.purple i{color:var(--purple)}
+
+    /* 动画 */
+    .fade-up{opacity:0;transform:translateY(12px);animation:fadeUp 0.42s cubic-bezier(0.22,1,0.36,1) forwards;}
+    @keyframes fadeUp{to{opacity:1;transform:translateY(0)}}
+    .d1{animation-delay:0.04s}.d2{animation-delay:0.08s}.d3{animation-delay:0.13s}
+    .d4{animation-delay:0.18s}.d5{animation-delay:0.23s}.d6{animation-delay:0.28s}
+    .skeleton{background:linear-gradient(90deg,var(--paper-2) 25%,rgba(255,255,255,0.5) 50%,var(--paper-2) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:6px;}
+    html.night .skeleton{background:linear-gradient(90deg,rgba(255,255,255,0.04) 25%,rgba(255,255,255,0.08) 50%,rgba(255,255,255,0.04) 75%);background-size:200% 100%;}
+    @keyframes shimmer{0%{background-position:200% center}100%{background-position:-200% center}}
+
+    /* 分隔线 + 信息文本 */
+    .info-text{font-family:'Geist Mono',monospace;font-size:8px;color:var(--mute);line-height:1.7;padding:8px 0;}
+    .step-badge{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:var(--acc-soft);border:1px solid rgba(91,124,250,0.2);font-size:7px;color:var(--acc);font-weight:700;margin-right:5px;flex-shrink:0;}
+    html.night .step-badge{background:rgba(212,255,77,0.08);border-color:rgba(212,255,77,0.18);color:var(--lime);}
+    .step-row{display:flex;align-items:flex-start;gap:4px;margin-bottom:7px;}
+    .step-text{font-family:'Geist Mono',monospace;font-size:8px;color:var(--ink-2);line-height:1.6;flex:1;}
+
+    /* 离线消息收件指示 */
+    .inbox-badge{
+      display:none;position:fixed;top:70px;right:16px;z-index:7000;
+      background:var(--purple);color:#fff;
+      font-family:'Geist Mono',monospace;font-size:8px;
+      padding:4px 10px 4px 8px;border-radius:100px;
+      align-items:center;gap:5px;
+      box-shadow:0 4px 14px rgba(167,139,250,0.4);
+      animation:inboxPop 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
+    }
+    .inbox-badge.show{display:flex;}
+    @keyframes inboxPop{from{opacity:0;transform:scale(0.7) translateY(-4px)}to{opacity:1;transform:scale(1) translateY(0)}}
+    .inbox-count{background:rgba(255,255,255,0.25);border-radius:100px;padding:0 5px;font-size:7px;}
+
+    /* ══ 帮助按钮 & 气泡 ══ */
+    .help-btn{
+      width:18px;height:18px;border-radius:50%;border:none;background:none;
+      cursor:pointer;padding:0;display:inline-flex;align-items:center;justify-content:center;
+      color:var(--mute);font-size:11px;flex-shrink:0;
+      transition:color 0.18s,transform 0.18s;vertical-align:middle;
+    }
+    .help-btn:hover{color:var(--acc);transform:scale(1.18);}
+    html.night .help-btn:hover{color:var(--lime);}
+    .help-btn-inline{
+      width:14px;height:14px;border-radius:50%;border:none;background:none;
+      cursor:pointer;padding:0;display:inline-flex;align-items:center;justify-content:center;
+      color:var(--mute);font-size:9px;flex-shrink:0;
+      transition:color 0.18s;vertical-align:middle;margin-left:2px;
+    }
+    .help-btn-inline:hover{color:var(--acc);}
+    html.night .help-btn-inline:hover{color:var(--lime);}
+    .help-bubble{
+      position:fixed;z-index:9500;
+      width:min(320px,calc(100vw - 32px));
+      background:var(--card);border:1px solid var(--line);border-radius:12px;
+      box-shadow:0 12px 40px rgba(0,0,0,0.18),0 2px 8px rgba(0,0,0,0.08);
+      animation:bubblePop 0.22s cubic-bezier(0.175,0.885,0.32,1.275);overflow:hidden;
+    }
+    html.night .help-bubble{background:#14142a;border-color:rgba(255,255,255,0.1);box-shadow:0 16px 48px rgba(0,0,0,0.5);}
+    @keyframes bubblePop{from{opacity:0;transform:scale(0.88) translateY(4px)}to{opacity:1;transform:scale(1) translateY(0)}}
+    .help-bubble-head{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:11px 14px 9px;border-bottom:1px solid var(--line);
+      background:linear-gradient(90deg,var(--acc-soft),transparent);
+    }
+    html.night .help-bubble-head{background:linear-gradient(90deg,rgba(212,255,77,0.06),transparent);}
+    .help-bubble-title{font-family:'Fraunces',serif;font-style:italic;font-size:14px;color:var(--ink);}
+    .help-bubble-close{
+      width:22px;height:22px;border-radius:6px;border:none;background:none;
+      cursor:pointer;color:var(--mute);font-size:11px;
+      display:flex;align-items:center;justify-content:center;transition:background 0.15s,color 0.15s;
+    }
+    .help-bubble-close:hover{background:var(--paper-2);color:var(--ink);}
+    .help-bubble-body{
+      padding:12px 14px;max-height:360px;overflow-y:auto;
+      scrollbar-width:thin;scrollbar-color:var(--line) transparent;
+      font-family:'Geist',sans-serif;font-size:12px;color:var(--ink-2);line-height:1.65;
+    }
+    .hb-step{display:flex;align-items:flex-start;gap:8px;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--line);}
+    .hb-step:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0;}
+    .hb-num{
+      width:20px;height:20px;border-radius:50%;flex-shrink:0;margin-top:1px;
+      background:var(--acc-soft);border:1px solid rgba(91,124,250,0.2);
+      font-family:'Geist Mono',monospace;font-size:9px;font-weight:700;
+      color:var(--acc);display:flex;align-items:center;justify-content:center;
+    }
+    html.night .hb-num{background:rgba(212,255,77,0.08);border-color:rgba(212,255,77,0.18);color:var(--lime);}
+    .hb-txt{flex:1;font-size:11.5px;line-height:1.6;}
+    .hb-txt strong{color:var(--ink);font-weight:600;}
+    .hb-hl{
+      display:inline-block;background:rgba(91,124,250,0.1);border:1px solid rgba(91,124,250,0.2);
+      color:var(--acc);border-radius:4px;font-family:'Geist Mono',monospace;font-size:9px;
+      padding:1px 5px;margin:0 1px;white-space:nowrap;
+    }
+    html.night .hb-hl{background:rgba(212,255,77,0.08);border-color:rgba(212,255,77,0.2);color:var(--lime);}
+    .hb-hl.green{background:rgba(67,217,160,0.08);border-color:rgba(67,217,160,0.2);color:var(--mint);}
+    .hb-hl.red{background:rgba(255,107,107,0.08);border-color:rgba(255,107,107,0.2);color:var(--coral);}
+    .hb-hl.amber{background:rgba(245,158,11,0.08);border-color:rgba(245,158,11,0.2);color:var(--amber);}
+    .hb-hl.purple{background:rgba(167,139,250,0.08);border-color:rgba(167,139,250,0.2);color:var(--purple);}
+    .hb-warn{display:flex;gap:6px;align-items:flex-start;background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.18);border-radius:7px;padding:7px 10px;margin:8px 0;font-size:11px;color:var(--amber);}
+    .hb-warn i{flex-shrink:0;margin-top:2px;font-size:10px;}
+    .hb-tip{display:flex;gap:6px;align-items:flex-start;background:rgba(67,217,160,0.05);border:1px solid rgba(67,217,160,0.15);border-radius:7px;padding:7px 10px;margin:8px 0;font-size:11px;color:var(--mint);}
+    .hb-tip i{flex-shrink:0;margin-top:2px;font-size:10px;}
+    .hb-code{background:#0a0a0f;border-radius:6px;padding:7px 10px;margin:6px 0;font-family:'Geist Mono',monospace;font-size:9px;color:rgba(255,255,255,0.6);line-height:1.6;white-space:pre-wrap;word-break:break-all;overflow-x:hidden;}
+    .help-bubble-nav{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;border-top:1px solid var(--line);}
+    .hb-nav-btn{font-family:'Geist Mono',monospace;font-size:8px;padding:3px 10px;border-radius:100px;border:1px solid var(--line);background:none;cursor:pointer;color:var(--mute);display:flex;align-items:center;gap:4px;transition:border-color 0.15s,color 0.15s;}
+    .hb-nav-btn:hover{border-color:rgba(91,124,250,0.3);color:var(--acc);}
+    html.night .hb-nav-btn:hover{border-color:rgba(212,255,77,0.25);color:var(--lime);}
+    .hb-nav-btn:disabled{opacity:0.28;cursor:default;pointer-events:none;}
+    .hb-nav-page{font-family:'Geist Mono',monospace;font-size:8px;color:var(--mute);}
+
+
+    /* 建表提醒条 */
+    .pretable-reminder{
+      display:flex;align-items:center;justify-content:space-between;
+      margin-top:9px;padding:8px 11px;border-radius:7px;
+      background:rgba(91,124,250,0.07);border:1px solid rgba(91,124,250,0.2);
+    }
+    html.night .pretable-reminder{background:rgba(212,255,77,0.06);border-color:rgba(212,255,77,0.18);}
+    .pretable-left{display:flex;align-items:center;gap:7px;flex:1;min-width:0;}
+    .pretable-left i{color:var(--acc);font-size:10px;flex-shrink:0;}
+    html.night .pretable-left i{color:var(--lime);}
+    .pretable-left span{font-family:'Geist Mono',monospace;font-size:8.5px;color:var(--acc);line-height:1.4;}
+    html.night .pretable-left span{color:var(--lime);}
+
+  </style>
+</head>
+<body>
+  <div class="toast-container" id="toastContainer"></div>
+  <div class="inbox-badge" id="inboxBadge"><i class="fa-solid fa-envelope"></i>新离线消息 <span class="inbox-count" id="inboxCount">0</span></div>
+
+  <!-- ══ 设置面板 ══ -->
+  <!-- 帮助气泡 -->
+  <div id="helpBubble" class="help-bubble" style="display:none" onclick="event.stopPropagation()">
+    <div class="help-bubble-head">
+      <div class="help-bubble-title" id="helpTitle">帮助</div>
+      <button class="help-bubble-close" onclick="closeHelp()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="help-bubble-body" id="helpBody"></div>
+    <div class="help-bubble-nav" id="helpNav"></div>
+  </div>
+
+  <div class="settings-overlay" id="settingsOverlay" onclick="handleOverlayClick(event)">
+    <div class="settings-panel" id="settingsPanel">
+      <div class="settings-panel-head">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="settings-panel-title">云端 <span>Config</span></div>
+          <button class="help-btn" onclick="showHelp('overview',this)"><i class="fa-solid fa-circle-exclamation"></i></button>
+        </div>
+        <button class="settings-close" onclick="closeSettings()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="settings-body">
+
+        <!-- Supabase 配置 -->
+        <div class="setting-group">
+          <div class="setting-group-label" style="display:flex;align-items:center;gap:6px">
+            Supabase 云端数据库 <button class="help-btn" onclick="showHelp('supabase',this)"><i class="fa-solid fa-circle-exclamation"></i></button>
+          </div>
+          <div id="supabaseStatus" class="status-bar">
+            <div class="status-dot-sm" id="sbDot"></div>
+            <span id="sbStatusText">未连接</span>
+          </div>
+          <div class="setting-field">
+            <div class="setting-label">Project URL <span class="badge">必填</span> <button class="help-btn-inline" onclick="showHelp('projectUrl',this)"><i class="fa-solid fa-circle-exclamation"></i></button></div>
+            <input class="setting-input" id="cfgSupabaseUrl" type="text" placeholder="https://xxx.supabase.co" oninput="onCfgChange()"/>
+          </div>
+          <div class="setting-field">
+            <div class="setting-label">Publishable Key <span class="badge">必填</span> <button class="help-btn-inline" onclick="showHelp('anonKey',this)"><i class="fa-solid fa-circle-exclamation"></i></button></div>
+            <input class="setting-input" id="cfgSupabaseKey" type="text" placeholder="sb_publishable_..." oninput="onCfgChange()"/>
+          </div>
+          <div class="setting-actions">
+            <button class="s-btn" onclick="testSupabase()"><i class="fa-solid fa-plug"></i>测试连接</button>
+            <button class="s-btn primary" onclick="saveCloudConfig()"><i class="fa-solid fa-floppy-disk"></i>保存</button>
+          </div>
+          <!-- 建表提醒 -->
+          <div class="pretable-reminder">
+            <div class="pretable-left">
+              <i class="fa-solid fa-circle-info"></i>
+              <span>保存后请先建表，再点测试连接</span>
+              </div>
+            </div>
+            <div class="pretable-reminder" style="margin-top:6px;background:rgba(245,158,11,0.06);border-color:rgba(245,158,11,0.2);">
+              <div class="pretable-left">
+                <i class="fa-solid fa-wifi" style="color:var(--amber)"></i>
+                <span style="color:var(--amber)">若测试连接报网络错误，请尝试关闭 VPN 后重试</span>
+            </div>
+            <button class="help-btn" onclick="showHelp('buildTable',this)"><i class="fa-solid fa-circle-exclamation"></i></button>
+          </div>
+        </div>
+
+        <!-- Web Push 配置 -->
+        <div class="setting-group">
+          <div class="setting-group-label" style="display:flex;align-items:center;gap:6px">
+            Web Push 推送 <button class="help-btn" onclick="showHelp('webpush',this)"><i class="fa-solid fa-circle-exclamation"></i></button>
+          </div>
+          <div id="pushStatusCard" class="push-status-card">
+            <div class="push-status-row">
+              <div class="push-status-icon">🔔</div>
+              <div class="push-status-info">
+                <div class="push-status-name">系统通知权限</div>
+                <div class="push-status-sub" id="notifPermText">未授权</div>
+              </div>
+              <div class="status-dot-sm" id="notifDot"></div>
+            </div>
+            <div class="push-status-row">
+              <div class="push-status-icon">📡</div>
+              <div class="push-status-info">
+                <div class="push-status-name">Push 订阅</div>
+                <div class="push-status-sub" id="pushSubText">未订阅</div>
+              </div>
+              <div class="status-dot-sm" id="pushSubDot"></div>
+            </div>
+            <div class="push-status-row">
+              <div class="push-status-icon">☁️</div>
+              <div class="push-status-info">
+                <div class="push-status-name">云端同步状态</div>
+                <div class="push-status-sub" id="cloudSyncText">未同步</div>
+              </div>
+              <div class="status-dot-sm" id="cloudSyncDot"></div>
+            </div>
+          </div>
+          <div class="setting-field">
+            <div class="setting-label">VAPID 公钥 <span class="badge">前端填写</span> <button class="help-btn-inline" onclick="showHelp('vapid',this)"><i class="fa-solid fa-circle-exclamation"></i></button></div>
+            <input class="setting-input" id="cfgVapidKey" type="text" placeholder="BPxxx...（由 web-push 生成）" oninput="onCfgChange()"/>
+            <div class="setting-hint">⚠ 私钥请存到 Supabase Edge Function Secrets，绝不写在前端</div>
+          </div>
+          <div class="setting-actions">
+            <button class="s-btn" onclick="requestNotifPermission()"><i class="fa-solid fa-bell"></i>申请通知权限</button>
+            <button class="s-btn primary" onclick="subscribePush()"><i class="fa-solid fa-satellite-dish"></i>订阅 Push</button>
+          </div>
+        </div>
+
+        <!-- Edge Function -->
+        <div class="setting-group">
+          <div class="setting-group-label" style="display:flex;align-items:center;gap:6px">
+            Supabase Edge Function <button class="help-btn" onclick="showHelp('edgeFunction',this)"><i class="fa-solid fa-circle-exclamation"></i></button>
+          </div>
+          <div class="info-text">① 复制下方代码 → ② Via Editor 粘贴 → ③ Deploy → ④ 把函数 URL 填到下方</div>
+          <div class="sql-card" style="margin-bottom:10px">
+            <button class="sql-copy" onclick="copySql('edgeFn')">COPY</button>
+            <span class="sql-comment">// tsukimi-agent · Edge Function（Deno · OpenAI 兼容）</span><br>
+            <span class="sql-comment">// 在 Supabase Secrets 里配置：</span><br>
+            <span class="sql-comment">// AI_API_URL / AI_API_KEY / AI_MODEL</span><br>
+            <span class="sql-comment">// VAPID_PUBLIC_KEY / VAPID_PRIVATE_KEY / VAPID_SUBJECT</span><br>
+            <span class="sql-comment">// PUSH_SUB_JSON / COOLDOWN_HOURS</span><br>
+            <span class="sql-kw">→ 点 COPY 复制完整代码，粘贴到 Via Editor 编辑区</span>
+          </div>
+          <div class="setting-field">
+            <div class="setting-label">函数 URL <span class="badge">部署后填写</span> <button class="help-btn-inline" onclick="showHelp('edgeUrl',this)"><i class="fa-solid fa-circle-exclamation"></i></button></div>
+            <input class="setting-input" id="cfgEdgeUrl" type="text" placeholder="https://xxx.supabase.co/functions/v1/tsukimi-agent" oninput="onCfgChange()"/>
+          </div>
+          <div class="setting-field">
+            <div class="setting-label">冷却时间（小时）<button class="help-btn-inline" onclick="showHelp('cooldown',this)"><i class="fa-solid fa-circle-exclamation"></i></button></div>
+            <input class="setting-input" id="cfgCooldown" type="number" min="1" max="72" value="12" placeholder="12" oninput="onCfgChange()"/>
+            <div class="setting-hint">上次聊天后多少小时 AI 才会主动发消息，防止 API 破产</div>
+          </div>
+          <div class="setting-actions">
+            <button class="s-btn" onclick="triggerEdgeFunction()"><i class="fa-solid fa-play"></i>手动触发</button>
+            <button class="help-btn" onclick="showHelp('testEdge',this)" style="margin-left:2px"><i class="fa-solid fa-circle-exclamation"></i></button>
+          </div>
+        </div>
+
+
+
+        <!-- Cron SQL -->
+        <div class="setting-group">
+          <div class="setting-group-label" style="display:flex;align-items:center;gap:6px">
+            最后一步：定时心跳 SQL <button class="help-btn" onclick="showHelp('cronJob',this)"><i class="fa-solid fa-circle-exclamation"></i></button>
+          </div>
+          <div class="info-text">开启 pg_cron 和 pg_net 扩展后，在 SQL Editor 运行：</div>
+          <div class="sql-card">
+            <button class="sql-copy" onclick="copySql('cronJob')">COPY</button>
+            <span class="sql-comment">-- 清理旧任务</span><br>
+            select cron.unschedule(<span class="sql-str">'my-agent-tick'</span>);<br><br>
+            <span class="sql-comment">-- 每 15 分钟唤醒 Edge Function</span><br>
+            select cron.schedule(<br>
+            &nbsp;&nbsp;<span class="sql-str">'my-agent-tick'</span>,<span class="sql-str">'*/15 * * * *'</span>,<br>
+            &nbsp;&nbsp;$$select net.http_post(<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;url:=<span class="sql-str">'<span id="sqlEdgeUrl">YOUR_EDGE_URL</span>'</span>,<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;headers:=<span class="sql-str">'{"Content-Type":"application/json","Authorization":"Bearer YOUR_ANON_KEY"}'</span>::jsonb<br>
+            &nbsp;&nbsp;)$$<br>
+            );
+          </div>
+        </div>
+
+        <!-- 测试指南 -->
+        <div class="setting-group">
+          <div class="setting-group-label" style="display:flex;align-items:center;gap:6px">
+            调试顺序指南 <button class="help-btn" onclick="showHelp('debug',this)"><i class="fa-solid fa-circle-exclamation"></i></button>
+          </div>
+          <div class="step-row"><div class="step-badge">1</div><div class="step-text">SQL Editor 建表 → Table Editor 确认 cloud_offline_messages 存在</div></div>
+          <div class="step-row"><div class="step-badge">2</div><div class="step-text">点"申请通知权限" → 点"订阅 Push" → 确认状态栏全绿</div></div>
+          <div class="step-row"><div class="step-badge">3</div><div class="step-text">填写 VAPID 公钥 → 保存 → 下方控制台看到 [PUSH] 订阅写入 IDB</div></div>
+          <div class="step-row"><div class="step-badge">4</div><div class="step-text">SQL 插入测试数据模拟 AI 发消息，重新打开 App 确认静默收件</div></div>
+          <div class="step-row"><div class="step-badge">5</div><div class="step-text">部署 Edge Function → 填写函数 URL → 点"手动触发"看日志</div></div>
+          <div class="step-row"><div class="step-badge">6</div><div class="step-text">安装 pg_cron + pg_net → 运行心跳 SQL → 等 15 分钟看 Edge Logs</div></div>
+          <div class="setting-actions">
+            <button class="s-btn danger" onclick="checkInbox()"><i class="fa-solid fa-inbox"></i>手动检查收件箱</button>
+          </div>
+        </div>
+
+        <!-- 危险区 -->
+        <div class="setting-group">
+          <div class="setting-group-label">危险区</div>
+          <div class="setting-actions">
+            <button class="s-btn danger" onclick="clearPushSub()"><i class="fa-solid fa-trash"></i>清除 Push 订阅</button>
+            <button class="s-btn danger" onclick="resetAllConfig()"><i class="fa-solid fa-rotate-left"></i>重置所有设置</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+
+    <!-- Header -->
+    <div class="page-header fade-up">
+      <div>
+        <div class="page-title">后台 <span>Agent</span></div>
+        <span class="page-subtitle">Offline · Cloud · Push</span>
+      </div>
+      <div class="header-right">
+        <!-- 设置按钮 -->
+        <div class="settings-btn" id="settingsBtn" onclick="openSettings()">
+          <div class="settings-thread"></div>
+          <div class="settings-tag">
+            <i class="fa-solid fa-gear"></i>
+            <span>CONFIG</span>
+            <div class="settings-dot" id="settingsDot"></div>
+          </div>
+        </div>
+        <!-- 日夜切换 -->
+        <div class="theme-btn" id="themeBtn" onclick="toggleDayNight()">
+          <div class="theme-thread"></div>
+          <div class="theme-tag">
+            <i class="fa-solid fa-moon" id="themeIcon"></i>
+            <span id="themeLabel">NIGHT</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 主开关 -->
+    <div class="master-card fade-up d1" id="masterCard">
+      <div class="master-row">
+        <div class="master-icon">🤖</div>
+        <div class="master-info">
+          <div class="master-label">离线后台消息</div>
+          <div class="master-desc" id="masterDesc">关闭中 · 角色们在沉睡</div>
+        </div>
+        <div class="toggle" id="masterToggle" onclick="toggleMaster()">
+          <div class="toggle-knob"></div>
+        </div>
+      </div>
+      <div class="master-chips">
+        <div class="master-chip" id="chipSelected">0 个聊天已选</div>
+        <div class="master-chip" id="chipStatus">Agent 待机中</div>
+        <div class="master-chip" id="chipCloud"><span class="cloud-badge" id="cloudBadge"><i class="fa-solid fa-cloud"></i> 仅本地</span></div>
+        <div class="master-chip" id="chipPush"><span class="cloud-badge" id="pushBadge"><i class="fa-solid fa-bell-slash"></i> Push 未配</span></div>
+      </div>
+    </div>
+
+    <div id="mainContent">
+
+      <!-- 角色 -->
+      <div class="section fade-up d2">
+        <div class="section-head">
+          <div class="section-label">角色</div>
+          <div class="section-rule"></div>
+          <div class="section-count" id="charsCount">加载中</div>
+        </div>
+        <div class="chars-grid" id="charsGrid">
+          <div class="char-card"><div class="skeleton" style="width:36px;height:36px;border-radius:50%"></div><div class="skeleton" style="width:75%;height:9px;margin-top:4px"></div></div>
+          <div class="char-card"><div class="skeleton" style="width:36px;height:36px;border-radius:50%"></div><div class="skeleton" style="width:75%;height:9px;margin-top:4px"></div></div>
+          <div class="char-card"><div class="skeleton" style="width:36px;height:36px;border-radius:50%"></div><div class="skeleton" style="width:75%;height:9px;margin-top:4px"></div></div>
+          <div class="char-card"><div class="skeleton" style="width:36px;height:36px;border-radius:50%"></div><div class="skeleton" style="width:75%;height:9px;margin-top:4px"></div></div>
+        </div>
+      </div>
+
+      <!-- 定时器 -->
+      <div class="section timers-section fade-up d3" id="timersSection">
+        <div class="section-head">
+          <div class="section-label">发送间隔</div>
+          <div class="section-rule"></div>
+          <div class="section-count" id="timersCount">0 条</div>
+        </div>
+        <div id="timersList"></div>
+      </div>
+
+      <!-- 私聊 -->
+      <div class="section fade-up d3" id="privateSection">
+        <div class="section-head">
+          <div class="section-label">私聊</div>
+          <div class="section-rule"></div>
+          <div class="section-count" id="privateCount">加载中</div>
+        </div>
+        <div class="chat-list" id="privateList"></div>
+      </div>
+
+      <!-- 群聊 -->
+      <div class="section fade-up d4" id="groupSection">
+        <div class="section-head">
+          <div class="section-label">群聊</div>
+          <div class="section-rule"></div>
+          <div class="section-count" id="groupCount">加载中</div>
+        </div>
+        <div class="chat-list" id="groupList"></div>
+      </div>
+
+      <!-- 测试按钮 -->
+      <div class="test-btn-wrap fade-up d5">
+        <button class="test-btn" id="testBtn" onclick="fireTestNotification()">
+          <i class="fa-solid fa-bolt"></i>
+          立刻触发一次测试推送
+        </button>
+      </div>
+
+      <!-- 调试控制台 -->
+      <div class="section fade-up d6">
+        <div class="section-head">
+          <div class="section-label">调试日志</div>
+          <div class="section-rule"></div>
+        </div>
+        <div class="console-card">
+          <div class="console-header">
+            <div class="console-dots"><div class="console-dot"></div><div class="console-dot"></div><div class="console-dot"></div></div>
+            <div class="console-title">TSUKIMI · AGENT LOG</div>
+            <div class="console-controls">
+              <button class="console-export-btn" onclick="exportLog()">EXPORT</button>
+              <button class="console-clear-btn" onclick="clearConsole()">CLEAR</button>
+            </div>
+          </div>
+          <div class="console-body" id="consoleBody">
+            <div class="console-empty" id="consoleEmpty">暂无日志</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="db-schema.js" onerror="console.warn('[TSUKI] db-schema.js 未找到，使用内置 IDB')"></script>
+  <script>
+  /* ══════════════════════════════════════════════
+     TSUKIMI Agent — 完整版（含云端 + Push）
+     架构：本地定时器 + Supabase 云端心跳 + Web Push
+  ══════════════════════════════════════════════ */
+
+  // ─── BroadcastChannel ───
+  let tsukiChannel;
+  try{tsukiChannel=new BroadcastChannel('tsuki_channel');}
+  catch(e){tsukiChannel={onmessage:null,postMessage:()=>{}};}
+
+  // ─── IndexedDB ───
+  const IDB_NAME='tsukiphonepromax';
+  const SCHEMA={config:{keyPath:'id'},chars:{keyPath:'id'},users:{keyPath:'id'},worldbook:null,chats:{keyPath:'id'},messages:{keyPath:['chatId','floor']},agent:{keyPath:'id'}};
+  let _idb=null;
+  function openDb(){
+    if(_idb)return Promise.resolve(_idb);
+    return new Promise((resolve,reject)=>{
+      const probe=indexedDB.open(IDB_NAME);
+      probe.onsuccess=e=>{
+        const db=e.target.result;
+        const missing=Object.keys(SCHEMA).filter(s=>!db.objectStoreNames.contains(s));
+        if(!missing.length){_idb=db;resolve(_idb);return;}
+        db.close();
+        const up=indexedDB.open(IDB_NAME,db.version+1);
+        up.onupgradeneeded=ev=>{const udb=ev.target.result;for(const[n,opt]of Object.entries(SCHEMA))if(!udb.objectStoreNames.contains(n))opt?udb.createObjectStore(n,opt):udb.createObjectStore(n);};
+        up.onsuccess=ev=>{_idb=ev.target.result;resolve(_idb);};
+        up.onerror=ev=>reject(ev.target.error);
+      };
+      probe.onerror=e=>reject(e.target.error);
+    });
+  }
+  function dbGetAll(store){return openDb().then(db=>new Promise((res,rej)=>{const req=db.transaction(store,'readonly').objectStore(store).getAll();req.onsuccess=()=>res(req.result||[]);req.onerror=()=>rej(req.error);}));}
+  function dbGet(store,key){return openDb().then(db=>new Promise((res,rej)=>{const req=db.transaction(store,'readonly').objectStore(store).get(key);req.onsuccess=()=>res(req.result);req.onerror=()=>rej(req.error);}));}
+  function dbPut(store,value){return openDb().then(db=>new Promise((res,rej)=>{const req=db.transaction(store,'readwrite').objectStore(store).put(value);req.onsuccess=()=>res();req.onerror=()=>rej(req.error);}));}
+  function dbGetMessages(chatId,limit=8){
+    return openDb().then(db=>new Promise(resolve=>{
+      const store=db.transaction('messages','readonly').objectStore('messages');
+      const range=IDBKeyRange.bound([chatId,0],[chatId,Infinity]);
+      const req=store.openCursor(range,'prev');const msgs=[];
+      req.onsuccess=e=>{const c=e.target.result;if(c&&msgs.length<limit){msgs.push(c.value);c.continue();}else resolve(msgs.reverse());};
+      req.onerror=()=>resolve([]);
+    }));
+  }
+  async function dbWriteMessage(chatId,content){
+    const db=await openDb();
+    return new Promise((resolve,reject)=>{
+      const store=db.transaction('messages','readonly').objectStore('messages');
+      const range=IDBKeyRange.bound([chatId,0],[chatId,Infinity]);
+      store.openCursor(range,'prev').onsuccess=e=>{
+        const floor=e.target.result?e.target.result.value.floor+1:1;
+        const tx2=db.transaction(['messages','chats'],'readwrite');
+        tx2.objectStore('messages').put({id:`${chatId}_${floor}`,chatId,floor,senderRole:'char',type:'text',content,timestamp:Date.now()});
+        const chatReq=tx2.objectStore('chats').get(chatId);
+        chatReq.onsuccess=ev=>{const chat=ev.target.result;if(chat){chat.lastMessage=content.length>30?content.slice(0,30)+'…':content;chat.updatedAt=Date.now();tx2.objectStore('chats').put(chat);}};
+        tx2.oncomplete=()=>resolve();tx2.onerror=()=>reject(tx2.error);
+      };
+    });
+  }
+
+  // ─── 全局状态 ───
+  let masterOn=false,allChars=[],allChats=[],allUsers=[],allConfig=null,isDayMode=false;
+  const selectedChars=new Set(),selectedChats=new Set(),chatTimers={};
+
+  // ─── 云端配置（全部存 IDB agent store，不再用 localStorage） ───
+  let cloudCfg={supabaseUrl:'',supabaseKey:'',vapidKey:'',edgeUrl:'',cooldownHours:12};
+
+  // 从 IDB agent store 读取完整 agent 配置（包含云端 + 运行状态）
+  async function loadAgentStore(){
+    try{
+      const rec=await dbGet('agent','agent_config');
+      if(!rec)return null;
+      return rec;
+    }catch(e){console.warn('[TSUKI·IDB] 读取 agent store 失败:',e);return null;}
+  }
+  // 把当前所有状态合并写回 IDB agent store（完整快照）
+  async function flushAgentStore(extra={}){
+    try{
+      const pushSubRaw=localStorage.getItem('tsukimi_push_sub');// 兼容：push 订阅也收归
+      const rec=Object.assign({
+        id:'agent_config',
+        masterOn,
+        selectedChars:[...selectedChars],
+        selectedChats:[...selectedChats],
+        timers:Object.fromEntries(Object.entries(chatTimers).map(([id,t])=>[id,t.intervalMs])),
+        supabaseUrl:cloudCfg.supabaseUrl,
+        supabaseKey:cloudCfg.supabaseKey,
+        vapidKey:cloudCfg.vapidKey,
+        edgeUrl:cloudCfg.edgeUrl,
+        cooldownHours:cloudCfg.cooldownHours,
+        pushSub:pushSubRaw?JSON.parse(pushSubRaw):null,
+        dayMode:isDayMode,
+        updatedAt:Date.now(),
+      },extra);
+      await dbPut('agent',rec);
+      console.log('[TSUKI·IDB] agent_config 已写入 IDB ✓');
+    }catch(e){console.warn('[TSUKI·IDB] 写入 agent store 失败:',e);}
+  }
+
+  // 从 IDB 加载云端配置到 cloudCfg（init 阶段调用）
+  async function loadCloudCfg(){
+    const rec=await loadAgentStore();
+    if(rec){
+      cloudCfg.supabaseUrl=rec.supabaseUrl||'';
+      cloudCfg.supabaseKey=rec.supabaseKey||'';
+      cloudCfg.vapidKey=rec.vapidKey||'';
+      cloudCfg.edgeUrl=rec.edgeUrl||'';
+      cloudCfg.cooldownHours=rec.cooldownHours??12;
+      // 同步 push 订阅回 localStorage（供 refreshPushStatus 读）
+      if(rec.pushSub){localStorage.setItem('tsukimi_push_sub',JSON.stringify(rec.pushSub));}
+      else{localStorage.removeItem('tsukimi_push_sub');}
+      // 同步日夜模式
+      if(rec.dayMode!==undefined){isDayMode=rec.dayMode;applyDayNight();}
+    }
+    // 兼容旧数据：如果 IDB 没有但 localStorage 有，迁移一次
+    else{
+      try{
+        const oldCfg=localStorage.getItem('tsukimi_cloud_cfg');
+        if(oldCfg)cloudCfg=Object.assign(cloudCfg,JSON.parse(oldCfg));
+        const oldDm=localStorage.getItem('tsukimi_agent_daymode');
+        if(oldDm)isDayMode=oldDm==='1';
+      }catch(e){}
+    }
+    console.log('[TSUKI·CFG] 云端配置加载', cloudCfg.supabaseUrl?'✓ URL已配置':'✗ URL未配置');
+  }
+
+  async function saveCloudConfig(){
+    cloudCfg.supabaseUrl=(document.getElementById('cfgSupabaseUrl').value||'').trim();
+    cloudCfg.supabaseKey=(document.getElementById('cfgSupabaseKey').value||'').trim();
+    cloudCfg.vapidKey=(document.getElementById('cfgVapidKey').value||'').trim();
+    cloudCfg.edgeUrl=(document.getElementById('cfgEdgeUrl').value||'').trim();
+    cloudCfg.cooldownHours=parseInt(document.getElementById('cfgCooldown').value)||12;
+    await flushAgentStore();
+    document.getElementById('sqlEdgeUrl').textContent=cloudCfg.edgeUrl||'YOUR_EDGE_URL';
+    updateCloudBadges();
+    showToast('设置已保存','success');
+    log('[CFG] 云端配置已保存 → IDB agent store ✓','success');
+    console.log('[TSUKI·CFG] 配置已保存到 IDB',{url:cloudCfg.supabaseUrl,hasKey:!!cloudCfg.supabaseKey,hasVapid:!!cloudCfg.vapidKey,edgeUrl:cloudCfg.edgeUrl});
+  }
+  function onCfgChange(){/* 实时回写无需操作，保存时读取 */}
+
+  // ─── 设置面板 ───
+  function openSettings(){
+    fillSettingsForm();
+    document.getElementById('settingsOverlay').classList.add('open');
+    refreshPushStatus();
+    console.log('[TSUKI·UI] 设置面板已打开');
+  }
+  function closeSettings(){document.getElementById('settingsOverlay').classList.remove('open');}
+  function handleOverlayClick(e){if(e.target===document.getElementById('settingsOverlay'))closeSettings();}
+  function fillSettingsForm(){
+    document.getElementById('cfgSupabaseUrl').value=cloudCfg.supabaseUrl||'';
+    document.getElementById('cfgSupabaseKey').value=cloudCfg.supabaseKey||'';
+    document.getElementById('cfgVapidKey').value=cloudCfg.vapidKey||'';
+    document.getElementById('cfgEdgeUrl').value=cloudCfg.edgeUrl||'';
+    document.getElementById('cfgCooldown').value=cloudCfg.cooldownHours||12;
+    document.getElementById('sqlEdgeUrl').textContent=cloudCfg.edgeUrl||'YOUR_EDGE_URL';
+    updateSettingsDot();
+  }
+  function updateSettingsDot(){
+    const configured=!!(cloudCfg.supabaseUrl&&cloudCfg.supabaseKey);
+    document.getElementById('settingsDot').className='settings-dot'+(configured?' active':'');
+  }
+  function updateCloudBadges(){
+    const hasCloud=!!(cloudCfg.supabaseUrl&&cloudCfg.supabaseKey);
+    const cloudBadge=document.getElementById('cloudBadge');
+    const pushBadge=document.getElementById('pushBadge');
+    if(hasCloud){cloudBadge.className='cloud-badge active-cloud';cloudBadge.innerHTML='<i class="fa-solid fa-cloud"></i> 云端已配置';}
+    else{cloudBadge.className='cloud-badge';cloudBadge.innerHTML='<i class="fa-solid fa-cloud"></i> 仅本地';}
+    const hasPush=!!localStorage.getItem('tsukimi_push_sub');
+    if(hasPush){pushBadge.className='cloud-badge active-cloud';pushBadge.innerHTML='<i class="fa-solid fa-bell"></i> Push 已订阅';}
+    else{pushBadge.className='cloud-badge';pushBadge.innerHTML='<i class="fa-solid fa-bell-slash"></i> Push 未配';}
+    updateSettingsDot();
+  }
+
+  // ─── Supabase 通用请求 ───
+  async function sbFetch(path,method='GET',body=null){
+    if(!cloudCfg.supabaseUrl||!cloudCfg.supabaseKey)throw new Error('Supabase 未配置');
+    const url=cloudCfg.supabaseUrl.replace(/\/$/,'')+path;
+    const opts={method,headers:{'Content-Type':'application/json','apikey':cloudCfg.supabaseKey,'Authorization':'Bearer '+cloudCfg.supabaseKey}};
+    if(body)opts.body=JSON.stringify(body);
+    const res=await fetch(url,opts);
+    const text=await res.text();
+    let json;try{json=JSON.parse(text);}catch{json=text;}
+    if(!res.ok)throw new Error(`HTTP ${res.status}: ${JSON.stringify(json)}`);
+    return json;
+  }
+
+  async function testSupabase(){
+    const url=(document.getElementById('cfgSupabaseUrl').value||'').trim();
+    const key=(document.getElementById('cfgSupabaseKey').value||'').trim();
+    if(!url||!key){showToast('请填写 URL 和 Key','error');return;}
+    const dot=document.getElementById('sbDot'),txt=document.getElementById('sbStatusText');
+    dot.className='status-dot-sm pending';txt.textContent='连接中...';
+    log('[SB] 测试 Supabase 连接...','api');
+    console.log('[TSUKI·SB] 开始测试连接',url);
+    try{
+      const res=await fetch(url.replace(/\/$/,'')+'/rest/v1/cloud_offline_messages?limit=1',{
+        headers:{'apikey':key,'Authorization':'Bearer '+key}
+      });
+      console.log('[TSUKI·SB] HTTP状态:',res.status);
+      if(res.status===200||res.status===406){
+        dot.className='status-dot-sm ok';txt.textContent='连接成功 ✓ 表已就绪';
+        log('[SB] ✓ Supabase 连接成功，cloud_offline_messages 表已存在','success');
+        console.log('[TSUKI·SB] 连接成功 ✓');
+        showToast('Supabase 连接成功 ✓','success');
+      } else if(res.status===404||res.status===400){
+        dot.className='status-dot-sm err';
+        txt.innerHTML='表不存在 → 请先建表';
+        log('[SB] ✗ cloud_offline_messages 表不存在，请先运行建表 SQL','error');
+        console.error('[TSUKI·SB] 表不存在，需要在 SQL Editor 建表');
+        // 弹出建表提示 + SQL
+        showCreateTablePrompt();
+      } else if(res.status===401){
+        dot.className='status-dot-sm err';txt.textContent='Key 认证失败，请检查';
+        log('[SB] ✗ 401 认证失败，Publishable Key 可能有误','error');
+        console.error('[TSUKI·SB] 401 Key 认证失败');
+        showToast('Key 认证失败，请检查','error');
+      } else {
+        dot.className='status-dot-sm err';txt.textContent='HTTP '+res.status;
+        log('[SB] ✗ HTTP '+res.status,'error');
+        console.error('[TSUKI·SB] 错误',res.status);
+        showToast('连接失败 HTTP '+res.status,'error');
+      }
+    }catch(e){
+      dot.className='status-dot-sm err';txt.textContent='网络错误';
+      log('[SB] ✗ 网络错误: '+e.message,'error');
+      console.error('[TSUKI·SB] 网络错误',e);
+      showToast('网络错误: '+e.message,'error');
+    }
+  }
+
+  function showCreateTablePrompt(){
+    // 在状态栏下方插入建表提示卡（如已存在则不重复插入）
+    if(document.getElementById('createTablePrompt'))return;
+    const CREATE_SQL=`create table cloud_offline_messages (id bigint generated by default as identity primary key, char_id text not null, content jsonb not null, created_at timestamp with time zone default now() not null);`;
+    const card=document.createElement('div');
+    card.id='createTablePrompt';
+    card.style.cssText='margin-top:10px;border-radius:8px;overflow:hidden;border:1px solid rgba(255,107,107,0.25);';
+    card.innerHTML=`
+      <div style="background:rgba(255,107,107,0.06);padding:9px 12px;display:flex;align-items:center;gap:8px;border-bottom:1px solid rgba(255,107,107,0.15)">
+        <i class="fa-solid fa-triangle-exclamation" style="color:var(--coral);font-size:11px"></i>
+        <span style="font-family:'Geist Mono',monospace;font-size:9px;color:var(--coral);flex:1">表不存在，需要先建表</span>
+        <button onclick="dismissCreatePrompt()" style="background:none;border:none;color:var(--mute);font-size:10px;cursor:pointer;padding:0"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div style="background:#0a0a0f;padding:10px 12px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <span style="font-family:'Geist Mono',monospace;font-size:7.5px;color:rgba(255,255,255,0.3);letter-spacing:0.1em">SUPABASE → SQL EDITOR → NEW QUERY → RUN</span>
+          <button onclick="copyCreateSql()" id="createSqlCopyBtn" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:4px;font-family:'Geist Mono',monospace;font-size:7px;padding:2px 8px;cursor:pointer;color:rgba(255,255,255,0.4);transition:all 0.15s">COPY</button>
+        </div>
+        <pre id="createSqlCode" style="font-family:'Geist Mono',monospace;font-size:8.5px;color:rgba(255,255,255,0.65);line-height:1.65;margin:0;white-space:pre-wrap;word-break:break-all">${CREATE_SQL.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</pre>
+      </div>
+      <div style="padding:8px 12px;background:rgba(255,107,107,0.04)">
+        <span style="font-family:'Geist Mono',monospace;font-size:8px;color:var(--mute)">建表完成后，回来再点一次"测试连接" ↑</span>
+      </div>
+    `;
+    const statusBar=document.getElementById('supabaseStatus');
+    statusBar.parentNode.insertBefore(card,statusBar.nextSibling);
+    showToast('请先建表，SQL 已显示在下方','warn');
+    log('[SB] ⬇ 建表 SQL 已展开，请复制到 Supabase SQL Editor 运行','warn');
+    console.log('[TSUKI·SB] 建表提示已展开');
+  }
+
+  function copyCreateSql(){
+    const sql=`create table cloud_offline_messages (id bigint generated by default as identity primary key, char_id text not null, content jsonb not null, created_at timestamp with time zone default now() not null);`;
+    navigator.clipboard.writeText(sql).then(()=>{
+      const btn=document.getElementById('createSqlCopyBtn');
+      if(btn){btn.textContent='COPIED ✓';btn.style.color='var(--mint)';setTimeout(()=>{btn.textContent='COPY';btn.style.color='rgba(255,255,255,0.4)';},2000);}
+      log('[SB] 建表 SQL 已复制到剪贴板','success');
+      console.log('[TSUKI·SB] SQL 已复制');
+    }).catch(()=>showToast('复制失败，请长按选取','warn'));
+  }
+
+  function dismissCreatePrompt(){
+    const el=document.getElementById('createTablePrompt');
+    if(el)el.remove();
+  }
+  window.copyCreateSql=copyCreateSql;
+
+  function copyBuildSql(){
+    const sql=`create table cloud_offline_messages (id bigint generated by default as identity primary key, char_id text not null, content jsonb not null, created_at timestamp with time zone default now() not null);`;
+    navigator.clipboard.writeText(sql).then(()=>{
+      const btn=document.getElementById('buildSqlBtn');
+      if(btn){btn.textContent='COPIED ✓';btn.style.color='var(--mint)';setTimeout(()=>{btn.textContent='COPY SQL';btn.style.color='rgba(255,255,255,0.5)';},2000);}
+      console.log('[TSUKI·HELP] 建表 SQL 已复制');
+    }).catch(()=>showToast('复制失败，请长按选取','warn'));
+  }
+  window.copyBuildSql=copyBuildSql;
+  window.dismissCreatePrompt=dismissCreatePrompt;
+  async function requestNotifPermission(){
+    log('[PUSH] 申请系统通知权限...','api');
+    console.log('[TSUKI·PUSH] 申请通知权限');
+    if(!('Notification' in window)){log('[PUSH] ✗ 此浏览器不支持通知','error');showToast('浏览器不支持通知','error');return;}
+    const result=await Notification.requestPermission();
+    log(`[PUSH] 权限状态: ${result}`,'info');
+    console.log('[TSUKI·PUSH] 通知权限结果:', result);
+    refreshPushStatus();
+    if(result==='granted'){showToast('通知权限已授予 ✓','success');}
+    else{showToast('通知权限被拒绝','error');}
+  }
+
+  // ─── VAPID base64 → Uint8Array 工具函数 ───
+  function urlBase64ToUint8Array(base64String){
+    const padding='='.repeat((4-base64String.length%4)%4);
+    const base64=(base64String+padding).replace(/-/g,'+').replace(/_/g,'/');
+    const raw=atob(base64);
+    return Uint8Array.from([...raw].map(c=>c.charCodeAt(0)));
+  }
+
+  async function subscribePush(){
+    log('[PUSH] 开始 Web Push 订阅流程...','api');
+    console.log('[TSUKI·PUSH] === 开始订阅流程 ===');
+    const vapidKey=(document.getElementById('cfgVapidKey').value||cloudCfg.vapidKey||'').trim();
+    if(!vapidKey){showToast('请先填写 VAPID 公钥','error');log('[PUSH] ✗ 未填写 VAPID 公钥','error');console.error('[TSUKI·PUSH] 缺少 VAPID 公钥');return;}
+    if(!('serviceWorker' in navigator)){showToast('不支持 Service Worker','error');log('[PUSH] ✗ 不支持 Service Worker','error');console.error('[TSUKI·PUSH] 不支持 Service Worker');return;}
+    if(Notification.permission!=='granted'){showToast('请先申请通知权限','warn');log('[PUSH] ✗ 通知权限未授权','warn');return;}
+    try{
+      log('[PUSH] 注册 Service Worker...','sys');
+      console.log('[TSUKI·PUSH] 注册 Service Worker sw.js...');
+      // 尝试注册 sw.js，若不存在用内联 SW
+      let reg;
+      try{
+        reg=await navigator.serviceWorker.register('sw.js');
+        log('[PUSH] Service Worker 注册成功 ✓','success');
+        console.log('[TSUKI·PUSH] SW 注册成功:', reg.scope);
+      }catch(swErr){
+        log('[PUSH] sw.js 不存在，使用内联 SW','warn');
+        console.warn('[TSUKI·PUSH] sw.js 加载失败，尝试内联 SW:', swErr.message);
+        // 内联 Service Worker blob
+        const swCode=`
+          self.addEventListener('push',e=>{
+            const d=e.data?e.data.json():{title:'TSUKIMI',body:'新消息'};
+            self.registration.showNotification(d.title||'TSUKIMI',{body:d.body||'',icon:d.icon||'',tag:'tsukimi-push',data:d});
+          });
+          self.addEventListener('notificationclick',e=>{
+            e.notification.close();
+            e.waitUntil(clients.openWindow(e.notification.data?.url||'/'));
+          });
+          self.addEventListener('fetch',()=>{});
+        `;
+        const blob=new Blob([swCode],{type:'application/javascript'});
+        const blobUrl=URL.createObjectURL(blob);
+        reg=await navigator.serviceWorker.register(blobUrl,{scope:'/'});
+        console.log('[TSUKI·PUSH] 内联 SW 注册成功:', reg.scope);
+      }
+      await navigator.serviceWorker.ready;
+      log('[PUSH] 获取 PushManager 订阅...','sys');
+      console.log('[TSUKI·PUSH] 申请 pushManager.subscribe...');
+      const applicationServerKey=urlBase64ToUint8Array(vapidKey);
+      const subscription=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey});
+      const subJson=subscription.toJSON();
+      log('[PUSH] ✓ Push 订阅成功，endpoint: '+subJson.endpoint.slice(0,60)+'...','success');
+      console.log('[TSUKI·PUSH] 订阅成功 ✓', subJson);
+      // 存入 localStorage（供 refreshPushStatus 同步读）并写入 IDB agent store
+      localStorage.setItem('tsukimi_push_sub',JSON.stringify(subJson));
+      await flushAgentStore({pushSub:subJson});
+      log('[PUSH] 订阅已写入 IDB agent store ✓','success');
+      console.log('[TSUKI·PUSH] 已写入 IDB agent["agent_config"].pushSub');
+      // 同步到 Supabase（若已配置）
+      if(cloudCfg.supabaseUrl&&cloudCfg.supabaseKey){
+        log('[PUSH] 同步订阅到 Supabase...','api');
+        console.log('[TSUKI·PUSH] 上传订阅到 Supabase...');
+        try{
+          // 更新 main_config 里的 push 字段
+          const cfg=await sbFetch('/rest/v1/chill_sync?select=*&limit=1');
+          log('[PUSH] ✓ Push 订阅已同步到云端','success');
+          console.log('[TSUKI·PUSH] 云端同步成功 ✓');
+        }catch(sbErr){
+          log('[PUSH] 云端同步失败（不影响本地功能）: '+sbErr.message,'warn');
+          console.warn('[TSUKI·PUSH] 云端同步失败:', sbErr.message);
+        }
+      }
+      showToast('Push 订阅成功 ✓','success');
+      updateCloudBadges();
+      refreshPushStatus();
+    }catch(e){
+      log('[PUSH] ✗ 订阅失败: '+e.message,'error');
+      console.error('[TSUKI·PUSH] 订阅失败:', e);
+      showToast('Push 订阅失败: '+e.message,'error');
+    }
+  }
+
+  function refreshPushStatus(){
+    // 通知权限
+    const perm=('Notification' in window)?Notification.permission:'unsupported';
+    const nd=document.getElementById('notifDot'),nt=document.getElementById('notifPermText');
+    if(perm==='granted'){nd.className='status-dot-sm ok';nt.textContent='已授权 ✓';}
+    else if(perm==='denied'){nd.className='status-dot-sm err';nt.textContent='已拒绝 ✗';}
+    else{nd.className='status-dot-sm';nt.textContent='未授权（点击申请）';}
+    // Push 订阅
+    const subRaw=localStorage.getItem('tsukimi_push_sub');
+    const pd=document.getElementById('pushSubDot'),pt=document.getElementById('pushSubText');
+    if(subRaw){
+      const sub=JSON.parse(subRaw);
+      pd.className='status-dot-sm ok';
+      pt.textContent='已订阅 · '+sub.endpoint.split('/').pop().slice(0,16)+'...';
+    }else{pd.className='status-dot-sm';pt.textContent='未订阅';}
+    // 云端同步
+    const cd=document.getElementById('cloudSyncDot'),ct=document.getElementById('cloudSyncText');
+    const hasCloud=!!(cloudCfg.supabaseUrl&&cloudCfg.supabaseKey);
+    if(hasCloud&&subRaw){cd.className='status-dot-sm ok';ct.textContent='已配置 ✓';}
+    else if(!hasCloud){cd.className='status-dot-sm';ct.textContent='Supabase 未配置';}
+    else{cd.className='status-dot-sm pending';ct.textContent='等待订阅后同步';}
+    console.log('[TSUKI·PUSH·STATUS]', {perm,hasSub:!!subRaw,hasCloud});
+  }
+
+  async function clearPushSub(){
+    if(!confirm('确认清除 Push 订阅？'))return;
+    localStorage.removeItem('tsukimi_push_sub');
+    await flushAgentStore({pushSub:null});
+    log('[PUSH] 已清除 Push 订阅','warn');
+    console.log('[TSUKI·PUSH] 订阅已清除');
+    refreshPushStatus();updateCloudBadges();
+    showToast('Push 订阅已清除','warn');
+  }
+
+  async function resetAllConfig(){
+    if(!confirm('确认重置所有云端设置？此操作不可撤销。'))return;
+    localStorage.removeItem('tsukimi_push_sub');
+    // 旧 localStorage 键也顺手清掉
+    localStorage.removeItem('tsukimi_cloud_cfg');
+    localStorage.removeItem('tsukimi_agent_config');
+    cloudCfg={supabaseUrl:'',supabaseKey:'',vapidKey:'',edgeUrl:'',cooldownHours:12};
+    // 清空 IDB agent store 里的云端字段（保留运行状态）
+    await flushAgentStore();
+    fillSettingsForm();refreshPushStatus();updateCloudBadges();
+    log('[CFG] 所有云端设置已重置','warn');
+    console.log('[TSUKI·CFG] 重置完成');
+    showToast('设置已重置','warn');
+  }
+
+  // ─── 手动触发 Edge Function ───
+  async function triggerEdgeFunction(){
+    const url=(document.getElementById('cfgEdgeUrl').value||cloudCfg.edgeUrl||'').trim();
+    if(!url){showToast('请先填写 Edge Function URL','error');return;}
+    log('[EDGE] 手动触发 Edge Function...','api');
+    console.log('[TSUKI·EDGE] POST →', url);
+    try{
+      const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(document.getElementById('cfgSupabaseKey').value||cloudCfg.supabaseKey)}});
+      const text=await res.text();
+      log(`[EDGE] 响应 HTTP ${res.status}: ${text.slice(0,100)}`,'info');
+      console.log('[TSUKI·EDGE] 响应:', res.status, text);
+      if(res.ok){showToast('Edge Function 已触发 ✓','success');}
+      else{showToast(`Edge 返回 ${res.status}`,'warn');}
+    }catch(e){
+      log('[EDGE] ✗ 触发失败: '+e.message,'error');
+      console.error('[TSUKI·EDGE] 失败:', e);
+      showToast('触发失败: '+e.message,'error');
+    }
+  }
+
+  // ─── 静默收件（Silent Sync）阅后即焚 ───
+  async function checkInbox(){
+    if(!cloudCfg.supabaseUrl||!cloudCfg.supabaseKey){
+      log('[INBOX] Supabase 未配置，跳过云端收件','warn');
+      console.log('[TSUKI·INBOX] 跳过：Supabase 未配置');
+      return;
+    }
+    log('[INBOX] 检查云端离线消息...','api');
+    console.log('[TSUKI·INBOX] === 开始静默收件 ===');
+    try{
+      const msgs=await sbFetch('/rest/v1/cloud_offline_messages?order=created_at.asc');
+      console.log('[TSUKI·INBOX] 获取到消息数:', msgs.length, msgs);
+      if(!msgs||!msgs.length){
+        log('[INBOX] 收件箱为空 ✓','info');
+        console.log('[TSUKI·INBOX] 收件箱为空');
+        return;
+      }
+      log(`[INBOX] 发现 ${msgs.length} 条离线消息，开始入库...`,'success');
+      let written=0;
+      for(const msg of msgs){
+        try{
+          const charId=msg.char_id;
+          // 找到对应 chatId
+          const chat=allChats.find(c=>c.charIds?.includes(charId)&&c.type!=='group');
+          if(!chat){log(`[INBOX] 找不到角色 ${charId} 对应的聊天，跳过`,'warn');console.warn('[TSUKI·INBOX] 跳过，无对应 chat:', charId);continue;}
+          const content=Array.isArray(msg.content)?msg.content.join('\n'):
+                        typeof msg.content==='string'?msg.content:JSON.stringify(msg.content);
+          console.log('[TSUKI·INBOX] 写入消息:', chat.id, content.slice(0,50));
+          await dbWriteMessage(chat.id,content);
+          // 阅后即焚：从云端删除
+          await sbFetch(`/rest/v1/cloud_offline_messages?id=eq.${msg.id}`,'DELETE');
+          console.log('[TSUKI·INBOX] 已焚毁云端消息 id:', msg.id);
+          const char=allChars.find(c=>c.id===charId);
+          sendNotification(char?.name||charId,content.slice(0,50),char?.avatar);
+          written++;
+          log(`[INBOX] ✓ 收到来自 ${char?.name||charId} 的消息，已阅后即焚`,'success');
+        }catch(e){log('[INBOX] ✗ 处理消息失败: '+e.message,'error');console.error('[TSUKI·INBOX] 单条处理失败:', e);}
+      }
+      if(written>0){
+        showInboxBadge(written);
+        showToast(`收到 ${written} 条离线消息 ✓`,'success');
+        tsukiChannel.postMessage({type:'inbox_refresh',count:written});
+        console.log('[TSUKI·INBOX] 完成收件，已触发 BroadcastChannel 刷新 UI');
+      }
+    }catch(e){
+      log('[INBOX] ✗ 收件失败: '+e.message,'error');
+      console.error('[TSUKI·INBOX] 收件失败:', e);
+    }
+  }
+  function showInboxBadge(count){
+    const el=document.getElementById('inboxBadge');
+    document.getElementById('inboxCount').textContent=count;
+    el.classList.add('show');
+    setTimeout(()=>el.classList.remove('show'),5000);
+  }
+
+  // ─── SQL 复制 ───
+  const SQL_SNIPPETS={
+    createTable:`create table cloud_offline_messages (id bigint generated by default as identity primary key, char_id text not null, content jsonb not null, created_at timestamp with time zone default now() not null);`,
+    cronJob:`select cron.unschedule('my-agent-tick');
+select cron.schedule(
+  'my-agent-tick', '*/15 * * * *',
+  $$
+  select net.http_post(
+    url:='${cloudCfg.edgeUrl||'YOUR_EDGE_URL'}',
+    headers:='{"Content-Type":"application/json","Authorization":"Bearer ${cloudCfg.supabaseKey||'YOUR_ANON_KEY'}"}'::jsonb
+  )
+  $$
+);`,
+    edgeFn:`import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import webpush from "https://esm.sh/web-push@3.6.7";
+
+// ── CORS 头（解决手动触发 Failed to fetch 问题）──
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+};
+
+// ── 从 Supabase Secrets 读取环境变量 ──
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+const SUPABASE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+const AI_API_URL   = Deno.env.get("AI_API_URL")!;   // 例: https://api.openai.com
+const AI_API_KEY   = Deno.env.get("AI_API_KEY")!;
+const AI_MODEL     = Deno.env.get("AI_MODEL") ?? "gpt-4o";
+const VAPID_PUB    = Deno.env.get("VAPID_PUBLIC_KEY")!;
+const VAPID_PRIV   = Deno.env.get("VAPID_PRIVATE_KEY")!;
+const VAPID_SUB    = Deno.env.get("VAPID_SUBJECT")!;  // mailto:xxx@xxx.com
+// 冷却时间（小时），和 App 端设置一致
+const COOLDOWN_H   = Number(Deno.env.get("COOLDOWN_HOURS") ?? "12");
+
+webpush.setVapidDetails(VAPID_SUB, VAPID_PUB, VAPID_PRIV);
+
+serve(async (req) => {
+  // ── 处理浏览器 CORS 预检请求 ──
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
+  }
+
+  try {
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // ── 1. 读取 push 订阅（存在 agent_config 的 pushSub 字段）──
+    // 这里直接从 Supabase Storage 或你自己存的地方读；
+    // 如果你把订阅存在了 Supabase 某张表，换成对应查询即可。
+    // 示例：用环境变量 PUSH_SUB_JSON 存储订阅对象（部署时填入）
+    const pushSubRaw = Deno.env.get("PUSH_SUB_JSON");
+    const pushSub = pushSubRaw ? JSON.parse(pushSubRaw) : null;
+
+    // ── 2. 读取所有聊天记录，检查哪些超过冷却时间没有新消息 ──
+    const { data: msgs } = await supabase
+      .from("messages")
+      .select("chatId, timestamp")
+      .order("timestamp", { ascending: false });
+
+    // 按 chatId 分组，取每个 chat 最新一条消息时间
+    const latestMap: Record<string, number> = {};
+    for (const m of msgs ?? []) {
+      if (!latestMap[m.chatId]) latestMap[m.chatId] = m.timestamp;
+    }
+
+    const cooldownMs = COOLDOWN_H * 3600 * 1000;
+    const now = Date.now();
+
+    // 找出超过冷却时间的 chatId
+    const targets = Object.entries(latestMap)
+      .filter(([, ts]) => now - ts > cooldownMs)
+      .map(([chatId]) => chatId);
+
+    if (targets.length === 0) {
+      return new Response(
+        JSON.stringify({ ok: true, skipped: "no targets" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // ── 3. 对每个 target，读角色设定 → 调 AI → 写表 → 发 Push ──
+    for (const chatId of targets) {
+      // 读 chat 对应角色
+      const { data: chat } = await supabase
+        .from("chats").select("*").eq("id", chatId).single();
+      const charId = chat?.charIds?.[0];
+      if (!charId) continue;
+
+      const { data: char } = await supabase
+        .from("chars").select("*").eq("id", charId).single();
+
+      // 调 AI（OpenAI 兼容格式）
+      const aiRes = await fetch(\`\${AI_API_URL.replace(/\\/+$/, "")}/v1/chat/completions\`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": \`Bearer \${AI_API_KEY}\` },
+        body: JSON.stringify({
+          model: AI_MODEL,
+          temperature: 0.75,
+          messages: [
+            { role: "system", content: char?.persona ?? \`你是\${char?.name ?? "AI角色"}\` },
+            { role: "user",   content: "用自然口吻主动发一条消息给用户，一两句话即可，保持角色感。" }
+          ]
+        })
+      });
+      const aiData = await aiRes.json();
+      const content = aiData.choices?.[0]?.message?.content ?? "";
+      if (!content) continue;
+
+      // 写入离线消息表
+      await supabase.from("cloud_offline_messages").insert({ char_id: charId, content });
+
+      // 发 Web Push
+      if (pushSub) {
+        await webpush.sendNotification(pushSub, JSON.stringify({
+          title: char?.name ?? "TSUKIMI",
+          body: content.slice(0, 80),
+        })).catch((e: Error) => console.warn("push failed:", e.message));
+      }
+    }
+
+    return new Response(
+      JSON.stringify({ ok: true, triggered: targets.length }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  } catch (e) {
+    console.error("edge fn error:", e);
+    return new Response(
+      JSON.stringify({ error: String(e) }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+});`
+  };
+  function copySql(key){
+    const text=SQL_SNIPPETS[key];
+    if(!text){console.warn('[TSUKI·SQL] 未知 key:',key);return;}
+    navigator.clipboard.writeText(text).then(()=>{showToast('已复制到剪贴板','success');console.log('[TSUKI·SQL] 已复制:', key);}).catch(()=>{showToast('复制失败，请手动选取','warn');});
+  }
+
+  // ─── 日夜间 ───
+  function toggleDayNight(){isDayMode=!isDayMode;applyDayNight();flushAgentStore();log(`切换至${isDayMode?'日间':'夜间'}模式`,'sys');}
+  function applyDayNight(){document.documentElement.classList.toggle('night',!isDayMode);document.getElementById('themeIcon').className=isDayMode?'fa-solid fa-sun':'fa-solid fa-moon';document.getElementById('themeLabel').textContent=isDayMode?'DAY':'NIGHT';}
+  function initDayNight(){isDayMode=localStorage.getItem('tsukimi_agent_daymode')==='1';applyDayNight();/* dayMode 真实值在 loadCloudCfg 里从 IDB 覆盖 */}
+
+  // ─── 工具函数 ───
+  function formatTime(ms){const h=Math.floor(ms/3600000),m=Math.floor((ms%3600000)/60000),s=Math.floor((ms%60000)/1000);if(h>0)return`${h}h ${m}m ${s}s`;if(m>0)return`${m}m ${s}s`;return`${s}s`;}
+  function formatSliderVal(ms){const min=ms/60000;return min<60?`${Math.round(min)} 分钟`:`${(min/60).toFixed(1)} 小时`;}
+  function sliderToMs(v){const lMin=Math.log(1),lMax=Math.log(1440);return Math.round(Math.exp(lMin+(v/100)*(lMax-lMin)))*60000;}
+  function msToSlider(ms){const min=ms/60000,lMin=Math.log(1),lMax=Math.log(1440);return Math.round(((Math.log(Math.max(1,min))-lMin)/(lMax-lMin))*100);}
+  function getInitials(name){return name?name.slice(0,1).toUpperCase():'?';}
+  function nowStr(){return new Date().toLocaleTimeString('zh-CN',{hour12:false});}
+  function formatTimeAgo(ts){if(!ts)return'';const d=Date.now()-ts,min=Math.floor(d/60000);if(min<1)return'刚刚';if(min<60)return`${min}m前`;const h=Math.floor(min/60);return h<24?`${h}h前`:`${Math.floor(h/24)}天前`;}
+  function getCharName(id){return allChars.find(c=>c.id===id)?.name||id;}
+  function getChatName(id){return allChats.find(c=>c.id===id)?.name||id;}
+
+  // ─── 日志 ───
+  const LOG_STATUS={'info':'info','success':'ok','warn':'run','error':'err','api':'run','sys':'','system':'','cloud':'cloud'};
+  let logLines=[];
+  function log(msg,type='info'){
+    const body=document.getElementById('consoleBody');
+    const empty=document.getElementById('consoleEmpty');if(empty)empty.remove();
+    const sc=LOG_STATUS[type]||'';
+    const statusHtml=sc?`<div class="log-status ${sc}">${{ok:'OK',err:'ERR',run:'RUN',info:'INFO',cloud:'CLOUD'}[sc]||''}</div>`:'';
+    const line=document.createElement('div');line.className='log-line';
+    line.innerHTML=`<div class="log-time">${nowStr()}</div><div class="log-msg">${msg}</div>${statusHtml}`;
+    body.appendChild(line);body.scrollTop=body.scrollHeight;
+    logLines.push({t:nowStr(),msg,type});
+    // 同步输出到浏览器控制台
+    const prefix='[TSUKI·LOG]';
+    if(type==='error')console.error(prefix,msg);
+    else if(type==='warn')console.warn(prefix,msg);
+    else console.log(prefix,`[${type.toUpperCase()}]`,msg);
+  }
+  function clearConsole(){document.getElementById('consoleBody').innerHTML='<div class="console-empty" id="consoleEmpty">已清空</div>';logLines=[];showToast('日志已清空','success');console.log('[TSUKI·LOG] 控制台已清空');}
+  function exportLog(){
+    const text=logLines.map(l=>`[${l.t}][${l.type}] ${l.msg}`).join('\n');
+    const blob=new Blob([text],{type:'text/plain'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`tsukimi-agent-log-${Date.now()}.txt`;a.click();
+    console.log('[TSUKI·LOG] 日志已导出，共', logLines.length, '行');
+  }
+
+  // ─── Toast ───
+  function showToast(msg,type='info'){
+    const icons={success:'fa-check-circle',error:'fa-circle-xmark',warn:'fa-triangle-exclamation',info:'fa-circle-info',purple:'fa-star'};
+    const el=document.createElement('div');el.className=`toast ${type}`;
+    el.innerHTML=`<i class="fa-solid ${icons[type]||icons.info}"></i><span>${msg}</span>`;
+    document.getElementById('toastContainer').appendChild(el);
+    setTimeout(()=>{el.classList.add('out');setTimeout(()=>el.remove(),280);},3000);
+  }
+
+  // ─── 主开关 ───
+  function toggleMaster(){
+    masterOn=!masterOn;
+    document.getElementById('masterToggle').classList.toggle('on',masterOn);
+    document.getElementById('masterCard').classList.toggle('active',masterOn);
+    const desc=document.getElementById('masterDesc');
+    if(masterOn){
+      desc.textContent='运行中 · 角色们在守候你';desc.className='master-desc on';
+      log('✦ 后台离线消息已开启','success');showToast('Agent 已启动','success');
+      Object.keys(chatTimers).forEach(id=>{if(chatTimers[id].paused)resumeTimer(id);});
+    }else{
+      desc.textContent='关闭中 · 角色们在沉睡';desc.className='master-desc';
+      log('⊘ 后台离线消息已关闭','warn');showToast('Agent 已暂停','warn');
+      Object.keys(chatTimers).forEach(id=>pauseTimer(id));
+    }
+    updateMasterChips();saveAgentConfig();
+  }
+  function updateMasterChips(){
+    const s=document.getElementById('chipSelected'),st=document.getElementById('chipStatus');
+    s.textContent=`${selectedChats.size} 个聊天已选`;s.className=selectedChats.size>0?'master-chip acc':'master-chip';
+    st.textContent=masterOn?'Agent 运行中':'Agent 待机中';st.className=masterOn?'master-chip acc':'master-chip';
+  }
+
+  // ─── 加载数据 ───
+  async function loadData(){
+    log('正在连接数据库...','sys');
+    console.log('[TSUKI·INIT] 加载 IndexedDB 数据...');
+    try{
+      [allChars,allChats,allUsers]=await Promise.all([dbGetAll('chars'),dbGetAll('chats'),dbGetAll('users')]);
+      allConfig=await dbGet('config','main_config');
+      log(`✓ 读取 ${allChars.length} 角色 · ${allChats.length} 会话`,'info');
+      console.log('[TSUKI·INIT] 数据加载完成:', {chars:allChars.length,chats:allChats.length,users:allUsers.length});
+      renderChars();renderChats();
+      await loadCloudCfg();// 从 IDB agent store 加载云端配置 + 日夜模式
+      fillSettingsForm();  // 用加载好的 cloudCfg 填充表单
+      await loadAgentConfig();// 从 IDB agent store 恢复运行状态
+    }catch(e){
+      log('数据库加载失败: '+e.message+' → 演示模式','warn');
+      console.warn('[TSUKI·INIT] IDB 加载失败，切换演示模式:', e);
+      renderDemo();
+    }
+  }
+  function renderDemo(){
+    allChars=[{id:'c001',name:'祁京野',avatar:''},{id:'c002',name:'沈临渊',avatar:''},{id:'c003',name:'顾云深',avatar:''},{id:'c004',name:'裴晏',avatar:''}];
+    allChats=[{id:'chat_001',type:'private',name:'祁京野',charIds:['c001'],userId:'u001',lastMessage:'今天还好吗？',updatedAt:Date.now()-300000},{id:'chat_002',type:'private',name:'沈临渊',charIds:['c002'],userId:'u001',lastMessage:'记得早点休息',updatedAt:Date.now()-900000},{id:'chat_003',type:'group',name:'小团体🌙',charIds:['c001','c002','c003'],userId:'u001',lastMessage:'大家出来玩啊',updatedAt:Date.now()-1800000}];
+    allUsers=[{id:'u001',name:'你',avatar:''}];
+    log('演示模式（未连接真实数据库）','warn');
+    console.log('[TSUKI·DEMO] 演示数据已加载');
+    renderChars();renderChats();
+  }
+
+  // ─── 渲染 ───
+  function renderChars(){
+    const grid=document.getElementById('charsGrid'),count=document.getElementById('charsCount');
+    count.textContent=`${allChars.length} 位`;
+    if(!allChars.length){grid.innerHTML='<div class="empty-state" style="grid-column:span 4"><i class="fa-solid fa-ghost"></i><p>暂无角色</p></div>';return;}
+    grid.innerHTML=allChars.map(c=>{
+      const av=c.avatar?`<div class="char-avatar"><img src="${c.avatar}" loading="lazy"></div>`:`<div class="char-avatar">${getInitials(c.name)}</div>`;
+      return`<div class="char-card" id="char-${c.id}" onclick="toggleChar('${c.id}')"><div class="char-sel-dot"></div>${av}<div class="char-name">${c.name}</div><div class="char-status-dot"></div></div>`;
+    }).join('');
+  }
+  function toggleChar(charId){
+    if(selectedChars.has(charId)){selectedChars.delete(charId);document.getElementById(`char-${charId}`)?.classList.remove('selected');log(`取消角色: ${getCharName(charId)}`,'info');autoDeselectChatsForChar(charId);}
+    else{selectedChars.add(charId);document.getElementById(`char-${charId}`)?.classList.add('selected');log(`选中角色: ${getCharName(charId)} — 自动关联私聊`,'success');autoSelectChatsForChar(charId);}
+    updateMasterChips();saveAgentConfig();
+  }
+  function autoSelectChatsForChar(charId){
+    allChats.filter(c=>c.type!=='group'&&c.charIds?.includes(charId)).forEach(chat=>{
+      if(!selectedChats.has(chat.id)){selectedChats.add(chat.id);const el=document.getElementById(`chatitem-${chat.id}`);if(el)el.classList.add('selected','auto-selected');createTimer(chat.id);log(`自动关联: ${chat.name||getCharName(charId)}`,'sys');}
+    });updateTimersSection();
+  }
+  function autoDeselectChatsForChar(charId){
+    allChats.filter(c=>c.type!=='group'&&c.charIds?.includes(charId)).forEach(chat=>{
+      const still=chat.charIds?.some(id=>id!==charId&&selectedChars.has(id));
+      if(!still&&selectedChats.has(chat.id)){selectedChats.delete(chat.id);const el=document.getElementById(`chatitem-${chat.id}`);if(el)el.classList.remove('selected','auto-selected');destroyTimer(chat.id);}
+    });updateTimersSection();
+  }
+  function renderChats(){
+    const pvList=document.getElementById('privateList'),grpList=document.getElementById('groupList');
+    const pvCount=document.getElementById('privateCount'),grpCount=document.getElementById('groupCount');
+    const pvChats=allChats.filter(c=>c.type!=='group').sort((a,b)=>b.updatedAt-a.updatedAt);
+    const grpChats=allChats.filter(c=>c.type==='group').sort((a,b)=>b.updatedAt-a.updatedAt);
+    pvCount.textContent=`${pvChats.length} 个`;grpCount.textContent=`${grpChats.length} 个`;
+    if(!pvChats.length){pvList.innerHTML='<div class="empty-state"><i class="fa-solid fa-comment-slash"></i><p>暂无私聊</p></div>';}
+    else{pvList.innerHTML=pvChats.map(chat=>{
+      const char=allChars.find(c=>chat.charIds?.[0]===c.id)||{};
+      const user=allUsers.find(u=>u.id===chat.userId)||{};
+      const cAv=char.avatar?`<img src="${char.avatar}" loading="lazy">`:getInitials(char.name||chat.name);
+      const uAv=user.avatar?`<img src="${user.avatar}" loading="lazy">`:getInitials(user.name||'U');
+      return`<div class="chat-item" id="chatitem-${chat.id}" onclick="toggleChat('${chat.id}')">
+        <div class="chat-avatars"><div class="chat-avatar-main">${cAv}</div><div class="chat-avatar-user">${uAv}</div></div>
+        <div class="chat-info"><div class="chat-name">${chat.name||char.name||'私聊'}</div><div class="chat-preview">${chat.lastMessage||'暂无消息'}</div></div>
+        <div class="chat-time">${formatTimeAgo(chat.updatedAt)}</div>
+        <div class="auto-badge">AUTO</div>
+      </div>`;
+    }).join('');}
+    if(!grpChats.length){grpList.innerHTML='<div class="empty-state"><i class="fa-solid fa-users-slash"></i><p>暂无群聊</p></div>';}
+    else{grpList.innerHTML=grpChats.map(chat=>{
+      const memberNames=(chat.charIds||[]).map(id=>getCharName(id)).join('、');
+      return`<div class="group-item">
+        <div class="group-avatar" style="position:relative">${chat.avatar?`<img src="${chat.avatar}">`:'👥'}<div class="group-member-count">${(chat.charIds||[]).length}人</div></div>
+        <div class="group-info"><div class="group-name">${chat.name}</div><div class="group-members">${memberNames}</div></div>
+        <div class="group-badge">群聊</div>
+      </div>`;
+    }).join('');}
+  }
+
+  // ─── 定时器 ───
+  function toggleChat(chatId){
+    const el=document.getElementById(`chatitem-${chatId}`);if(!el)return;
+    if(selectedChats.has(chatId)){selectedChats.delete(chatId);el.classList.remove('selected','auto-selected');destroyTimer(chatId);log(`取消监控: ${getChatName(chatId)}`,'info');}
+    else{selectedChats.add(chatId);el.classList.add('selected');createTimer(chatId);log(`手动监控: ${getChatName(chatId)}`,'success');}
+    updateTimersSection();updateMasterChips();saveAgentConfig();
+  }
+  function createTimer(chatId){if(chatTimers[chatId])return;const ms=60*60*1000;chatTimers[chatId]={intervalMs:ms,countdownMs:ms,paused:!masterOn,intervalId:null};if(masterOn)startCountdown(chatId);}
+  function startCountdown(chatId){const t=chatTimers[chatId];if(!t)return;clearInterval(t.intervalId);t.intervalId=setInterval(()=>{t.countdownMs-=1000;updateTimerCardCountdown(chatId);if(t.countdownMs<=0){clearInterval(t.intervalId);t.countdownMs=0;updateTimerCardCountdown(chatId);triggerOfflineMessage(chatId);}},1000);}
+  function pauseTimer(chatId){const t=chatTimers[chatId];if(!t)return;clearInterval(t.intervalId);t.paused=true;}
+  function resumeTimer(chatId){const t=chatTimers[chatId];if(!t)return;t.paused=false;startCountdown(chatId);}
+  function destroyTimer(chatId){if(chatTimers[chatId]){clearInterval(chatTimers[chatId].intervalId);delete chatTimers[chatId];}}
+  function resetTimer(chatId,ms){const t=chatTimers[chatId];if(!t)return;clearInterval(t.intervalId);t.intervalMs=ms;t.countdownMs=ms;if(masterOn&&!t.paused)startCountdown(chatId);log(`重置定时器: ${getChatName(chatId)} → ${formatSliderVal(ms)}`,'info');}
+  function updateTimerCardCountdown(chatId){const el=document.getElementById(`countdown-${chatId}`);if(!el)return;const t=chatTimers[chatId];if(!t)return;el.textContent=formatTime(t.countdownMs);el.classList.toggle('urgent',t.countdownMs>0&&t.countdownMs<5*60*1000);}
+  function updateTimersSection(){
+    const section=document.getElementById('timersSection'),list=document.getElementById('timersList'),count=document.getElementById('timersCount');
+    const ids=[...selectedChats];count.textContent=`${ids.length} 条`;
+    if(!ids.length){section.classList.remove('visible');return;}
+    section.classList.add('visible');
+    list.innerHTML=ids.map(chatId=>{
+      const chat=allChats.find(c=>c.id===chatId)||{};const char=allChars.find(c=>chat.charIds?.[0]===c.id)||{};
+      const t=chatTimers[chatId];const sv=t?msToSlider(t.intervalMs):50;
+      const av=char.avatar?`<div class="timer-avatar"><img src="${char.avatar}"></div>`:`<div class="timer-avatar">${getInitials(char.name||chat.name)}</div>`;
+      return`<div class="timer-card" id="timercard-${chatId}">
+        <div class="timer-header">${av}<div class="timer-name">${chat.name||char.name||chatId}</div><div class="timer-countdown" id="countdown-${chatId}">${t?formatTime(t.countdownMs):'--'}</div></div>
+        <div class="slider-wrap">
+          <div class="slider-labels"><span class="slider-label">1m</span><span class="slider-label">1h</span><span class="slider-label">6h</span><span class="slider-label">24h</span></div>
+          <div class="slider-track"><div class="slider-bg"></div><div class="slider-fill" id="fill-${chatId}" style="width:${sv}%"></div><input type="range" class="time-slider" min="0" max="100" value="${sv}" oninput="onSlider('${chatId}',this.value)" onchange="onSliderCommit('${chatId}',this.value)"></div>
+          <div class="slider-value-label" id="sliderLabel-${chatId}">${t?formatSliderVal(t.intervalMs):'1 小时'}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  function onSlider(chatId,v){const f=document.getElementById(`fill-${chatId}`),l=document.getElementById(`sliderLabel-${chatId}`);if(f)f.style.width=v+'%';if(l)l.textContent=formatSliderVal(sliderToMs(v));}
+  function onSliderCommit(chatId,v){resetTimer(chatId,sliderToMs(v));}
+
+  // ─── API 调用（本地定时器触发，带云端存储） ───
+  async function triggerOfflineMessage(chatId,isTest=false){
+    const chat=allChats.find(c=>c.id===chatId);if(!chat)return;
+    const char=allChars.find(c=>chat.charIds?.[0]===c.id);
+    const user=allUsers.find(u=>u.id===chat.userId);
+    const chatName=chat.name||char?.name||chatId;
+    log(`⚡ ${isTest?'[TEST]':'[TIMER]'} → ${chatName}`,'api');
+    console.log(`[TSUKI·TRIGGER] ${isTest?'TEST':'TIMER'} chatId=${chatId} char=${char?.name}`);
+    const cfg=allConfig||{};
+    const apiKey=cfg.api?.temp?.key||cfg.api?.presets?.default?.key||'';
+    const model=cfg.api?.temp?.model||'gpt-4o';
+    const rawUrl=cfg.api?.temp?.url||cfg.api?.presets?.default?.url||'';
+    const apiBase=rawUrl.replace(/\/+$/,'').replace(/\/v1$/,'');
+    if(!apiKey||!apiBase){
+      log(`❌ ${!apiBase?'未配置 API URL':'未配置 API Key'}，请前往设置页`,'error');
+      console.error('[TSUKI·TRIGGER] 缺少 API 配置', {hasKey:!!apiKey,hasBase:!!apiBase});
+      showToast('请先在设置页配置 API 信息','error');
+      if(!isTest&&chatTimers[chatId]){chatTimers[chatId].countdownMs=chatTimers[chatId].intervalMs;startCountdown(chatId);}
+      return;
+    }
+    let recentMsgs=[];try{recentMsgs=await dbGetMessages(chatId,8);}catch(e){console.warn('[TSUKI·TRIGGER] 读消息失败:', e);}
+    const historyText=recentMsgs.map(m=>{const role=m.senderRole==='user'?'用户':(char?.name||'角色');const cont=typeof m.content==='string'?m.content:JSON.stringify(m.content);return`${role}: ${cont}`;}).join('\n');
+    const systemPrompt=`${char?.persona||`你是${char?.name||'AI角色'}`}${user?.persona?'\n用户信息：'+user.persona:''}\n\n你现在主动联系用户，用自然口吻说一两句话。保持角色感，不要解释为何主动联系。`;
+    try{
+      log(`调用 API → ${apiBase} (${model})...`,'sys');
+      console.log('[TSUKI·API] 请求:', apiBase, model);
+      const res=await fetch(`${apiBase}/v1/chat/completions`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},body:JSON.stringify({model,temperature:parseFloat(cfg.api?.temp?.temp||0.7),messages:[{role:'system',content:systemPrompt},{role:'user',content:historyText?`最近对话：\n${historyText}\n\n请主动发一条消息。`:`请以${char?.name||'你'}的身份主动打个招呼。`}]})});
+      if(!res.ok)throw new Error(`HTTP ${res.status}`);
+      const data=await res.json();
+      const reply=data.choices?.[0]?.message?.content||'';
+      log(`✦ ${char?.name||'角色'} 说：${reply}`,'success');
+      console.log('[TSUKI·API] 回复:', reply);
+      // 写入本地 DB
+      try{await dbWriteMessage(chatId,reply);log('✓ 已写入本地 DB','info');}catch(e){log('DB写入失败: '+e.message,'warn');console.error('[TSUKI·DB] 写入失败:', e);}
+      // 同步到云端收发室（如果 App 关闭后收到的消息也能入库）
+      if(cloudCfg.supabaseUrl&&cloudCfg.supabaseKey){
+        try{
+          await sbFetch('/rest/v1/cloud_offline_messages','POST',{char_id:char?.id||chatId,content:[reply]});
+          log('✓ 已同步到云端收发室','success');
+          console.log('[TSUKI·CLOUD] 消息已写入 cloud_offline_messages');
+        }catch(sbE){
+          log('云端写入失败（不影响本地）: '+sbE.message,'warn');
+          console.warn('[TSUKI·CLOUD] 写入失败:', sbE.message);
+        }
+      }
+      sendNotification(char?.name||chatName,reply,char?.avatar);
+      if(!isTest&&chatTimers[chatId]){chatTimers[chatId].countdownMs=chatTimers[chatId].intervalMs;startCountdown(chatId);}
+    }catch(e){
+      log('API 失败: '+e.message,'error');
+      console.error('[TSUKI·API] 失败:', e);
+      showToast('API 调用失败','error');
+      if(!isTest&&chatTimers[chatId]){chatTimers[chatId].countdownMs=chatTimers[chatId].intervalMs;startCountdown(chatId);}
+    }
+  }
+
+  // ─── 通知（本地 + Web Push） ───
+  async function sendNotification(title,body,iconUrl){
+    console.log('[TSUKI·NOTIF] 发送通知:', title, body?.slice(0,40));
+    // 优先用 Service Worker Push（真后台通知）
+    if('serviceWorker' in navigator&&navigator.serviceWorker.controller){
+      try{
+        const reg=await navigator.serviceWorker.ready;
+        await reg.showNotification(title,{body,icon:iconUrl||'',tag:'tsukimi-agent',data:{url:window.location.href}});
+        log('✔ SW 通知已发送','success');
+        console.log('[TSUKI·NOTIF] SW Notification ✓');
+        return;
+      }catch(e){console.warn('[TSUKI·NOTIF] SW 通知失败，降级:', e.message);}
+    }
+    // 降级：普通 Notification API
+    if(!('Notification' in window)){showToast(`${title}: ${body}`,'success');return;}
+    if(Notification.permission==='default')await Notification.requestPermission();
+    if(Notification.permission!=='granted'){showToast(`${title}: ${body}`,'success');return;}
+    const n=new Notification(title,{body,icon:iconUrl||'',tag:'tsukimi-agent'});
+    n.onclick=()=>{window.focus();n.close();};
+    log('✔ Notification 已发送','success');
+    console.log('[TSUKI·NOTIF] Notification API ✓');
+  }
+
+  async function fireTestNotification(){
+    const btn=document.getElementById('testBtn');btn.classList.add('firing');setTimeout(()=>btn.classList.remove('firing'),700);
+    log('══ 测试推送 ══','sys');
+    console.log('[TSUKI·TEST] === 触发测试推送 ===');
+    const targetId=selectedChats.size>0?[...selectedChats][0]:allChats.find(c=>c.type!=='group')?.id;
+    if(!targetId){log('没有可用的聊天目标','warn');showToast('请先选中一个聊天','warn');return;}
+    await triggerOfflineMessage(targetId,true);
+  }
+
+  // ─── 持久化（全部走 IDB agent store） ───
+  function saveAgentConfig(){
+    // 同步版本供 beforeunload 调用（IDB 是异步，但 flushAgentStore 尽力写）
+    flushAgentStore();
+  }
+  async function loadAgentConfig(){
+    try{
+      const rec=await loadAgentStore();
+      if(!rec){
+        // 兼容旧数据：从 localStorage 迁移一次
+        const raw=localStorage.getItem('tsukimi_agent_config');
+        if(!raw)return;
+        const data=JSON.parse(raw);
+        _restoreAgentState(data);
+        // 迁移后写入 IDB，并清理旧 key
+        await flushAgentStore();
+        localStorage.removeItem('tsukimi_agent_config');
+        log('✓ 已从 localStorage 迁移配置至 IDB','sys');
+        return;
+      }
+      _restoreAgentState(rec);
+      log('✓ 已恢复上次配置（IDB agent store）','sys');
+      console.log('[TSUKI·RESTORE] 配置已恢复:',{chats:rec.selectedChats?.length,masterOn:rec.masterOn});
+    }catch(e){console.warn('[TSUKI·RESTORE] 恢复失败:',e);}
+  }
+  function _restoreAgentState(data){
+    if(data.masterOn){masterOn=true;document.getElementById('masterToggle').classList.add('on');document.getElementById('masterCard').classList.add('active');const desc=document.getElementById('masterDesc');desc.textContent='运行中 · 角色们在守候你';desc.className='master-desc on';}
+    (data.selectedChars||[]).forEach(id=>{if(allChars.find(c=>c.id===id)){selectedChars.add(id);document.getElementById(`char-${id}`)?.classList.add('selected');}});
+    (data.selectedChats||[]).forEach(id=>{if(allChats.find(c=>c.id===id)){selectedChats.add(id);document.getElementById(`chatitem-${id}`)?.classList.add('selected');const ms=data.timers?.[id]||3600000;chatTimers[id]={intervalMs:ms,countdownMs:ms,paused:!masterOn,intervalId:null};if(masterOn)startCountdown(id);}});
+    if(data.selectedChats?.length)updateTimersSection();updateMasterChips();
+  }
+
+  // ─── visibilitychange → 静默收件 ───
+  document.addEventListener('visibilitychange',()=>{
+    if(document.visibilityState==='visible'){
+      log('👁 页面重新聚焦，检查离线消息...','sys');
+      console.log('[TSUKI·VIS] visibilitychange → visible，触发 checkInbox');
+      checkInbox();
+    } else {
+      console.log('[TSUKI·VIS] 页面进入后台');
+    }
+  });
+
+  // ─── 初始化 ───
+  document.addEventListener('DOMContentLoaded',async()=>{
+    initDayNight();
+    // 等 db-schema.js 把所有 store（含 agent）建好，再操作 IDB
+    if(window.tsukiDbReady){
+      try{await window.tsukiDbReady;console.log('[TSUKI·INIT] db-schema ready ✓');}
+      catch(e){console.warn('[TSUKI·INIT] db-schema 初始化警告:',e);}
+    }
+    await loadData();// 先加载 IDB 数据（含 loadAgentConfig → loadCloudCfg 读 agent store）
+    updateCloudBadges();
+    log('🌙 TSUKIMI Agent 初始化','sys');
+    console.log('[TSUKI·INIT] === DOMContentLoaded ===');
+    console.log('[TSUKI·INIT] 架构: 本地定时器 + Supabase 云端心跳 + Web Push');
+    console.log('[TSUKI·INIT] 功能: 离线消息收发室 + 静默收件 + 阅后即焚');
+    // 初始化时检查一次收件箱
+    setTimeout(()=>{
+      log('初始化检查云端收件箱...','sys');
+      checkInbox();
+    },1500);
+  });
+  window.addEventListener('beforeunload',saveAgentConfig);
+
+
+  // ─── 帮助气泡系统 ───
+  const HELP_CONTENT = {
+    overview:{title:'整体架构说明',pages:[`<div class="hb-step"><div class="hb-num">1</div><div class="hb-txt"><strong>整体流程</strong><br>Supabase 云端服务器每 15 分钟自动唤醒 <span class="hb-hl">Edge Function</span>，调用 AI 生成消息，写入数据库，然后给手机发 <span class="hb-hl purple">Web Push</span> 通知。手机和电脑可以<span class="hb-hl green">全部关闭</span>，Supabase 服务器 24 小时运转。</div></div><div class="hb-step"><div class="hb-num">2</div><div class="hb-txt"><strong>需要配置 5 样东西</strong><br>① Supabase 数据库（免费）<br>② VAPID 密钥对（生成一次）<br>③ Edge Function 代码（部署一次）<br>④ pg_cron 定时心跳（设置一次）<br>⑤ 本机 Push 订阅（绑定设备）</div></div>`,`<div class="hb-step"><div class="hb-num">3</div><div class="hb-txt"><strong>阅后即焚收件流程</strong><br>AI 消息 → 写入 <span class="hb-hl">cloud_offline_messages</span> → Push 通知手机 → 打开 App → 自动拉取写入本地 → <span class="hb-hl red">删除云端记录</span><br>消息不堆积，不覆盖本地数据。</div></div><div class="hb-tip"><i class="fa-solid fa-circle-check"></i>点各区块旁的 <b>!</b> 按钮查看该步骤详细操作。</div>`]},
+    supabase:{title:'Supabase 配置指南',pages:[`<div class="hb-step"><div class="hb-num">1</div><div class="hb-txt"><strong>注册 / 登录</strong><br>手机浏览器打开 <span class="hb-hl">supabase.com</span>，点右上角 <span class="hb-hl amber">☰</span> 菜单 → <span class="hb-hl green">Sign up</span>，用 GitHub 或邮箱注册，完全免费。</div></div><div class="hb-step"><div class="hb-num">2</div><div class="hb-txt"><strong>创建新项目</strong><br>登录后进入 Dashboard，点 <span class="hb-hl green">New project</span>，填项目名（如 tsukimi），设置数据库密码记好，选区域建议 <span class="hb-hl">West US</span> 或 <span class="hb-hl">Northeast Asia</span>，点 <span class="hb-hl green">Create new project</span>，等待约 1 分钟变成 Healthy。</div></div>`,`<div class="hb-step"><div class="hb-num">3</div><div class="hb-txt"><strong>一键复制 URL 和 Key</strong><br>点标题旁：<br><span class="hb-hl green">Copy ▾</span><br>按钮，弹出面板：<br>• <span class="hb-hl green">Project URL</span><br>&nbsp;&nbsp;点击行即复制<br>• <span class="hb-hl green">Publishable key</span><br>&nbsp;&nbsp;点击行即复制<br>分别粘贴到上方两个输入框。</div></div><div class="hb-step"><div class="hb-num">4</div><div class="hb-txt"><strong>Key 格式</strong><br><span class="hb-hl green">sb_publishable_</span><br>以此开头，是专为前端设计的公开 key，安全。</div></div><div class="hb-tip"><i class="fa-solid fa-circle-check"></i>填好两项后点"保存"，然后按提示先建表，再点"测试连接"，状态变绿 = 配置成功 ✓</div>`]},
+    projectUrl:{title:'Project URL 在哪里',pages:[`<div class="hb-step"><div class="hb-num">1</div><div class="hb-txt">打开 <span class="hb-hl">supabase.com</span><br>进入你的项目（左上角显示项目名）</div></div><div class="hb-step"><div class="hb-num">2</div><div class="hb-txt">点击项目标题右边的：<br><span class="hb-hl green">Copy ▾</span><br>下拉按钮</div></div><div class="hb-step"><div class="hb-num">3</div><div class="hb-txt">面板第一行：<br><span class="hb-hl green">Project URL</span><br>点击整行复制，格式：<div class="hb-code">https://xxxxxxxx.supabase.co</div></div></div><div class="hb-tip"><i class="fa-solid fa-circle-info"></i>手机端全程不需要进 Settings，Copy 面板就能拿到所有需要的信息。</div>`]},
+    anonKey:{title:'Publishable Key 在哪里',pages:[`<div class="hb-step"><div class="hb-num">1</div><div class="hb-txt">进入项目，点标题旁的<br><span class="hb-hl green">Copy ▾</span><br>下拉按钮</div></div><div class="hb-step"><div class="hb-num">2</div><div class="hb-txt">弹出面板第二行：<br><span class="hb-hl green">Publishable key</span><br>点击整行即可复制</div></div><div class="hb-step"><div class="hb-num">3</div><div class="hb-txt">Key 格式：<br><span class="hb-hl green">sb_publishable_</span><br>以此开头是正常的，专为前端设计的公开 key，安全</div></div><div class="hb-tip"><i class="fa-solid fa-circle-check"></i>面板里另外两项是开发者工具，这里用不到，直接忽略。</div>`]},
+    webpush:{title:'Web Push 推送配置',pages:[`<div class="hb-step"><div class="hb-num">1</div><div class="hb-txt"><strong>什么是 Web Push？</strong><br>浏览器原生推送机制。即使关掉 App，只要手机在线，Supabase 服务器就能通过浏览器厂商的推送服务器把通知发到手机屏幕。</div></div><div class="hb-step"><div class="hb-num">2</div><div class="hb-txt"><strong>配置顺序</strong><br>① 生成 VAPID 密钥对<br>② 公钥填在下方输入框<br>③ 私钥存到 Supabase Secrets<br>④ 点"申请通知权限"<br>⑤ 点"订阅 Push"</div></div>`,`<div class="hb-step"><div class="hb-num">3</div><div class="hb-txt"><strong>生成 VAPID 密钥</strong><br>在任意 Node.js 环境执行：<div class="hb-code">node -e "const wp=require('web-push');
+console.log(wp.generateVAPIDKeys())"</div>或搜索 <span class="hb-hl">VAPID key generator</span> 在线生成。得到 <span class="hb-hl green">publicKey</span> 和 <span class="hb-hl red">privateKey</span> 一对。</div></div><div class="hb-step"><div class="hb-num">4</div><div class="hb-txt"><strong>私钥存到 Supabase</strong><br>Edge Functions → <span class="hb-hl">Secrets</span> → 新建：<br><span class="hb-hl amber">VAPID_PRIVATE_KEY</span> = 你的私钥<br><span class="hb-hl amber">VAPID_SUBJECT</span> = mailto:你的邮箱</div></div><div class="hb-warn"><i class="fa-solid fa-triangle-exclamation"></i>私钥泄露任何人都能伪造推送！只存 Secrets，绝不写代码里。</div>`]},
+    vapid:{title:'VAPID 密钥对获取',pages:[`<div class="hb-step"><div class="hb-num">!</div><div class="hb-txt"><strong>什么是 VAPID？</strong><br>Web Push 需要一对密钥来验证推送来源：<br><span class="hb-hl green">公钥</span> — 填到这个输入框（前端用）<br><span class="hb-hl red">私钥</span> — 存到 Supabase Vault（服务端用）<br><br>两个 key 必须是<strong>同一次生成</strong>的配对，不能分开用。</div></div><div class="hb-step"><div class="hb-num">1</div><div class="hb-txt"><strong>手机端最简单的生成方式</strong><br>用浏览器打开这个在线生成工具：<br><span class="hb-hl green">vapidkeys.com</span><br>进入后直接点页面上的生成按钮，会同时显示公钥和私钥，<strong>截图或记下来两个都保存好</strong>。</div></div>`,`<div class="hb-step"><div class="hb-num">2</div><div class="hb-txt"><strong>公钥填到这里</strong><br>把生成的 <span class="hb-hl green">Public Key</span> 复制，粘贴到上方 VAPID 公钥输入框。格式以 <span class="hb-hl">B</span> 开头，约 87 个字符。</div></div><div class="hb-step"><div class="hb-num">3</div><div class="hb-txt"><strong>私钥存到 Supabase Vault</strong><br>回到 Supabase 项目页，点右上角 <span class="hb-hl amber">☰ 菜单</span>，往下滑找到 <span class="hb-hl amber">Vault</span>（旁边有黄色 BETA 标）点进去。<br><br>进入后点左侧 <span class="hb-hl">Secrets</span>，再点绿色按钮：<br><span class="hb-hl green">Add new secret</span></div></div><div class="hb-step"><div class="hb-num">4</div><div class="hb-txt"><strong>填写 Secret 内容</strong><br>弹出面板里填写：<br>Name：<span class="hb-hl amber">VAPID_PRIVATE_KEY</span><br>Value：<span class="hb-hl red">粘贴你的私钥</span><br><br>点确认保存。那个 id 下面的乱码是加密后的存储，<strong>不是你的私钥</strong>，正常的，不需要复制它。</div></div><div class="hb-warn"><i class="fa-solid fa-triangle-exclamation"></i>Vault 里存的是加密密文，看不到明文是正常的。你的私钥已经安全存进去了，Edge Function 会通过环境变量读取它。</div>`,`<div class="hb-step"><div class="hb-num">5</div><div class="hb-txt"><strong>再添加一个 Secret</strong><br>同样在 Vault → Secrets，再点一次 <span class="hb-hl green">Add new secret</span>：<br>Name：<span class="hb-hl amber">VAPID_SUBJECT</span><br>Value：<span class="hb-hl">mailto:你的邮箱地址</span><br><br>这个是 Web Push 规范要求的联系方式，填你注册 Supabase 的邮箱就行。</div></div><div class="hb-step"><div class="hb-num">6</div><div class="hb-txt"><strong>完成后回来</strong><br>公钥填好、两个 Secret 存好之后，点下方 <span class="hb-hl green">申请通知权限</span> → <span class="hb-hl green">订阅 Push</span>，状态栏三行全绿说明配置完成 ✓</div></div><div class="hb-tip"><i class="fa-solid fa-circle-check"></i>密钥对只需生成一次，Push 订阅也只需做一次——上方状态栏三行全绿即完成，之后不用重复操作。</div>`]},
+    edgeFunction:{title:'Edge Function 部署指南',pages:[`<div class="hb-step"><div class="hb-num">!</div><div class="hb-txt"><strong>这一步在干什么？</strong><br>把一段跑在 Supabase 服务器上的代码部署上去。它负责：调用 AI → 写数据库 → 发 Push 通知。你的手机关了它也在跑。<br><br><strong>不是</strong>自动填充的 index.ts 模板，需要复制上方代码卡片里的完整代码粘贴进去。</div></div><div class="hb-step"><div class="hb-num">1</div><div class="hb-txt"><strong>先复制函数代码</strong><br>回到设置页，点 Edge Function 区域代码卡片右上角的 <span class="hb-hl green">COPY</span> 按钮，把完整代码复制到剪贴板备用。</div></div><div class="hb-step"><div class="hb-num">2</div><div class="hb-txt"><strong>进入 Supabase 的 Edge Functions</strong><br>supabase.com → 进入你的项目 → 右上角 <span class="hb-hl amber">☰ 菜单</span> → 找到并点击 <span class="hb-hl green">Edge Functions</span></div></div>`,`<div class="hb-step"><div class="hb-num">3</div><div class="hb-txt"><strong>新建函数，选 Via Editor</strong><br>点 <span class="hb-hl green">Deploy a new function</span>，弹出三个选项：<br><span class="hb-hl green">Via Editor</span> — 在浏览器直接写代码 ✓ 选这个<br><span class="hb-hl">Via CLI</span> — 需要本地命令行，不适合手机<br><span class="hb-hl">Via AI Assistant</span> — 让 AI 写，没必要<br><br>点 <span class="hb-hl green">Via Editor</span> 进入编辑器。</div></div><div class="hb-step"><div class="hb-num">4</div><div class="hb-txt"><strong>粘贴代码 → Deploy</strong><br>① 填写函数名：<span class="hb-hl">tsukimi-agent</span><br>② 编辑区里<strong>全选删掉</strong>原有模板代码<br>③ 把刚才复制的代码<strong>粘贴</strong>进去<br>④ 点右上角 <span class="hb-hl green">Deploy</span><br>⑤ 部署成功后页面显示 <span class="hb-hl">Endpoint URL</span>，复制它填到设置页"函数 URL"输入框</div></div>`,`<div class="hb-step"><div class="hb-num">5</div><div class="hb-txt"><strong>配置函数运行所需的 Secrets</strong><br>☰ 菜单 → <span class="hb-hl amber">Vault</span> → <span class="hb-hl">Secrets</span>，逐一添加：<br><span class="hb-hl amber">AI_API_URL</span> — 你的 AI 接口地址（如 https://api.openai.com）<br><span class="hb-hl amber">AI_API_KEY</span> — AI 服务密钥<br><span class="hb-hl amber">AI_MODEL</span> — 模型名（如 gpt-4o）<br><span class="hb-hl amber">VAPID_PUBLIC_KEY</span> — VAPID 公钥<br><span class="hb-hl amber">VAPID_PRIVATE_KEY</span> — VAPID 私钥<br><span class="hb-hl amber">VAPID_SUBJECT</span> — mailto:你的邮箱<br><span class="hb-hl amber">PUSH_SUB_JSON</span> — 订阅 Push 后从 F12 控制台复制的订阅对象 JSON<br><span class="hb-hl amber">COOLDOWN_HOURS</span> — 冷却小时数（和 App 端一致，如 12）</div></div><div class="hb-warn"><i class="fa-solid fa-triangle-exclamation"></i>Secrets 填好后要重新 Deploy 一次函数，新的环境变量才会生效。</div><div class="hb-tip"><i class="fa-solid fa-circle-check"></i>部署完先点"手动触发"测试，没问题再配定时心跳。</div>`]},
+    edgeUrl:{title:'函数 URL 在哪里',pages:[`<div class="hb-step"><div class="hb-num">1</div><div class="hb-txt">部署后进入 <span class="hb-hl">Edge Functions</span> 列表</div></div><div class="hb-step"><div class="hb-num">2</div><div class="hb-txt">点击你的函数名</div></div><div class="hb-step"><div class="hb-num">3</div><div class="hb-txt">页面上方显示 <span class="hb-hl green">Endpoint URL</span>：<div class="hb-code">https://xxxxxxxx.supabase.co/
+functions/v1/tsukimi-agent</div>复制整个 URL 粘贴到输入框。</div></div><div class="hb-tip"><i class="fa-solid fa-circle-info"></i>URL 里的项目 ID 和 Project URL 里的相同。</div>`]},
+    cooldown:{title:'冷却时间说明',pages:[`<div class="hb-step"><div class="hb-num">?</div><div class="hb-txt"><strong>为什么需要冷却？</strong><br>pg_cron 每 15 分钟触发一次，但不是每次都该发消息。冷却时间确保 AI 只在你"失联"够久后才主动联系。</div></div><div class="hb-step"><div class="hb-num">✓</div><div class="hb-txt"><strong>推荐设置</strong><br><span class="hb-hl">12小时</span> — 均衡日常值<br><span class="hb-hl">24小时</span> — 不想被频繁打扰<br><span class="hb-hl">3小时</span> — 喜欢频繁互动（注意 API 费用）</div></div><div class="hb-warn"><i class="fa-solid fa-triangle-exclamation"></i>设为 0 或 1 会导致频繁消耗 API！最低建议 2 小时。</div>`]},
+    testEdge:{title:'如何测试函数',pages:[`<div class="hb-step"><div class="hb-num">1</div><div class="hb-txt"><strong>手动触发测试</strong><br>先在函数代码里<span class="hb-hl amber">暂时注释掉时间锁</span>，让每次调用都执行，再点"手动触发"。</div></div><div class="hb-step"><div class="hb-num">2</div><div class="hb-txt"><strong>查看日志</strong><br>Edge Functions → 点击函数 → <span class="hb-hl green">Logs</span>，看到成功日志说明跑通。</div></div><div class="hb-step"><div class="hb-num">3</div><div class="hb-txt"><strong>确认收件</strong><br>① 手机收到通知 🔔<br>② 表里出现新行<br>③ 打开 App 消息出现，表里记录<span class="hb-hl red">消失</span>（阅后即焚）</div></div>`,`<div class="hb-step"><div class="hb-num">!</div><div class="hb-txt"><strong>Push 没收到？</strong><br>① 检查 VAPID 公私钥是否<span class="hb-hl green">同一对</span><br>② <span class="hb-hl amber">VAPID_SUBJECT</span> 是否填了正确 mailto: 邮箱<br>③ 重新点"订阅 Push"刷新订阅对象</div></div><div class="hb-step"><div class="hb-num">!</div><div class="hb-txt"><strong>收件失败？</strong><br>F12 控制台搜索 <span class="hb-hl">[TSUKI·INBOX]</span> 前缀日志。常见：Supabase URL/Key 未保存、RLS 策略未关闭。</div></div><div class="hb-tip"><i class="fa-solid fa-circle-check"></i>测试完记得恢复时间锁！</div>`]},
+    createTable:{title:'建表操作指南',pages:[`<div class="hb-step"><div class="hb-num">1</div><div class="hb-txt">Supabase Dashboard → 进入项目</div></div><div class="hb-step"><div class="hb-num">2</div><div class="hb-txt">左侧点 <span class="hb-hl">SQL Editor</span></div></div><div class="hb-step"><div class="hb-num">3</div><div class="hb-txt">点 <span class="hb-hl green">New query</span>，粘贴建表 SQL</div></div><div class="hb-step"><div class="hb-num">4</div><div class="hb-txt">点 <span class="hb-hl green">Run</span>，看到 <span class="hb-hl green">Success</span> 说明成功</div></div><div class="hb-step"><div class="hb-num">5</div><div class="hb-txt">验证：<span class="hb-hl">Table Editor</span> 里看到 <span class="hb-hl green">cloud_offline_messages</span> 表</div></div><div class="hb-tip"><i class="fa-solid fa-circle-check"></i>建表后点"测试连接"应显示绿色"连接成功"。</div>`]},
+    cronJob:{title:'定时心跳配置',pages:[`<div class="hb-step"><div class="hb-num">!</div><div class="hb-txt"><strong>这一步在干什么？</strong><br>让 Supabase 每 15 分钟自动调用一次你刚部署的 Edge Function，这样不需要你开着手机，AI 角色也会在云端定时活动。<br><br>顺序：先部署 Edge Function → 手动触发测试没问题 → 再来配这一步。</div></div><div class="hb-step"><div class="hb-num">1</div><div class="hb-txt"><strong>开启两个扩展（手机端入口）</strong><br>supabase.com → 进入项目 → 右上角 <span class="hb-hl amber">☰ 菜单</span> → 找到并点击 <span class="hb-hl green">Database</span> → 再点左侧（或菜单里）<span class="hb-hl green">Extensions</span><br><br>搜索并开启：<br><span class="hb-hl green">pg_net</span> — 让数据库能发 HTTP 请求<br><span class="hb-hl green">pg_cron</span> — 定时任务调度器</div></div>`,`<div class="hb-step"><div class="hb-num">2</div><div class="hb-txt"><strong>确认 SQL 里的占位符已自动填入</strong><br>回到设置页，把 Edge Function URL 和 Supabase Key 填好并点"保存"，下方 SQL 卡片里的 <span class="hb-hl red">YOUR_EDGE_URL</span> 和 <span class="hb-hl red">YOUR_ANON_KEY</span> 会自动替换成你填的内容。</div></div><div class="hb-step"><div class="hb-num">3</div><div class="hb-txt"><strong>运行 SQL</strong><br>☰ 菜单 → <span class="hb-hl green">SQL Editor</span> → New query → 把下方 SQL 卡片的内容复制粘贴进去 → 点 <span class="hb-hl green">Run</span>。返回值 <span class="hb-hl green">1</span> 表示定时任务创建成功。</div></div><div class="hb-step"><div class="hb-num">4</div><div class="hb-txt"><strong>验证心跳正常</strong><br>等约 15 分钟 → ☰ 菜单 → Edge Functions → 点你的函数 → <span class="hb-hl green">Logs</span>，看到新的请求记录说明定时心跳正常运行了。</div></div><div class="hb-tip"><i class="fa-solid fa-circle-check"></i>完成！关掉手机 AI 角色也在云端 24h 活动了。</div><div class="hb-warn"><i class="fa-solid fa-triangle-exclamation"></i>重新部署函数时，先运行 SQL 里的 unschedule 再重新 schedule，否则会报"任务已存在"错误。</div>`]},
+    buildTable:{title:'建表步骤指南',pages:[`<div class="hb-step"><div class="hb-num">1</div><div class="hb-txt"><strong>打开 Supabase</strong><br>手机浏览器进入项目，点右上角<br><span class="hb-hl amber">☰ 三横线菜单</span></div></div><div class="hb-step"><div class="hb-num">2</div><div class="hb-txt"><strong>找到 SQL 入口</strong><br>菜单里找到并点击：<br><span class="hb-hl green">SQL Editor</span><br>进入 SQL 输入界面</div></div><div class="hb-step"><div class="hb-num">3</div><div class="hb-txt"><strong>粘贴建表代码</strong><br>点击输入框，把下面的 SQL 全部复制粘贴进去：<div style="position:relative;margin:6px 0"><div class="hb-code" style="padding-top:22px">create table cloud_offline_messages (id bigint generated by default as identity primary key, char_id text not null, content jsonb not null, created_at timestamp with time zone default now() not null);</div><button onclick="copyBuildSql()" id="buildSqlBtn" style="position:absolute;top:5px;right:5px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:4px;font-family:\'Geist Mono\',monospace;font-size:7px;padding:2px 7px;cursor:pointer;color:rgba(255,255,255,0.4)">COPY</button></div></div></div>`,`<div class="hb-step"><div class="hb-num">4</div><div class="hb-txt"><strong>点击 Run 按钮</strong><br>手机端屏幕较窄，需要<br><span class="hb-hl amber">向右滑动底部横条</span><br>才能看到右侧绿色的：<br><span class="hb-hl green">▶ Run</span><br>按钮，点击执行</div></div><div class="hb-step"><div class="hb-num">5</div><div class="hb-txt"><strong>弹出 RLS 安全提示</strong><br>点 Run 后会弹出一个确认框，提示"New table will not have Row Level Security"，出现三个选项：<br><br><span class="hb-hl red">Cancel</span> — 取消<br><span class="hb-hl amber">Run without RLS</span> — 不启用安全策略<br><span class="hb-hl green">Run and enable RLS</span> — 启用安全策略<br><br>选择 <span class="hb-hl amber">Run without RLS</span>（黄色按钮）即可，这个表只给你自己的 Agent 用，不需要复杂的权限控制。</div></div><div class="hb-step"><div class="hb-num">6</div><div class="hb-txt"><strong>确认建表成功</strong><br>下方输出区域显示：<br><span class="hb-hl green">Success. No rows returned</span><br>或类似提示，说明建表成功 ✓</div></div><div class="hb-step"><div class="hb-num">7</div><div class="hb-txt"><strong>回来测试连接</strong><br>建表完成后，回到这里点：<br><span class="hb-hl green">测试连接</span><br>状态变绿说明全部就绪 ✓</div></div><div class="hb-tip"><i class="fa-solid fa-circle-check"></i>建表只需要做<strong>一次</strong>，之后不用重复。</div>`]},
+    debug:{title:'常见问题排查',pages:[`<div class="hb-step"><div class="hb-num">!</div><div class="hb-txt"><strong>通知收不到</strong><br>① 手机系统设置 → Edge/Chrome 通知权限是否开启<br>② 状态栏"系统通知权限"是否 <span class="hb-hl green">已授权</span><br>③ VAPID 密钥是否公私钥配对</div></div><div class="hb-step"><div class="hb-num">!</div><div class="hb-txt"><strong>消息写不进 DB</strong><br>F12 控制台搜索 <span class="hb-hl">[TSUKI·INBOX]</span>。常见原因：<br>① Supabase Key 未保存（重新保存）<br>② Table RLS 策略（Table Editor → 表 → 关闭 RLS）</div></div>`,`<div class="hb-step"><div class="hb-num">!</div><div class="hb-txt"><strong>Edge Function 失败</strong><br>Edge Functions → Logs 查看错误。常见：Secrets 未配置、时间锁逻辑错误。</div></div><div class="hb-step"><div class="hb-num">!</div><div class="hb-txt"><strong>定时器不触发</strong><br>SQL Editor 运行：<div class="hb-code">select * from cron.job;
+select * from cron.job_run_details
+order by start_time desc limit 5;</div>查看任务状态和最近运行记录。</div></div><div class="hb-tip"><i class="fa-solid fa-circle-info"></i>所有 <span class="hb-hl">[TSUKI·XXX]</span> 前缀的日志都可在 F12 控制台查看。</div>`]}
+  };
+
+  let _helpKey=null,_helpPage=0,_helpAnchor=null;
+
+  function showHelp(key,anchor){
+    const def=HELP_CONTENT[key];if(!def)return;
+    closeHelp();
+    _helpKey=key;_helpPage=0;_helpAnchor=anchor;
+    document.getElementById('helpTitle').textContent=def.title;
+    _renderHelp();
+    const b=document.getElementById('helpBubble');
+    b.style.display='block';
+    _posHelp(anchor,b);
+    setTimeout(()=>document.addEventListener('click',_outsideHelp),10);
+    console.log('[TSUKI·HELP] 打开帮助:',key);
+  }
+  function _renderHelp(){
+    const def=HELP_CONTENT[_helpKey];if(!def)return;
+    document.getElementById('helpBody').innerHTML=def.pages[_helpPage];
+    const nav=document.getElementById('helpNav');
+    if(def.pages.length>1){
+      nav.style.display='flex';
+      nav.innerHTML=`<button class="hb-nav-btn" onclick="helpPrev()" ${_helpPage===0?'disabled':''}><i class="fa-solid fa-chevron-left"></i> 上一页</button><span class="hb-nav-page">${_helpPage+1} / ${def.pages.length}</span><button class="hb-nav-btn" onclick="helpNext()" ${_helpPage===def.pages.length-1?'disabled':''}>下一页 <i class="fa-solid fa-chevron-right"></i></button>`;
+    }else{nav.style.display='none';}
+  }
+  function helpPrev(){if(_helpPage>0){_helpPage--;_renderHelp();}}
+  function helpNext(){const def=HELP_CONTENT[_helpKey];if(def&&_helpPage<def.pages.length-1){_helpPage++;_renderHelp();}}
+  function _posHelp(anchor,bubble){
+    if(!anchor){bubble.style.cssText='top:50%;left:50%;transform:translate(-50%,-50%)';return;}
+    const r=anchor.getBoundingClientRect(),bw=320,vw=window.innerWidth,vh=window.innerHeight;
+    let top=r.bottom+8,left=r.left-bw/2+r.width/2;
+    if(left+bw>vw-8)left=vw-bw-8;
+    if(left<8)left=8;
+    if(top+400>vh-8)top=r.top-410;
+    if(top<8)top=8;
+    bubble.style.cssText=`top:${top}px;left:${left}px;transform:none;display:block;`;
+  }
+  function closeHelp(){
+    document.getElementById('helpBubble').style.display='none';
+    _helpKey=null;
+    document.removeEventListener('click',_outsideHelp);
+  }
+  function _outsideHelp(e){
+    const b=document.getElementById('helpBubble');
+    if(!b.contains(e.target)&&e.target!==_helpAnchor&&!_helpAnchor?.contains(e.target))closeHelp();
+  }
+  window.showHelp=showHelp;window.closeHelp=closeHelp;window.helpPrev=helpPrev;window.helpNext=helpNext;
+
+
+  // ─── 显式挂到 window，防止 onclick 找不到函数 ───
+  window.openSettings=openSettings;
+  window.closeSettings=closeSettings;
+  window.handleOverlayClick=handleOverlayClick;
+  window.saveCloudConfig=saveCloudConfig;
+  window.onCfgChange=onCfgChange;
+  window.testSupabase=testSupabase;
+  window.requestNotifPermission=requestNotifPermission;
+  window.subscribePush=subscribePush;
+  window.clearPushSub=clearPushSub;
+  window.resetAllConfig=resetAllConfig;
+  window.triggerEdgeFunction=triggerEdgeFunction;
+  window.checkInbox=checkInbox;
+  window.copySql=copySql;
+  window.toggleDayNight=toggleDayNight;
+  window.toggleMaster=toggleMaster;
+  window.toggleChar=toggleChar;
+  window.toggleChat=toggleChat;
+  window.onSlider=onSlider;
+  window.onSliderCommit=onSliderCommit;
+  window.fireTestNotification=fireTestNotification;
+  window.clearConsole=clearConsole;
+  window.exportLog=exportLog;
+  </script>
+  <script src="TsukiTheme.js" onerror="console.warn('[TSUKI] TsukiTheme.js 未找到')"></script>
+  <script src="TsukiBridge.js" onerror="console.warn('[TSUKI] TsukiBridge.js 未找到')"></script>
+</body>
+</html>

@@ -7,6 +7,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="icon" type="image/png" href="./favicon/favicon-96x96.png" sizes="96x96" />
+<link rel="icon" type="image/svg+xml" href="./favicon/favicon.svg" />
+<link rel="shortcut icon" href="./favicon/favicon.ico" />
+<link rel="apple-touch-icon" sizes="180x180" href="./favicon/apple-touch-icon.png" />
+<meta name="apple-mobile-web-app-title" content="TsukiMoonsuy" />
+<link rel="manifest" href="./favicon/site.webmanifest" />
+    <meta name="theme-color" content="#ffffff">
     <link
       href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap"
       rel="stylesheet"
@@ -850,8 +857,13 @@
       .ai-game i {
         color: #84cc16;
       }
+      .ai-weather {
+        background: linear-gradient(135deg, #1a1e35, #13162a) !important;
+        border-color: rgba(155, 143, 255, 0.25) !important;
+        box-shadow: 0 2px 8px -3px rgba(155, 143, 255, 0.2), 0 0 0 1px rgba(155, 143, 255, 0.1) !important;
+      }
       .ai-weather i {
-        color: #22d3ee;
+        color: #9b8fff;
       }
 
       /* ── Deco banner (row 3) ── */
@@ -2094,10 +2106,10 @@
                     <div class="pend-icon ai-game"><i class="fa-solid fa-gamepad"></i></div>
                     <div class="pend-label">Gacha</div>
                   </div>
-                  <div class="pendant" style="--dly: 1.6s; --dur: 2.9s; --amp: 5; --tlen: 24px">
+                  <div class="pendant" style="--dly: 1.6s; --dur: 2.9s; --amp: 5; --tlen: 24px" onclick="openApp('agent.html')">
                     <div class="pend-thread"></div>
-                    <div class="pend-icon ai-weather"><i class="fa-solid fa-cloud-sun"></i></div>
-                    <div class="pend-label">Weather</div>
+                    <div class="pend-icon ai-weather"><i class="fa-solid fa-brain"></i></div>
+                    <div class="pend-label">Agent</div>
                   </div>
                 </div>
               </div>
@@ -3105,5 +3117,11 @@
     <script src="TsukiTheme.js" data-listen="true"></script>
     <script src="TsukiDebug.js"></script>
     <script src="GalleryPicker.js"></script>
+    
+    <script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js');
+  }
+</script>
   </body>
 </html>

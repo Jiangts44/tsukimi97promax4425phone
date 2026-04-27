@@ -779,8 +779,16 @@ async function buildChatHistoryPrompt(chatId, historyCount = 0) {
 
   const user = await dbGet(IDB_CONFIG.stores.users, chat.userId);
   const userName = user ? user.name : 'User';
-  const char = await dbGet(IDB_CONFIG.stores.chars, chat.charIds[0]);
-  const charName = char ? char.name : 'Char';
+
+  // 群聊支持：预加载所有角色到 Map，key=charId, value=name
+  const charMap = {};
+  for (const cid of (chat.charIds || [])) {
+    const c = await dbGet(IDB_CONFIG.stores.chars, cid);
+    if (c) charMap[cid] = c.name;
+  }
+  // 兜底：单聊时 charName 仍可用（保持原行为）
+  const charName = Object.values(charMap)[0] || 'Char';
+  console.log(`%c[buildChatHistoryPrompt] 群聊角色 Map: ${JSON.stringify(charMap)}`, 'color:#43d9a0');
 
   const messages = await new Promise(res => {
     try {
@@ -815,7 +823,22 @@ async function buildChatHistoryPrompt(chatId, historyCount = 0) {
   console.log(`%c[buildChatHistoryPrompt] 最终模式: ${storyTimeEnabled && baseTs!==null ? '剧情时间' : timestampEnabled ? '真实时间戳' : '无时间'}  共${targetMessages.length}条`, 'color:#43d9a0;font-weight:bold');
 
   for (const msg of targetMessages) {
-    let senderName = msg.senderRole === 'user' ? userName : msg.senderRole === 'char' ? charName : '系统';
+    // 群聊支持：优先用消息自带的 charId 查 charMap，区分不同角色发言
+    // 兜底：旧消息没有 charId 时，用 charName 字段直接匹配（历史兼容）
+    let senderName;
+    if (msg.senderRole === 'user') {
+      senderName = userName;
+    } else if (msg.senderRole === 'char') {
+      if (msg.charId && charMap[msg.charId]) {
+        senderName = charMap[msg.charId];
+      } else if (msg.charName) {
+        senderName = msg.charName; // 兜底：旧消息用存库的 charName
+      } else {
+        senderName = charName;     // 最终兜底：单聊默认角色名
+      }
+    } else {
+      senderName = '系统';
+    }
     let content = msg.content;
     let msgType = msg.type;
 

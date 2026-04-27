@@ -17,6 +17,7 @@
  *   基础：config / chars / users / worldbook / chats / messages
  *   剧场：theaters / theater_messages / theater_summaries
  *   日记：diaries
+ *   Agent：agent
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
@@ -67,6 +68,24 @@
       keyPath: 'id',
       indexes: [{ name: 'by_target', keyPath: 'targetId' }],
     },
+
+    // ── 后台 Agent（agent.html）──────────────────────────────────────────
+    // 单条记录，key = 'agent_config'，value 结构：
+    // {
+    //   id:            'agent_config',          // 固定主键
+    //   masterOn:      boolean,                  // 主开关状态
+    //   selectedChars: string[],                 // 已选角色 id 列表
+    //   selectedChats: string[],                 // 已选聊天 id 列表
+    //   timers:        { [chatId]: intervalMs }, // 各聊天定时间隔（毫秒）
+    //   supabaseUrl:   string,                   // Supabase Project URL
+    //   supabaseKey:   string,                   // Supabase Publishable Key
+    //   vapidKey:      string,                   // VAPID 公钥（前端填写）
+    //   edgeUrl:       string,                   // Edge Function URL
+    //   cooldownHours: number,                   // AI 消息冷却时间（小时）
+    //   pushSub:       object | null,            // Web Push 订阅对象（JSON）
+    //   dayMode:       boolean,                  // 日/夜间模式偏好
+    // }
+    agent: { keyPath: 'id' },
   };
 
   // ─────────────────────────────────────────────────────────────────────────
